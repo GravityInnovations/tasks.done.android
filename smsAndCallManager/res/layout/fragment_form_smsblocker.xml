@@ -1,0 +1,79 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:padding="5dp"
+    tools:context="com.gravity.innovations.manager.call.sms.FormActivity$PlaceholderFragment" >
+
+   <!--  --><CheckBox
+        android:id="@+id/toggle_fromNumbers"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@drawable/abc_cab_background_top_holo_light"
+        android:text="Sender(s)" />
+
+   
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" 
+        android:layout_marginLeft="20dp"
+        android:id="@+id/from_Numbers"
+        >
+
+        <EditText
+            android:id="@+id/editText1"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentLeft="true"
+            android:layout_toLeftOf="@+id/button1"
+            android:inputType="textPersonName"
+            android:hint="Contacts" >
+
+        </EditText>
+
+        <Button
+            android:id="@+id/button1"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignBottom="@+id/editText1"
+            android:layout_alignParentRight="true"
+            android:layout_alignParentTop="true"
+            android:text="+" />
+       <EditText
+        android:id="@+id/editText2"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:ems="10"
+        android:layout_below="@+id/editText1"
+        android:inputType="number"
+        android:hint="Unsaved Phone Number(s)">
+
+    </EditText>
+    <EditText
+        android:id="@+id/editText3"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:ems="10"
+        android:layout_below="@+id/editText2"
+        android:inputType="number"
+        android:hint="Having series eg:+47">
+
+    </EditText>
+       <AutoCompleteTextView
+        android:id="@+id/multiAutoCompleteTextView1"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:ems="10"
+        android:layout_below="@+id/editText3"
+        android:hint="Contacts"
+        android:imeActionLabel="launch">
+
+
+    </AutoCompleteTextView>
+    </RelativeLayout>
+
+  
+
+</LinearLayout>
