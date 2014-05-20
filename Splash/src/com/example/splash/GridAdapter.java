@@ -40,7 +40,7 @@ public class GridAdapter extends BaseAdapter{
 	        	gridView = (GridView) convertView;
 	        }
 
-	        gridView.setAdapter(mThumbIds);
+	       // gridView.setAdapter(mThumbIds);
 	        return gridView;
 	}
 	 private String[] mThumbIds = {
