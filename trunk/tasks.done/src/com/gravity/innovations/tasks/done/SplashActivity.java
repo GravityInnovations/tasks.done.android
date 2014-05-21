@@ -37,13 +37,19 @@ public class SplashActivity extends Activity {
 	            public void run() {
 	                // This method will be executed once the timer is over
 	                // Start your app main activity
-	                Intent i = new Intent(SplashActivity.this, MainActivity.class);
+	                Intent i = new Intent(SplashActivity.this, AuthenticationActivity.class);
 	                startActivity(i);
 	 
 	                // close this activity
 	                finish();
 	            }
 	        }, Common.SPLASH_TIME_OUT);
+		 
+		 //1 - Check Internet
+		 //2 - Load Prefs
+		 //3 - Connect with google
+		 //4 - Load Db data
+		 //5 - Every thing else
 	}
 	@Override
 	protected void onPause() {
