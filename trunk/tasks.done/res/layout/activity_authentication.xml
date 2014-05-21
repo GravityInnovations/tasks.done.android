@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:layout_margin="20dp" >
+
+    <Button
+        android:id="@+id/btn_auth_skip"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentRight="true"
+        android:text="@string/skip" />
+
+   
+
+
+    <LinearLayout
+        
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        
+        android:layout_centerHorizontal="true"
+        android:layout_centerVertical="true" >
+         <TextView
+        android:id="@+id/txt_auth"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/text_require_google_account"
+        android:textAppearance="?android:attr/textAppearanceMedium" />
+
+    <RadioGroup
+        android:id="@+id/opts_auth_accounts"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" >
+
+    </RadioGroup>
+    <Button
+        android:id="@+id/btn_auth"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/auth" />
+        
+    </LinearLayout>
+
+
+</RelativeLayout>

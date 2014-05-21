@@ -7,7 +7,6 @@ import android.os.Handler;
 import android.view.Window;
 
 public class SplashActivity extends Activity {
-	private static int SPLASH_TIME_OUT = 3000;
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		// TODO Auto-generated method stub
@@ -44,7 +43,7 @@ public class SplashActivity extends Activity {
 	                // close this activity
 	                finish();
 	            }
-	        }, SPLASH_TIME_OUT);
+	        }, Common.SPLASH_TIME_OUT);
 	}
 	@Override
 	protected void onPause() {

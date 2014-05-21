@@ -9,5 +9,9 @@
     <string name="navigation_drawer_close">Close navigation drawer</string>
     <string name="action_example">Example action</string>
     <string name="action_settings">Settings</string>
-
+	<string name="skip">Skip ></string>
+	<string name="auth">Authenticate</string>
+	<string name="text_require_google_account">
+			You are required to login using Your current google account for using complete features of this application
+		</string>
 </resources>
