@@ -4,29 +4,116 @@ import java.util.ArrayList;
 
 import android.accounts.Account;
 import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
+import android.view.View;
+import android.view.View.OnClickListener;
 import android.view.Window;
+import android.widget.Button;
+import android.widget.ProgressBar;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
+import android.widget.Toast;
 //Faik:untested 3:23 21/05/14
-public class AuthenticationActivity extends Activity {
-	private ArrayList<Account> mAccounts;
+public class AuthenticationActivity extends Activity implements Common.Callbacks.SplashCallback {
+	private Authentication mAuth;
+	private Button btn_auth;
+	private Button btn_skip;
+	private RadioGroup account_options;
+	private Activity mActivity;
+	private Context mContext;
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		// TODO Auto-generated method stub
 		super.onCreate(savedInstanceState);
 		this.requestWindowFeature(Window.FEATURE_NO_TITLE);
 		setContentView(R.layout.activity_authentication);
-		mAccounts = new DeviceAccounts(this).getAccounts();
-		RadioGroup account_options = (RadioGroup) findViewById(R.id.opts_auth_accounts);
-		for(Account mAccount:mAccounts)
+		mContext = this;
+		mActivity = this;
+		//load ui components
+		account_options = (RadioGroup) findViewById(R.id.opts_auth_accounts);
+		btn_auth = (Button) findViewById(R.id.btn_auth);
+		btn_skip = (Button) findViewById(R.id.btn_auth_skip);
+		//Actions
+		mAuth = new Authentication(this);
+		for(Account mAccount:mAuth.getAccounts())
 		{
 			RadioButton temp = new RadioButton(this);
 			temp.setText(mAccount.name);
 			account_options.addView(temp);
 		}
+		btn_auth.setOnClickListener(new OnClickListener() {
+			
+			@Override
+			public void onClick(View v) {
+				// TODO Auto-generated method stub
+				/*Bundle mBundle = new Bundle();
+				mBundle.putString(Common.USER_EMAIL, "");
+				  Intent i = getIntent(); //gets the intent that called this intent
+				  i.putExtras(mBundle);
+				  setResult(Activity.RESULT_OK, i);
+				  finish();*/
+				Account selectedAccount = null;
+				RadioButton temp = (RadioButton) findViewById(account_options.getCheckedRadioButtonId());
+				
+				for(Account mAccount:mAuth.getAccounts())
+				{
+					if(mAccount.name == temp.getText())
+						selectedAccount = mAccount;
+				}
+				if(selectedAccount != null)
+					if(Common.hasInternet(mActivity))
+					{
+						mAuth.getAuthentication(selectedAccount);
+					}
+					else
+					{
+						Intent i = getIntent(); //gets the intent that called this intent
+						setResult(Activity.RESULT_OK, i);
+						finish();
+					}
+				
+				
+			}
+		});
+		btn_skip.setOnClickListener(new OnClickListener() {
+			
+			@Override
+			public void onClick(View v) {
+				  Intent i = getIntent(); //gets the intent that called this intent
+				  setResult(Activity.RESULT_CANCELED, i);
+				  finish();
+			}
+		});
+	}
+	@Override
+	public void pushSuccess(String AuthToken, String Email) {
+		// TODO Auto-generated method stub
+		/*Toast toast = Toast.makeText(mContext, s, 3000);
+		toast.show();*/
+		Bundle mBundle = new Bundle();
+		mBundle.putString(Common.USER_EMAIL, Email);
+		mBundle.putString(Common.AUTH_TOKEN, AuthToken);
+		  Intent i = getIntent(); //gets the intent that called this intent
+		  i.putExtras(mBundle);
+		  setResult(Activity.RESULT_OK, i);
+		  finish();
+	}
+	@Override
+	public void pushFalure(String Error, String Email) {
+		Bundle mBundle = new Bundle();
+		mBundle.putString(Common.EXCEPTION, Error);
+		if(Email != null)
+		{ 
+			mBundle.putString(Common.USER_EMAIL, Email);
+			
+		} Intent i = getIntent(); //gets the intent that called this intent
+	  
+		i.putExtras(mBundle);
+		  setResult(Activity.RESULT_CANCELED, i);
+		  finish();
 	}
 	
 }
