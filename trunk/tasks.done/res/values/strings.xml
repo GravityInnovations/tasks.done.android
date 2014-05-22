@@ -15,9 +15,16 @@
 			You are required to login using Your current google account for using complete features of this application
 		</string>
 		<string name="check_internet">Checking Internet Connectivity</string>
+		<string name="no_internet">Unable to connect to internet</string>
+		<string name="internet_stable">Internet stablilty checked</string>
 		<string name="require_internet">This application Requires Internet to sync with Google</string>
-		<string name="load_sp">Loading some data</string>
+		<string name="load_sp">Loading cache</string>
 		<string name="get_google_acc">Preparing to get your information</string>
 		<string name="got_email_success_full"> succesfully authenticated</string>
 		<string name="got_email_success_half"> succesfully saved, will be authenticated after resolving: </string>
+		<string name="loading_comp">Loading application components</string>
+		<string name="creating_ui">Creating UI</string>
+		<string name="google_result_ok">Account information saved</string>
+		<string name="google_result_cancel">User skiped google authentication</string>
+		<string name="google_disable_sync">Disabling cloud sync with google</string>
 </resources>

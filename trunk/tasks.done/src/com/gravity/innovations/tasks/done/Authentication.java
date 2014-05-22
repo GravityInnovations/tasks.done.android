@@ -43,7 +43,7 @@ public class Authentication {
     	    	 
     	        String AuthToken = future.getResult().getString(AccountManager.KEY_AUTHTOKEN);
     	        if(AuthToken != null){
-    	        	if(mContext.getClass().getSimpleName() == Common.AUTH_ACTIVITY)
+    	        	if(mContext.getClass().getSimpleName().toString().equals(Common.AUTH_ACTIVITY))
     	        	((AuthenticationActivity)mContext).pushSuccess(AuthToken, account.name);
     				
     	        	//sharedPreferencesEditor.putString(keys.USER_EMAIL, account.name);

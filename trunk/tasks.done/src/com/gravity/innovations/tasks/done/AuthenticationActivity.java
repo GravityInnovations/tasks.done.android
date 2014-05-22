@@ -17,7 +17,7 @@ import android.widget.RadioButton;
 import android.widget.RadioGroup;
 import android.widget.Toast;
 //Faik:untested 3:23 21/05/14
-public class AuthenticationActivity extends Activity implements Common.Callbacks.SplashCallback {
+public class AuthenticationActivity extends Activity implements Common.Callbacks.AuthCallback {
 	private Authentication mAuth;
 	private Button btn_auth;
 	private Button btn_skip;
@@ -82,38 +82,40 @@ public class AuthenticationActivity extends Activity implements Common.Callbacks
 			
 			@Override
 			public void onClick(View v) {
-				  Intent i = getIntent(); //gets the intent that called this intent
+				  Intent i = setIntent(null, null, null);
 				  setResult(Activity.RESULT_CANCELED, i);
 				  finish();
 			}
 		});
+	}
+	private Intent setIntent(String AuthToken, String Email, String Error)
+	{
+		Intent i = getIntent();
+		Bundle mBundle = new Bundle();
+		mBundle.putString(Common.USER_EMAIL, Email);
+		mBundle.putString(Common.AUTH_TOKEN, AuthToken);
+		mBundle.putString(Common.EXCEPTION, Error);
+		i.putExtras(mBundle);
+		return i;
 	}
 	@Override
 	public void pushSuccess(String AuthToken, String Email) {
 		// TODO Auto-generated method stub
 		/*Toast toast = Toast.makeText(mContext, s, 3000);
 		toast.show();*/
-		Bundle mBundle = new Bundle();
-		mBundle.putString(Common.USER_EMAIL, Email);
-		mBundle.putString(Common.AUTH_TOKEN, AuthToken);
-		  Intent i = getIntent(); //gets the intent that called this intent
-		  i.putExtras(mBundle);
+		 Intent i = setIntent(AuthToken, Email, null); //gets the intent that called this intent
 		  setResult(Activity.RESULT_OK, i);
 		  finish();
 	}
 	@Override
 	public void pushFalure(String Error, String Email) {
-		Bundle mBundle = new Bundle();
-		mBundle.putString(Common.EXCEPTION, Error);
-		if(Email != null)
-		{ 
-			mBundle.putString(Common.USER_EMAIL, Email);
-			
-		} Intent i = getIntent(); //gets the intent that called this intent
-	  
-		i.putExtras(mBundle);
-		  setResult(Activity.RESULT_CANCELED, i);
-		  finish();
+		
+		Intent i = setIntent(null, Email, Error);
+		if(Email == null)
+		setResult(Activity.RESULT_CANCELED, i);
+		else
+			setResult(Activity.RESULT_OK, i);
+		finish();
 	}
 	
 }
