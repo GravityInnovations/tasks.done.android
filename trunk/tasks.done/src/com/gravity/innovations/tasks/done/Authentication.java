@@ -30,22 +30,41 @@ public class Authentication {
 	{
 		return this.mAccounts;
 	}
-	
+	public Account getAccount(String Email)
+	{
+		for (Account i:this.mAccounts) {
+	    	if(i.name.equals(Email))
+	    		return i;
+	    }
+		return null;
+	}
+	public void getAuthentication(String Email)//returns status
+	{
+		Account temp = this.getAccount(Email);
+		if(temp!=null)
+			this.getAuthentication(temp);
+			
+	}
 	protected void getAuthentication(final Account account)//returns status
 	{
 		 
 		accountManager.getAuthToken(account, Common.AUTH_TOKEN_TYPE, null,(Activity)mContext, new AccountManagerCallback<Bundle>() {
-    	    public void run(AccountManagerFuture<Bundle> future) {
+			String className = mContext.getClass().getSimpleName().toString();
+        	
+			public void run(AccountManagerFuture<Bundle> future) {
     	      try {
     	    	
     	        // If the user has authorized your application to use the tasks API
     	        // a token is available.
     	    	 
     	        String AuthToken = future.getResult().getString(AccountManager.KEY_AUTHTOKEN);
+    	        
     	        if(AuthToken != null){
-    	        	if(mContext.getClass().getSimpleName().toString().equals(Common.AUTH_ACTIVITY))
+    	        	if(className.equals(Common.AUTH_ACTIVITY))
     	        	((AuthenticationActivity)mContext).pushSuccess(AuthToken, account.name);
-    				
+    	        	else if(className.equals(Common.SPLASH_ACTIVITY))
+    	        		((SplashActivity)mContext).pushSuccess(AuthToken, account.name);
+    	        	
     	        	//sharedPreferencesEditor.putString(keys.USER_EMAIL, account.name);
     	        	//sharedPreferencesEditor.commit();
     	        	//registerDomainUser(account.name);
@@ -56,13 +75,19 @@ public class Authentication {
     	        // Now you can use the Tasks API...
     	        //useTasksAPI(token);
     	      } catch (OperationCanceledException e) {
-    	    	  ((AuthenticationActivity)mContext).pushFalure(e.getLocalizedMessage(),null);
-    				
+    	    	  if(className.equals(Common.AUTH_ACTIVITY))
+    	    	  ((AuthenticationActivity)mContext).pushFailure(e.getLocalizedMessage(),null);
+    	    	  else if(className.equals(Common.SPLASH_ACTIVITY))
+    	    		  ((SplashActivity)mContext).pushFailure(e.getLocalizedMessage(),null);
+    	    	  
     	    	  //
     	    	  // TODO: The user has denied you access to the API, you should handle that
     	      } catch (Exception e) {
-    	    	  ((AuthenticationActivity)mContext).pushFalure(e.getLocalizedMessage(), account.name);
-  				
+    	    	  if(className.equals(Common.AUTH_ACTIVITY))
+    	    	  ((AuthenticationActivity)mContext).pushFailure(e.getLocalizedMessage(), account.name);
+    	    	  else if(className.equals(Common.SPLASH_ACTIVITY))
+    	    		  ((SplashActivity)mContext).pushFailure(e.getLocalizedMessage(),account.name);
+    	    	  
     	      }
     	      
     	    }

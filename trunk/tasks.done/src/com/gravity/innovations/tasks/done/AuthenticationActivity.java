@@ -17,7 +17,7 @@ import android.widget.RadioButton;
 import android.widget.RadioGroup;
 import android.widget.Toast;
 //Faik:untested 3:23 21/05/14
-public class AuthenticationActivity extends Activity implements Common.Callbacks.AuthCallback {
+public class AuthenticationActivity extends Activity implements Common.Callbacks.AuthActivityCallback {
 	private Authentication mAuth;
 	private Button btn_auth;
 	private Button btn_skip;
@@ -36,14 +36,21 @@ public class AuthenticationActivity extends Activity implements Common.Callbacks
 		account_options = (RadioGroup) findViewById(R.id.opts_auth_accounts);
 		btn_auth = (Button) findViewById(R.id.btn_auth);
 		btn_skip = (Button) findViewById(R.id.btn_auth_skip);
+		
+		//data load
+		//mRecievedBundle = getIntent().getExtras();
+		
+		//user_data = (Common.userData)mRecievedBundle.getSerializable(Common.USER_EMAIL);
 		//Actions
 		mAuth = new Authentication(this);
+		//if(user_data.user_email == null)
 		for(Account mAccount:mAuth.getAccounts())
 		{
 			RadioButton temp = new RadioButton(this);
 			temp.setText(mAccount.name);
 			account_options.addView(temp);
 		}
+		
 		btn_auth.setOnClickListener(new OnClickListener() {
 			
 			@Override
@@ -108,7 +115,7 @@ public class AuthenticationActivity extends Activity implements Common.Callbacks
 		  finish();
 	}
 	@Override
-	public void pushFalure(String Error, String Email) {
+	public void pushFailure(String Error, String Email) {
 		
 		Intent i = setIntent(null, Email, Error);
 		if(Email == null)

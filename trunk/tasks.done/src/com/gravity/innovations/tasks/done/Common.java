@@ -1,6 +1,7 @@
 package com.gravity.innovations.tasks.done;
 
 import java.io.IOException;
+import java.io.Serializable;
 
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
@@ -12,6 +13,7 @@ import org.apache.http.impl.client.DefaultHttpClient;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Handler;
@@ -25,7 +27,7 @@ import android.os.Handler;
 //PublicKeys.MY_KEY_SOME
 //pass it to switch, bundle extras, shared prefs etc
 public class Common {
-	private static final String prefix = "com.gravity.innovations.tasks.done";
+	private static final String prefix = "com.gravity.innovations.tasks.done.";
 	public static final String USER_EMAIL = prefix + "UserEmail";// used in
 																	// shared
 																	// prefs for
@@ -33,6 +35,11 @@ public class Common {
 																	// user
 																	// email
 																	// address
+	public static final String USER_DATA = prefix + "UserData";
+	public static final String USER_IS_VERIFICATION_COMPLETE = prefix + "GoogleVerificationComplete";
+	public static final String USER_IS_SYNC_TYPE = prefix + "UserWillSync";
+	
+	public static final String SHARED_PREF_KEY = prefix;
 	public static final int SPLASH_TIME_OUT = 3000;
 	public static final int SPLASH_TIME_OUT_SMALL = 1000;
 	public static final String ACCOUNT_TYPE = "com.google";
@@ -57,14 +64,16 @@ public class Common {
 	public class RequestCodes {
 		public static final int SPLASH_AUTH = 999;
 	}
-
+	
 	public static class Callbacks {
-		public interface AuthCallback {
+		private interface GoogleAuthCallback {
 			public void pushSuccess(String AuthToken, String Email);
-			public void pushFalure(String Error, String Email);
+			public void pushFailure(String Error, String Email);
+		}
+		public interface AuthActivityCallback extends GoogleAuthCallback {
 		}
 
-		public interface SplashCallback {
+		public interface SplashActivityCallback extends GoogleAuthCallback {
 			public void CheckInternet();
 
 			public void LoadPreferences();
@@ -122,5 +131,14 @@ public class Common {
 			return false;
 		return true;
 
+	}
+	public static class userData implements Serializable
+	{
+		public String user_email;
+		public String user_name;
+		public userData()
+		{
+			
+		}
 	}
 }
