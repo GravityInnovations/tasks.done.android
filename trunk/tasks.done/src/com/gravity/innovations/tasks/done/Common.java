@@ -27,6 +27,7 @@ import android.os.Handler;
 //PublicKeys.MY_KEY_SOME
 //pass it to switch, bundle extras, shared prefs etc
 public class Common {
+	//Mushahid commented this to check the commit changes
 	private static final String prefix = "com.gravity.innovations.tasks.done.";
 	public static final String USER_EMAIL = prefix + "UserEmail";// used in
 																	// shared
