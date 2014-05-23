@@ -53,6 +53,9 @@ public class Common {
 	public static final String AUTH_ACTIVITY = "AuthenticationActivity";
 	public static final String SPLASH_ACTIVITY = "SplashActivity";
 
+	
+	
+	
 	// request codes
 	public class RequestCodes {
 		public static final int SPLASH_AUTH = 999;
@@ -75,7 +78,25 @@ public class Common {
 		}
 
 	}
-
+	//Start Database Variables and Queries M
+	public static class QueryDB{
+		
+		
+		public static final String KEY_ROWID = "_id";
+		public static final String KEY_TASKTITLE = "task_title";
+		public static final String KEY_TASKDETAILS = "task_todo";
+		public static final String DATABASE_NAME = "Tasks";
+		public static final String DATABASE_TABLE = "taskDetails";
+		public static final int DATABASE_VERSION = 1;
+		//Create Query for database  
+		public static final String CREATE_QUERY = "CREATE TABLE " + Common.QueryDB.DATABASE_TABLE + " (" +
+		Common.QueryDB.KEY_ROWID + " INTERGER PRIMARY KEY AUTOINCREMENT, " +
+		Common.QueryDB.KEY_TASKTITLE + " TEXT NOT NULL, " +
+		Common.QueryDB.KEY_TASKDETAILS + " TEXT NOT NULL);";
+		//Create Query for database
+	}
+	//End Database Variables and Queries M
+	
 	public static class customPause {
 		public customPause(final Activity mActivity, final int functionToken, int Time) {
 
