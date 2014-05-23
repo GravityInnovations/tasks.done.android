@@ -36,9 +36,10 @@ public class Common {
 																	// email
 																	// address
 	public static final String USER_DATA = prefix + "UserData";
-	public static final String USER_IS_VERIFICATION_COMPLETE = prefix + "GoogleVerificationComplete";
+	public static final String USER_IS_VERIFICATION_COMPLETE = prefix
+			+ "GoogleVerificationComplete";
 	public static final String USER_IS_SYNC_TYPE = prefix + "UserWillSync";
-	
+
 	public static final String SHARED_PREF_KEY = prefix;
 	public static final int SPLASH_TIME_OUT = 3000;
 	public static final int SPLASH_TIME_OUT_SMALL = 1000;
@@ -49,6 +50,7 @@ public class Common {
 	public static final String EXCEPTION = prefix + "Exception";
 	public static final String USER_UNAPPROVE = prefix + "Unapproved";
 	public static final String NETWORK_ERROR = "NetworkError";
+	public static final int one = 2;
 	// commands - Splash
 	public static final int CHECK_INTERNET = 1;
 	public static final int LOAD_PREFS = 2;
@@ -60,19 +62,18 @@ public class Common {
 	public static final String AUTH_ACTIVITY = "AuthenticationActivity";
 	public static final String SPLASH_ACTIVITY = "SplashActivity";
 
-	
-	
-	
 	// request codes
 	public class RequestCodes {
 		public static final int SPLASH_AUTH = 999;
 	}
-	
+
 	public static class Callbacks {
 		private interface GoogleAuthCallback {
 			public void pushSuccess(String AuthToken, String Email);
+
 			public void pushFailure(String Error, String Email);
 		}
+
 		public interface AuthActivityCallback extends GoogleAuthCallback {
 		}
 
@@ -87,52 +88,54 @@ public class Common {
 		}
 
 	}
-	//Start Database Variables and Queries M
-	public static class QueryDB{
-		
-		
+
+	// Start Database Variables and Queries M
+	public static class QueryDB {
+
 		public static final String KEY_ROWID = "_id";
 		public static final String KEY_TASKTITLE = "task_title";
 		public static final String KEY_TASKDETAILS = "task_todo";
 		public static final String DATABASE_NAME = "Tasks";
 		public static final String DATABASE_TABLE = "taskDetails";
 		public static final int DATABASE_VERSION = 1;
-		//Create Query for database  
-		public static final String CREATE_QUERY = "CREATE TABLE " + Common.QueryDB.DATABASE_TABLE + " (" +
-		Common.QueryDB.KEY_ROWID + " INTERGER PRIMARY KEY AUTOINCREMENT, " +
-		Common.QueryDB.KEY_TASKTITLE + " TEXT NOT NULL, " +
-		Common.QueryDB.KEY_TASKDETAILS + " TEXT NOT NULL);";
-		//Create Query for database
+		// Create Query for database
+		public static final String CREATE_QUERY = "CREATE TABLE "
+				+ Common.QueryDB.DATABASE_TABLE + " ("
+				+ Common.QueryDB.KEY_ROWID
+				+ " INTERGER PRIMARY KEY AUTOINCREMENT, "
+				+ Common.QueryDB.KEY_TASKTITLE + " TEXT NOT NULL, "
+				+ Common.QueryDB.KEY_TASKDETAILS + " TEXT NOT NULL);";
+		// Create Query for database
 	}
-	//End Database Variables and Queries M
-	
+
+	// End Database Variables and Queries M
+
 	public static class customPause {
-		public customPause(final Activity mActivity, final int functionToken, int Time) {
+		public customPause(final Activity mActivity, final int functionToken,
+				int Time) {
 
 			new Handler().postDelayed(new Runnable() {
 
-				
 				@Override
 				public void run() {
-					//if(mActivity.getClass().getSimpleName().toString().equals(Common.AUTH_ACTIVITY))
-	    	        	switch(functionToken)
-	    	        	{
-		    	        	case CHECK_INTERNET:
-		    	        		((SplashActivity)mActivity).CheckInternet();
-		    	        		break;
-		    	        	case LOAD_PREFS:
-		    	        		((SplashActivity)mActivity).LoadPreferences();
-		    	        		break;
-		    	        	case GOOGLE_AUTH:
-		    	        		((SplashActivity)mActivity).GoogleAuth();
-		    	        		break;
-		    	        	case LOAD_LOCAL_DB:
-		    	        		((SplashActivity)mActivity).LoadLocalDB();
-		    	        		break;
-		    	        	default: break;
-	    	        	}
-						
-	    				
+					// if(mActivity.getClass().getSimpleName().toString().equals(Common.AUTH_ACTIVITY))
+					switch (functionToken) {
+					case CHECK_INTERNET:
+						((SplashActivity) mActivity).CheckInternet();
+						break;
+					case LOAD_PREFS:
+						((SplashActivity) mActivity).LoadPreferences();
+						break;
+					case GOOGLE_AUTH:
+						((SplashActivity) mActivity).GoogleAuth();
+						break;
+					case LOAD_LOCAL_DB:
+						((SplashActivity) mActivity).LoadLocalDB();
+						break;
+					default:
+						break;
+					}
+
 				}
 			}, Time);
 
@@ -153,13 +156,13 @@ public class Common {
 		return true;
 
 	}
-	public static class userData implements Serializable
-	{
+
+	public static class userData implements Serializable {
 		public String user_email;
 		public String user_name;
-		public userData()
-		{
-			
+
+		public userData() {
+
 		}
 	}
 }
