@@ -49,7 +49,7 @@ public class Common {
 	public static final String HAS_INTERNET = prefix + "HasInternet";
 	public static final String EXCEPTION = prefix + "Exception";
 	public static final String USER_UNAPPROVE = prefix + "Unapproved";
-	public static final String NETWORK_ERROR = "NetworkError";
+	public static final String NETWORK_ERROR = "NetworkError";//sdfsadfsad
 	// commands - Splash
 	public static final int CHECK_INTERNET = 1;
 	public static final int LOAD_PREFS = 2;
