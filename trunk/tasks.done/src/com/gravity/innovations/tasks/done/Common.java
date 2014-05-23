@@ -44,6 +44,9 @@ public class Common {
 	public static final int one = 2;
 	public static final int two = 1;//mushahid
 	public static final int three = 1;//mushahid
+	//commit update commit
+	public static final int tv = 1;
+	//commit update commit
 	// commands - Splash
 	public static final int CHECK_INTERNET = 1;
 	public static final int LOAD_PREFS = 2;
