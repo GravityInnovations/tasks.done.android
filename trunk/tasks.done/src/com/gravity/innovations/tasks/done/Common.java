@@ -53,6 +53,7 @@ public class Common {
 	public static final String NETWORK_ERROR = "NetworkError";
 	public static final int one = 2;
 	public static final int two = 1;//mushahid
+	public static final int three = 1;//mushahid
 	// commands - Splash
 	public static final int CHECK_INTERNET = 1;
 	public static final int LOAD_PREFS = 2;
