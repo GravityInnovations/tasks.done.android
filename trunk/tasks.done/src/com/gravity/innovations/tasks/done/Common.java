@@ -1,19 +1,9 @@
 package com.gravity.innovations.tasks.done;
 
-import java.io.IOException;
 import java.io.Serializable;
-
-import org.apache.http.HttpEntity;
-import org.apache.http.HttpResponse;
-import org.apache.http.client.ClientProtocolException;
-import org.apache.http.client.HttpClient;
-import org.apache.http.client.methods.HttpGet;
-import org.apache.http.impl.client.DefaultHttpClient;
 
 import android.app.Activity;
 import android.content.Context;
-import android.content.Intent;
-import android.content.SharedPreferences;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Handler;
@@ -25,9 +15,9 @@ import android.os.Handler;
 
 //default usuage outside as below
 //PublicKeys.MY_KEY_SOME
-//pass it to switch, bundle extras, shared prefs etc
+//pass it to switch, bundle extras, shared prefs etc 
 public class Common {
-	//Mushahid commented this to check the commit changes
+	//Mushahid commented this to check the commit changes  mmm kkk ;;;
 	private static final String prefix = "com.gravity.innovations.tasks.done.";
 	public static final String USER_EMAIL = prefix + "UserEmail";// used in
 																	// shared
