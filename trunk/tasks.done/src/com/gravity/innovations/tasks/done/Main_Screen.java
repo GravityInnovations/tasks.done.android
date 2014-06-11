@@ -9,11 +9,14 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -27,13 +30,19 @@ public class Main_Screen  extends Activity {
     String Toast_msg;
 
     @Override
+	public boolean onCreateOptionsMenu(Menu menu) {
+		getMenuInflater().inflate(R.menu.main, menu);
+		return true;
+	}
+    
+    @Override
     public void onCreate(Bundle savedInstanceState) {
 	super.onCreate(savedInstanceState);
 	setContentView(R.layout.main);
 	try {
 	    Task_listview = (ListView) findViewById(R.id.list);
 	    Task_listview.setItemsCanFocus(false);
-	    add_btn = (Button) findViewById(R.id.add_btn);
+	   add_btn = (Button) findViewById(R.id.add_btn);
 
 	    Set_Referash_Data();
 
@@ -195,5 +204,73 @@ public class Main_Screen  extends Activity {
 	}
 
     }
+    @Override
+	public boolean onOptionsItemSelected(MenuItem item) {
+		// Handle presses on the action bar items
+		switch (item.getItemId()) {
+		case R.id.ic_action_new_btn:
 
+			View view = getLayoutInflater().inflate(R.layout.add_dialog, null);
+			final EditText add_title = (EditText) view
+					.findViewById(R.id.add_title);
+			final EditText add_details = (EditText) view
+					.findViewById(R.id.add_details);
+			final EditText add_notes = (EditText) view
+					.findViewById(R.id.add_notes);
+
+			AlertDialog.Builder dialog = new AlertDialog.Builder(this);
+			dialog.setView(view);
+			dialog.setPositiveButton(R.string.dialog_save,
+					new DialogInterface.OnClickListener() {
+
+						@Override
+						public void onClick(DialogInterface dialog, int which) {
+							// TODO Auto-generated method stub
+							try {
+
+								String title = add_title.getText().toString();
+								Log.d(title, "this is the title");
+								String details = add_details.getText()
+										.toString();
+								String notes = add_notes.getText().toString();
+
+								if (title.length() != 0
+										&& details.length() != 0
+										&& notes.length() != 0) {
+
+									db.Add_Task(new Task(title, details, notes));
+
+									Toast_msg = "Data inserted successfully";
+									Show_Toast(Toast_msg);
+									Set_Referash_Data();
+									// cAdapter.notifyDataSetChanged();
+									// Reset_Text();
+
+								}
+							} catch (Exception e) {
+								Log.d("Hey! got an exception",
+										"some weird error");
+							}
+						}
+					});
+
+			dialog.setNegativeButton(R.string.dialog_cancel,
+					new DialogInterface.OnClickListener() {
+
+						@Override
+						public void onClick(DialogInterface dialog, int which) {
+							// TODO Auto-generated method stub
+							dialog.cancel();
+						}
+					});
+			dialog.show();
+
+			return true;
+		case R.id.action_settings:
+			// openSettings();
+			return true;
+		default:
+			return super.onOptionsItemSelected(item);
+		}
+	}
 }

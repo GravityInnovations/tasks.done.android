@@ -18,6 +18,7 @@
             android:clickable="false"
             android:focusable="false"
             android:text="Add Task"
+            android:visibility="gone"
          />
     </LinearLayout>
 

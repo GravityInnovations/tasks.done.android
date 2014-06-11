@@ -27,4 +27,8 @@
 		<string name="google_result_ok">Account information saved</string>
 		<string name="google_result_cancel">User skiped google authentication</string>
 		<string name="google_disable_sync">Disabling cloud sync with google</string>
+		
+		 <string name="dialog_save">Save</string>
+	        <string name="dialog_cancel">Cancel</string>
+		
 </resources>
