@@ -1,19 +1,28 @@
 package com.gravity.innovations.tasks.done;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Set;
 
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
+import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
+import android.widget.AbsListView.MultiChoiceModeListener;
+import android.widget.AdapterView;
+import android.widget.AdapterView.OnItemClickListener;
+import android.widget.AdapterView.OnItemLongClickListener;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
@@ -28,6 +37,11 @@ public class Main_Screen  extends Activity {
     Task_Adapter cAdapter;
     DatabaseHandler db;
     String Toast_msg;
+    private Activity mActivity;
+    private Context mContext = this;
+	private int selCount = 0;// for CAB edit button check and task count in
+								// multi selection list
+	 
 
     @Override
 	public boolean onCreateOptionsMenu(Menu menu) {
@@ -35,35 +49,159 @@ public class Main_Screen  extends Activity {
 		return true;
 	}
     
-    @Override
+    @SuppressLint({ "InlinedApi", "NewApi" }) @Override
     public void onCreate(Bundle savedInstanceState) {
 	super.onCreate(savedInstanceState);
 	setContentView(R.layout.main);
 	try {
 	    Task_listview = (ListView) findViewById(R.id.list);
-	    Task_listview.setItemsCanFocus(false);
-	   add_btn = (Button) findViewById(R.id.add_btn);
+	    Task_listview.setItemsCanFocus(true);
+		// Addition started here
+		mActivity = this;
+		Task_listview.setChoiceMode(ListView.CHOICE_MODE_MULTIPLE_MODAL);
+		Task_listview
+				.setMultiChoiceModeListener(new MultiChoiceModeListener() {
 
+					@SuppressLint("NewApi") @Override
+					public boolean onActionItemClicked(
+							android.view.ActionMode mode, MenuItem item) {
+						// TODO Auto-generated method stub
+						switch (item.getItemId()) {
+						case R.id.item_delete:
+							new AlertDialog.Builder(Main_Screen.this)
+									.setIcon(
+											android.R.drawable.ic_dialog_alert)
+									.setTitle(R.string.delete)
+									.setMessage(
+											getString(R.string.delete_message_confirm))
+									.setPositiveButton(
+											R.string.delete,
+											new DialogInterface.OnClickListener() {
+												public void onClick(
+														DialogInterface di,
+														int i) {
+
+													for (Integer temp : cAdapter
+															.getSelectedTasks())
+														db.Delete_Task(temp);
+													Toast_msg = "Data Deleted successfully";
+													 Show_Toast(Toast_msg);
+													selCount = 0;
+													Set_Referash_Data();
+
+												}
+											})
+									.setNegativeButton(
+											R.string.dialog_cancel,
+											new DialogInterface.OnClickListener() {
+												public void onClick(
+														DialogInterface di,
+														int i) {
+													selCount = 0;
+												}
+											}).show();
+
+							// item delete with dialog
+
+							mode.finish();
+							break;
+						// edit
+
+						case R.id.item_edit:
+							createADialog(cAdapter
+									.getSingularSelectedTask());
+
+							mode.finish();
+							break;
+						// edit
+						}
+						return true;
+					}
+
+					@Override
+					public boolean onCreateActionMode(
+							android.view.ActionMode mode, Menu menu) {
+						// TODO Auto-generated method stub
+						MenuInflater inflater = getMenuInflater();
+						inflater.inflate(R.menu.contextual_menu, menu);
+						return true;
+					}
+
+					@Override
+					public void onDestroyActionMode(
+							android.view.ActionMode mode) {
+						// TODO Auto-generated method stub
+						// cAdapter.clearSelection();
+					}
+
+					@Override
+					public boolean onPrepareActionMode(
+							android.view.ActionMode mode, Menu menu) {
+						// TODO Auto-generated method stub
+						if (selCount == 1) {
+							MenuItem item = menu.findItem(R.id.item_edit);
+							item.setVisible(true);
+							return true;
+						} else {
+							MenuItem item = menu.findItem(R.id.item_edit);
+							item.setVisible(false);
+							return true;
+						}
+						// return false;
+					}
+
+					//@SuppressLint("NewApi") 
+					@Override
+					public void onItemCheckedStateChanged(
+							android.view.ActionMode mode, int position,
+							long id, boolean checked) {
+						if (checked) {
+							selCount++; // cab edit
+							cAdapter.setNewSelection(position, checked);
+						} else {
+							selCount--; // cab edit
+							cAdapter.removeSelection(position);
+						}
+
+						// cab edit
+						mode.setTitle(selCount + " selected");
+
+						mode.invalidate(); // Add this to Invalidate CAB
+						// cab edit
+
+					}
+
+				});
+
+		Task_listview
+				.setOnItemLongClickListener(new OnItemLongClickListener() {
+
+					@Override
+					public boolean onItemLongClick(AdapterView<?> arg0,
+							View arg1, int position, long arg3) {
+						// TODO Auto-generated method stub
+
+						Task_listview.setItemChecked(position,
+								!cAdapter.isPositionChecked(position));
+
+						return false;
+					}
+				});
+		Task_listview.setOnItemClickListener(new OnItemClickListener() {
+
+			@Override
+			public void onItemClick(AdapterView<?> arg0, View arg1,
+					int pos, long arg3) {
+				Task_listview.setItemChecked(pos, true);
+			}
+		});
+		// Addition ends here
 	    Set_Referash_Data();
 
 	} catch (Exception e) {
 	    // TODO: handle exception
 	    Log.e("some error", "" + e);
 	}
-	add_btn.setOnClickListener(new View.OnClickListener() {
-
-	    @Override
-	    public void onClick(View v) {
-		// TODO Auto-generated method stub
-		Intent add_user = new Intent(Main_Screen.this,
-			Add_Update_Task.class);
-		add_user.putExtra("called", "add");
-		add_user.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP
-			| Intent.FLAG_ACTIVITY_NEW_TASK);
-		startActivity(add_user);
-		finish();
-	    }
-	});
 
     }
 
@@ -94,7 +232,8 @@ public class Main_Screen  extends Activity {
     }
 
     public void Show_Toast(String msg) {
-	Toast.makeText(getApplicationContext(), msg, Toast.LENGTH_LONG).show();
+    	
+	Toast.makeText(getApplicationContext(), msg, Toast.LENGTH_SHORT).show();
     }
 
     @Override
@@ -102,14 +241,108 @@ public class Main_Screen  extends Activity {
 	// TODO Auto-generated method stub
 	super.onResume();
 	Set_Referash_Data();
-
     }
 
+	public void createADialog(final Task task) {
+		View view = getLayoutInflater().inflate(R.layout.add_dialog, null);
+		final EditText add_title = (EditText) view.findViewById(R.id.add_title);
+		final EditText add_details = (EditText) view.findViewById(R.id.add_details);
+		final EditText add_notes = (EditText) view.findViewById(R.id.add_notes);
+		add_details.setText(task._task_details);
+		add_title.setText(task._task_title);
+		add_notes.setText(task._task_notes);
+		AlertDialog.Builder dialog = new AlertDialog.Builder(mContext);
+		dialog.setView(view);
+		if (task._id == -1) {
+			dialog.setTitle("New Task");
+			// new task 
+		} else {
+			dialog.setTitle("Edit Task");
+			// update
+		}
+		dialog.setPositiveButton(R.string.dialog_save,
+				new DialogInterface.OnClickListener() {
+
+					@Override
+					public void onClick(DialogInterface dialog, int which) {
+						// TODO Auto-generated method stub
+						try {
+							
+							if (task._id == -1) {
+								// create
+								String title = add_title.getText().toString();
+								 Log.d(title, "this is the title");
+								 String details = add_details.getText()
+								 .toString();
+								 String notes = add_notes.getText().toString();
+								
+								 if (title.length() != 0
+								 && details.length() != 0
+								 && notes.length() != 0) {
+								
+								 db.Add_Task(new Task(title, details, notes));
+								 Toast_msg = "Data inserted successfully";
+								 Show_Toast(Toast_msg);
+								 Set_Referash_Data();
+								 }
+							} else {
+								// update
+								String title = add_title.getText().toString();
+								 Log.d(title, "this is the title");
+								 String details = add_details.getText()
+								 .toString();
+								 String notes = add_notes.getText().toString();
+								 if (title.length() != 0
+										 && details.length() != 0
+										 && notes.length() != 0) {
+										
+									 
+									 
+									// for(Task temp : cAdapter.getSingularSelectedTask())//.getCurrentCheckedPosition());
+									 
+									 db.Update_Task(new Task(task._id,title, details, notes));
+									 		db.close();
+										Toast_msg = "Data Updated successfully";
+										 Show_Toast(Toast_msg);
+										 Set_Referash_Data();
+										 }
+								 
+								 
+								 
+								 
+							}
+							Toast_msg = "Data updated successfully";
+							Show_Toast(Toast_msg);
+							selCount = 0;// task count after action
+							Set_Referash_Data();
+
+						} catch (Exception e) {
+							Log.d("Hey! got an exception", "some weird error");
+						}
+					}
+				});
+
+		dialog.setNegativeButton(R.string.dialog_cancel,
+				new DialogInterface.OnClickListener() {
+
+					@Override
+					public void onClick(DialogInterface dialog, int which) {
+						// TODO Auto-generated method stub
+						dialog.cancel();
+						selCount = 0;// task count after action
+					}
+				});
+		dialog.show();
+
+		// item edit with dialog
+
+	} // eof createADialog
     public class Task_Adapter extends ArrayAdapter<Task> {
 	Activity activity;
 	int layoutResourceId;
 	Task user;
 	ArrayList<Task> data = new ArrayList<Task>();
+	private HashMap<Integer, Boolean> mSelection = new HashMap<Integer, Boolean>();
 
 	public Task_Adapter(Activity act, int layoutResourceId,
 		ArrayList<Task> data) {
@@ -119,78 +352,77 @@ public class Main_Screen  extends Activity {
 	    this.data = data;
 	    notifyDataSetChanged();
 	}
+	public Task getSingularSelectedTask() {
+		if (mSelection.size() == 1) {
+			for (Integer temp : getCurrentCheckedPosition())
+				return data.get(temp);
+		}
+		return null;
+	}
 
+	public ArrayList<Integer> getSelectedTasks() {
+		ArrayList<Integer> temp = new ArrayList<Integer>();
+		for (int i = 0; i < data.size(); i++) {
+			if (isPositionChecked(i)) {
+				temp.add(data.get(i)._id);
+			}
+		}
+		return temp;
+	}
+
+	public void setNewSelection(int position, boolean value) {
+		mSelection.put(position, value);
+		notifyDataSetChanged();
+	}
+
+	public boolean isPositionChecked(int position) {
+		Boolean result = mSelection.get(position);
+		return result == null ? false : result;
+	}
+
+	public Set<Integer> getCurrentCheckedPosition() {
+		return mSelection.keySet();
+	}
+
+	public void removeSelection(int position) {
+		mSelection.remove(position);
+		notifyDataSetChanged();
+	}
+
+	public void clearSelection() {
+		mSelection = new HashMap<Integer, Boolean>();
+		notifyDataSetChanged();
+	}
+	
 	@Override
 	public View getView(int position, View convertView, ViewGroup parent) {
 	    View row = convertView;
 	    UserHolder holder = null;
-
 	    if (row == null) {
 		LayoutInflater inflater = LayoutInflater.from(activity);
-
 		row = inflater.inflate(layoutResourceId, parent, false);
 		holder = new UserHolder();
 		holder.title = (TextView) row.findViewById(R.id.user_task_title);
 		holder.details = (TextView) row.findViewById(R.id.user_task_details);
 		holder.notes = (TextView) row.findViewById(R.id.user_task_notes);
-		holder.edit = (Button) row.findViewById(R.id.btn_update);
-		holder.delete = (Button) row.findViewById(R.id.btn_delete);
+ 
 		row.setTag(holder);
 	    } else {
 		holder = (UserHolder) row.getTag();
 	    }
+	    row.setBackgroundColor(getResources().getColor(
+				android.R.color.background_light)); // default color
+
+		if (mSelection.get(position) != null) {
+			row.setBackgroundColor(getResources().getColor(
+					android.R.color.holo_blue_light));// this is a selected
+														// position so make
+														// it colored
+		}
 	    user = data.get(position);
-	    holder.edit.setTag(user.getID());
-	    holder.delete.setTag(user.getID());
 	    holder.title.setText(user.getTitle());
 	    holder.details.setText(user.getDetails());
 	    holder.notes.setText(user.getNotes());
-
-	    holder.edit.setOnClickListener(new OnClickListener() {
-
-		@Override
-		public void onClick(View v) {
-		    // TODO Auto-generated method stub
-		    Log.i("Edit Button Clicked", "**********");
-
-		    Intent update_user = new Intent(activity,
-			    Add_Update_Task.class);
-		    update_user.putExtra("called", "update");
-		    update_user.putExtra("USER_ID", v.getTag().toString());
-		    activity.startActivity(update_user);
-
-		}
-	    });
-	    holder.delete.setOnClickListener(new OnClickListener() {
-
-		@Override
-		public void onClick(final View v) {
-		    // TODO Auto-generated method stub
-
-		    // show a message while loader is loading
-
-		    AlertDialog.Builder adb = new AlertDialog.Builder(activity);
-		    adb.setTitle("Delete?");
-		    adb.setMessage("Are you sure you want to delete ");
-		    final int user_id = Integer.parseInt(v.getTag().toString());
-		    adb.setNegativeButton("Cancel", null);
-		    adb.setPositiveButton("Ok",
-			    new AlertDialog.OnClickListener() {
-				@Override
-				public void onClick(DialogInterface dialog,
-					int which) {
-				    // MyDataObject.remove(positionToRemove);
-				    DatabaseHandler dBHandler = new DatabaseHandler(
-					    activity.getApplicationContext());
-				    dBHandler.Delete_Task(user_id);
-				    Main_Screen.this.onResume();
-
-				}
-			    });
-		    adb.show();
-		}
-
-	    });
 	    return row;
 
 	}
@@ -199,8 +431,6 @@ public class Main_Screen  extends Activity {
 	    TextView title;
 	    TextView details;
 	    TextView notes;
-	    Button edit;
-	    Button delete;
 	}
 
     }
@@ -209,62 +439,7 @@ public class Main_Screen  extends Activity {
 		// Handle presses on the action bar items
 		switch (item.getItemId()) {
 		case R.id.ic_action_new_btn:
-
-			View view = getLayoutInflater().inflate(R.layout.add_dialog, null);
-			final EditText add_title = (EditText) view
-					.findViewById(R.id.add_title);
-			final EditText add_details = (EditText) view
-					.findViewById(R.id.add_details);
-			final EditText add_notes = (EditText) view
-					.findViewById(R.id.add_notes);
-
-			AlertDialog.Builder dialog = new AlertDialog.Builder(this);
-			dialog.setView(view);
-			dialog.setPositiveButton(R.string.dialog_save,
-					new DialogInterface.OnClickListener() {
-
-						@Override
-						public void onClick(DialogInterface dialog, int which) {
-							// TODO Auto-generated method stub
-							try {
-
-								String title = add_title.getText().toString();
-								Log.d(title, "this is the title");
-								String details = add_details.getText()
-										.toString();
-								String notes = add_notes.getText().toString();
-
-								if (title.length() != 0
-										&& details.length() != 0
-										&& notes.length() != 0) {
-
-									db.Add_Task(new Task(title, details, notes));
-
-									Toast_msg = "Data inserted successfully";
-									Show_Toast(Toast_msg);
-									Set_Referash_Data();
-									// cAdapter.notifyDataSetChanged();
-									// Reset_Text();
-
-								}
-							} catch (Exception e) {
-								Log.d("Hey! got an exception",
-										"some weird error");
-							}
-						}
-					});
-
-			dialog.setNegativeButton(R.string.dialog_cancel,
-					new DialogInterface.OnClickListener() {
-
-						@Override
-						public void onClick(DialogInterface dialog, int which) {
-							// TODO Auto-generated method stub
-							dialog.cancel();
-						}
-					});
-			dialog.show();
-
+			this.createADialog(new Task());
 			return true;
 		case R.id.action_settings:
 			// openSettings();

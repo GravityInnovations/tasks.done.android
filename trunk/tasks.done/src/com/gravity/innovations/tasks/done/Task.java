@@ -9,6 +9,7 @@ public class Task {
     public String _task_notes;
 
     public Task() {
+    	this._id = -1;
     }
 
     // constructor

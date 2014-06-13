@@ -58,7 +58,8 @@
                 android:background="@drawable/edit"
                 android:focusable="false"
                 android:focusableInTouchMode="false"
-                android:text="" />
+                android:text="" 
+                android:visibility="gone"/>
 
             <Button
                 android:id="@+id/btn_delete"
@@ -68,7 +69,8 @@
                 android:background="@drawable/cancel"
                 android:focusable="false"
                 android:focusableInTouchMode="false"
-                android:text="" />
+                android:text="" 
+                android:visibility="gone"/>
         </LinearLayout>
     </LinearLayout>
 

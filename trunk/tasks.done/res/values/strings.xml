@@ -30,5 +30,7 @@
 		
 		 <string name="dialog_save">Save</string>
 	        <string name="dialog_cancel">Cancel</string>
+	        <string name="delete_message_confirm">Delete Sure?</string>
+	        <string name="delete">Delete</string>
 		
 </resources>
