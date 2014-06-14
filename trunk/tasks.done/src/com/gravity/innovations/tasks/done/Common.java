@@ -3,10 +3,13 @@ package com.gravity.innovations.tasks.done;
 import java.io.Serializable;
 
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Handler;
+import android.view.View;
 
 //This class will include common keys used in application
 
@@ -140,8 +143,43 @@ public class Common {
 	}
 	// for dialog creation and handling
 	public static class CustomDialog{
-		CustomDialog(){
+		public static final void CustomDialog(final Context context, 
+				int posText, int negText, 
+				DialogInterface.OnClickListener negListener,
+				DialogInterface.OnClickListener posListener) {
+
+			AlertDialog.Builder builder = new AlertDialog.Builder(context);
+			builder.setIcon(android.R.drawable.ic_dialog_alert);
+			builder.setTitle(R.string.delete);
+			builder.setMessage(R.string.delete_message_confirm);
+			 //builder.setView(view);
 			
+			if (posListener != null){
+				builder.setPositiveButton(posText, posListener);
+			}
+			if (negListener != null){
+				builder.setNegativeButton(negText, negListener);
+			}
+
+			builder.create().show();
+		}
+
+		public static final void CustomDialog(final Context context, View view,
+				DialogInterface.OnClickListener negListener,
+				DialogInterface.OnClickListener posListener, 
+				int posText, int negText,
+				String dialogTitle) {
+
+			AlertDialog.Builder builder = new AlertDialog.Builder(context);
+			builder.setView(view);
+			builder.setTitle(dialogTitle);
+			if (posListener != null){
+				builder.setPositiveButton(posText, posListener);
+			}
+			if (negListener != null){
+			builder.setNegativeButton(negText, negListener);
+			}
+			builder.create().show();
 		}
 	}
 }

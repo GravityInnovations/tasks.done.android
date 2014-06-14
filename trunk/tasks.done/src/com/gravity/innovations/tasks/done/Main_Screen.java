@@ -60,39 +60,42 @@ public class Main_Screen extends Activity {
 							// TODO Auto-generated method stub
 							switch (item.getItemId()) {
 							case R.id.item_delete:
-								new AlertDialog.Builder(Main_Screen.this)
-										.setIcon(
-												android.R.drawable.ic_dialog_alert)
-										.setTitle(R.string.delete)
-										.setMessage(
-												getString(R.string.delete_message_confirm))
-										.setPositiveButton(
-												R.string.delete,
-												new DialogInterface.OnClickListener() {
-													public void onClick(
-															DialogInterface di,
-															int i) {
+								DialogInterface.OnClickListener posListener = new DialogInterface.OnClickListener() {
 
-														for (Integer temp : cAdapter
-																.getSelectedTasks())
-															db.Delete_Task(temp);
-														Toast_msg = "Data Deleted successfully";
-														Show_Toast(Toast_msg);
-														selCount = 0;
-														Set_Referash_Data();
+									@Override
+									public void onClick(DialogInterface dialog,
+											int which) {
+										// TODO Auto-generated method stub
 
-													}
-												})
-										.setNegativeButton(
-												R.string.dialog_cancel,
-												new DialogInterface.OnClickListener() {
-													public void onClick(
-															DialogInterface di,
-															int i) {
-														selCount = 0;
-													}
-												}).show();
+										for (Integer temp : cAdapter
+												.getSelectedTasks())
+											db.Delete_Task(temp);
+										selCount = 0;
+										Toast_msg="Data Deleted Successfully";
+										Show_Toast(Toast_msg);
+										Set_Referash_Data();
+									}
 
+								};
+
+								DialogInterface.OnClickListener negListener = new DialogInterface.OnClickListener() {
+
+									@Override
+									public void onClick(DialogInterface dialog,
+											int which) {
+										// TODO Auto-generated method stub
+										dialog.cancel();
+										selCount = 0;// task count after action
+										Set_Referash_Data();
+									}
+
+								};
+
+								Common.CustomDialog.CustomDialog(mContext,
+										R.string.delete,
+										R.string.dialog_cancel, negListener,
+										posListener);
+								
 								// item delete with dialog
 
 								mode.finish();
@@ -102,7 +105,7 @@ public class Main_Screen extends Activity {
 							case R.id.item_edit:
 								createADialog(cAdapter
 										.getSingularSelectedTask());
-
+									//sends the context to createADialog Function below
 								mode.finish();
 								break;
 							// edit
@@ -224,8 +227,8 @@ public class Main_Screen extends Activity {
 	}
 
 	public void Show_Toast(String msg) {
-
-		Toast.makeText(getApplicationContext(), msg, Toast.LENGTH_SHORT).show();
+		final int Toast_Time = 0100;
+		Toast.makeText(getApplicationContext(), msg, Toast_Time).show();
 	}
 
 	@Override
@@ -236,6 +239,7 @@ public class Main_Screen extends Activity {
 	}
 
 	public void createADialog(final Task task) {
+
 		View view = getLayoutInflater().inflate(R.layout.add_dialog, null);
 		final EditText add_title = (EditText) view.findViewById(R.id.add_title);
 		final EditText add_details = (EditText) view
@@ -244,89 +248,85 @@ public class Main_Screen extends Activity {
 		add_details.setText(task._task_details);
 		add_title.setText(task._task_title);
 		add_notes.setText(task._task_notes);
-		AlertDialog.Builder dialog = new AlertDialog.Builder(mContext);
-		dialog.setView(view);
+		String dialogTitle = "";
 		if (task._id == -1) {
-			dialog.setTitle("New Task");
+			dialogTitle = "New Task";
 			// new task
 		} else {
-			dialog.setTitle("Edit Task");
+			dialogTitle = "Edit Task";
 			// update
 		}
-		dialog.setPositiveButton(R.string.dialog_save,
-				new DialogInterface.OnClickListener() {
 
-					@Override
-					public void onClick(DialogInterface dialog, int which) {
-						// TODO Auto-generated method stub
-						try {
+		DialogInterface.OnClickListener posListener = new DialogInterface.OnClickListener() {
 
-							if (task._id == -1) {
-								// create
-								String title = add_title.getText().toString();
-								Log.d(title, "this is the title");
-								String details = add_details.getText()
-										.toString();
-								String notes = add_notes.getText().toString();
+			@Override
+			public void onClick(DialogInterface dialog, int which) {
+				// TODO Auto-generated method stub
 
-								if (title.length() != 0
-										&& details.length() != 0
-										&& notes.length() != 0) {
+				try {
 
-									db.Add_Task(new Task(title, details, notes));
-									Toast_msg = "Data inserted successfully";
-									Show_Toast(Toast_msg);
-									Set_Referash_Data();
-								}
-							} else {
-								// update
-								String title = add_title.getText().toString();
-								Log.d(title, "this is the title");
-								String details = add_details.getText()
-										.toString();
-								String notes = add_notes.getText().toString();
-								if (title.length() != 0
-										&& details.length() != 0
-										&& notes.length() != 0) {
+					if (task._id == -1) {
+						// create
+						String title = add_title.getText().toString();
+						Log.d(title, "this is the title");
+						String details = add_details.getText().toString();
+						String notes = add_notes.getText().toString();
 
-									// for(Task temp :
-									// cAdapter.getSingularSelectedTask())//.getCurrentCheckedPosition());
+						if (title.length() != 0 && details.length() != 0
+								&& notes.length() != 0) {
 
-									db.Update_Task(new Task(task._id, title,
-											details, notes));
-									db.close();
-									Toast_msg = "Data Updated successfully";
-									Show_Toast(Toast_msg);
-									Set_Referash_Data();
-								}
-
-							}
-							Toast_msg = "Data updated successfully";
-							Show_Toast(Toast_msg);
+							db.Add_Task(new Task(title, details, notes));
 							selCount = 0;// task count after action
+							Toast_msg = "Data inserted successfully";
+
+							Show_Toast(Toast_msg);
 							Set_Referash_Data();
 
-						} catch (Exception e) {
-							Log.d("Hey! got an exception", "some weird error");
 						}
+					} else {
+						// update
+						String title = add_title.getText().toString();
+						Log.d(title, "this is the title");
+						String details = add_details.getText().toString();
+						String notes = add_notes.getText().toString();
+						if (title.length() != 0 && details.length() != 0
+								&& notes.length() != 0) {
+							db.Update_Task(new Task(task._id, title, details,
+									notes));
+							// db.close();
+							selCount = 0;// task count after action
+							Toast_msg = "Data Updated successfully";
+
+							Show_Toast(Toast_msg);
+							Set_Referash_Data();
+						}
+
 					}
-				});
+					selCount = 0;// task count after action
+					Set_Referash_Data();
 
-		dialog.setNegativeButton(R.string.dialog_cancel,
-				new DialogInterface.OnClickListener() {
+				} catch (Exception e) {
+					Log.d("Hey! got an exception", "some weird error");
+				}
 
-					@Override
-					public void onClick(DialogInterface dialog, int which) {
-						// TODO Auto-generated method stub
-						dialog.cancel();
-						selCount = 0;// task count after action
-					}
-				});
-		dialog.show();
+			}
+		};
 
-		// item edit with dialog
+		DialogInterface.OnClickListener negListener = new DialogInterface.OnClickListener() {
 
-	} // eof createADialog
+			@Override
+			public void onClick(DialogInterface dialog, int which) {
+				// TODO Auto-generated method stub
+				dialog.cancel();
+				selCount = 0;// task count after action
+				Set_Referash_Data();
+			}
+
+		};
+
+		Common.CustomDialog.CustomDialog(mContext, view, negListener, posListener,
+				R.string.dialog_save,R.string.dialog_cancel,  dialogTitle);
+ 	} // eof createADialog
 
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
