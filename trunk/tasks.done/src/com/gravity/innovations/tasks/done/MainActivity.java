@@ -4,10 +4,13 @@ package com.gravity.innovations.tasks.done;
 //comm by faik
 //test 2
 import android.app.Activity;
+import android.app.PendingIntent;
+import android.app.TaskStackBuilder;
 import android.support.v7.app.ActionBarActivity;
 import android.support.v7.app.ActionBar;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
+import android.support.v4.app.NotificationCompat;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Build;
@@ -42,7 +45,7 @@ public class MainActivity extends ActionBarActivity implements
 		super.onCreate(savedInstanceState);
 
 		setContentView(R.layout.activity_main);
-
+		
 		mNavigationDrawerFragment = (NavigationDrawerFragment) getSupportFragmentManager()
 				.findFragmentById(R.id.navigation_drawer);
 		mTitle = getTitle();
@@ -105,6 +108,16 @@ public class MainActivity extends ActionBarActivity implements
 		int id = item.getItemId();
 		if (id == R.id.action_settings) {
 			return true;
+		}
+		else if(id == R.id.action_developer)
+		{
+			Intent i = new Intent(MainActivity.this, GravityActivity.class);
+			startActivity(i);
+		}
+		else if(id == R.id.action_store)
+		{
+			Intent i = new Intent(MainActivity.this, StoreActivity.class);
+			startActivity(i);
 		}
 		return super.onOptionsItemSelected(item);
 	}
