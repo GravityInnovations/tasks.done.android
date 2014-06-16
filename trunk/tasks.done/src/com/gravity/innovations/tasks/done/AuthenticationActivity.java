@@ -15,6 +15,7 @@ import android.widget.Button;
 import android.widget.ProgressBar;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
+import android.widget.RadioGroup.OnCheckedChangeListener;
 import android.widget.Toast;
 //Faik:untested 3:23 21/05/14
 public class AuthenticationActivity extends Activity implements Common.Callbacks.AuthActivityCallback {
@@ -36,7 +37,7 @@ public class AuthenticationActivity extends Activity implements Common.Callbacks
 		account_options = (RadioGroup) findViewById(R.id.opts_auth_accounts);
 		btn_auth = (Button) findViewById(R.id.btn_auth);
 		btn_skip = (Button) findViewById(R.id.btn_auth_skip);
-		
+		btn_auth.setEnabled(false);
 		//data load
 		//mRecievedBundle = getIntent().getExtras();
 		
@@ -48,9 +49,16 @@ public class AuthenticationActivity extends Activity implements Common.Callbacks
 		{
 			RadioButton temp = new RadioButton(this);
 			temp.setText(mAccount.name);
+			
 			account_options.addView(temp);
 		}
-		
+		account_options.setOnCheckedChangeListener(new OnCheckedChangeListener() {
+			
+			@Override
+			public void onCheckedChanged(RadioGroup group, int checkedId) {
+				btn_auth.setEnabled(true);
+			}
+		});
 		btn_auth.setOnClickListener(new OnClickListener() {
 			
 			@Override

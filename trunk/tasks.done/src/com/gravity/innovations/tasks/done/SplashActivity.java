@@ -4,6 +4,7 @@ import java.util.ArrayList;
 
 import android.annotation.SuppressLint;
 import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Color;
@@ -116,31 +117,29 @@ public class SplashActivity extends Activity implements
 
 		case Common.RequestCodes.SPLASH_AUTH:
 			Google_Auth_Recieve_Result(mBundle.getString(Common.USER_EMAIL),
-					mBundle.getString(Common.EXCEPTION),
-					resultCode);
-			/*if (mBundle.getString(Common.USER_EMAIL) != null
-					&& resultCode == Activity.RESULT_OK) {
-				// save to sp
-				addProgressTask(mBundle.getString(Common.USER_EMAIL)
-						+ getString(R.string.got_email_success_full));
-
-			} else if (mBundle.getString(Common.USER_EMAIL) != null
-					&& mBundle.getString(Common.EXCEPTION) != null) {
-				addProgressTask(mBundle.getString(Common.USER_EMAIL)
-						+ getString(R.string.got_email_success_half));
-
-			}
-
-			if (resultCode == Activity.RESULT_CANCELED) {
-				progress1.setAlpha((float) 0.4);
-				addProgressTask(getString(R.string.google_result_cancel));
-				addProgressTask(getString(R.string.google_disable_sync));
-				progress1.setProgress(80);
-			} else if (resultCode == Activity.RESULT_OK) {
-				progress1.setProgress(100);
-				addProgressTask(getString(R.string.google_result_ok));
-			}*/
-			TriggerWaitEvent(Common.LOAD_LOCAL_DB);
+					mBundle.getString(Common.EXCEPTION), resultCode);
+			/*
+			 * if (mBundle.getString(Common.USER_EMAIL) != null && resultCode ==
+			 * Activity.RESULT_OK) { // save to sp
+			 * addProgressTask(mBundle.getString(Common.USER_EMAIL) +
+			 * getString(R.string.got_email_success_full));
+			 * 
+			 * } else if (mBundle.getString(Common.USER_EMAIL) != null &&
+			 * mBundle.getString(Common.EXCEPTION) != null) {
+			 * addProgressTask(mBundle.getString(Common.USER_EMAIL) +
+			 * getString(R.string.got_email_success_half));
+			 * 
+			 * }
+			 * 
+			 * if (resultCode == Activity.RESULT_CANCELED) {
+			 * progress1.setAlpha((float) 0.4);
+			 * addProgressTask(getString(R.string.google_result_cancel));
+			 * addProgressTask(getString(R.string.google_disable_sync));
+			 * progress1.setProgress(80); } else if (resultCode ==
+			 * Activity.RESULT_OK) { progress1.setProgress(100);
+			 * addProgressTask(getString(R.string.google_result_ok)); }
+			 */
+			// TriggerWaitEvent(Common.LOAD_LOCAL_DB);
 			break;
 		}
 	}
@@ -174,8 +173,13 @@ public class SplashActivity extends Activity implements
 		mSharedPreferences = getSharedPreferences(Common.SHARED_PREF_KEY,
 				MODE_MULTI_PROCESS);
 		mSharedPreferencesEditor = mSharedPreferences.edit();
-		user_data.user_email = mSharedPreferences.getString(Common.USER_EMAIL,
-				null);
+		user_data.email = mSharedPreferences.getString(Common.USER_EMAIL, null);
+		user_data.is_sync_type = mSharedPreferences.getBoolean(
+				Common.USER_IS_SYNC_TYPE, true);
+		user_data.is_verification_complete = mSharedPreferences.getBoolean(
+				Common.USER_IS_VERIFICATION_COMPLETE, false);
+		user_data.is_registered = mSharedPreferences.getBoolean(
+				Common.USER_IS_REGISTERED, false);
 		// sharedPreferencesEditor = sharedPreferences.edit();
 		// sharedPreferencesEditor.putString(keys.USER_EMAIL, account.name);
 		// sharedPreferencesEditor.commit();
@@ -186,7 +190,20 @@ public class SplashActivity extends Activity implements
 
 	@Override
 	public void GoogleAuth() {
-		if (user_data.user_email == null) {
+		if (user_data.email != null && user_data.is_verification_complete
+				&& user_data.is_sync_type) {
+			// if (user_data.email == null || user_data.is_verification_complete
+			// || !user_data.is_sync_type) {
+			mAuth = new Authentication(mActivity);
+
+			mAuth.getAuthentication(user_data.email);
+		} else if(!user_data.is_sync_type)
+		{
+			TriggerWaitEvent(Common.LOAD_LOCAL_DB);
+			addProgressTask(getString(R.string.load_db));
+		}
+		else
+		{
 			Intent i = new Intent(SplashActivity.this,
 					AuthenticationActivity.class);
 			/*
@@ -199,68 +216,124 @@ public class SplashActivity extends Activity implements
 			// authentication activity
 
 		}
-		else
-		{
-			mAuth = new Authentication(mActivity);
-			
-			mAuth.getAuthentication(user_data.user_email);
-		}
 	}
+
 	@SuppressLint("NewApi")
-	public void Google_Auth_Recieve_Result(String Email,String Error, int resultCode)
-	{
-		 
-				// sharedPreferencesEditor.putString(keys.USER_EMAIL, account.name);
-				// sharedPreferencesEditor.commit();
-		user_data.user_email = Email;
+	public void Google_Auth_Recieve_Result(String Email, String Error,
+			int resultCode) {
+
+		// sharedPreferencesEditor.putString(keys.USER_EMAIL, account.name);
+		// sharedPreferencesEditor.commit();
+		// user_data.email = Email;
 		if (Email != null && resultCode == Activity.RESULT_OK) {
 			// save to sp
-			addProgressTask(Email
-					+ getString(R.string.got_email_success_full));
+			addProgressTask(Email + getString(R.string.got_email_success_full));
 			mSharedPreferencesEditor.putString(Common.USER_EMAIL, Email);
-			mSharedPreferencesEditor.putBoolean(Common.USER_IS_VERIFICATION_COMPLETE,
-					true);
+			mSharedPreferencesEditor.putBoolean(
+					Common.USER_IS_VERIFICATION_COMPLETE, true);
+			user_data.email = Email;
+			user_data.is_verification_complete = true;
 
-		} else if (Email != null&& Error != null) {
+		} else if (Email != null && Error != null) {
 			addProgressTask(Email);
 			mSharedPreferencesEditor.putString(Common.USER_EMAIL, Email);
-			mSharedPreferencesEditor.putBoolean(Common.USER_IS_VERIFICATION_COMPLETE,
-					false);
-		}
-		else if(Email == null && Error !=null)
-		{
-			mSharedPreferencesEditor.putBoolean(Common.USER_IS_SYNC_TYPE,
-					false);
+			mSharedPreferencesEditor.putBoolean(
+					Common.USER_IS_VERIFICATION_COMPLETE, false);
+			user_data.email = Email;
+			user_data.is_verification_complete = false;
+		} else if (Email == null && Error != null) {
+			mSharedPreferencesEditor
+					.putBoolean(Common.USER_IS_SYNC_TYPE, false);//
+			user_data.is_sync_type = false;
 		}
 		if (resultCode == Activity.RESULT_CANCELED) {
 			progress1.setAlpha((float) 0.4);
 			addProgressTask(getString(R.string.google_result_cancel));
 			addProgressTask(getString(R.string.google_disable_sync));
 			progress1.setProgress(80);
+			mSharedPreferencesEditor.putBoolean(Common.USER_IS_SYNC_TYPE, false);
+			user_data.is_sync_type = false;
 		} else if (resultCode == Activity.RESULT_OK) {
 			progress1.setProgress(100);
 			addProgressTask(getString(R.string.google_result_ok));
-			mSharedPreferencesEditor.putBoolean(Common.USER_IS_SYNC_TYPE,
-					true);
+			mSharedPreferencesEditor.putBoolean(Common.USER_IS_SYNC_TYPE, true);//
+			user_data.is_sync_type = true;
 		}
 		mSharedPreferencesEditor.commit();
+		TriggerWaitEvent(Common.LOAD_LOCAL_DB);
+		addProgressTask(getString(R.string.load_db));
 	}
+
 	@Override
 	public void LoadLocalDB() {
 
 		// TODO Auto-generated method stub
-
+		
+		
+		if (!user_data.is_registered){
+			TriggerWaitEvent(Common.GRAVITY_REGISTER);
+		addProgressTask(getString(R.string.gravity_register));
+			//AccountsController.get_gravity_accounts(Common.RequestCodes.GRAVITY_REGISTER);
+		}
+		else {
+			TriggerWaitEvent(Common.GO_TO_MAIN);
+			addProgressTask(getString(R.string.complete));
+		}
 	}
 
 	@Override
-	public void pushSuccess(String AuthToken, String Email) {//by auth class
-		//nothing to do with auth token
+	public void GravityRegister() {
+
+		// TODO Auto-generated method stub
+		
+			AccountsController.register_gravity_account(mActivity,
+					user_data.email, Common.RequestCodes.GRAVITY_REGISTER);
+			//AccountsController.get_gravity_accounts(Common.RequestCodes.GRAVITY_REGISTER);
+		
+	}
+
+	@Override
+	public void GoToMain() {
+		Intent i = new Intent(SplashActivity.this, MainActivity.class);
+		startActivity(i);
+		finish();
+	}
+
+	@Override
+	public void pushSuccess(String AuthToken, String Email) {// by auth class
+		// nothing to do with auth token
 		Google_Auth_Recieve_Result(Email, null, Activity.RESULT_OK);
 	}
 
 	@Override
-	public void pushFailure(String Error, String Email) {//by auth class
+	public void pushFailure(String Error, String Email) {// by auth class
 		// TODO Auto-generated method stub
 		Google_Auth_Recieve_Result(Email, Error, Activity.RESULT_CANCELED);
 	}
+
+	@Override
+	public void httpResult(Object data, int RequestCode, int ResultCode) {
+		switch (RequestCode) {
+		case Common.RequestCodes.GRAVITY_REGISTER:
+			
+			if(ResultCode == Common.HTTP_RESPONSE_OK)
+			{
+				addProgressTask(getString(R.string.gravity_registration_complete));
+			mSharedPreferencesEditor
+					.putBoolean(Common.USER_IS_REGISTERED, true);
+			}
+			else
+			{	addProgressTask(getString(R.string.gravity_registration_error));
+				mSharedPreferencesEditor
+				.putBoolean(Common.USER_IS_REGISTERED, false);
+			}
+			mSharedPreferencesEditor.commit();
+			TriggerWaitEvent(Common.GO_TO_MAIN);
+			addProgressTask(getString(R.string.complete));
+			break;
+			
+		}
+
+	}
+
 }
