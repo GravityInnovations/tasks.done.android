@@ -29,9 +29,6 @@
         <activity
             android:name="com.gravity.innovations.tasks.done.SplashActivity"
             android:label="@string/app_name" >
-            <intent-filter>
-                <category android:name="android.intent.category.DEFAULT" />
-            </intent-filter>
         </activity>
         <activity
             android:name="com.gravity.innovations.tasks.done.MainActivity"
@@ -51,11 +48,6 @@
             </intent-filter>
         </activity>
               
-
-        <activity
-            android:name=".Add_Update_Task"
-            android:configChanges="orientation"
-            android:label="@string/app_name" />
     </application>
 
    

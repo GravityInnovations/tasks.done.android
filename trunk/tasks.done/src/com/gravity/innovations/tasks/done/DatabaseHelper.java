@@ -17,8 +17,13 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 	// Database Name
 	private static final String DATABASE_NAME = "tasksManager";
 
-	// Tasks table name
+	// Tasks table
+	// tasks has Auto inc. id, title, details and notes
 	private static final String TABLE_TASKS = "tasks";
+
+	// Task List Table
+	// task list has Auto inc. id and a title
+	private static final String TABLE_TASK_List = "task_list";
 
 	// Tasks Table Columns names
 	private static final String KEY_ID = "id";
@@ -27,6 +32,11 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 	private static final String KEY_TASK_NOTES = "task_notes";
 	private final ArrayList<Task> task_list = new ArrayList<Task>();
 
+	// Task List Table Columns names
+	private static final String KEY_ID_TASK_LIST = "id";
+	private static final String KEY_TASK_TITLE_TASK_LIST = "task_list_title";
+
+	
 	public DatabaseHelper(Context context) {
 		super(context, DATABASE_NAME, null, DATABASE_VERSION);
 	}

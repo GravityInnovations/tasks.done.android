@@ -1,7 +1,7 @@
 package com.gravity.innovations.tasks.done;
 
 public class Task {
-
+	//handles the task entries 
     // private variables
     public int _id;
     public String _task_title;
@@ -48,12 +48,12 @@ public class Task {
 	this._task_title = title;
     }
 
-    // getting phone number
+    // getting details
     public String getDetails() {
 	return this._task_details;
     }
 
-    // setting phone number
+    // setting details
     public void setDetails(String details) {
 	this._task_details = details;
     }
