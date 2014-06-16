@@ -3,10 +3,13 @@ package com.gravity.innovations.tasks.done;
 import java.io.Serializable;
 
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Handler;
+import android.view.View;
 
 //This class will include common keys used in application
 
@@ -17,7 +20,7 @@ import android.os.Handler;
 //PublicKeys.MY_KEY_SOME
 //pass it to switch, bundle extras, shared prefs etc 
 public class Common {
-	//Mushahid commented this to check the commit changes  mmm kkk ;;;
+	// Mushahid commented this to check the commit changes mmm kkk ;;;
 	private static final String prefix = "com.gravity.innovations.tasks.done.";
 	public static final String USER_EMAIL = prefix + "UserEmail";// used in
 																	// shared
@@ -42,14 +45,12 @@ public class Common {
 	public static final String USER_UNAPPROVE = prefix + "Unapproved";
 	public static final String NETWORK_ERROR = "NetworkError";
 	public static final int one = 2;
-	public static final int two = 1;//mushahid
-	public static final int three = 1;//mushahid
-	//http response
+
 	public static final int HTTP_RESPONSE_OK = 0;
     public static final int HTTP_RESPONSE_ERROR = 1; 
 	//commit update commit
 	public static final int tv = 1;
-	//commit update commit
+	// commit update commit
 	// commands - Splash
 	public static final int CHECK_INTERNET = 1;
 	public static final int LOAD_PREFS = 2;
@@ -97,27 +98,6 @@ public class Common {
 		}
 
 	}
-
-	// Start Database Variables and Queries M
-	public static class QueryDB {
-
-		public static final String KEY_ROWID = "_id";
-		public static final String KEY_TASKTITLE = "task_title";
-		public static final String KEY_TASKDETAILS = "task_todo";
-		public static final String DATABASE_NAME = "Tasks";
-		public static final String DATABASE_TABLE = "taskDetails";
-		public static final int DATABASE_VERSION = 1;
-		// Create Query for database
-		public static final String CREATE_QUERY = "CREATE TABLE "
-				+ Common.QueryDB.DATABASE_TABLE + " ("
-				+ Common.QueryDB.KEY_ROWID
-				+ " INTERGER PRIMARY KEY AUTOINCREMENT, "
-				+ Common.QueryDB.KEY_TASKTITLE + " TEXT NOT NULL, "
-				+ Common.QueryDB.KEY_TASKDETAILS + " TEXT NOT NULL);";
-		// Create Query for database
-	}
-
-	// End Database Variables and Queries M
 
 	public static class customPause {
 		public customPause(final Activity mActivity, final int functionToken,
@@ -180,6 +160,47 @@ public class Common {
 		public Boolean is_registered;
 		public userData() {
 
+		}
+	}
+	// for dialog creation and handling
+	public static class CustomDialog{
+		public static final void CustomDialog(final Context context, 
+				int posText, int negText, 
+				DialogInterface.OnClickListener negListener,
+				DialogInterface.OnClickListener posListener) {
+
+			AlertDialog.Builder builder = new AlertDialog.Builder(context);
+			builder.setIcon(android.R.drawable.ic_dialog_alert);
+			builder.setTitle(R.string.delete);
+			builder.setMessage(R.string.delete_message_confirm);
+			 //builder.setView(view);
+			
+			if (posListener != null){
+				builder.setPositiveButton(posText, posListener);
+			}
+			if (negListener != null){
+				builder.setNegativeButton(negText, negListener);
+			}
+
+			builder.create().show();
+		}
+
+		public static final void CustomDialog(final Context context, View view,
+				DialogInterface.OnClickListener negListener,
+				DialogInterface.OnClickListener posListener, 
+				int posText, int negText,
+				String dialogTitle) {
+
+			AlertDialog.Builder builder = new AlertDialog.Builder(context);
+			builder.setView(view);
+			builder.setTitle(dialogTitle);
+			if (posListener != null){
+				builder.setPositiveButton(posText, posListener);
+			}
+			if (negListener != null){
+			builder.setNegativeButton(negText, negListener);
+			}
+			builder.create().show();
 		}
 	}
 }
