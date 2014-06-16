@@ -162,6 +162,7 @@ public class Common {
 
 		}
 	}
+	
 	// for dialog creation and handling
 	public static class CustomDialog{
 		public static final void CustomDialog(final Context context, 
