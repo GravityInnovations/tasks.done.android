@@ -1,15 +1,23 @@
 package com.gravity.innovations.tasks.done;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.content.ContentResolver;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.database.Cursor;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Handler;
+import android.provider.ContactsContract;
 import android.view.View;
+import android.view.View.OnClickListener;
+import android.widget.AdapterView.OnItemClickListener;
+import android.widget.AdapterView.OnItemSelectedListener;
+import android.widget.ListView;
 
 //This class will include common keys used in application
 
@@ -162,7 +170,42 @@ public class Common {
 
 		}
 	}
-	
+	public static class User{
+		private String name;
+		private String email;
+		public User(String name, String email)
+		{
+			this.name = name;
+			this.email = email;
+		}
+	}
+	public static class Users{
+		private ArrayList<Common.User> users;
+		public Users()
+		{
+			users = new ArrayList<Common.User>();
+			for(int i=0;i<20;i++)
+				users.add(new Common.User("username"+i, "email"+i));
+		}
+		public ArrayList<User> getAppUsers()
+		{
+			return users;
+		}
+		public Cursor getAppUsersCursor(Context mContext)
+		{
+			ContentResolver cr = mContext.getContentResolver();
+	        Cursor cur = cr.query(ContactsContract.Contacts.CONTENT_URI,null, null, null, null);
+	        return cur;
+		}
+	}
+	public static class CustomViewsData
+	{
+		public static class MultiSelectRowData
+		{
+			public String text1, text2;
+			public int iconRes;
+		}
+	}
 	// for dialog creation and handling
 	public static class CustomDialog{
 		public static final void CustomDialog(final Context context, 
@@ -202,6 +245,33 @@ public class Common {
 			builder.setNegativeButton(negText, negListener);
 			}
 			builder.create().show();
+		}
+		public static final void MultiChoiceDialog(final Context context, 
+				MultiSelectListAdapter adapter,
+				OnItemClickListener onItemClickListener,
+				DialogInterface.OnClickListener negListener,
+				DialogInterface.OnClickListener posListener, 
+				int posText, int negText,
+				String dialogTitle)
+		{
+			final AlertDialog builder = new AlertDialog.Builder(context)
+		    .setTitle(dialogTitle)
+		    .setAdapter(adapter, null)
+		    .setPositiveButton(posText, posListener)
+		    .setNegativeButton(negText, negListener)
+		    .create();
+
+			//final AlertDialog dialog = new AlertDialog.Builder(context);
+			//final AlertDialog.Builder builder =  new AlertDialog.Builder(context);
+			
+			//builder.setMultiChoiceItems(items, "checked", "email", chooseItemListner);
+			
+			
+			builder.getListView().setItemsCanFocus(false);
+			builder.getListView().setChoiceMode(ListView.CHOICE_MODE_MULTIPLE);
+			//builder.getListView().setOnItemSelectedListener(onItemSelectedListener);//.setOnItemClickListener(itemClickListener);
+			builder.getListView().setOnItemClickListener(onItemClickListener);
+			builder.show();
 		}
 	}
 }

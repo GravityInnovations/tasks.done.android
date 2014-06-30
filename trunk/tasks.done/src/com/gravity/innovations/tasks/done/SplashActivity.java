@@ -2,6 +2,8 @@ package com.gravity.innovations.tasks.done;
 
 import java.util.ArrayList;
 
+import android.accounts.Account;
+import android.accounts.AccountManager;
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Context;
@@ -12,6 +14,9 @@ import android.graphics.LinearGradient;
 import android.graphics.Shader;
 import android.graphics.Shader.TileMode;
 import android.os.Bundle;
+import android.provider.ContactsContract;
+import android.provider.ContactsContract.CommonDataKinds.Phone;
+import android.provider.ContactsContract.Contacts;
 import android.view.Window;
 import android.widget.ProgressBar;
 import android.widget.TextView;
@@ -31,13 +36,20 @@ public class SplashActivity extends Activity implements
 	// data
 	private Common.userData user_data;
 
+	@SuppressLint("NewApi")
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		// TODO Auto-generated method stub
 		super.onCreate(savedInstanceState);
 		this.requestWindowFeature(Window.FEATURE_NO_TITLE);
 		setContentView(R.layout.activity_splash);
-
+		Intent i = new Intent(Intent.ACTION_PICK, ContactsContract.CommonDataKinds.Email.CONTENT_URI); /*AccountManager.newChooseAccountIntent(null, null,
+		        new String[] { "com.google" }, true, null, null,
+		        null, null);
+				*/
+				//new Intent(Intent.ACTION_PICK, Contacts.CONTENT_URI);
+		i.setType(Phone.CONTENT_TYPE);
+		//startActivityForResult(i, 989);
 		user_data = new Common.userData();
 		mActivity = this;
 		tasks = new ArrayList<String>();
@@ -268,6 +280,7 @@ public class SplashActivity extends Activity implements
 	public void LoadLocalDB() {
 
 		// TODO Auto-generated method stub
+		DatabaseHelper h = new DatabaseHelper(this);
 		
 		
 		if (!user_data.is_registered){

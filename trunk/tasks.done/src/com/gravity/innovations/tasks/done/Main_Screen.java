@@ -220,7 +220,7 @@ public class Main_Screen extends Activity {
 			task_data.add(cnt);
 		}
 		db.close();
-		cAdapter = new TaskAdapter(Main_Screen.this, R.layout.listview_row,
+		cAdapter = new TaskAdapter(Main_Screen.this, R.layout.task_listview_row,
 				task_data);
 		Task_listview.setAdapter(cAdapter);
 		cAdapter.notifyDataSetChanged();

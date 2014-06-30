@@ -20,13 +20,14 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 	// Tasks table
 	// tasks has Auto inc. id, title, details and notes
 	private static final String TABLE_TASKS = "tasks";
+	private static final String TABLE_USERS = "users";
 
 	// Task List Table
 	// task list has Auto inc. id and a title
 	private static final String TABLE_TASK_List = "task_list";
 
 	// Tasks Table Columns names
-	private static final String KEY_ID = "id";
+	private static final String KEY_ID = "_id";
 	private static final String KEY_TASK_TITLE = "task_title";
 	private static final String KEY_TASK_DETAILS = "task_details";
 	private static final String KEY_TASK_NOTES = "task_notes";
@@ -44,10 +45,15 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 	// Creating Tables
 	@Override
 	public void onCreate(SQLiteDatabase db) {
-		String CREATE_TaskS_TABLE = "CREATE TABLE " + TABLE_TASKS + "("
+		String CREATE_TASKS_TABLE = "CREATE TABLE " + TABLE_TASKS + "("
 				+ KEY_ID + " INTEGER PRIMARY KEY," + KEY_TASK_TITLE + " TEXT,"
 				+ KEY_TASK_DETAILS + " TEXT," + KEY_TASK_NOTES + " TEXT" + ")";
-		db.execSQL(CREATE_TaskS_TABLE);
+		String CREATE_USERS_TABLE = "CREATE TABLE " + "users" + "("
+				+ KEY_ID + " INTEGER PRIMARY KEY," + "name" + " TEXT,"
+				+ "email" + " TEXT," + "username" + " TEXT," +  
+				  "checked" + " BOOLEAN" +")";
+		db.execSQL(CREATE_TASKS_TABLE);
+		db.execSQL(CREATE_USERS_TABLE);
 	}
 
 	// Upgrading database
@@ -77,7 +83,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 	}
 
 	// Getting single Task
-	Task Get_Task(int id) {
+	public Task Get_Task(int id) {
 		SQLiteDatabase db = this.getReadableDatabase();
 
 		Cursor cursor = db.query(TABLE_TASKS, new String[] { KEY_ID,
@@ -163,6 +169,64 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
 		// return count
 		return cursor.getCount();
+	}
+	public ArrayList<Common.CustomViewsData.MultiSelectRowData> Get_Users() {
+		
+		ArrayList<Common.CustomViewsData.MultiSelectRowData> users
+			= new ArrayList<Common.CustomViewsData.MultiSelectRowData>();
+		
+		try {
+			// Select All Query
+			String selectQuery = "SELECT  * FROM " + TABLE_USERS;
+
+			SQLiteDatabase db = this.getWritableDatabase();
+			Cursor cursor = db.rawQuery(selectQuery, null);
+
+			// looping through all rows and adding to list
+//			if (cursor.moveToFirst()) {
+//				do {
+//					Common.CustomViewsData.MultiSelectRowData user = 
+//							new Common.CustomViewsData.MultiSelectRowData();
+//					user.text1 = (cursor.getString(0));
+//					user.text2 = (cursor.getString(1));
+//					// Adding Task to list
+//					users.add(user);
+//				} while (cursor.moveToNext());
+//			}
+
+			// return Task list
+			cursor.close();
+			db.close();
+			for(int i=0;i<30;i++)
+			{
+				Common.CustomViewsData.MultiSelectRowData user = 
+						new Common.CustomViewsData.MultiSelectRowData();
+				user.text1 = "h";
+				user.text2 = "some";
+				user.iconRes = R.drawable.ic_launcher;
+				// Adding Task to list
+				users.add(user);
+			}
+			//return users;
+		} catch (Exception e) {
+			// TODO: handle exception
+			Log.e("all_Task", "" + e);
+		}
+
+		return users;
+		
+		
+	}
+	public void Add_User() {
+		SQLiteDatabase db = this.getWritableDatabase();
+		ContentValues values = new ContentValues();
+		values.put("name", "faik malik"); // Task Name
+		values.put("email", "faik.malik89@gmail.com"); // Task Phone
+		values.put("username", "faik.malik"); // Task Email
+		values.put("checked", "false");
+		// Inserting Row
+		db.insert(TABLE_USERS, null, values);
+		db.close(); // Closing database connection
 	}
 
 }

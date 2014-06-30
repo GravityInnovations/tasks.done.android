@@ -3,7 +3,13 @@ package com.gravity.innovations.tasks.done;
 //commented by mushahid
 //comm by faik
 //test 2
+import java.util.ArrayList;
+
+import com.gravity.innovations.tasks.done.Common.User;
+
+import android.annotation.SuppressLint;
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.app.PendingIntent;
 import android.app.TaskStackBuilder;
 import android.support.v7.app.ActionBarActivity;
@@ -12,6 +18,9 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.NotificationCompat;
 import android.content.Context;
+import android.content.DialogInterface;
+import android.content.DialogInterface.OnClickListener;
+import android.content.DialogInterface.OnMultiChoiceClickListener;
 import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
@@ -22,7 +31,13 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.support.v4.widget.DrawerLayout;
+import android.widget.AdapterView;
+import android.widget.AdapterView.OnItemClickListener;
+import android.widget.AdapterView.OnItemSelectedListener;
 import android.widget.ArrayAdapter;
+import android.widget.CheckedTextView;
+import android.widget.EditText;
+import android.widget.ListView;
 import android.widget.TextView;
 
 public class MainActivity extends ActionBarActivity implements
@@ -33,7 +48,7 @@ public class MainActivity extends ActionBarActivity implements
 	 * navigation drawer.
 	 */
 	private NavigationDrawerFragment mNavigationDrawerFragment;
-
+	private Context mContext;
 	/**
 	 * Used to store the last screen title. For use in
 	 * {@link #restoreActionBar()}.
@@ -45,7 +60,7 @@ public class MainActivity extends ActionBarActivity implements
 		super.onCreate(savedInstanceState);
 
 		setContentView(R.layout.activity_main);
-		
+		mContext = this;
 		mNavigationDrawerFragment = (NavigationDrawerFragment) getSupportFragmentManager()
 				.findFragmentById(R.id.navigation_drawer);
 		mTitle = getTitle();
@@ -53,6 +68,24 @@ public class MainActivity extends ActionBarActivity implements
 		// Set up the drawer.
 		mNavigationDrawerFragment.setUp(R.id.navigation_drawer,
 				(DrawerLayout) findViewById(R.id.drawer_layout));
+		
+		
+		/*try{
+		Common.CustomDialog.CustomDialog(mContext, view, 
+				negListener, posListener, R.string.dialog_ok, 
+				R.string.dialog_cancel, "Share");
+		//Put in listview
+		adapter = new MultiSelectListAdapter(MainActivity.this,
+				R.layout.multiselectlist_row, h.Get_Users());
+		String[] from = { "php_key","c_key","android_key","hacking_key" };
+				//listview.setAdapter(new ArrayAdapter<String>(mContext, R.layout.multiselectlist_row,R.id.textView1,from));  
+			listview.setAdapter(adapter);
+		}
+		catch(Exception ex)
+		{
+			String x;
+		}
+		*/
 
 	}
 
@@ -100,6 +133,7 @@ public class MainActivity extends ActionBarActivity implements
 		return super.onCreateOptionsMenu(menu);
 	}
 
+	@SuppressLint("NewApi")
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
 		// Handle action bar item clicks here. The action bar will
@@ -118,6 +152,53 @@ public class MainActivity extends ActionBarActivity implements
 		{
 			Intent i = new Intent(MainActivity.this, StoreActivity.class);
 			startActivity(i);
+		}
+		else if(id == R.id.action_share)
+		{
+			DatabaseHelper h = new DatabaseHelper(mContext);
+			//
+			DialogInterface.OnClickListener negListener = new OnClickListener() {
+				
+				@Override
+				public void onClick(DialogInterface dialog, int which) {
+					dialog.cancel();
+					
+				}
+			};
+			
+			DialogInterface.OnClickListener posListener = new OnClickListener() {
+				
+				@Override
+				public void onClick(DialogInterface dialog, int which) {
+					dialog.cancel();
+				}
+			};
+			
+			
+			final MultiSelectListAdapter adapter = new MultiSelectListAdapter(this,
+					R.layout.multiselectlist_row, h.Get_Users());
+			DialogInterface.OnClickListener itemClickListner = new OnClickListener() {
+				
+				@Override
+				public void onClick(DialogInterface dialog, int which) {
+					//dialog.cancel();
+					adapter.setNewSelection(which, true);
+				}
+			};
+			
+				OnItemClickListener onItemClickListener = new OnItemClickListener(){
+
+					@Override
+					public void onItemClick(AdapterView<?> parent, View view,
+							int position, long id) {
+						adapter.setOrRemoveSelection(position);
+						
+					}};
+			Common.CustomDialog.MultiChoiceDialog(mContext, 
+					adapter, onItemClickListener,
+					negListener, posListener, 
+					 R.string.dialog_ok, R.string.dialog_cancel, 
+					"Share");
 		}
 		return super.onOptionsItemSelected(item);
 	}
