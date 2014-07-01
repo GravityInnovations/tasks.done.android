@@ -2,6 +2,10 @@ package com.gravity.innovations.tasks.done;
 
 import java.util.ArrayList;
 
+import com.google.android.gms.common.ConnectionResult;
+import com.google.android.gms.common.GooglePlayServicesUtil;
+import com.google.android.gms.gcm.GoogleCloudMessaging;
+
 import android.accounts.Account;
 import android.accounts.AccountManager;
 import android.annotation.SuppressLint;
@@ -9,6 +13,8 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.pm.PackageInfo;
+import android.content.pm.PackageManager.NameNotFoundException;
 import android.graphics.Color;
 import android.graphics.LinearGradient;
 import android.graphics.Shader;
@@ -29,6 +35,8 @@ public class SplashActivity extends Activity implements
 	private TextView status;
 	private TextView progress_tasks;
 	private Activity mActivity;
+	private Context mContext;
+	private GoogleCloudMessaging gcm;
 	private ArrayList<String> tasks;
 	private Authentication mAuth;
 	private SharedPreferences mSharedPreferences;
@@ -43,15 +51,16 @@ public class SplashActivity extends Activity implements
 		super.onCreate(savedInstanceState);
 		this.requestWindowFeature(Window.FEATURE_NO_TITLE);
 		setContentView(R.layout.activity_splash);
-		Intent i = new Intent(Intent.ACTION_PICK, ContactsContract.CommonDataKinds.Email.CONTENT_URI); /*AccountManager.newChooseAccountIntent(null, null,
-		        new String[] { "com.google" }, true, null, null,
+		//Intent i = new Intent(Intent.ACTION_PICK, ContactsContract.CommonDataKinds.Email.CONTENT_URI); /*AccountManager.newChooseAccountIntent(null, null,
+		    /*    new String[] { "com.google" }, true, null, null,
 		        null, null);
 				*/
 				//new Intent(Intent.ACTION_PICK, Contacts.CONTENT_URI);
-		i.setType(Phone.CONTENT_TYPE);
+		//i.setType(Phone.CONTENT_TYPE);
 		//startActivityForResult(i, 989);
 		user_data = new Common.userData();
 		mActivity = this;
+		mContext = this;
 		tasks = new ArrayList<String>();
 		// load ui
 		status = (TextView) findViewById(R.id.txt_status);
@@ -67,35 +76,7 @@ public class SplashActivity extends Activity implements
 
 		progress_tasks.getPaint().setShader(textShaderTop);
 
-		// Thread timer = new Thread() {
-		// public void run() {
-		// try {
-		// sleep(2000);
-		// } catch (InterruptedException e) {
-		// e.printStackTrace();
-		// } finally {
-		// Intent openMainActivity = new Intent(SplashActivity.this,
-		// MainActivity.class);
-		// startActivity(openMainActivity);
-		// }
-		// }
-		// };
-		// timer.start();
-		/*
-		 * new Handler().postDelayed(new Runnable() {
-		 * 
-		 * /* Showing splash screen with a timer. This will be useful when you
-		 * want to show case your app logo / company
-		 * 
-		 * 
-		 * @Override public void run() { // This method will be executed once
-		 * the timer is over // Start your app main activity Intent i = new
-		 * Intent(SplashActivity.this, AuthenticationActivity.class);
-		 * startActivity(i); //startActivityForResult(i,
-		 * Common.RequestCodes.SPLASH_AUTH); // close this activity finish(); }
-		 * }, Common.SPLASH_TIME_OUT);
-		 */
-
+		
 		// 1 - Check Internet
 
 		addProgressTask(getString(R.string.check_internet));
@@ -160,7 +141,7 @@ public class SplashActivity extends Activity implements
 		new Common.customPause(mActivity, functionToken,
 				Common.SPLASH_TIME_OUT_SMALL);
 	}
-
+//1 check internet
 	@Override
 	public void CheckInternet() {
 
@@ -178,7 +159,7 @@ public class SplashActivity extends Activity implements
 
 		addProgressTask(getString(R.string.load_sp));
 	}
-
+//2 load shared prefs
 	@Override
 	public void LoadPreferences() {
 		// init
@@ -192,6 +173,11 @@ public class SplashActivity extends Activity implements
 				Common.USER_IS_VERIFICATION_COMPLETE, false);
 		user_data.is_registered = mSharedPreferences.getBoolean(
 				Common.USER_IS_REGISTERED, false);
+		user_data.google_reg_id = 
+				mSharedPreferences.getString(Common.GOOGLE_PROPERTY_REG_ID, "");
+		user_data.google_regVer = 
+				mSharedPreferences.getInt(Common.GOOGLE_PROPERTY_APP_VERSION, Integer.MIN_VALUE);
+	    
 		// sharedPreferencesEditor = sharedPreferences.edit();
 		// sharedPreferencesEditor.putString(keys.USER_EMAIL, account.name);
 		// sharedPreferencesEditor.commit();
@@ -202,34 +188,35 @@ public class SplashActivity extends Activity implements
 
 	@Override
 	public void GoogleAuth() {
-		if (user_data.email != null && user_data.is_verification_complete
-				&& user_data.is_sync_type) {
-			// if (user_data.email == null || user_data.is_verification_complete
-			// || !user_data.is_sync_type) {
-			mAuth = new Authentication(mActivity);
-
-			mAuth.getAuthentication(user_data.email);
-		} else if(!user_data.is_sync_type)
+		if(user_data.is_sync_type)
 		{
+			if(user_data.is_verification_complete)
+			{
+				mAuth = new Authentication(mActivity);
+				mAuth.getAuthentication(user_data.email);
+			}
+			else
+			{
+				Intent i = new Intent(SplashActivity.this,
+						AuthenticationActivity.class);
+				/*
+				 * Bundle mBundle = new Bundle();
+				 * mBundle.putSerializable(Common.USER_DATA, user_data);
+				 * i.putExtras(mBundle);
+				 */
+				startActivityForResult(i, Common.RequestCodes.SPLASH_AUTH);
+				// next event triggered is in onActivityResult after returning from
+				// authentication activity
+			}
+			
+		}
+		else{
 			TriggerWaitEvent(Common.LOAD_LOCAL_DB);
 			addProgressTask(getString(R.string.load_db));
 		}
-		else
-		{
-			Intent i = new Intent(SplashActivity.this,
-					AuthenticationActivity.class);
-			/*
-			 * Bundle mBundle = new Bundle();
-			 * mBundle.putSerializable(Common.USER_DATA, user_data);
-			 * i.putExtras(mBundle);
-			 */
-			startActivityForResult(i, Common.RequestCodes.SPLASH_AUTH);
-			// next event triggered is in onActivityResult after returning from
-			// authentication activity
-
-		}
+		
 	}
-
+	
 	@SuppressLint("NewApi")
 	public void Google_Auth_Recieve_Result(String Email, String Error,
 			int resultCode) {
@@ -272,8 +259,15 @@ public class SplashActivity extends Activity implements
 			user_data.is_sync_type = true;
 		}
 		mSharedPreferencesEditor.commit();
-		TriggerWaitEvent(Common.LOAD_LOCAL_DB);
-		addProgressTask(getString(R.string.load_db));
+		if(user_data.is_sync_type){
+			TriggerWaitEvent(Common.GRAVITY_REGISTER);
+			
+			addProgressTask(getString(R.string.gravity_register));
+		}
+		else{
+			TriggerWaitEvent(Common.LOAD_LOCAL_DB);
+			addProgressTask(getString(R.string.load_db));
+		}
 	}
 
 	@Override
@@ -283,15 +277,15 @@ public class SplashActivity extends Activity implements
 		DatabaseHelper h = new DatabaseHelper(this);
 		
 		
-		if (!user_data.is_registered){
+		/*if (!user_data.is_registered){
 			TriggerWaitEvent(Common.GRAVITY_REGISTER);
 		addProgressTask(getString(R.string.gravity_register));
 			//AccountsController.get_gravity_accounts(Common.RequestCodes.GRAVITY_REGISTER);
-		}
-		else {
+		}*/
+		//else {
 			TriggerWaitEvent(Common.GO_TO_MAIN);
 			addProgressTask(getString(R.string.complete));
-		}
+		//}
 	}
 
 	@Override
@@ -299,12 +293,33 @@ public class SplashActivity extends Activity implements
 
 		// TODO Auto-generated method stub
 		
-			AccountsController.register_gravity_account(mActivity,
+			GravityController.register_gravity_account(mActivity,
 					user_data.email, Common.RequestCodes.GRAVITY_REGISTER);
 			//AccountsController.get_gravity_accounts(Common.RequestCodes.GRAVITY_REGISTER);
 		
 	}
-
+	public void ConfigureGCM() {
+		// Check device for Play Services APK. If check succeeds, proceed with
+        //  GCM registration.
+		if (GCMController.checkPlayServices(mContext, mActivity)) {
+	        // If this check succeeds, proceed with normal processing.
+	        // Otherwise, prompt user to get valid Play Services APK.
+			gcm = GoogleCloudMessaging.getInstance(mContext);
+           
+            if (GCMController.getRegistrationId(mContext, user_data)) {
+                GCMController.registerInBackground(mContext, gcm);
+            }
+			//shifted to gcm_save_reg_id
+			//TriggerWaitEvent(Common.LOAD_LOCAL_DB);
+			//addProgressTask(getString(R.string.load_db));
+			
+		}
+		else
+		{
+			addProgressTask("Device unsupported");
+		}
+		
+	}
 	@Override
 	public void GoToMain() {
 		Intent i = new Intent(SplashActivity.this, MainActivity.class);
@@ -341,12 +356,34 @@ public class SplashActivity extends Activity implements
 				.putBoolean(Common.USER_IS_REGISTERED, false);
 			}
 			mSharedPreferencesEditor.commit();
-			TriggerWaitEvent(Common.GO_TO_MAIN);
-			addProgressTask(getString(R.string.complete));
+			TriggerWaitEvent(Common.CONFIG_GCM);
+			addProgressTask(getString(R.string.checking_other_settings));
 			break;
 			
 		}
 
 	}
 
+	@Override
+	public void storeRegisterationId(String regid, int appVersion) {
+		addProgressTask("*Saving GCM reg");
+		mSharedPreferencesEditor.putString(Common.GOOGLE_PROPERTY_REG_ID,regid);
+		mSharedPreferencesEditor.putInt(Common.GOOGLE_PROPERTY_APP_VERSION,appVersion);
+		mSharedPreferencesEditor.commit();
+		addProgressTask("*Saved GCM reg, app ver");
+		TriggerWaitEvent(Common.LOAD_LOCAL_DB);
+		addProgressTask(getString(R.string.load_db));
+	}
+
+	@Override
+	public void displayMsg(String msg) {
+		// TODO Auto-generated method stub
+		addProgressTask(msg);
+	}
+	
+	//gcm functions
+	
+	
+	
+	
 }

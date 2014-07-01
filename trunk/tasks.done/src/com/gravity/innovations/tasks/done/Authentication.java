@@ -2,6 +2,8 @@ package com.gravity.innovations.tasks.done;
 
 import java.util.ArrayList;
 
+import com.google.android.gms.gcm.GoogleCloudMessaging;
+
 import android.accounts.Account;
 import android.accounts.AccountManager;
 import android.accounts.AccountManagerCallback;
@@ -14,7 +16,6 @@ import android.os.Bundle;
 public class Authentication {
 	ArrayList<Account> mAccounts;
 	private AccountManager accountManager;
-
 	private Context mContext;
 	public Authentication(Context mContext)
 	{

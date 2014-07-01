@@ -44,14 +44,25 @@ public class Common {
 	public static final String USER_IS_REGISTERED = prefix + "UserRegistered";
 	public static final String SHARED_PREF_KEY = prefix;
 	public static final int SPLASH_TIME_OUT = 3000;
-	public static final int SPLASH_TIME_OUT_SMALL = 500;
+	public static final int SPLASH_TIME_OUT_SMALL = 3000;
 	public static final String ACCOUNT_TYPE = "com.google";
 	public static final String AUTH_TOKEN = prefix + "AuthToken";
 	public static final String AUTH_TOKEN_TYPE = "oauth2:https://www.googleapis.com/auth/userinfo.profile https://www.google.com/m8/feeds/ https://www.googleapis.com/auth/drive.appdata https://www.googleapis.com/auth/tasks";
+	public static final String EXTRA_MESSAGE = "message";
+    public static final String GOOGLE_PROPERTY_REG_ID = "registration_id";
+    public static final String GOOGLE_PROPERTY_APP_VERSION = "appVersion";
+    public final static int PLAY_SERVICES_RESOLUTION_REQUEST = 9000;
+    /**
+     * Substitute you own sender ID here. This is the project number you got
+     * from the API Console, as described in "Getting Started."
+     */
+    public final static String GCM_SENDER_ID = "632707319263";
+
+    
 	public static final String HAS_INTERNET = prefix + "HasInternet";
 	public static final String EXCEPTION = prefix + "Exception";
 	public static final String USER_UNAPPROVE = prefix + "Unapproved";
-	public static final String NETWORK_ERROR = "NetworkError";
+	public static final String NETWORK_ERROR = prefix+"NetworkError";
 	public static final int one = 2;
 
 	public static final int HTTP_RESPONSE_OK = 0;
@@ -66,7 +77,8 @@ public class Common {
 	public static final int GOOGLE_AUTH = 3;
 	public static final int LOAD_LOCAL_DB = 4;
 	public static final int GRAVITY_REGISTER = 5;
-	public static final int GO_TO_MAIN = 6;
+	public static final int GO_TO_MAIN = 7;
+	public static final int CONFIG_GCM = 6;
 	// Activity Names
 	public static final String AUTH_ACTIVITY = "AuthenticationActivity";
 	public static final String SPLASH_ACTIVITY = "SplashActivity";
@@ -87,13 +99,17 @@ public class Common {
 
 			public void pushFailure(String Error, String Email);
 		}
+		public interface GCMCallback{
+			public void displayMsg(String msg);
+			public void storeRegisterationId(String regid, int appVersion);
+		}
 		public interface HttpCallback{
 			public void httpResult(Object data, int RequestCode, int ResultCode);
 		}
 		public interface AuthActivityCallback extends GoogleAuthCallback {
 		}
 
-		public interface SplashActivityCallback extends GoogleAuthCallback, HttpCallback{
+		public interface SplashActivityCallback extends GoogleAuthCallback, HttpCallback,GCMCallback{
 			public void CheckInternet();
 
 			public void LoadPreferences();
@@ -132,6 +148,9 @@ public class Common {
 					case GRAVITY_REGISTER:
 						((SplashActivity) mActivity).GravityRegister();
 						break;
+					case CONFIG_GCM:
+						((SplashActivity) mActivity).ConfigureGCM();
+						break;
 					case GO_TO_MAIN:
 						((SplashActivity) mActivity).GoToMain();
 						break;
@@ -166,6 +185,8 @@ public class Common {
 		public Boolean is_verification_complete;
 		public Boolean is_sync_type;
 		public Boolean is_registered;
+		public String google_reg_id;
+		public int google_regVer;
 		public userData() {
 
 		}

@@ -34,6 +34,7 @@
 		<string name="got_email_success_half"> succesfully saved, will be authenticated after resolving: </string>
 		<string name="loading_comp">Loading application components</string>
 		<string name="creating_ui">Creating UI</string>
+		<string name="checking_other_settings">Checking other settings</string>
 		<string name="google_result_ok">Account information saved</string>
 		<string name="google_result_cancel">User skiped google authentication</string>
 		<string name="google_disable_sync">Disabling cloud sync with google</string>
