@@ -193,7 +193,7 @@ public class SplashActivity extends Activity implements
 		{
 			if(user_data.is_verification_complete)
 			{
-				mAuth = new Authentication(mActivity);
+				mAuth = new Authentication(mContext);
 				mAuth.getAuthentication(user_data.email);
 			}
 			else

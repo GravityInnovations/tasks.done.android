@@ -1,7 +1,11 @@
 package com.gravity.innovations.tasks.done;
 
+import java.io.IOException;
 import java.util.ArrayList;
 
+import com.google.android.gms.auth.GoogleAuthException;
+import com.google.android.gms.auth.GoogleAuthUtil;
+import com.google.android.gms.auth.UserRecoverableAuthException;
 import com.google.android.gms.gcm.GoogleCloudMessaging;
 
 import android.accounts.Account;
@@ -17,13 +21,14 @@ public class Authentication {
 	ArrayList<Account> mAccounts;
 	private AccountManager accountManager;
 	private Context mContext;
+	//private Context mActivity;
 	public Authentication(Context mContext)
 	{
 		this.mContext = mContext;
 		this.mAccounts = new ArrayList<Account>();
 		accountManager = AccountManager.get(mContext);
 		
-	    for (Account i:accountManager.getAccountsByType(Common.ACCOUNT_TYPE)) {
+	    for (Account i:accountManager.getAccountsByType(GoogleAuthUtil.GOOGLE_ACCOUNT_TYPE)) {
 	    	mAccounts.add(i);
 	    }
 	}
@@ -48,7 +53,7 @@ public class Authentication {
 	}
 	protected void getAuthentication(final Account account)//returns status
 	{
-		 
+		/* 
 		accountManager.getAuthToken(account, Common.AUTH_TOKEN_TYPE, null,(Activity)mContext, new AccountManagerCallback<Bundle>() {
 			String className = mContext.getClass().getSimpleName().toString();
         	
@@ -92,6 +97,35 @@ public class Authentication {
     	      }
     	      
     	    }
-    	  }, null);
+    	  }, null);*/
+		String className = mContext.getClass().getSimpleName().toString();
+    	
+		try {
+			String AuthToken  = GoogleAuthUtil.getToken(mContext,account.name.toString(), Common.AUTH_TOKEN_TYPE);
+			if(AuthToken != null){
+				
+	        	if(className.equals(Common.AUTH_ACTIVITY))
+	        	((AuthenticationActivity)mContext).pushSuccess(AuthToken, account.name);
+	        	else if(className.equals(Common.SPLASH_ACTIVITY))
+	        		((SplashActivity)mContext).pushSuccess(AuthToken, account.name);
+	        	
+	        	//sharedPreferencesEditor.putString(keys.USER_EMAIL, account.name);
+	        	//sharedPreferencesEditor.commit();
+	        	//registerDomainUser(account.name);
+	        	//callback.onAuthenticationComplete();
+	        }
+		
+		} catch (UserRecoverableAuthException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (GoogleAuthException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+		
 	}
 }

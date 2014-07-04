@@ -43,7 +43,7 @@ public class AuthenticationActivity extends Activity implements Common.Callbacks
 		
 		//user_data = (Common.userData)mRecievedBundle.getSerializable(Common.USER_EMAIL);
 		//Actions
-		mAuth = new Authentication(this);
+		mAuth = new Authentication(mContext);
 		//if(user_data.user_email == null)
 		for(Account mAccount:mAuth.getAccounts())
 		{

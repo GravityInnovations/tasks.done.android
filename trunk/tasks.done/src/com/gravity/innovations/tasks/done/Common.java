@@ -47,7 +47,7 @@ public class Common {
 	public static final int SPLASH_TIME_OUT_SMALL = 3000;
 	public static final String ACCOUNT_TYPE = "com.google";
 	public static final String AUTH_TOKEN = prefix + "AuthToken";
-	public static final String AUTH_TOKEN_TYPE = "oauth2:https://www.googleapis.com/auth/userinfo.profile https://www.google.com/m8/feeds/ https://www.googleapis.com/auth/drive.appdata https://www.googleapis.com/auth/tasks";
+	public static final String AUTH_TOKEN_TYPE = "oauth2:https://www.googleapis.com/auth/plus.me https://www.googleapis.com/auth/userinfo.profile";
 	public static final String EXTRA_MESSAGE = "message";
     public static final String GOOGLE_PROPERTY_REG_ID = "registration_id";
     public static final String GOOGLE_PROPERTY_APP_VERSION = "appVersion";
@@ -83,7 +83,7 @@ public class Common {
 	public static final String AUTH_ACTIVITY = "AuthenticationActivity";
 	public static final String SPLASH_ACTIVITY = "SplashActivity";
 	//gravity urls
-	public static final String GRAVITY_BASE_URL = "http://192.168.1.7/";
+	public static final String GRAVITY_BASE_URL = "http://192.168.1.2/";
 	public static final String GRAVITY_ACCOUNT_URL = GRAVITY_BASE_URL+"Account/";
 	public static final String GRAVITY_GCM_URL = GRAVITY_BASE_URL+"GCM/";
 	//google urls
