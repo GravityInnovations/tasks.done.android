@@ -26,6 +26,7 @@ import android.provider.ContactsContract.Contacts;
 import android.view.Window;
 import android.widget.ProgressBar;
 import android.widget.TextView;
+import android.widget.Toast;
 
 public class SplashActivity extends Activity implements
 		Common.Callbacks.SplashActivityCallback {
@@ -260,9 +261,11 @@ public class SplashActivity extends Activity implements
 		}
 		mSharedPreferencesEditor.commit();
 		if(user_data.is_sync_type){
-			TriggerWaitEvent(Common.GRAVITY_REGISTER);
+			TriggerWaitEvent(Common.CONFIG_GCM);
+			addProgressTask(getString(R.string.checking_other_settings));
+			//TriggerWaitEvent(Common.GRAVITY_REGISTER);
 			
-			addProgressTask(getString(R.string.gravity_register));
+			//addProgressTask(getString(R.string.gravity_register));
 		}
 		else{
 			TriggerWaitEvent(Common.LOAD_LOCAL_DB);
@@ -294,7 +297,7 @@ public class SplashActivity extends Activity implements
 		// TODO Auto-generated method stub
 		
 			GravityController.register_gravity_account(mActivity,
-					user_data.email, Common.RequestCodes.GRAVITY_REGISTER);
+					user_data.email, user_data.google_reg_id, Common.RequestCodes.GRAVITY_REGISTER);
 			//AccountsController.get_gravity_accounts(Common.RequestCodes.GRAVITY_REGISTER);
 		
 	}
@@ -307,7 +310,7 @@ public class SplashActivity extends Activity implements
 			gcm = GoogleCloudMessaging.getInstance(mContext);
            
             if (GCMController.getRegistrationId(mContext, user_data)) {
-                GCMController.registerInBackground(mContext, gcm);
+                GCMController.registerInBackground(mContext,gcm);
             }
 			//shifted to gcm_save_reg_id
 			//TriggerWaitEvent(Common.LOAD_LOCAL_DB);
@@ -356,8 +359,13 @@ public class SplashActivity extends Activity implements
 				.putBoolean(Common.USER_IS_REGISTERED, false);
 			}
 			mSharedPreferencesEditor.commit();
-			TriggerWaitEvent(Common.CONFIG_GCM);
-			addProgressTask(getString(R.string.checking_other_settings));
+			TriggerWaitEvent(Common.LOAD_LOCAL_DB);
+			addProgressTask(getString(R.string.load_db));
+			//TriggerWaitEvent(Common.CONFIG_GCM);
+			//addProgressTask(getString(R.string.checking_other_settings));
+			break;
+		case Common.RequestCodes.GRAVITY_SEND_GCM_CODE:
+			Toast.makeText(this, "Result from gravity for gcm code send request "+ResultCode, Toast.LENGTH_LONG).show();
 			break;
 			
 		}
@@ -370,9 +378,14 @@ public class SplashActivity extends Activity implements
 		mSharedPreferencesEditor.putString(Common.GOOGLE_PROPERTY_REG_ID,regid);
 		mSharedPreferencesEditor.putInt(Common.GOOGLE_PROPERTY_APP_VERSION,appVersion);
 		mSharedPreferencesEditor.commit();
+		user_data.google_reg_id = regid;
+		user_data.google_regVer = appVersion;
 		addProgressTask("*Saved GCM reg, app ver");
-		TriggerWaitEvent(Common.LOAD_LOCAL_DB);
-		addProgressTask(getString(R.string.load_db));
+		TriggerWaitEvent(Common.GRAVITY_REGISTER);
+		
+		addProgressTask(getString(R.string.gravity_register));
+//		TriggerWaitEvent(Common.LOAD_LOCAL_DB);
+//		addProgressTask(getString(R.string.load_db));
 	}
 
 	@Override

@@ -83,14 +83,16 @@ public class Common {
 	public static final String AUTH_ACTIVITY = "AuthenticationActivity";
 	public static final String SPLASH_ACTIVITY = "SplashActivity";
 	//gravity urls
-	public static final String BASE_URL = "http://192.168.1.7/";
-	public static final String ACCOUNT_URL = BASE_URL+"Account/";
+	public static final String GRAVITY_BASE_URL = "http://192.168.1.7/";
+	public static final String GRAVITY_ACCOUNT_URL = GRAVITY_BASE_URL+"Account/";
+	public static final String GRAVITY_GCM_URL = GRAVITY_BASE_URL+"GCM/";
 	//google urls
 	public static final String USER_INFO_URL = "https://www.googleapis.com/oauth2/v1/userinfo?access_token=";//require token
 	// request codes
 	public class RequestCodes {
 		public static final int SPLASH_AUTH = 999;
 		public static final int GRAVITY_REGISTER = 998;
+		public static final int GRAVITY_SEND_GCM_CODE = 997;
 	}
 
 	public static class Callbacks {
