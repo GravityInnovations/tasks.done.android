@@ -84,7 +84,7 @@ public class GCMController {
                     gcm = GoogleCloudMessaging.getInstance(mContext);
                 }
                 regid = gcm.register(Common.GCM_SENDER_ID);
-                msg = "Device registered, registration ID=" + regid;
+                //msg = "Device registered, registration ID=" + regid;
 
                 // You should send the registration ID to your server over HTTP,
                 // so it can use GCM/HTTP or CCS to send messages to your app.

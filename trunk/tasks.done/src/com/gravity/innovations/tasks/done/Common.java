@@ -45,7 +45,7 @@ public class Common {
 	public static final String USER_IS_REGISTERED = prefix + "UserRegistered";
 	public static final String SHARED_PREF_KEY = prefix;
 	public static final int SPLASH_TIME_OUT = 3000;
-	public static final int SPLASH_TIME_OUT_SMALL = 2000;
+	public static final int SPLASH_TIME_OUT_SMALL = 1000;
 	public static final String ACCOUNT_TYPE = "com.google";
 	public static final String AUTH_TOKEN = prefix + "AuthToken";
 	public static final String AUTH_TOKEN_TYPE = "oauth2:profile https://www.googleapis.com/auth/plus.login https://www.googleapis.com/auth/plus.me";//https://www.googleapis.com/auth/userinfo.profile";// https://www.googleapis.com/auth/drive.file https://www.googleapis.com/auth/datastoremobile https://www.googleapis.com/auth/appstate";
