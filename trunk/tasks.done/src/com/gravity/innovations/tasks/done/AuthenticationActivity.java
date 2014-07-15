@@ -17,9 +17,8 @@ import android.widget.RadioButton;
 import android.widget.RadioGroup;
 import android.widget.RadioGroup.OnCheckedChangeListener;
 import android.widget.Toast;
-//Faik:untested 3:23 21/05/14
 public class AuthenticationActivity extends Activity implements Common.Callbacks.AuthActivityCallback {
-	private Authentication mAuth;
+	private GoogleAuth mAuth;
 	private Button btn_auth;
 	private Button btn_skip;
 	private RadioGroup account_options;
@@ -38,12 +37,14 @@ public class AuthenticationActivity extends Activity implements Common.Callbacks
 		btn_auth = (Button) findViewById(R.id.btn_auth);
 		btn_skip = (Button) findViewById(R.id.btn_auth_skip);
 		btn_auth.setEnabled(false);
+		final Intent i = getIntent(); //gets the intent that called this intent
+		
 		//data load
 		//mRecievedBundle = getIntent().getExtras();
 		
 		//user_data = (Common.userData)mRecievedBundle.getSerializable(Common.USER_EMAIL);
 		//Actions
-		mAuth = new Authentication(mContext);
+		mAuth = new GoogleAuth(mContext, null);
 		//if(user_data.user_email == null)
 		for(Account mAccount:mAuth.getAccounts())
 		{
@@ -79,16 +80,22 @@ public class AuthenticationActivity extends Activity implements Common.Callbacks
 						selectedAccount = mAccount;
 				}
 				if(selectedAccount != null)
-					if(Common.hasInternet(mActivity))
-					{
-						mAuth.getAuthentication(selectedAccount);
-					}
-					else
-					{
-						Intent i = getIntent(); //gets the intent that called this intent
-						setResult(Activity.RESULT_OK, i);
-						finish();
-					}
+//					if(Common.hasInternet(mActivity))
+//					{
+//						mAuth.SetAccount(selectedAccount);
+//						mAuth.execute();
+//						//mAuth.getAuthentication(selectedAccount);
+//					}
+//					else
+//					{
+//						Intent i = getIntent(); //gets the intent that called this intent
+//						i.putExtra("", selectedAccount.name);
+//						setResult(Activity.RESULT_OK, i);
+//						finish();
+//					}
+				i.putExtra(Common.USER_EMAIL, selectedAccount.name);
+				setResult(Activity.RESULT_OK, i);
+				finish();
 				
 				
 			}
@@ -113,19 +120,30 @@ public class AuthenticationActivity extends Activity implements Common.Callbacks
 		i.putExtras(mBundle);
 		return i;
 	}
+//	@Override
+//	public void pushSuccess(String AuthToken, String Email) {
+//		// TODO Auto-generated method stub
+//		/*Toast toast = Toast.makeText(mContext, s, 3000);
+//		toast.show();*/
+//		 Intent i = setIntent(AuthToken, Email, null); //gets the intent that called this intent
+//		  setResult(Activity.RESULT_OK, i);
+//		  finish();
+//	}
+//	@Override
+//	public void pushFailure(String Error, String Email) {
+//		
+//		Intent i = setIntent(null, Email, Error);
+//		if(Email == null)
+//		setResult(Activity.RESULT_CANCELED, i);
+//		else
+//			setResult(Activity.RESULT_OK, i);
+//		finish();
+//	}
 	@Override
-	public void pushSuccess(String AuthToken, String Email) {
-		// TODO Auto-generated method stub
-		/*Toast toast = Toast.makeText(mContext, s, 3000);
-		toast.show();*/
-		 Intent i = setIntent(AuthToken, Email, null); //gets the intent that called this intent
-		  setResult(Activity.RESULT_OK, i);
-		  finish();
-	}
-	@Override
-	public void pushFailure(String Error, String Email) {
+	public void AuthResult(Intent i) {
+		//Intent i = setIntent(null, Email, Error);
+		String Email = i.getStringExtra("Email");
 		
-		Intent i = setIntent(null, Email, Error);
 		if(Email == null)
 		setResult(Activity.RESULT_CANCELED, i);
 		else

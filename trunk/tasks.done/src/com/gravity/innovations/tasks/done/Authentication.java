@@ -3,6 +3,8 @@ package com.gravity.innovations.tasks.done;
 import java.io.IOException;
 import java.util.ArrayList;
 
+import org.json.JSONObject;
+
 import com.google.android.gms.auth.GoogleAuthException;
 import com.google.android.gms.auth.GoogleAuthUtil;
 import com.google.android.gms.auth.UserRecoverableAuthException;
@@ -15,13 +17,19 @@ import android.accounts.AccountManagerFuture;
 import android.accounts.OperationCanceledException;
 import android.app.Activity;
 import android.content.Context;
+import android.os.AsyncTask;
 import android.os.Bundle;
 
-public class Authentication {
+public class Authentication  extends AsyncTask<Void, Void, Void> {
 	ArrayList<Account> mAccounts;
 	private AccountManager accountManager;
 	private Context mContext;
+	private Account mAccount;
 	//private Context mActivity;
+	public void SetAccount(Account temp)
+	{
+		this.mAccount = temp;
+	}
 	public Authentication(Context mContext)
 	{
 		this.mContext = mContext;
@@ -104,11 +112,11 @@ public class Authentication {
 			String AuthToken  = GoogleAuthUtil.getToken(mContext,account.name.toString(), Common.AUTH_TOKEN_TYPE);
 			if(AuthToken != null){
 				
-	        	if(className.equals(Common.AUTH_ACTIVITY))
-	        	((AuthenticationActivity)mContext).pushSuccess(AuthToken, account.name);
-	        	else if(className.equals(Common.SPLASH_ACTIVITY))
-	        		((SplashActivity)mContext).pushSuccess(AuthToken, account.name);
-	        	
+//	        	if(className.equals(Common.AUTH_ACTIVITY))
+//	        	((AuthenticationActivity)mContext).pushSuccess(AuthToken, account.name);
+//	        	else if(className.equals(Common.SPLASH_ACTIVITY))
+//	        		((SplashActivity)mContext).pushSuccess(AuthToken, account.name);
+//	        	
 	        	//sharedPreferencesEditor.putString(keys.USER_EMAIL, account.name);
 	        	//sharedPreferencesEditor.commit();
 	        	//registerDomainUser(account.name);
@@ -117,15 +125,39 @@ public class Authentication {
 		
 		} catch (UserRecoverableAuthException e) {
 			// TODO Auto-generated catch block
-			e.printStackTrace();
+//			 if(className.equals(Common.AUTH_ACTIVITY))
+//   	    	  ((AuthenticationActivity)mContext).pushFailure(e.getLocalizedMessage(),null);
+//   	    	  else if(className.equals(Common.SPLASH_ACTIVITY))
+//   	    		  ((SplashActivity)mContext).pushFailure(e.getLocalizedMessage(),null);
+//   	    	  
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
-			e.printStackTrace();
+//			 if(className.equals(Common.AUTH_ACTIVITY))
+//   	    	  ((AuthenticationActivity)mContext).pushFailure(e.getLocalizedMessage(),null);
+//   	    	  else if(className.equals(Common.SPLASH_ACTIVITY))
+//   	    		  ((SplashActivity)mContext).pushFailure(e.getLocalizedMessage(),null);
+//   	    	  
 		} catch (GoogleAuthException e) {
 			// TODO Auto-generated catch block
-			e.printStackTrace();
+//			 if(className.equals(Common.AUTH_ACTIVITY))
+//   	    	  ((AuthenticationActivity)mContext).pushFailure(e.getLocalizedMessage(),null);
+//   	    	  else if(className.equals(Common.SPLASH_ACTIVITY))
+//   	    		  ((SplashActivity)mContext).pushFailure(e.getLocalizedMessage(),null);
+//   	    	  
 		}
+		catch (Exception e) {
+//	    	  if(className.equals(Common.AUTH_ACTIVITY))
+//	    	  ((AuthenticationActivity)mContext).pushFailure(e.getLocalizedMessage(), account.name);
+//	    	  else if(className.equals(Common.SPLASH_ACTIVITY))
+//	    		  ((SplashActivity)mContext).pushFailure(e.getLocalizedMessage(),account.name);
+//	    	  
+	      }
 		
 		
+	}
+	@Override
+	protected Void doInBackground(Void... params) {
+		getAuthentication(mAccount);
+		return null;
 	}
 }

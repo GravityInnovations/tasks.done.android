@@ -2,6 +2,7 @@ package com.gravity.innovations.tasks.done;
 
 import java.util.ArrayList;
 
+import com.google.android.gms.auth.UserRecoverableAuthException;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GooglePlayServicesUtil;
 import com.google.android.gms.gcm.GoogleCloudMessaging;
@@ -34,17 +35,42 @@ public class SplashActivity extends Activity implements
 	private ProgressBar progress2;
 	private ProgressBar progress3;
 	private TextView status;
+	private TextView log;
 	private TextView progress_tasks;
 	private Activity mActivity;
 	private Context mContext;
 	private GoogleCloudMessaging gcm;
 	private ArrayList<String> tasks;
-	private Authentication mAuth;
+	private GoogleAuth mAuth;
 	private SharedPreferences mSharedPreferences;
 	private SharedPreferences.Editor mSharedPreferencesEditor;
 	// data
 	private Common.userData user_data;
-
+	private void updateLog()
+	{
+		user_data.email = mSharedPreferences.getString(Common.USER_EMAIL, null);
+		user_data.is_sync_type = mSharedPreferences.getBoolean(
+				Common.USER_IS_SYNC_TYPE, true);
+		
+		user_data.gravity_is_registered = mSharedPreferences.getBoolean(
+				Common.USER_IS_REGISTERED, false);
+		user_data.google_reg_id = 
+				mSharedPreferences.getString(Common.GOOGLE_PROPERTY_REG_ID, "");
+		user_data.google_regVer = 
+				mSharedPreferences.getInt(Common.GOOGLE_PROPERTY_APP_VERSION, Integer.MIN_VALUE);
+		user_data.google_AuthToken = 
+				mSharedPreferences.getString(Common.AUTH_TOKEN, null);
+	   String txt = "Name: "+user_data.name;
+	   txt += "\nEmail: "+user_data.email;
+	   txt += "\nIs_Sync_type: "+user_data.is_sync_type;
+	   txt += "\nIs Registered: "+user_data.gravity_is_registered;
+	   txt += "\nReg id: "+user_data.google_reg_id;
+	   txt += "\nReg Ver: "+user_data.google_regVer;
+	   txt += "\nGoogle Auth token: "+user_data.google_AuthToken;
+	   log.setText(txt);
+	   
+	   
+	}
 	@SuppressLint("NewApi")
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -66,6 +92,8 @@ public class SplashActivity extends Activity implements
 		// load ui
 		status = (TextView) findViewById(R.id.txt_status);
 		progress_tasks = (TextView) findViewById(R.id.txt_tasks);
+		log = (TextView) findViewById(R.id.log);
+		
 		addProgressTask(getString(R.string.loading_comp));
 		addProgressTask(getString(R.string.creating_ui));
 		progress1 = (ProgressBar) findViewById(R.id.progressBar1);
@@ -77,24 +105,21 @@ public class SplashActivity extends Activity implements
 
 		progress_tasks.getPaint().setShader(textShaderTop);
 
-		
-		// 1 - Check Internet
+		TriggerWaitEvent(Common.LOAD_PREFS);
 
-		addProgressTask(getString(R.string.check_internet));
-		TriggerWaitEvent(Common.CHECK_INTERNET);
-		// 2 - Load Prefs
-
-		// 3 - Connect with google - recheck internet within
-
-		// 4 - Load Db data
-		// 5 - Every thing else
+		addProgressTask(getString(R.string.load_sp));
 
 	}
 
 	private void addProgressTask(String s) {
-
+		try{
 		status.setText(s);
 		String temp = "";
+		while(tasks.size()>5)
+		{
+			
+			tasks.remove(0);
+		}
 		for (int i = tasks.size() - 1; i >= 0; i--) {
 
 			temp += tasks.get(i) + "\n";
@@ -102,245 +127,84 @@ public class SplashActivity extends Activity implements
 
 		tasks.add(s);
 		progress_tasks.setText(temp);
+		}
+		catch(Exception ex)
+		{
+			//addProgressTask("Error: "+ex.getLocalizedMessage());
+		}
 	}
 
 	@SuppressLint("NewApi")
 	public void onActivityResult(int requestCode, int resultCode, Intent data) {
-		Bundle mBundle = data.getExtras();
-		switch (requestCode) {
+		switch(requestCode)
+		{
+			case Common.RequestCodes.SPLASH_ACC:
+				String Email = data.getStringExtra(Common.USER_EMAIL);
+				if(Email!=null && resultCode == Activity.RESULT_OK)
+				{	
+//					mAuth = new GoogleAuth(mContext, null);
+//					mAuth.SetAccount(Email);
+					addProgressTask( getString(R.string.google_result_ok));
+					mSharedPreferencesEditor.putBoolean(Common.USER_IS_SYNC_TYPE, true);
+					mSharedPreferencesEditor.putString(Common.USER_EMAIL, Email);
+					mSharedPreferencesEditor.commit();
+					user_data.email = Email;
+					user_data.is_sync_type = true;
+					//mAuth.execute();
+					TriggerWaitEvent(Common.GOOGLE_AUTH);
+				}	
+				else if(resultCode == Activity.RESULT_CANCELED)
+				{
+					addProgressTask( getString(R.string.google_result_cancel));
+					addProgressTask( getString(R.string.google_disable_sync));
+					mSharedPreferencesEditor.putBoolean(Common.USER_IS_SYNC_TYPE, false);
+					mSharedPreferencesEditor.putString(Common.USER_EMAIL, null);
+					mSharedPreferencesEditor.commit();
+					user_data.email = Email;
+					user_data.is_sync_type = false;
+					TriggerWaitEvent(Common.GO_TO_MAIN);
+					addProgressTask(getString(R.string.complete));
+				}
+				
 
-		case Common.RequestCodes.SPLASH_AUTH:
-			Google_Auth_Recieve_Result(mBundle.getString(Common.USER_EMAIL),
-					mBundle.getString(Common.EXCEPTION), resultCode);
-			/*
-			 * if (mBundle.getString(Common.USER_EMAIL) != null && resultCode ==
-			 * Activity.RESULT_OK) { // save to sp
-			 * addProgressTask(mBundle.getString(Common.USER_EMAIL) +
-			 * getString(R.string.got_email_success_full));
-			 * 
-			 * } else if (mBundle.getString(Common.USER_EMAIL) != null &&
-			 * mBundle.getString(Common.EXCEPTION) != null) {
-			 * addProgressTask(mBundle.getString(Common.USER_EMAIL) +
-			 * getString(R.string.got_email_success_half));
-			 * 
-			 * }
-			 * 
-			 * if (resultCode == Activity.RESULT_CANCELED) {
-			 * progress1.setAlpha((float) 0.4);
-			 * addProgressTask(getString(R.string.google_result_cancel));
-			 * addProgressTask(getString(R.string.google_disable_sync));
-			 * progress1.setProgress(80); } else if (resultCode ==
-			 * Activity.RESULT_OK) { progress1.setProgress(100);
-			 * addProgressTask(getString(R.string.google_result_ok)); }
-			 */
-			// TriggerWaitEvent(Common.LOAD_LOCAL_DB);
-			break;
+				//addProgressTask(getString(R.string.go));
+				break;
+			case Common.RequestCodes.SPLASH_AUTH:
+				TriggerWaitEvent(Common.GOOGLE_AUTH);
+				break;
 		}
+		updateLog();
+		
+		
 	}
-
+	private WaitEventHandler wh = new WaitEventHandler();
 	private void TriggerWaitEvent(int functionToken) {
-		new Common.customPause(mActivity, functionToken,
-				Common.SPLASH_TIME_OUT_SMALL);
+		wh.AddRunnable(mActivity, functionToken,Common.SPLASH_TIME_OUT_SMALL);
+//		new Common.customPause(mActivity, functionToken,
+//				Common.SPLASH_TIME_OUT_SMALL);
 	}
-//1 check internet
 	@Override
 	public void CheckInternet() {
 
 		if (Common.hasInternet(mActivity)) {
 			progress1.setProgress(40);
 			addProgressTask(getString(R.string.internet_stable));
+			TriggerWaitEvent(Common.CONFIG_GCM);
+			addProgressTask(getString(R.string.checking_other_settings));
+			addProgressTask(getString(R.string.config_gcm));
 
 		} else {
 			addProgressTask(getString(R.string.no_internet));
 			addProgressTask(getString(R.string.require_internet));
-
-			progress1.setProgress(30);
-		}
-		TriggerWaitEvent(Common.LOAD_PREFS);
-
-		addProgressTask(getString(R.string.load_sp));
-	}
-//2 load shared prefs
-	@Override
-	public void LoadPreferences() {
-		// init
-		mSharedPreferences = getSharedPreferences(Common.SHARED_PREF_KEY,
-				MODE_MULTI_PROCESS);
-		mSharedPreferencesEditor = mSharedPreferences.edit();
-		user_data.email = mSharedPreferences.getString(Common.USER_EMAIL, null);
-		user_data.is_sync_type = mSharedPreferences.getBoolean(
-				Common.USER_IS_SYNC_TYPE, true);
-		user_data.is_verification_complete = mSharedPreferences.getBoolean(
-				Common.USER_IS_VERIFICATION_COMPLETE, false);
-		user_data.is_registered = mSharedPreferences.getBoolean(
-				Common.USER_IS_REGISTERED, false);
-		user_data.google_reg_id = 
-				mSharedPreferences.getString(Common.GOOGLE_PROPERTY_REG_ID, "");
-		user_data.google_regVer = 
-				mSharedPreferences.getInt(Common.GOOGLE_PROPERTY_APP_VERSION, Integer.MIN_VALUE);
-	    
-		// sharedPreferencesEditor = sharedPreferences.edit();
-		// sharedPreferencesEditor.putString(keys.USER_EMAIL, account.name);
-		// sharedPreferencesEditor.commit();
-		TriggerWaitEvent(Common.GOOGLE_AUTH);
-		addProgressTask(getString(R.string.get_google_acc));
-
-	}
-
-	@Override
-	public void GoogleAuth() {
-		if(user_data.is_sync_type)
-		{
-			if(user_data.is_verification_complete)
-			{
-				mAuth = new Authentication(mContext);
-				mAuth.getAuthentication(user_data.email);
-			}
-			else
-			{
-				Intent i = new Intent(SplashActivity.this,
-						AuthenticationActivity.class);
-				/*
-				 * Bundle mBundle = new Bundle();
-				 * mBundle.putSerializable(Common.USER_DATA, user_data);
-				 * i.putExtras(mBundle);
-				 */
-				startActivityForResult(i, Common.RequestCodes.SPLASH_AUTH);
-				// next event triggered is in onActivityResult after returning from
-				// authentication activity
-			}
-			
-		}
-		else{
-			TriggerWaitEvent(Common.LOAD_LOCAL_DB);
-			addProgressTask(getString(R.string.load_db));
-		}
-		
-	}
-	
-	@SuppressLint("NewApi")
-	public void Google_Auth_Recieve_Result(String Email, String Error,
-			int resultCode) {
-
-		// sharedPreferencesEditor.putString(keys.USER_EMAIL, account.name);
-		// sharedPreferencesEditor.commit();
-		// user_data.email = Email;
-		if (Email != null && resultCode == Activity.RESULT_OK) {
-			// save to sp
-			addProgressTask(Email + getString(R.string.got_email_success_full));
-			mSharedPreferencesEditor.putString(Common.USER_EMAIL, Email);
-			mSharedPreferencesEditor.putBoolean(
-					Common.USER_IS_VERIFICATION_COMPLETE, true);
-			user_data.email = Email;
-			user_data.is_verification_complete = true;
-
-		} else if (Email != null && Error != null) {
-			addProgressTask(Email);
-			mSharedPreferencesEditor.putString(Common.USER_EMAIL, Email);
-			mSharedPreferencesEditor.putBoolean(
-					Common.USER_IS_VERIFICATION_COMPLETE, false);
-			user_data.email = Email;
-			user_data.is_verification_complete = false;
-		} else if (Email == null && Error != null) {
-			mSharedPreferencesEditor
-					.putBoolean(Common.USER_IS_SYNC_TYPE, false);//
-			user_data.is_sync_type = false;
-		}
-		if (resultCode == Activity.RESULT_CANCELED) {
-			progress1.setAlpha((float) 0.4);
-			addProgressTask(getString(R.string.google_result_cancel));
-			addProgressTask(getString(R.string.google_disable_sync));
-			progress1.setProgress(80);
-			mSharedPreferencesEditor.putBoolean(Common.USER_IS_SYNC_TYPE, false);
-			user_data.is_sync_type = false;
-		} else if (resultCode == Activity.RESULT_OK) {
-			progress1.setProgress(100);
-			addProgressTask(getString(R.string.google_result_ok));
-			mSharedPreferencesEditor.putBoolean(Common.USER_IS_SYNC_TYPE, true);//
-			user_data.is_sync_type = true;
-		}
-		mSharedPreferencesEditor.commit();
-		if(user_data.is_sync_type){
-			TriggerWaitEvent(Common.CONFIG_GCM);
-			addProgressTask(getString(R.string.checking_other_settings));
-			//TriggerWaitEvent(Common.GRAVITY_REGISTER);
-			
-			//addProgressTask(getString(R.string.gravity_register));
-		}
-		else{
-			TriggerWaitEvent(Common.LOAD_LOCAL_DB);
-			addProgressTask(getString(R.string.load_db));
-		}
-	}
-
-	@Override
-	public void LoadLocalDB() {
-
-		// TODO Auto-generated method stub
-		DatabaseHelper h = new DatabaseHelper(this);
-		
-		
-		/*if (!user_data.is_registered){
-			TriggerWaitEvent(Common.GRAVITY_REGISTER);
-		addProgressTask(getString(R.string.gravity_register));
-			//AccountsController.get_gravity_accounts(Common.RequestCodes.GRAVITY_REGISTER);
-		}*/
-		//else {
 			TriggerWaitEvent(Common.GO_TO_MAIN);
 			addProgressTask(getString(R.string.complete));
-		//}
-	}
-
-	@Override
-	public void GravityRegister() {
-
-		// TODO Auto-generated method stub
-		
-			GravityController.register_gravity_account(mActivity,
-					user_data.email, user_data.google_reg_id, Common.RequestCodes.GRAVITY_REGISTER);
-			//AccountsController.get_gravity_accounts(Common.RequestCodes.GRAVITY_REGISTER);
-		
-	}
-	public void ConfigureGCM() {
-		// Check device for Play Services APK. If check succeeds, proceed with
-        //  GCM registration.
-		if (GCMController.checkPlayServices(mContext, mActivity)) {
-	        // If this check succeeds, proceed with normal processing.
-	        // Otherwise, prompt user to get valid Play Services APK.
-			gcm = GoogleCloudMessaging.getInstance(mContext);
-           
-            if (GCMController.getRegistrationId(mContext, user_data)) {
-                GCMController.registerInBackground(mContext,gcm);
-            }
-			//shifted to gcm_save_reg_id
-			//TriggerWaitEvent(Common.LOAD_LOCAL_DB);
-			//addProgressTask(getString(R.string.load_db));
-			
+			progress1.setProgress(30);
 		}
-		else
-		{
-			addProgressTask("Device unsupported");
-		}
-		
-	}
-	@Override
-	public void GoToMain() {
-		Intent i = new Intent(SplashActivity.this, MainActivity.class);
-		startActivity(i);
-		finish();
+	
+		updateLog();
 	}
 
-	@Override
-	public void pushSuccess(String AuthToken, String Email) {// by auth class
-		// nothing to do with auth token
-		Google_Auth_Recieve_Result(Email, null, Activity.RESULT_OK);
-	}
-
-	@Override
-	public void pushFailure(String Error, String Email) {// by auth class
-		// TODO Auto-generated method stub
-		Google_Auth_Recieve_Result(Email, Error, Activity.RESULT_CANCELED);
-	}
+	
 
 	@Override
 	public void httpResult(Object data, int RequestCode, int ResultCode) {
@@ -359,8 +223,8 @@ public class SplashActivity extends Activity implements
 				.putBoolean(Common.USER_IS_REGISTERED, false);
 			}
 			mSharedPreferencesEditor.commit();
-			TriggerWaitEvent(Common.LOAD_LOCAL_DB);
-			addProgressTask(getString(R.string.load_db));
+			TriggerWaitEvent(Common.GO_TO_MAIN);
+			addProgressTask(getString(R.string.complete));
 			//TriggerWaitEvent(Common.CONFIG_GCM);
 			//addProgressTask(getString(R.string.checking_other_settings));
 			break;
@@ -369,30 +233,178 @@ public class SplashActivity extends Activity implements
 			break;
 			
 		}
-
 	}
 
 	@Override
-	public void storeRegisterationId(String regid, int appVersion) {
-		addProgressTask("*Saving GCM reg");
+	public void displayMsg(String msg) {
+		addProgressTask(msg);
+	}
+
+	@Override
+	public void storeGCMRegisterationId(String regid, int appVersion) {
+		//addProgressTask("*Saving GCM reg");
 		mSharedPreferencesEditor.putString(Common.GOOGLE_PROPERTY_REG_ID,regid);
 		mSharedPreferencesEditor.putInt(Common.GOOGLE_PROPERTY_APP_VERSION,appVersion);
 		mSharedPreferencesEditor.commit();
 		user_data.google_reg_id = regid;
 		user_data.google_regVer = appVersion;
-		addProgressTask("*Saved GCM reg, app ver");
-		TriggerWaitEvent(Common.GRAVITY_REGISTER);
+		mSharedPreferencesEditor.putString(Common.GOOGLE_PROPERTY_REG_ID, regid);
+		mSharedPreferencesEditor.putInt(Common.GOOGLE_PROPERTY_APP_VERSION, appVersion);
 		
-		addProgressTask(getString(R.string.gravity_register));
-//		TriggerWaitEvent(Common.LOAD_LOCAL_DB);
-//		addProgressTask(getString(R.string.load_db));
+		mSharedPreferencesEditor.commit();
+		//addProgressTask("Saved GCM reg, app ver: ");
+		
+		//error
+		if(user_data.email == null)
+			{
+				TriggerWaitEvent(Common.GET_ACCOUNT);
+				//addProgressTask(getString(R.string.get_google_acc));
+			}
+			else
+				TriggerWaitEvent(Common.GOOGLE_AUTH);
+		
+		
+		//updateLog();
 	}
 
 	@Override
-	public void displayMsg(String msg) {
+	public void LoadPreferences() {
 		// TODO Auto-generated method stub
-		addProgressTask(msg);
+		mSharedPreferences = getSharedPreferences(Common.SHARED_PREF_KEY,
+				MODE_MULTI_PROCESS);
+		mSharedPreferencesEditor = mSharedPreferences.edit();
+		user_data.email = mSharedPreferences.getString(Common.USER_EMAIL, null);
+		user_data.is_sync_type = mSharedPreferences.getBoolean(
+				Common.USER_IS_SYNC_TYPE, true);
+		user_data.google_AuthToken = mSharedPreferences.getString(
+				Common.AUTH_TOKEN, null);
+		user_data.gravity_is_registered = mSharedPreferences.getBoolean(
+				Common.USER_IS_REGISTERED, false);
+		user_data.google_reg_id = 
+				mSharedPreferences.getString(Common.GOOGLE_PROPERTY_REG_ID, "");
+		user_data.google_regVer = 
+				mSharedPreferences.getInt(Common.GOOGLE_PROPERTY_APP_VERSION, Integer.MIN_VALUE);
+		TriggerWaitEvent(Common.LOAD_LOCAL_DB);
+		addProgressTask(getString(R.string.load_db));
+		updateLog();
 	}
+	@Override
+	public void GetAccount()
+	{
+		Intent i = new Intent(SplashActivity.this,
+				AuthenticationActivity.class);
+		
+		startActivityForResult(i, Common.RequestCodes.SPLASH_ACC);
+	}
+	@Override
+	public void GoogleAuth() {
+		
+		addProgressTask(getString(R.string.google_auth));
+		mAuth = new GoogleAuth(mContext, null);
+		mAuth.SetAccount(user_data.email);
+		mAuth.execute();
+			updateLog();
+	}
+
+	@Override
+	public void LoadLocalDB() {
+		// TODO Auto-generated method stub
+		DatabaseHelper h = new DatabaseHelper(this);
+		
+		
+		/*if (!user_data.is_registered){
+			TriggerWaitEvent(Common.GRAVITY_REGISTER);
+		addProgressTask(getString(R.string.gravity_register));
+			//AccountsController.get_gravity_accounts(Common.RequestCodes.GRAVITY_REGISTER);
+		}*/
+		//else {
+		if(!user_data.is_sync_type)
+		{
+			TriggerWaitEvent(Common.GO_TO_MAIN);
+			addProgressTask(getString(R.string.complete));
+		}
+	else{
+		addProgressTask(getString(R.string.check_internet));
+		TriggerWaitEvent(Common.CHECK_INTERNET);
+	}
+		
+	}
+
+	@Override
+	public void GravityRegister() {
+		GravityController.register_gravity_account(mActivity,
+				user_data.email, user_data.google_reg_id, Common.RequestCodes.GRAVITY_REGISTER);
+		//AccountsController.get_gravity_accounts(Common.RequestCodes.GRAVITY_REGISTER);
+	
+	}
+
+	@Override
+	public void GoToMain() {
+		Intent i = new Intent(SplashActivity.this, MainActivity.class);
+		startActivity(i);
+		finish();
+	}
+
+	public void ConfigureGCM() {
+		if (GCMController.checkPlayServices(mContext, mActivity)) {
+			addProgressTask(getString(R.string.gcm_play_service_success));
+	        // If this check succeeds, proceed with normal processing.
+	        // Otherwise, prompt user to get valid Play Services APK.
+			gcm = GoogleCloudMessaging.getInstance(mContext);
+			String tempReg =GCMController.getRegistrationId(getApplicationContext(), user_data); 
+            if (tempReg=="") {
+                GCMController.registerInBackground(mContext,gcm);
+            }
+            else
+            {
+            	if(user_data.email == null)
+    			{
+    				TriggerWaitEvent(Common.GET_ACCOUNT);
+    				//addProgressTask(getString(R.string.get_google_acc));
+    			}
+    			else
+    				TriggerWaitEvent(Common.GOOGLE_AUTH);
+            }
+			//shifted to gcm_save_reg_id
+			//TriggerWaitEvent(Common.LOAD_LOCAL_DB);
+			//addProgressTask(getString(R.string.load_db));
+			
+		}
+		else
+		{
+			
+			addProgressTask(getString(R.string.gcm_invalid_device));
+		}
+		updateLog();
+	}
+	@Override
+	public void AuthResult(Intent i) {
+		if(i.getBooleanExtra(Common.HAS_EXCEPTION, false))
+			//&& i.getIntExtra(Common.EXCEPTION_TYPE,Common.EXCEPTIONS.NoException) != Common.EXCEPTIONS.NoException)
+		{
+			if(i.getIntExtra(Common.EXCEPTION_TYPE,Common.EXCEPTIONS.NoException) != Common.EXCEPTIONS.NoException)
+			{
+				startActivityForResult(i, Common.RequestCodes.SPLASH_AUTH);
+			}
+			
+		}
+
+		else if(i.getStringExtra(Common.AUTH_TOKEN)!=null)
+		{
+			mSharedPreferencesEditor.putString(Common.AUTH_TOKEN,i.getStringExtra(Common.AUTH_TOKEN));
+			user_data.google_AuthToken = i.getStringExtra(Common.AUTH_TOKEN);
+			mSharedPreferencesEditor.commit();
+//			TriggerWaitEvent(Common.CONFIG_GCM);
+//			addProgressTask(getString(R.string.checking_other_settings));
+//			addProgressTask(getString(R.string.config_gcm));
+			TriggerWaitEvent(Common.GRAVITY_REGISTER);
+			
+			addProgressTask(getString(R.string.gravity_register));
+			//runWorker
+		}
+		//updateLog();
+	}
+
 	
 	//gcm functions
 	

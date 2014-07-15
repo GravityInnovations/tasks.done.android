@@ -8,9 +8,11 @@ import android.app.AlertDialog;
 import android.content.ContentResolver;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.database.Cursor;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
+import android.os.Bundle;
 import android.os.Handler;
 import android.provider.ContactsContract;
 import android.view.View;
@@ -28,7 +30,6 @@ import android.widget.ListView;
 //PublicKeys.MY_KEY_SOME
 //pass it to switch, bundle extras, shared prefs etc 
 public class Common {
-	// Mushahid commented this to check the commit changes mmm kkk ;;;
 	private static final String prefix = "com.gravity.innovations.tasks.done.";
 	public static final String USER_EMAIL = prefix + "UserEmail";// used in
 																	// shared
@@ -44,14 +45,18 @@ public class Common {
 	public static final String USER_IS_REGISTERED = prefix + "UserRegistered";
 	public static final String SHARED_PREF_KEY = prefix;
 	public static final int SPLASH_TIME_OUT = 3000;
-	public static final int SPLASH_TIME_OUT_SMALL = 3000;
+	public static final int SPLASH_TIME_OUT_SMALL = 2000;
 	public static final String ACCOUNT_TYPE = "com.google";
 	public static final String AUTH_TOKEN = prefix + "AuthToken";
-	public static final String AUTH_TOKEN_TYPE = "oauth2:https://www.googleapis.com/auth/plus.me https://www.googleapis.com/auth/userinfo.profile";
+	public static final String AUTH_TOKEN_TYPE = "oauth2:profile https://www.googleapis.com/auth/plus.login https://www.googleapis.com/auth/plus.me";//https://www.googleapis.com/auth/userinfo.profile";// https://www.googleapis.com/auth/drive.file https://www.googleapis.com/auth/datastoremobile https://www.googleapis.com/auth/appstate";
 	public static final String EXTRA_MESSAGE = "message";
     public static final String GOOGLE_PROPERTY_REG_ID = "registration_id";
     public static final String GOOGLE_PROPERTY_APP_VERSION = "appVersion";
     public final static int PLAY_SERVICES_RESOLUTION_REQUEST = 9000;
+    public final static String HAS_EXCEPTION = prefix +"hasException";
+    public final static String EXCEPTION_TYPE = prefix +"ExceptionType";
+    public final static String MESSAGE = prefix +"Message";
+    
     /**
      * Substitute you own sender ID here. This is the project number you got
      * from the API Console, as described in "Getting Started."
@@ -73,37 +78,42 @@ public class Common {
 	// commands - Splash
 	public static final int CHECK_INTERNET = 1;
 	public static final int LOAD_PREFS = 2;
-
-	public static final int GOOGLE_AUTH = 3;
-	public static final int LOAD_LOCAL_DB = 4;
-	public static final int GRAVITY_REGISTER = 5;
+	public static final int GET_ACCOUNT = 3;
+	public static final int GOOGLE_AUTH = 4;
+	public static final int LOAD_LOCAL_DB = 5;
+	public static final int GRAVITY_REGISTER = 6;
 	public static final int GO_TO_MAIN = 7;
-	public static final int CONFIG_GCM = 6;
+	public static final int CONFIG_GCM = 8;
 	// Activity Names
 	public static final String AUTH_ACTIVITY = "AuthenticationActivity";
 	public static final String SPLASH_ACTIVITY = "SplashActivity";
 	//gravity urls
-	public static final String GRAVITY_BASE_URL = "http://192.168.1.2/";
+	public static final String GRAVITY_BASE_URL = "http://192.168.1.8/";
 	public static final String GRAVITY_ACCOUNT_URL = GRAVITY_BASE_URL+"Account/";
 	public static final String GRAVITY_GCM_URL = GRAVITY_BASE_URL+"GCM/";
 	//google urls
 	public static final String USER_INFO_URL = "https://www.googleapis.com/oauth2/v1/userinfo?access_token=";//require token
 	// request codes
 	public class RequestCodes {
-		public static final int SPLASH_AUTH = 999;
+		public static final int SPLASH_ACC = 999;
+		public static final int SPLASH_AUTH = 996;
 		public static final int GRAVITY_REGISTER = 998;
 		public static final int GRAVITY_SEND_GCM_CODE = 997;
 	}
+	public class EXCEPTIONS {
+		public static final int NoException = 0;
+		public static final int UserRecoverableAuthException = 1;
+	}
 
 	public static class Callbacks {
-		private interface GoogleAuthCallback {
-			public void pushSuccess(String AuthToken, String Email);
+		public interface GoogleAuthCallback {
+			public void AuthResult(Intent i);
 
-			public void pushFailure(String Error, String Email);
+			//public void pushFailure(String Error, String Email);
 		}
 		public interface GCMCallback{
 			public void displayMsg(String msg);
-			public void storeRegisterationId(String regid, int appVersion);
+			public void storeGCMRegisterationId(String regid, int appVersion);
 		}
 		public interface HttpCallback{
 			public void httpResult(Object data, int RequestCode, int ResultCode);
@@ -114,57 +124,18 @@ public class Common {
 		public interface SplashActivityCallback extends GoogleAuthCallback, HttpCallback,GCMCallback{
 			public void CheckInternet();
 
-			public void LoadPreferences();
-
+			public void LoadPreferences();//1
+			public void GetAccount();
 			public void GoogleAuth();
 
-			public void LoadLocalDB();
+			public void LoadLocalDB();//2
 			public void GravityRegister();
 			public void GoToMain();
+			public void ConfigureGCM();
 		}
 
 	}
-
-	public static class customPause {
-		public customPause(final Activity mActivity, final int functionToken,
-				int Time) {
-
-			new Handler().postDelayed(new Runnable() {
-
-				@Override
-				public void run() {
-					// if(mActivity.getClass().getSimpleName().toString().equals(Common.AUTH_ACTIVITY))
-					switch (functionToken) {
-					case CHECK_INTERNET:
-						((SplashActivity) mActivity).CheckInternet();
-						break;
-					case LOAD_PREFS:
-						((SplashActivity) mActivity).LoadPreferences();
-						break;
-					case GOOGLE_AUTH:
-						((SplashActivity) mActivity).GoogleAuth();
-						break;
-					case LOAD_LOCAL_DB:
-						((SplashActivity) mActivity).LoadLocalDB();
-						break;
-					case GRAVITY_REGISTER:
-						((SplashActivity) mActivity).GravityRegister();
-						break;
-					case CONFIG_GCM:
-						((SplashActivity) mActivity).ConfigureGCM();
-						break;
-					case GO_TO_MAIN:
-						((SplashActivity) mActivity).GoToMain();
-						break;
-					default:
-						break;
-					}
-
-				}
-			}, Time);
-
-		}
-	}
+	
 
 	public static boolean hasInternet(Activity mActivity) {
 
@@ -184,11 +155,11 @@ public class Common {
 	public static class userData implements Serializable {
 		public String email;
 		public String name;
-		public Boolean is_verification_complete;
 		public Boolean is_sync_type;
-		public Boolean is_registered;
+		public Boolean gravity_is_registered;
 		public String google_reg_id;
 		public int google_regVer;
+		public String google_AuthToken;
 		public userData() {
 
 		}

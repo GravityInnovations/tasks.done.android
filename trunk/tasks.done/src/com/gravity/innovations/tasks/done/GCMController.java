@@ -13,6 +13,7 @@ import android.os.AsyncTask;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GooglePlayServicesUtil;
 import com.google.android.gms.gcm.GoogleCloudMessaging;
+import com.gravity.innovations.tasks.done.Common.Callbacks.GCMCallback;
 
 public class GCMController {
 	public static boolean checkPlayServices(final Context mContext, final Activity mActivity) {
@@ -24,18 +25,19 @@ public class GCMController {
 	        } else {
 	            //Log.i(TAG, "This device is not supported.");
 	            //finish();
+	        	//((GCMCallback)mContext).displayMsg("Device unsupported");
 	        	//addProgressTask("Device unsupported");
 	        }
 	        return false;
 	    }
 	    return true;
 	}
-	public static Boolean getRegistrationId(Context context, Common.userData user_data) {
+	public static String getRegistrationId(Context context, Common.userData user_data) {
 	    //final SharedPreferences prefs = getGCMPreferences(context);
 	   // String registrationId = prefs.getString(Common.GOOGLE_PROPERTY_REG_ID, "");
 	    if (user_data.google_reg_id.isEmpty()) {
 	        //Log.i(TAG, "Registration not found.");
-	        return false;
+	        return "";
 	    }
 	    // Check if app was updated; if so, it must clear the registration ID
 	    // since the existing regID is not guaranteed to work with the new
@@ -44,9 +46,9 @@ public class GCMController {
 	    int currentVersion = getAppVersion(context);
 	    if (user_data.google_regVer != currentVersion) {
 	        //Log.i(TAG, "App version changed.");
-	        return false;
+	        return "";
 	    }
-	    return true;
+	    return user_data.google_reg_id;
 	}
 	/**
 	 * @return Application's version code from the {@code PackageManager}.
@@ -96,7 +98,7 @@ public class GCMController {
                 // message using the 'from' address in the message.
 
                 // Persist the regID - no need to register again.
-                ((Common.Callbacks.GCMCallback)mContext).storeRegisterationId(regid,getAppVersion(mContext));
+                ((Common.Callbacks.GCMCallback)mContext).storeGCMRegisterationId(regid,getAppVersion(mContext));
                 //storeRegistrationId(context, regid);
             } catch (IOException ex) {
                 msg = "Error :" + ex.getMessage();
@@ -110,6 +112,7 @@ public class GCMController {
         @Override
         protected void onPostExecute(String msg) {
            // mDisplay.append(msg + "\n");
+        	if(false)
         	((Common.Callbacks.GCMCallback)mContext).displayMsg(msg);
         }
 		
