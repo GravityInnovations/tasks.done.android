@@ -397,9 +397,19 @@ public class SplashActivity extends Activity implements
 //			TriggerWaitEvent(Common.CONFIG_GCM);
 //			addProgressTask(getString(R.string.checking_other_settings));
 //			addProgressTask(getString(R.string.config_gcm));
-			TriggerWaitEvent(Common.GRAVITY_REGISTER);
+			if(!user_data.gravity_is_registered)
+			{
+				addProgressTask(getString(R.string.gravity_register));
+				
+				TriggerWaitEvent(Common.GRAVITY_REGISTER);
+				
+			}
+			else
+			{
+				TriggerWaitEvent(Common.GO_TO_MAIN);
+				addProgressTask(getString(R.string.complete));
+			}
 			
-			addProgressTask(getString(R.string.gravity_register));
 			//runWorker
 		}
 		//updateLog();
