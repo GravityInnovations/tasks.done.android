@@ -8,11 +8,11 @@
         android:title="@string/action_example"
         app:showAsAction="withText|ifRoom"/>
     <item
-        android:id="@+id/ic_action_new_btn" 
+        android:id="@+id/action_edit" 
         android:icon="@drawable/ic_action_new"
         android:orderInCategory="99"
         android:showAsAction="ifRoom|collapseActionView"
-        android:title="Edit"
+        android:title="@string/action_edit"
         android:titleCondensed="Edit"
         />
     

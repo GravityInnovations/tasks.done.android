@@ -12,40 +12,40 @@ import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.TextView;
 
-public class TaskAdapter extends ArrayAdapter<Task> {
-	private Context mContext;
+public class TaskAdapter extends ArrayAdapter<TaskModel> {
 	Activity activity;
 	int layoutResourceId;
-	Task user;
-	ArrayList<Task> data = new ArrayList<Task>();
+	TaskModel task;
+	ArrayList<TaskModel> task_data = new ArrayList<TaskModel>();
+	//ArrayList<TaskModelList> list_data = new ArrayList<TaskModelList>();
 	private HashMap<Integer, Boolean> mSelection = new HashMap<Integer, Boolean>();
 
-	public TaskAdapter(Activity act, int layoutResourceId, ArrayList<Task> data) {
+	public TaskAdapter(Activity act, int layoutResourceId, ArrayList<TaskModel> data) {
 		super(act, layoutResourceId, data);
 		this.layoutResourceId = layoutResourceId;
 		this.activity = act;
-		this.data = data;
+		this.task_data = data;
 		notifyDataSetChanged();
 	}
+ 
 
-	public Task getSingularSelectedTask() {
+	public TaskModel getSingularSelectedTaskModel() {
 		if (mSelection.size() == 1) {
 			for (Integer temp : getCurrentCheckedPosition())
-				return data.get(temp);
+				return task_data.get(temp);
 		}
 		return null;
 	}
 
-	public ArrayList<Integer> getSelectedTasks() {
+	public ArrayList<Integer> getSelectedTaskModels() {
 		ArrayList<Integer> temp = new ArrayList<Integer>();
-		for (int i = 0; i < data.size(); i++) {
+		for (int i = 0; i < task_data.size(); i++) {
 			if (isPositionChecked(i)) {
-				temp.add(data.get(i)._id);
+				temp.add(task_data.get(i)._id);
 			}
 		}
 		return temp;
-	}
-
+	}	
 	public void setNewSelection(int position, boolean value) {
 		mSelection.put(position, value);
 		notifyDataSetChanged();
@@ -73,11 +73,11 @@ public class TaskAdapter extends ArrayAdapter<Task> {
 	@Override
 	public View getView(int position, View convertView, ViewGroup parent) {
 		View row = convertView;
-		UserHolder holder = null;
+		TaskModelHolder holder = null;
 		if (row == null) {
 			LayoutInflater inflater = LayoutInflater.from(activity);
 			row = inflater.inflate(layoutResourceId, parent, false);
-			holder = new UserHolder();
+			holder = new TaskModelHolder();
 			holder.title = (TextView) row.findViewById(R.id.user_task_title);
 			holder.details = (TextView) row
 					.findViewById(R.id.user_task_details);
@@ -85,23 +85,24 @@ public class TaskAdapter extends ArrayAdapter<Task> {
 
 			row.setTag(holder);
 		} else {
-			holder = (UserHolder) row.getTag();
+			holder = (TaskModelHolder) row.getTag();
 		}
-		
-			 row.setBackgroundColor(activity.getResources().getColor(android.R.color.background_light)); // default color
+
+		row.setBackgroundColor(activity.getResources().getColor(
+				android.R.color.background_light)); // default color
 
 		if (mSelection.get(position) != null) {
-			 row.setBackgroundColor(activity.getResources().getColor(android.R.color.holo_blue_light));// makes a selected position colored
+			row.setBackgroundColor(activity.getResources().getColor(
+					android.R.color.holo_blue_light));
 		}
-		user = data.get(position);
-		holder.title.setText(user.getTitle());
-		holder.details.setText(user.getDetails());
-		holder.notes.setText(user.getNotes());
+		task = task_data.get(position);
+		holder.title.setText(task.title);
+		holder.details.setText(task.details);
+		holder.notes.setText(task.notes);
 		return row;
-
 	}
-
-	class UserHolder {
+	
+	class TaskModelHolder {
 		TextView title;
 		TextView details;
 		TextView notes;

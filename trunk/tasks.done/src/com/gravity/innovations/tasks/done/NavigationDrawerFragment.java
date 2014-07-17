@@ -1,5 +1,7 @@
 package com.gravity.innovations.tasks.done;
 
+import java.util.ArrayList;
+
 import android.support.v7.app.ActionBarActivity;
 import android.app.Activity;
 import android.support.v7.app.ActionBar;
@@ -7,18 +9,24 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.ActionBarDrawerToggle;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
+import android.content.Context;
+import android.content.DialogInterface;
 import android.content.SharedPreferences;
 import android.content.res.Configuration;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.Button;
+import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.Toast;
 
@@ -29,6 +37,8 @@ import android.widget.Toast;
  */
 public class NavigationDrawerFragment extends Fragment {
 
+	private ArrayList<TaskListModel> data = new ArrayList<TaskListModel>();
+	private DatabaseHelper db;
     /**
      * Remember the position of the selected item.
      */
@@ -44,12 +54,12 @@ public class NavigationDrawerFragment extends Fragment {
      * A pointer to the current callbacks instance (the Activity).
      */
     private NavigationDrawerCallbacks mCallbacks;
-
+    private Context mContext;
     /**
      * Helper component that ties the action bar to the navigation drawer.
      */
     private ActionBarDrawerToggle mDrawerToggle;
-
+    public TaskListAdapter mAdapter;
     private DrawerLayout mDrawerLayout;
     private ListView mDrawerListView;
     private View mFragmentContainerView;
@@ -64,7 +74,7 @@ public class NavigationDrawerFragment extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
+        mContext = getActivity();
         // Read in the flag indicating whether or not the user has demonstrated awareness of the
         // drawer. See PREF_USER_LEARNED_DRAWER for details.
         SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(getActivity());
@@ -91,21 +101,33 @@ public class NavigationDrawerFragment extends Fragment {
             Bundle savedInstanceState) {
         mDrawerListView = (ListView) inflater.inflate(
                 R.layout.fragment_navigation_drawer, container, false);
+        View header = inflater.inflate(R.layout.navigation_drawer_header, null);
+        Button btn_add_tasklist = (Button) header.findViewById(R.id.btn_add);
+        mDrawerListView.addHeaderView(header);
+        btn_add_tasklist.setOnClickListener(new OnClickListener() {
+			
+			@Override
+			public void onClick(View v) {
+				addOrEditTaskList(new TaskListModel());
+				// TODO Auto-generated method stub
+				
+			}
+		});
+        
         mDrawerListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 selectItem(position);
             }
         });
-        mDrawerListView.setAdapter(new ArrayAdapter<String>(
-                getActionBar().getThemedContext(),
-                android.R.layout.simple_list_item_1,
-                android.R.id.text1,
-                new String[]{
-                        getString(R.string.title_section1),
-                        getString(R.string.title_section2),
-                        getString(R.string.title_section3),
-                }));
+        db = new DatabaseHelper(mContext);
+        this.data = db.getList_TaskList();
+        
+        mAdapter = new TaskListAdapter(getActivity(), R.layout.tasklist_listview_row,data);
+        mDrawerListView.setAdapter(mAdapter);
+        
+        
+        
         mDrawerListView.setItemChecked(mCurrentSelectedPosition, true);
         return mDrawerListView;
     }
@@ -120,7 +142,12 @@ public class NavigationDrawerFragment extends Fragment {
      * @param fragmentId   The android:id of this fragment in its activity's layout.
      * @param drawerLayout The DrawerLayout containing this fragment's UI.
      */
-    public void setUp(int fragmentId, DrawerLayout drawerLayout) {
+    public void setUp(int fragmentId, DrawerLayout drawerLayout, Context mContext) {
+    	db = new DatabaseHelper(mContext);
+    	this.data = db.getList_TaskList();
+    	mAdapter = new TaskListAdapter(getActivity(), R.layout.tasklist_listview_row,data);
+        mDrawerListView.setAdapter(mAdapter);
+        
         mFragmentContainerView = getActivity().findViewById(fragmentId);
         mDrawerLayout = drawerLayout;
 
@@ -197,7 +224,15 @@ public class NavigationDrawerFragment extends Fragment {
             mDrawerLayout.closeDrawer(mFragmentContainerView);
         }
         if (mCallbacks != null) {
-            mCallbacks.onNavigationDrawerItemSelected(position);
+        	TaskListModel temp;// = mAdapter.getItem(position+1);
+        	try{
+        		temp = mAdapter.getItem(position);
+        	}
+        	catch(Exception ex)
+        	{
+        		temp = new TaskListModel();
+        	}
+        	mCallbacks.onNavigationDrawerItemSelected(temp);
         }
     }
 
@@ -273,10 +308,106 @@ public class NavigationDrawerFragment extends Fragment {
     /**
      * Callbacks interface that all activities using this fragment must implement.
      */
+    public void addItem(TaskListModel temp)
+    {
+    	data.add(temp);
+    	//this.mAdapter.add(temp);
+    	this.mAdapter.notifyDataSetChanged();
+    	selectItem(0);
+    }
+    public void editItem(TaskListModel Old, String Title)
+    {
+    	//this.mAdapter.add(temp);
+    	//this.mAdapter.getPosition(old)
+    	
+    	this.mAdapter.notifyDataSetChanged();
+    	selectItem(0);
+    }
+    public void addOrEditTaskList(final TaskListModel tasklist) {
+		View view = getActivity().getLayoutInflater().inflate(R.layout.addoredit_tasklist_dialog, null);
+		final EditText add_title = (EditText) view
+				.findViewById(R.id.et_title);
+		add_title.setText(tasklist.title);
+		String dialogTitle = "";
+		if (tasklist._id == -1) {
+			dialogTitle = "New Task List";
+		}
+		DialogInterface.OnClickListener posListener = new DialogInterface.OnClickListener() {
+			@Override
+			public void onClick(DialogInterface dialog, int which) {
+				try {
+					if (tasklist._id == -1) {
+						// create
+						String title = add_title.getText().toString();
+						if (title.length() != 0) {
+							try {
+								TaskListModel temp = new TaskListModel(title);
+								// should retun a bool on true
+								temp._id = db.New_TaskList(temp);
+								if (temp._id != -1) {
+									//toastMsg = "tasklist added";
+									
+									addItem(temp);
+								} else {
+									//toastMsg = "Retry! \n tasklist not added";
+								}
+//								Common.CustomToast.CreateAToast(mContext,
+//										toastMsg);
+								// mTaskListAdapter.notifyDataSetChanged();
+								// mNavigationDrawerFragment.notifyDataSetChanges();
+							} catch (Exception e) {
+								Log.e("MainActivity", "newOrEditTaskList");
+							} finally {
+								Log.e("MainActivitynewOrEditTaskList", "np");
+							}// finally
+						}
+					}else {
+						// update tasklist
+						String title = add_title.getText().toString();
+						//Log.d(title, "this is the title");
+						if (title.length() != 0) {
+							int nRows = db.Edit_TaskList(new TaskListModel(tasklist._id, title));
+							if(nRows>0){
+								tasklist.title = title;
+								editItem(tasklist, title);
+							
+							}
+							//mNavigationDrawerFragment.list_data.clear();
+							//mNavigationDrawerFragment.list_adapter.notifyDataSetChanged();// reinit();
+							//ArrayList<TaskList> 
+//							data = db.TaskList_List(); 
+//							mNavigationDrawerFragment.setUp(mContext,
+//									list_data,// mTaskListAdapter,
+//									R.id.navigation_drawer,
+//									(DrawerLayout) findViewById(R.id.drawer_layout));
+//							
+//							toastMsg =  "Data Updated successfully";
+//							Common.CustomToast.CreateAToast(mContext,
+//									toastMsg);
+						}
+					}
+				} catch (Exception e) {
+					Log.d("Exception on", "Positive Listener");
+				}
+			}
+
+			
+		};
+		DialogInterface.OnClickListener negListener = new DialogInterface.OnClickListener() {
+			@Override
+			public void onClick(DialogInterface dialog, int which) {
+				// TODO Auto-generated method stub
+				dialog.cancel();
+			}
+		};
+		Common.CustomDialog.CustomDialog(mContext, view, negListener,
+				posListener, R.string.dialog_save, R.string.dialog_cancel,
+				dialogTitle);
+	}
     public static interface NavigationDrawerCallbacks {
         /**
          * Called when an item in the navigation drawer is selected.
          */
-        void onNavigationDrawerItemSelected(int position);
+        void onNavigationDrawerItemSelected(TaskListModel temp);
     }
 }

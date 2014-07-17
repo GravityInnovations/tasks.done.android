@@ -19,6 +19,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
+import android.widget.EditText;
 import android.widget.TextView;
 
 
@@ -33,6 +34,7 @@ public class MainActivity extends ActionBarActivity implements
 	
 	private NavigationDrawerFragment mNavigationDrawerFragment;
 	private Context mContext;
+	private TaskListModel CurrentList;
 	/**
 	 * Used to store the last screen title. For use in
 	 * {@link #restoreActionBar()}.
@@ -51,8 +53,9 @@ public class MainActivity extends ActionBarActivity implements
 		mTitle = getTitle();
 
 		// Set up the drawer.
+		
 		mNavigationDrawerFragment.setUp(R.id.navigation_drawer,
-				(DrawerLayout) findViewById(R.id.drawer_layout));
+				(DrawerLayout) findViewById(R.id.drawer_layout),mContext);
 		
 		
 		/*try{
@@ -75,13 +78,20 @@ public class MainActivity extends ActionBarActivity implements
 	}
 
 	@Override
-	public void onNavigationDrawerItemSelected(int position) {
+	public void onNavigationDrawerItemSelected(TaskListModel temp) {
+		CurrentList = temp;
+		try{
 		// update the main content by replacing fragments
-		FragmentManager fragmentManager = getSupportFragmentManager();
+		FragmentManager fragmentManager = this.getSupportFragmentManager();
 		fragmentManager
 				.beginTransaction()
 				.replace(R.id.container,
-						PlaceholderFragment.newInstance(position + 1)).commit();
+						PlaceholderFragment.newInstance(0)).commit();
+		}
+		catch(Exception ex)
+		{
+			String x = ex.getLocalizedMessage();
+		}
 	}
 
 	public void onSectionAttached(int number) {
@@ -127,6 +137,10 @@ public class MainActivity extends ActionBarActivity implements
 		int id = item.getItemId();
 		if (id == R.id.action_settings) {
 			return true;
+		}
+		else if(id == R.id.action_edit)
+		{
+			mNavigationDrawerFragment.addOrEditTaskList(CurrentList);
 		}
 		else if(id == R.id.action_developer)
 		{
@@ -231,5 +245,7 @@ public class MainActivity extends ActionBarActivity implements
 					ARG_SECTION_NUMBER));
 		}
 	}
+
+	
 
 }

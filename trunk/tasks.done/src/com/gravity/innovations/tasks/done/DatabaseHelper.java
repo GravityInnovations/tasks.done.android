@@ -1,7 +1,6 @@
 package com.gravity.innovations.tasks.done;
 
 import java.util.ArrayList;
-
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
@@ -17,164 +16,276 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 	// Database Name
 	private static final String DATABASE_NAME = "tasksManager";
 
+	// TABLE NAMES
 	// Tasks table
 	// tasks has Auto inc. id, title, details and notes
 	private static final String TABLE_TASKS = "tasks";
-	private static final String TABLE_USERS = "users";
-
-	// Task List Table
+	// TaskModel List Table
 	// task list has Auto inc. id and a title
-	private static final String TABLE_TASK_List = "task_list";
+	private static final String TABLE_TASK_LIST = "task_list";
+	// Users Table
+	// task list has Auto inc. id name and a email
+	private static final String TABLE_USERS = "users";
+	// TABLE NAMES
 
 	// Tasks Table Columns names
-	private static final String KEY_ID = "_id";
-	private static final String KEY_TASK_TITLE = "task_title";
-	private static final String KEY_TASK_DETAILS = "task_details";
-	private static final String KEY_TASK_NOTES = "task_notes";
-	private final ArrayList<Task> task_list = new ArrayList<Task>();
+	private static final String KEY_PK = "_id";
+	private static final String KEY_TITLE = "title";
+	private static final String KEY_DETAILS = "details";
+	private static final String KEY_NOTES = "notes";
+	private static final String KEY_FK_TASKLIST_ID = "fk_tasklist_id";
 
-	// Task List Table Columns names
-	private static final String KEY_ID_TASK_LIST = "id";
-	private static final String KEY_TASK_TITLE_TASK_LIST = "task_list_title";
+	// TaskModel List Table Columns names
+	// id and title and as above
 
-	
-	public DatabaseHelper(Context context) {
-		super(context, DATABASE_NAME, null, DATABASE_VERSION);
+	// id same
+	private static final String KEY_USER_NAME = "user_name";
+	private static final String KEY_USER_EMAIL = "user_email";
+
+	// SQLite Create Queries
+	// Tasks Table
+	private static final String CREATE_TASKS_TABLE = "CREATE TABLE "
+			+ TABLE_TASKS + "(" + KEY_PK
+			+ " INTEGER PRIMARY KEY AUTOINCREMENT," + KEY_TITLE + " TEXT,"
+			+ KEY_DETAILS + " TEXT," + KEY_NOTES + " TEXT,"
+			+ KEY_FK_TASKLIST_ID + " INTEGER," + " FOREIGN KEY ("
+			+ KEY_FK_TASKLIST_ID + ")" + "REFERENCES " + TABLE_TASK_LIST + "("
+			+ KEY_PK + ")" + ")";
+
+	private static final String CREATE_TASK_LIST_TABLE = "CREATE TABLE "
+			+ TABLE_TASK_LIST + "(" + KEY_PK
+			+ " INTEGER PRIMARY KEY AUTOINCREMENT," + KEY_TITLE + " TEXT" + ")";
+
+	private static final String CREATE_USERS_TABLE = "CREATE TABLE "
+			+ TABLE_USERS + "(" + KEY_PK
+			+ " INTEGER PRIMARY KEY AUTOINCREMENT," + KEY_USER_NAME + " TEXT,"
+			+ KEY_USER_EMAIL + " TEXT" + ")";
+
+	public DatabaseHelper(Context cContext) {
+		super(cContext, DATABASE_NAME, null, DATABASE_VERSION);
 	}
 
 	// Creating Tables
 	@Override
 	public void onCreate(SQLiteDatabase db) {
-		String CREATE_TASKS_TABLE = "CREATE TABLE " + TABLE_TASKS + "("
-				+ KEY_ID + " INTEGER PRIMARY KEY," + KEY_TASK_TITLE + " TEXT,"
-				+ KEY_TASK_DETAILS + " TEXT," + KEY_TASK_NOTES + " TEXT" + ")";
-		String CREATE_USERS_TABLE = "CREATE TABLE " + "users" + "("
-				+ KEY_ID + " INTEGER PRIMARY KEY," + "name" + " TEXT,"
-				+ "email" + " TEXT," + "username" + " TEXT," +  
-				  "checked" + " BOOLEAN" +")";
-		db.execSQL(CREATE_TASKS_TABLE);
-		db.execSQL(CREATE_USERS_TABLE);
+		try {
+			db.execSQL(CREATE_TASKS_TABLE);// create task table
+		} catch (Exception e) {
+			Log.e("onCreate Error", "TASKS_TABLE not created");
+		}
+		try {
+			db.execSQL(CREATE_TASK_LIST_TABLE);// create task list table
+		} catch (Exception e) {
+			Log.e("onCreate Error", "TASK_LIST_TABLE not created");
+		}
 	}
 
 	// Upgrading database
 	@Override
 	public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
 		// Drop older table if existed
-		db.execSQL("DROP TABLE IF EXISTS " + TABLE_TASKS);
-
-		// Create tables again
-		onCreate(db);
+		try {
+			db.execSQL("DROP TABLE IF EXISTS " + TABLE_TASKS);// Drop TaskModel Table
+			db.execSQL("DROP TABLE IF EXISTS " + TABLE_TASK_LIST);// Drop
+																	// TaskListModel
+																	// Table
+			onCreate(db);// Create tables again
+		} catch (Exception e) {
+			Log.e("Database onUpgrade", "not created");
+		}
 	}
 
 	/**
-	 * All CRUD(Create, Read, Update, Delete) Operations
+	 * All CRUD FOR TASK(Create, Read, Update, Delete) Operations
 	 */
-
-	// Adding new Task
-	public void Add_Task(Task task) {
+	// Add new TaskModel
+	public int Task_Add(TaskModel task) {
+		// error, wrong foreign key
 		SQLiteDatabase db = this.getWritableDatabase();
 		ContentValues values = new ContentValues();
-		values.put(KEY_TASK_TITLE, task.getTitle()); // Task Name
-		values.put(KEY_TASK_DETAILS, task.getDetails()); // Task Phone
-		values.put(KEY_TASK_NOTES, task.getNotes()); // Task Email
-		// Inserting Row
-		db.insert(TABLE_TASKS, null, values);
-		db.close(); // Closing database connection
+		values.put(KEY_TITLE, task.title);
+		values.put(KEY_DETAILS, task.details);
+		values.put(KEY_NOTES, task.notes);
+		values.put(KEY_FK_TASKLIST_ID, task.fk_tasklist_id);
+		int id = (int) db.insert(TABLE_TASKS, null, values);
+		db.close();
+		return id;
 	}
 
-	// Getting single Task
-	public Task Get_Task(int id) {
+	// Delete a TaskModel
+	public void Task_Delete(int id) {
+		SQLiteDatabase db = this.getWritableDatabase();
+		db.delete(TABLE_TASKS, KEY_FK_TASKLIST_ID + " = ?", // it will take
+															// input from
+															// TaskList_Delete
+				new String[] { String.valueOf(id) }); // and delete all tasks
+														// against that list
+		db.close();
+	}
+
+	// Updating a TaskModel
+	public int Task_Update(TaskModel task) {
+		SQLiteDatabase db = this.getWritableDatabase();
+
+		ContentValues values = new ContentValues();
+		values.put(KEY_TITLE, task.title);
+		values.put(KEY_DETAILS, task.details);
+		values.put(KEY_NOTES, task.notes);
+		return db.update(TABLE_TASKS, values, KEY_PK + " = ?",
+				new String[] { String.valueOf(task._id) });// updating row
+	}
+
+	// Getting single TaskModel
+	// previous name Get_Task
+	public TaskModel Task_Single(int id) {
 		SQLiteDatabase db = this.getReadableDatabase();
 
-		Cursor cursor = db.query(TABLE_TASKS, new String[] { KEY_ID,
-				KEY_TASK_TITLE, KEY_TASK_DETAILS, KEY_TASK_NOTES }, KEY_ID
-				+ "=?", new String[] { String.valueOf(id) }, null, null, null,
-				null);
+		Cursor cursor = db.query(TABLE_TASKS, new String[] { KEY_PK, KEY_TITLE,
+				KEY_DETAILS, KEY_NOTES, KEY_FK_TASKLIST_ID }, KEY_PK + "=?",
+				new String[] { String.valueOf(id) }, null, null, null, null);
 		if (cursor != null)
 			cursor.moveToFirst();
-
-		Task task = new Task(Integer.parseInt(cursor.getString(0)),
-				cursor.getString(1), cursor.getString(2), cursor.getString(3));
-		// return Task
+		TaskModel task = new TaskModel(Integer.parseInt(cursor.getString(0)),
+				cursor.getString(1), cursor.getString(2), cursor.getString(3),
+				Integer.parseInt(cursor.getString(4)));
+		// return TaskModel
 		cursor.close();
 		db.close();
-
 		return task;
 	}
 
 	// Getting All Tasks
-	public ArrayList<Task> Get_Tasks() {
+	// previous name Get_Tasks with fk
+	public ArrayList<TaskModel> Task_List(int id) {
+		ArrayList<TaskModel> data = new ArrayList<TaskModel>();
 		try {
-			task_list.clear();
 
 			// Select All Query
-			String selectQuery = "SELECT  * FROM " + TABLE_TASKS;
+			String selectQuery = "SELECT  * FROM " + TABLE_TASKS + " WHERE "
+					+ KEY_FK_TASKLIST_ID + " = " + id;
 
 			SQLiteDatabase db = this.getWritableDatabase();
+
 			Cursor cursor = db.rawQuery(selectQuery, null);
 
 			// looping through all rows and adding to list
 			if (cursor.moveToFirst()) {
 				do {
-					Task task = new Task();
-					task.setID(Integer.parseInt(cursor.getString(0)));
-					task.setTitle(cursor.getString(1));
-					task.setDetails(cursor.getString(2));
-					task.setNotes(cursor.getString(3));
-					// Adding Task to list
-					task_list.add(task);
+					TaskModel task = new TaskModel();
+					task._id = (Integer.parseInt(cursor.getString(0)));
+					task.title = (cursor.getString(1));
+					task.details = (cursor.getString(2));
+					task.notes = (cursor.getString(3));
+					task.fk_tasklist_id = (Integer
+							.parseInt(cursor.getString(4)));
+					// Adding TaskModel to list
+					data.add(task);
 				} while (cursor.moveToNext());
 			}
 
-			// return Task list
+			// return TaskModel list
 			cursor.close();
 			db.close();
-			return task_list;
+			return data;
 		} catch (Exception e) {
 			// TODO: handle exception
-			Log.e("all_Task", "" + e);
+			Log.e("all_Task", "DBHelper GetTasks" + e);
 		}
-
-		return task_list;
+		return data;
 	}
 
-	// Updating single Task
-	public int Update_Task(Task task) {
+	/**
+	 * All CRUD FOR TASK LIST(Create, Read, Update, Delete) Operations
+	 */
+	// Add a TaskListModel
+	public int New_TaskList(TaskListModel tasklist) {
 		SQLiteDatabase db = this.getWritableDatabase();
-
 		ContentValues values = new ContentValues();
-		values.put(KEY_TASK_TITLE, task.getTitle());
-		values.put(KEY_TASK_DETAILS, task.getDetails());
-		values.put(KEY_TASK_NOTES, task.getNotes());
+		values.put(KEY_TITLE, tasklist.title);
+		int id = (int) db.insert(TABLE_TASK_LIST, null, values);
 
-		// updating row
-		return db.update(TABLE_TASKS, values, KEY_ID + " = ?",
-				new String[] { String.valueOf(task.getID()) });
+		db.close();
+		return id;
+		// return true; //boolean to check if the tasklist is added in db
+
 	}
 
-	// Deleting single Task
-	public void Delete_Task(int id) {
+	// Delete a TaskListModel
+	public void TaskList_Delete(int id) {
 		SQLiteDatabase db = this.getWritableDatabase();
-		db.delete(TABLE_TASKS, KEY_ID + " = ?",
+		db.delete(TABLE_TASK_LIST, KEY_PK + " = ?",
 				new String[] { String.valueOf(id) });
+		Task_Delete(id); // Delete tasks and then delete list
 		db.close();
 	}
 
-	// Getting Tasks Count
-	public int Get_Total_Tasks() {
-		String countQuery = "SELECT  * FROM " + TABLE_TASKS;
-		SQLiteDatabase db = this.getReadableDatabase();
-		Cursor cursor = db.rawQuery(countQuery, null);
-		cursor.close();
+	// Updating single TaskListModel
+	public int Edit_TaskList(TaskListModel tasklist) {
+		SQLiteDatabase db = this.getWritableDatabase();
 
-		// return count
-		return cursor.getCount();
+		ContentValues values = new ContentValues();
+		values.put(KEY_TITLE, tasklist.title);
+		return db.update(TABLE_TASK_LIST, values, KEY_PK + " = ?",
+				new String[] { String.valueOf(tasklist._id) });
 	}
+
+	// Getting All TasksLists
+	// previous name Get_TaskTitleList
+	public ArrayList<TaskListModel> getList_TaskList() {
+		ArrayList<TaskListModel> data = new ArrayList<TaskListModel>();
+		try {
+			// Select All Query
+			String selectQuery = "SELECT  * FROM " + TABLE_TASK_LIST;
+
+			SQLiteDatabase db = this.getWritableDatabase();
+
+			Cursor cursor = db.rawQuery(selectQuery, null);
+
+			// looping through all rows and adding to list
+			if (cursor.moveToFirst()) {
+				do {
+					TaskListModel tasklist = new TaskListModel();
+					tasklist._id = (Integer.parseInt(cursor.getString(0)));
+					tasklist.title = (cursor.getString(1));
+					// Adding TaskModel to list
+					tasklist.tasks = this.Task_List(tasklist._id);
+					data.add(tasklist);
+				} while (cursor.moveToNext());
+			}
+			cursor.close();
+			db.close();
+		} catch (Exception e) {
+			// TODO: handle exception
+			Log.e("all_TaskTitleList", "DBHelper GetTaskTitleList" + e);
+		}
+		return data;
+
+	}
+
+	// Getting single TaskListModel
+	// previous name TaskListModel Get_TaskList(int id)
+	public TaskListModel TaskList_Single(int id) {
+		SQLiteDatabase db = this.getReadableDatabase();
+
+		Cursor cursor = db.query(TABLE_TASK_LIST, new String[] { KEY_PK,
+				KEY_TITLE }, KEY_PK + "=?",
+				new String[] { String.valueOf(id) }, null, null, null, null);
+		if (cursor != null)
+			cursor.moveToFirst();
+		TaskListModel tasklist = new TaskListModel(Integer.parseInt(cursor.getString(0)),
+				cursor.getString(1));// return TaskListModel
+		cursor.close();
+		db.close();
+		return tasklist;
+	}
+	
+	
+	//temp
 	public ArrayList<Common.CustomViewsData.MultiSelectRowData> Get_Users() {
-		
+
 		ArrayList<Common.CustomViewsData.MultiSelectRowData> users
 			= new ArrayList<Common.CustomViewsData.MultiSelectRowData>();
-		
+
 		try {
 			// Select All Query
 			String selectQuery = "SELECT  * FROM " + TABLE_USERS;
@@ -214,8 +325,8 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 		}
 
 		return users;
-		
-		
+
+
 	}
 	public void Add_User() {
 		SQLiteDatabase db = this.getWritableDatabase();
@@ -227,6 +338,5 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 		// Inserting Row
 		db.insert(TABLE_USERS, null, values);
 		db.close(); // Closing database connection
-	}
-
+	}//ends
 }
