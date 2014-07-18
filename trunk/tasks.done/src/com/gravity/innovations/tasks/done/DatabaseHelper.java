@@ -99,7 +99,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 	 * All CRUD FOR TASK(Create, Read, Update, Delete) Operations
 	 */
 	// Add new TaskModel
-	public int Task_Add(TaskModel task) {
+	public int New_Task(TaskModel task) {
 		// error, wrong foreign key
 		SQLiteDatabase db = this.getWritableDatabase();
 		ContentValues values = new ContentValues();
@@ -124,7 +124,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 	}
 
 	// Updating a TaskModel
-	public int Task_Update(TaskModel task) {
+	public int Edit_Task(TaskModel task) {
 		SQLiteDatabase db = this.getWritableDatabase();
 
 		ContentValues values = new ContentValues();

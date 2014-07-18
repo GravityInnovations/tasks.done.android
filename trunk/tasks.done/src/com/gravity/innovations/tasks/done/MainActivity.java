@@ -40,13 +40,14 @@ public class MainActivity extends ActionBarActivity implements
 	 * {@link #restoreActionBar()}.
 	 */
 	private CharSequence mTitle;
-
+	public TaskListFragment mTaskListFragment;
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 
 		setContentView(R.layout.activity_main);
 		mContext = this;
+		
 		
 		mNavigationDrawerFragment = (NavigationDrawerFragment) getSupportFragmentManager()
 				.findFragmentById(R.id.navigation_drawer);
@@ -81,12 +82,15 @@ public class MainActivity extends ActionBarActivity implements
 	public void onNavigationDrawerItemSelected(TaskListModel temp) {
 		CurrentList = temp;
 		try{
+			
+			
 		// update the main content by replacing fragments
 		FragmentManager fragmentManager = this.getSupportFragmentManager();
+		mTaskListFragment = new TaskListFragment();
+		mTaskListFragment.newInstance(temp);
 		fragmentManager
 				.beginTransaction()
-				.replace(R.id.container,
-						PlaceholderFragment.newInstance(0)).commit();
+				.replace(R.id.container, mTaskListFragment.getFragment()).commit();
 		}
 		catch(Exception ex)
 		{
@@ -151,6 +155,11 @@ public class MainActivity extends ActionBarActivity implements
 		{
 			Intent i = new Intent(MainActivity.this, StoreActivity.class);
 			startActivity(i);
+		}
+		else if(id == R.id.action_add_task)
+		{
+			
+			mNavigationDrawerFragment.addOrEditTask(CurrentList,new TaskModel());
 		}
 		else if(id == R.id.action_share)
 		{

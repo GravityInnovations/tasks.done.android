@@ -147,7 +147,7 @@ public class NavigationDrawerFragment extends Fragment {
     	this.data = db.getList_TaskList();
     	mAdapter = new TaskListAdapter(getActivity(), R.layout.tasklist_listview_row,data);
         mDrawerListView.setAdapter(mAdapter);
-        
+        selectItem(1);
         mFragmentContainerView = getActivity().findViewById(fragmentId);
         mDrawerLayout = drawerLayout;
 
@@ -216,6 +216,9 @@ public class NavigationDrawerFragment extends Fragment {
     }
 
     private void selectItem(int position) {
+    	position--;
+    	if(position<0)
+    		position = 1;
         mCurrentSelectedPosition = position;
         if (mDrawerListView != null) {
             mDrawerListView.setItemChecked(position, true);
@@ -265,6 +268,7 @@ public class NavigationDrawerFragment extends Fragment {
         mDrawerToggle.onConfigurationChanged(newConfig);
     }
 
+    
     @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
         // If the drawer is open, show the global app actions in the action bar. See also
@@ -275,21 +279,12 @@ public class NavigationDrawerFragment extends Fragment {
         }
         super.onCreateOptionsMenu(menu, inflater);
     }
-
-    @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        if (mDrawerToggle.onOptionsItemSelected(item)) {
-            return true;
-        }
-
-        if (item.getItemId() == R.id.action_example) {
-            Toast.makeText(getActivity(), "Example action.", Toast.LENGTH_SHORT).show();
-            return true;
-        }
-
-        return super.onOptionsItemSelected(item);
+		if (mDrawerToggle.onOptionsItemSelected(item)) {
+			return true;
+		}
+		return super.onOptionsItemSelected(item);
     }
-
     /**
      * Per the navigation drawer design guidelines, updates the action bar to show the global app
      * 'context', rather than just what's in the current screen.
@@ -308,29 +303,51 @@ public class NavigationDrawerFragment extends Fragment {
     /**
      * Callbacks interface that all activities using this fragment must implement.
      */
-    public void addItem(TaskListModel temp)
+    private void addTaskList(TaskListModel temp)
     {
     	data.add(temp);
     	//this.mAdapter.add(temp);
     	this.mAdapter.notifyDataSetChanged();
-    	selectItem(0);
+    	
+    	selectItem(this.mAdapter.getPosition(temp));
     }
-    public void editItem(TaskListModel Old, String Title)
+    private void editTaskList(TaskListModel Old, String Title)
     {
     	//this.mAdapter.add(temp);
     	//this.mAdapter.getPosition(old)
     	
     	this.mAdapter.notifyDataSetChanged();
-    	selectItem(0);
+    	selectItem(this.mAdapter.getPosition(Old));
     }
+    private void addTask(TaskListModel parent, TaskModel temp)
+    {
+    	parent.tasks.add(temp);
+    	this.mAdapter.notifyDataSetChanged();
+    	int position = this.mAdapter.getPosition(parent);
+    	selectItem(++position);
+    	//TaskModel dump = parent.GetTask(temp._id);
+//    	data.add(temp);
+//    	//this.mAdapter.add(temp);
+//    	this.mAdapter.notifyDataSetChanged();
+//    	
+    //	selectItem(this.mAdapter.getPosition(temp));
+    }
+    private void editTask(TaskModel task, TaskModel temp) {
+		// TODO Auto-generated method stub
+		
+	}
+
     public void addOrEditTaskList(final TaskListModel tasklist) {
 		View view = getActivity().getLayoutInflater().inflate(R.layout.addoredit_tasklist_dialog, null);
-		final EditText add_title = (EditText) view
+		final EditText et_title = (EditText) view
 				.findViewById(R.id.et_title);
-		add_title.setText(tasklist.title);
+		et_title.setText(tasklist.title);
 		String dialogTitle = "";
 		if (tasklist._id == -1) {
 			dialogTitle = "New Task List";
+		}
+		else{
+			dialogTitle = "Edit Task List";
 		}
 		DialogInterface.OnClickListener posListener = new DialogInterface.OnClickListener() {
 			@Override
@@ -338,7 +355,7 @@ public class NavigationDrawerFragment extends Fragment {
 				try {
 					if (tasklist._id == -1) {
 						// create
-						String title = add_title.getText().toString();
+						String title = et_title.getText().toString();
 						if (title.length() != 0) {
 							try {
 								TaskListModel temp = new TaskListModel(title);
@@ -347,7 +364,7 @@ public class NavigationDrawerFragment extends Fragment {
 								if (temp._id != -1) {
 									//toastMsg = "tasklist added";
 									
-									addItem(temp);
+									addTaskList(temp);
 								} else {
 									//toastMsg = "Retry! \n tasklist not added";
 								}
@@ -363,13 +380,96 @@ public class NavigationDrawerFragment extends Fragment {
 						}
 					}else {
 						// update tasklist
-						String title = add_title.getText().toString();
+						String title = et_title.getText().toString();
 						//Log.d(title, "this is the title");
 						if (title.length() != 0) {
 							int nRows = db.Edit_TaskList(new TaskListModel(tasklist._id, title));
 							if(nRows>0){
 								tasklist.title = title;
-								editItem(tasklist, title);
+								editTaskList(tasklist, title);
+							
+							}
+						}
+					}
+				} catch (Exception e) {
+					Log.d("Exception on", "Positive Listener");
+				}
+			}
+
+			
+		};
+		DialogInterface.OnClickListener negListener = new DialogInterface.OnClickListener() {
+			@Override
+			public void onClick(DialogInterface dialog, int which) {
+				// TODO Auto-generated method stub
+				dialog.cancel();
+			}
+		};
+		Common.CustomDialog.CustomDialog(mContext, view, negListener,
+				posListener, R.string.dialog_save, R.string.dialog_cancel,
+				dialogTitle);
+	}
+    public void addOrEditTask(final TaskListModel tasklist, final TaskModel task)
+    {
+    	View view = getActivity().getLayoutInflater().inflate(R.layout.addoredit_task_dialog, null);
+		final EditText et_title = (EditText) view
+				.findViewById(R.id.et_title);
+		final EditText et_details = (EditText) view
+				.findViewById(R.id.et_details);
+		
+		final EditText et_notes = (EditText) view
+				.findViewById(R.id.et_notes);
+		
+		et_title.setText(task.title);
+		String dialogTitle = "";
+		if (task._id == -1) {
+			dialogTitle = "New Task";
+		}
+		else{
+			dialogTitle = "Edit Task";
+		}
+		DialogInterface.OnClickListener posListener = new DialogInterface.OnClickListener() {
+			@Override
+			public void onClick(DialogInterface dialog, int which) {
+				try {
+					String title = et_title.getText().toString();
+					String details = et_details.getText().toString();
+					String notes = et_notes.getText().toString();
+					
+					if (task._id == -1) {
+						// create
+						if (title.length() != 0) {
+							try {
+								TaskModel temp = new TaskModel(title,details,notes, tasklist._id);
+								// should retun a bool on true
+								temp._id = db.New_Task(temp);
+								if (temp._id != -1) {
+									//toastMsg = "tasklist added";
+									
+									addTask(tasklist,temp);
+								} else {
+									//toastMsg = "Retry! \n tasklist not added";
+								}
+//								Common.CustomToast.CreateAToast(mContext,
+//										toastMsg);
+								// mTaskListAdapter.notifyDataSetChanged();
+								// mNavigationDrawerFragment.notifyDataSetChanges();
+							} catch (Exception e) {
+								Log.e("MainActivity", "newOrEditTaskList");
+							} finally {
+								Log.e("MainActivitynewOrEditTaskList", "np");
+							}// finally
+						}
+					}else {
+						// update tasklist
+						//Log.d(title, "this is the title");
+						if (title.length() != 0) {
+							TaskModel temp = new TaskModel(tasklist._id, title, details, notes, tasklist._id);
+							int nRows = db.Edit_Task(temp);
+							if(nRows>0){
+								//tasklist.title = title;
+								
+								editTask(task, temp);
 							
 							}
 							//mNavigationDrawerFragment.list_data.clear();
@@ -392,6 +492,7 @@ public class NavigationDrawerFragment extends Fragment {
 			}
 
 			
+			
 		};
 		DialogInterface.OnClickListener negListener = new DialogInterface.OnClickListener() {
 			@Override
@@ -403,7 +504,9 @@ public class NavigationDrawerFragment extends Fragment {
 		Common.CustomDialog.CustomDialog(mContext, view, negListener,
 				posListener, R.string.dialog_save, R.string.dialog_cancel,
 				dialogTitle);
-	}
+    }
+    
+    
     public static interface NavigationDrawerCallbacks {
         /**
          * Called when an item in the navigation drawer is selected.

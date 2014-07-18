@@ -8,15 +8,33 @@ public class TaskListModel {
 	public ArrayList<TaskModel> tasks = new ArrayList<TaskModel>(); //task_data;
 	public TaskListModel() {
 		_id = -1;
+		this.tasks = new ArrayList<TaskModel>();
 	}
 	// constructor
 	public TaskListModel(int id, String title) {
 		this._id = id;
 		this.title = title;
+		this.tasks = new ArrayList<TaskModel>();
 	}
 	// constructor
 	public TaskListModel(String title) {
 		this.title = title;
+		this.tasks = new ArrayList<TaskModel>();
 	}
-
+	public TaskListModel(int id, String title, ArrayList<TaskModel> tasks) {
+		this._id = id;
+		this.title = title;
+		this.tasks = tasks;
+	}
+	public TaskModel GetTask(int id)
+	{
+		for(TaskModel item:this.tasks)
+		{
+			if(item._id == id)
+			{
+				return item;
+			}
+		}
+		return null;
+	}
 }

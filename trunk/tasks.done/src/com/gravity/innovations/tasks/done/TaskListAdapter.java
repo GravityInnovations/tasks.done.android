@@ -17,23 +17,23 @@ public class TaskListAdapter extends ArrayAdapter<TaskListModel> {
 	TaskListModel tasklist;
 	Activity mActivity;
 	int layoutResourceId;
-	ArrayList<TaskListModel> list_data = new ArrayList<TaskListModel>();
+	ArrayList<TaskListModel> data = new ArrayList<TaskListModel>();
 	
 	public TaskListAdapter(Activity activity, int layoutResourceId, ArrayList<TaskListModel> data) {
 		super(activity, layoutResourceId, data);
 		// TODO Auto-generated constructor stub
 		this.mActivity = activity;
 		this.layoutResourceId = layoutResourceId;
-		this.list_data = data;
+		this.data = data;
 		notifyDataSetChanged();
 	}
 	public long getItemId (int position)
 	{
-		int id = list_data.get(position)._id;
+		int id = data.get(position)._id;
 		return id;
 	}
 	public int getSelectedListId(int position) {
-		int id = list_data.get(position)._id;
+		int id = data.get(position)._id;
 	//	id--; 
 		return id;
 	}
@@ -54,7 +54,7 @@ public class TaskListAdapter extends ArrayAdapter<TaskListModel> {
 		}
 		row.setBackgroundColor(mActivity.getResources().getColor(
 				android.R.color.background_light)); // default color
-		tasklist = list_data.get(position);
+		tasklist = data.get(position);
 		holder.title.setText(tasklist.title);
 		return row;
 	}
