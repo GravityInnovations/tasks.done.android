@@ -1,20 +1,19 @@
 package com.gravity.innovations.tasks.done;
 
 import java.util.ArrayList;
-
-import android.support.v7.app.ActionBarActivity;
 import android.app.Activity;
-import android.support.v7.app.ActionBar;
-import android.support.v4.app.Fragment;
-import android.support.v4.app.ActionBarDrawerToggle;
-import android.support.v4.view.GravityCompat;
-import android.support.v4.widget.DrawerLayout;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.SharedPreferences;
 import android.content.res.Configuration;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
+import android.support.v4.app.ActionBarDrawerToggle;
+import android.support.v4.app.Fragment;
+import android.support.v4.view.GravityCompat;
+import android.support.v4.widget.DrawerLayout;
+import android.support.v7.app.ActionBar;
+import android.support.v7.app.ActionBarActivity;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -24,11 +23,9 @@ import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ListView;
-import android.widget.Toast;
 
 /**
  * Fragment used for managing interactions for and presentation of a navigation drawer.
@@ -218,7 +215,7 @@ public class NavigationDrawerFragment extends Fragment {
     private void selectItem(int position) {
     	position--;
     	if(position<0)
-    		position = 1;
+    		position = 0;
         mCurrentSelectedPosition = position;
         if (mDrawerListView != null) {
             mDrawerListView.setItemChecked(position, true);
@@ -308,32 +305,39 @@ public class NavigationDrawerFragment extends Fragment {
     	data.add(temp);
     	//this.mAdapter.add(temp);
     	this.mAdapter.notifyDataSetChanged();
-    	
-    	selectItem(this.mAdapter.getPosition(temp));
+    	int position = this.mAdapter.getPosition(temp);
+    	selectItem(++position);
     }
     private void removeTaskList(TaskListModel temp)
     {
+    	
+    	int position = 0;//this.mAdapter.getPosition(temp);
+    	boolean flag = false;
+    	for(TaskListModel i:this.data)
+    	{
+    		if(flag)
+    		{
+    			position = this.mAdapter.getPosition(i);
+    			break;
+    		}
+    		if(i._id == temp._id)
+    			flag = true;
+    	}
     	data.remove(temp);
+    	
     	//this.mAdapter.add(temp);
     	this.mAdapter.notifyDataSetChanged();
-    	
-    	selectItem(this.mAdapter.getPosition(temp));
+    	selectItem(position);
     }
-    private void c(TaskListModel temp)
-    {
-    	data.remove(temp);
-    	//this.mAdapter.add(temp);
-    	this.mAdapter.notifyDataSetChanged();
-    	
-    	selectItem(this.mAdapter.getPosition(temp));
-    }
+    
     private void editTaskList(TaskListModel Old, String Title)
     {
     	//this.mAdapter.add(temp);
     	//this.mAdapter.getPosition(old)
     	
     	this.mAdapter.notifyDataSetChanged();
-    	selectItem(this.mAdapter.getPosition(Old));
+    	int position = this.mAdapter.getPosition(Old);
+    	selectItem(++position);
     }
     private void addTask(TaskListModel parent, TaskModel temp)
     {
@@ -546,6 +550,7 @@ public class NavigationDrawerFragment extends Fragment {
 		Common.CustomDialog.CustomDialog(mContext, R.string.delete,
 				R.string.dialog_cancel, negListener, posListener);
 	}
+   
     
     public static interface NavigationDrawerCallbacks {
         /**
@@ -553,4 +558,12 @@ public class NavigationDrawerFragment extends Fragment {
          */
         void onNavigationDrawerItemSelected(TaskListModel temp);
     }
+
+	public void openDrawer() {
+		// TODO Auto-generated method stub
+		
+		// mDrawerLayout.openDrawer(mFragmentContainerView);
+		mDrawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED);//.LOCK_MODE_LOCKED_OPEN);
+	     //mDrawerLayout.openDrawer(1);
+   }
 }

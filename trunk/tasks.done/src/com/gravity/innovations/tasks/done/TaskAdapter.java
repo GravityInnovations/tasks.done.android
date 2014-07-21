@@ -17,7 +17,6 @@ public class TaskAdapter extends ArrayAdapter<TaskModel> {
 	int layoutResourceId;
 	TaskModel task;
 	ArrayList<TaskModel> task_data = new ArrayList<TaskModel>();
-	//ArrayList<TaskModelList> list_data = new ArrayList<TaskModelList>();
 	private HashMap<Integer, Boolean> mSelection = new HashMap<Integer, Boolean>();
 
 	public TaskAdapter(Activity act, int layoutResourceId, ArrayList<TaskModel> data) {

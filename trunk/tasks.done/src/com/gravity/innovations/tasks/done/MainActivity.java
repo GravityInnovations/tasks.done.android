@@ -7,6 +7,7 @@ import android.content.DialogInterface;
 import android.content.DialogInterface.OnClickListener;
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.v4.app.ActionBarDrawerToggle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.widget.DrawerLayout;
@@ -39,8 +40,10 @@ public class MainActivity extends ActionBarActivity implements
 	 * Used to store the last screen title. For use in
 	 * {@link #restoreActionBar()}.
 	 */
+	private ActionBar actionBar;
 	private CharSequence mTitle;
 	public TaskListFragment mTaskListFragment;
+	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -80,22 +83,31 @@ public class MainActivity extends ActionBarActivity implements
 
 	@Override
 	public void onNavigationDrawerItemSelected(TaskListModel temp) {
+		
 		CurrentList = temp;
+		
 		try{
-			
-			
+			if (temp._id == -1){
+						
+				mNavigationDrawerFragment.openDrawer();
+
+				
+			}else{
 		// update the main content by replacing fragments
 		FragmentManager fragmentManager = this.getSupportFragmentManager();
 		mTaskListFragment = new TaskListFragment();
-		mTaskListFragment.newInstance(temp);
+		mTaskListFragment.newInstance(temp, mNavigationDrawerFragment);
 		fragmentManager
 				.beginTransaction()
 				.replace(R.id.container, mTaskListFragment.getFragment()).commit();
+		actionBar.setTitle(CurrentList.title);
 		}
+		}	
 		catch(Exception ex)
 		{
 			String x = ex.getLocalizedMessage();
 		}
+		
 	}
 
 	public void onSectionAttached(int number) {
@@ -113,10 +125,11 @@ public class MainActivity extends ActionBarActivity implements
 	}
 
 	public void restoreActionBar() {
-		ActionBar actionBar = getSupportActionBar();
+		actionBar = getSupportActionBar();
 		actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_STANDARD);
 		actionBar.setDisplayShowTitleEnabled(true);
-		actionBar.setTitle(mTitle);
+		//actionBar.setTitle(mTitle);
+		actionBar.setTitle(CurrentList.title);
 	}
 
 	@Override
