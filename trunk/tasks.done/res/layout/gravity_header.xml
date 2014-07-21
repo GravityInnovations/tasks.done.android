@@ -19,7 +19,7 @@
         android:layout_alignParentTop="true"
         android:contentDescription="@string/no_internet"
         android:launchMode="singleTop"
-        android:scaleType="center"
+        android:scaleType="center" 
         android:src="@drawable/gravity_logo" />
 
 </RelativeLayout>

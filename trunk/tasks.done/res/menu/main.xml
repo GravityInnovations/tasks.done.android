@@ -9,8 +9,14 @@
         android:title="Add Task"
         app:showAsAction="withText|ifRoom"/>
     <item
+        android:id="@+id/action_delete" 
+        android:orderInCategory="99"
+        android:showAsAction="ifRoom|collapseActionView"
+        android:title="@string/action_delete"
+        android:titleCondensed="Delete"
+        />
+    <item
         android:id="@+id/action_edit" 
-        android:icon="@drawable/ic_action_new"
         android:orderInCategory="99"
         android:showAsAction="ifRoom|collapseActionView"
         android:title="@string/action_edit"

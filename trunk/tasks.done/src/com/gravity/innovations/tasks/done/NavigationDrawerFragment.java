@@ -311,6 +311,22 @@ public class NavigationDrawerFragment extends Fragment {
     	
     	selectItem(this.mAdapter.getPosition(temp));
     }
+    private void removeTaskList(TaskListModel temp)
+    {
+    	data.remove(temp);
+    	//this.mAdapter.add(temp);
+    	this.mAdapter.notifyDataSetChanged();
+    	
+    	selectItem(this.mAdapter.getPosition(temp));
+    }
+    private void c(TaskListModel temp)
+    {
+    	data.remove(temp);
+    	//this.mAdapter.add(temp);
+    	this.mAdapter.notifyDataSetChanged();
+    	
+    	selectItem(this.mAdapter.getPosition(temp));
+    }
     private void editTaskList(TaskListModel Old, String Title)
     {
     	//this.mAdapter.add(temp);
@@ -505,7 +521,31 @@ public class NavigationDrawerFragment extends Fragment {
 				posListener, R.string.dialog_save, R.string.dialog_cancel,
 				dialogTitle);
     }
-    
+    public void deleteTaskList(final TaskListModel tasklist) {
+		DialogInterface.OnClickListener posListener = new DialogInterface.OnClickListener() {
+			@Override
+			public void onClick(DialogInterface dialog, int which) {
+				try {
+					db.TaskList_Delete(tasklist._id);
+					removeTaskList(tasklist);
+				} catch (Exception E) {
+					Log.e("MainActivity", "Delete TaskList");
+				} finally {
+					// Update adapter
+				}
+
+			}
+		};
+		DialogInterface.OnClickListener negListener = new DialogInterface.OnClickListener() {
+			@Override
+			public void onClick(DialogInterface dialog, int which) {
+				// TODO Auto-generated method stub
+				dialog.cancel();
+			}
+		};
+		Common.CustomDialog.CustomDialog(mContext, R.string.delete,
+				R.string.dialog_cancel, negListener, posListener);
+	}
     
     public static interface NavigationDrawerCallbacks {
         /**
