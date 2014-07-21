@@ -1,0 +1,46 @@
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:context="com.gravity.innovations.tasks.done.MainActivity" >
+
+    <item
+        android:id="@+id/action_add_task"
+        android:icon="@drawable/ic_action_new"
+        android:title="Add Task"
+        app:showAsAction="withText|ifRoom"/>
+    <item
+        android:id="@+id/action_edit"
+        android:icon="@drawable/ic_action_new"
+        android:orderInCategory="99"
+        android:showAsAction="ifRoom|collapseActionView"
+        android:title="@string/action_edit"
+        android:titleCondensed="Edit"/>
+    <item
+        android:id="@+id/action_delete"
+        android:orderInCategory="99"
+        android:showAsAction="ifRoom|collapseActionView"
+        android:title="@string/action_delete"
+        android:titleCondensed="Delete"/>
+    <item
+        android:id="@+id/action_settings"
+        android:orderInCategory="100"
+        android:title="@string/action_settings"
+        app:showAsAction="never"/>
+    <item
+        android:id="@+id/action_developer"
+        android:orderInCategory="98"
+        android:title="@string/action_developer"
+        app:showAsAction="never"/>
+    <item
+        android:id="@+id/action_store"
+        android:orderInCategory="99"
+        android:title="@string/action_store"
+        app:showAsAction="never"/>
+    <item
+        android:id="@+id/action_share"
+        android:icon="@drawable/ic_action_share"
+        android:orderInCategory="98"
+        android:title="@string/action_share"
+        app:showAsAction="ifRoom|collapseActionView"/>
+
+</menu>
