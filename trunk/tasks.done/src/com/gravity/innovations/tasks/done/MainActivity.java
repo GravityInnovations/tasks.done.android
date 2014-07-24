@@ -4,9 +4,11 @@ import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.SharedPreferences;
 import android.content.DialogInterface.OnClickListener;
 import android.content.Intent;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.support.v4.app.ActionBarDrawerToggle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
@@ -88,10 +90,12 @@ public class MainActivity extends ActionBarActivity implements
 		
 		try{
 			if (temp._id == -1){
-						
-				mNavigationDrawerFragment.openDrawer();
-
+				int id = temp._id;
+ 				 //		mNavigationDrawerFragment.setUp(R.id.navigation_drawer,
+ 				// 	(DrawerLayout) findViewById(R.id.drawer_layout),mContext);//openDrawer();
 				
+		 		mNavigationDrawerFragment.onMinusOne(id);
+
 			}else{
 		// update the main content by replacing fragments
 		FragmentManager fragmentManager = this.getSupportFragmentManager();
