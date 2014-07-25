@@ -1,8 +1,6 @@
 package com.gravity.innovations.tasks.done;
 
 import java.util.ArrayList;
-import java.util.Iterator;
-
 import android.app.Activity;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -389,9 +387,9 @@ public class NavigationDrawerFragment extends Fragment {
 		// selectItem(this.mAdapter.getPosition(temp));
 	}
 
-	private void editTask(TaskModel task )//, TaskModel temp) {
-	{		// TODO Auto-generated method stub
-		this.mAdapter.notifyDataSetChanged();
+	private void editTask(TaskModel task, TaskModel temp) {
+		// TODO Auto-generated method stub
+
 	}
 
 	public void addOrEditTaskList(final TaskListModel tasklist) {
@@ -467,7 +465,7 @@ public class NavigationDrawerFragment extends Fragment {
 				dialogTitle);
 	}
 
-	public void addOrEditTask(final TaskListModel tasklist,    final TaskModel task) {
+	public void addOrEditTask(final TaskListModel tasklist, final TaskModel task) {
 		View view = getActivity().getLayoutInflater().inflate(
 				R.layout.addoredit_task_dialog, null);
 		final EditText et_title = (EditText) view.findViewById(R.id.et_title);
@@ -525,9 +523,10 @@ public class NavigationDrawerFragment extends Fragment {
 				 
 							if (nRows > 0) {
 								// tasklist.title = title;
-								editTask(task);//, temp);
+
+								editTask(task, temp);
+
 							}
-								
 							// mNavigationDrawerFragment.list_data.clear();
 							// mNavigationDrawerFragment.list_adapter.notifyDataSetChanged();//
 							// reinit();

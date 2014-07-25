@@ -1,5 +1,8 @@
 package com.gravity.innovations.tasks.done;
 
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Context;
@@ -51,6 +54,7 @@ public class MainActivity extends ActionBarActivity implements
 		super.onCreate(savedInstanceState);
 
 		setContentView(R.layout.activity_main);
+		//String x = getHash("Faik");
 		mContext = this;
 		
 		
@@ -227,7 +231,27 @@ public class MainActivity extends ActionBarActivity implements
 		}
 		return super.onOptionsItemSelected(item);
 	}
-
+	public String getHash(String message) {
+		String algorithm = "SHA384";
+		String hex = "";
+		try {
+			byte[] buffer = message.getBytes();
+			MessageDigest md = MessageDigest.getInstance(algorithm);
+			md.update(buffer);
+			byte[] digest = md.digest();
+			
+			for(int i = 0 ; i < digest.length ; i++) {
+				int b = digest[i] & 0xff;
+				if (Integer.toHexString(b).length() == 1) hex = hex + "0";
+				hex  = hex + Integer.toHexString(b);
+			}
+			return hex;
+		} catch(NoSuchAlgorithmException e) {
+			e.printStackTrace();
+			return null;
+		}
+		
+	}
 	/**
 	 * A placeholder fragment containing a simple view.
 	 */
@@ -271,7 +295,7 @@ public class MainActivity extends ActionBarActivity implements
 					ARG_SECTION_NUMBER));
 		}
 	}
-
+	
 	
 
 }
