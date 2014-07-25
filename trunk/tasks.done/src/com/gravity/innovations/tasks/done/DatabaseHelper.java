@@ -115,7 +115,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 	// Delete a TaskModel
 	public void Task_Delete(int id) {
 		SQLiteDatabase db = this.getWritableDatabase();
-		db.delete(TABLE_TASKS, KEY_FK_TASKLIST_ID + " = ?", // it will take
+		db.delete(TABLE_TASKS, KEY_PK + " = ?", // it will take
 															// input from
 															// TaskList_Delete
 				new String[] { String.valueOf(id) }); // and delete all tasks
@@ -215,7 +215,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 		SQLiteDatabase db = this.getWritableDatabase();
 		db.delete(TABLE_TASK_LIST, KEY_PK + " = ?",
 				new String[] { String.valueOf(id) });
-		Task_Delete(id); // Delete tasks and then delete list
+		//Task_Delete(id); // Delete tasks and then delete list
 		db.close();
 	}
 

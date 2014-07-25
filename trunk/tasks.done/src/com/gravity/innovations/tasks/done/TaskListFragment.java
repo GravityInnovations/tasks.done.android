@@ -26,7 +26,6 @@ public class TaskListFragment extends Fragment {
 	public TaskAdapter mTaskAdapter;
 	private int selCount = 0; // for CAB multi select count
 	NavigationDrawerFragment mNavigationDrawerFragment;
-	DatabaseHelper db;
 
 	public TaskListFragment() {
 
@@ -68,8 +67,7 @@ public class TaskListFragment extends Fragment {
 						android.view.ActionMode mode, MenuItem item) {
 					switch (item.getItemId()) {
 					case R.id.item_delete:
-						// mNavigationDrawerFragment.deleteTask(mTaskAdapter.getSelectedTaskModels());
-
+						  mNavigationDrawerFragment.deleteTask(mTaskAdapter.getSelectedTaskModels());
 						break;
 					case R.id.item_edit:
 						mNavigationDrawerFragment.addOrEditTask(data,
@@ -112,8 +110,10 @@ public class TaskListFragment extends Fragment {
 						boolean checked) {
 					if (checked) {
 						selCount++; // cab edit
+						mTaskAdapter.setNewSelection(position, checked);
 					} else {
-						selCount--; // cab edit
+						selCount--;
+					mTaskAdapter.removeSelection(position); // cab edit
 					}
 					// cab edit
 					mode.setTitle(selCount + " selected");

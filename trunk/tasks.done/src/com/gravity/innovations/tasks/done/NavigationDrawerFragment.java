@@ -1,6 +1,7 @@
 package com.gravity.innovations.tasks.done;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 
 import android.app.Activity;
 import android.content.Context;
@@ -586,14 +587,16 @@ public class NavigationDrawerFragment extends Fragment {
 				R.string.dialog_cancel, negListener, posListener);
 	}
 
-	public void deleteTask(final Integer temp) {
+	public void deleteTask(final ArrayList<Integer> arrayList) {
 		DialogInterface.OnClickListener posListener = new DialogInterface.OnClickListener() {
 			@Override
 			public void onClick(DialogInterface dialog, int which) {
-				try {
-					db.Task_Delete(temp);
+				try {			
+					for (int temp : arrayList) {
+					    db.Task_Delete(temp);
+					}
 				} catch (Exception E) {
-					Log.e("MainActivity", "Delete TaskList");
+					Log.e("MainActivity", "Delete Task");
 				} finally {
 					// Update adapter
 				}
@@ -610,7 +613,6 @@ public class NavigationDrawerFragment extends Fragment {
 		Common.CustomDialog.CustomDialog(mContext, R.string.delete,
 				R.string.dialog_cancel, negListener, posListener);
 	}
-
 	public static interface NavigationDrawerCallbacks {
 		/**
 		 * Called when an item in the navigation drawer is selected.
