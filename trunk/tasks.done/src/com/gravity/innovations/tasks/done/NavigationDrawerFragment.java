@@ -34,7 +34,7 @@ import android.widget.ListView;
  * > design guidelines</a> for a complete explanation of the behaviors
  * implemented here.
  */
-public class CopyOfNavigationDrawerFragment extends Fragment {
+public class NavigationDrawerFragment extends Fragment {
 
 	private ArrayList<TaskListModel> data = new ArrayList<TaskListModel>();
 	private DatabaseHelper db;
@@ -67,7 +67,7 @@ public class CopyOfNavigationDrawerFragment extends Fragment {
 	private boolean mFromSavedInstanceState;
 	private boolean mUserLearnedDrawer;
 
-	public CopyOfNavigationDrawerFragment() {
+	public NavigationDrawerFragment() {
 	}
 
 	@Override
