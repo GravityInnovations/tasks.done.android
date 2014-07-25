@@ -308,8 +308,9 @@ public class NavigationDrawerFragment extends Fragment {
     	data.add(temp);
     	//this.mAdapter.add(temp);
     	this.mAdapter.notifyDataSetChanged();
-    	
+    	//GravityController.register_gravity_account(getActivity(), Email, gcm_reg_id, Username, RequestCode)
     	selectItem(this.mAdapter.getPosition(temp));
+    	
     }
     private void removeTaskList(TaskListModel temp)
     {

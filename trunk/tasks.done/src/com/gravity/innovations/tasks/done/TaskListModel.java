@@ -5,6 +5,7 @@ import java.util.ArrayList;
 public class TaskListModel {
 	public int _id;
 	public String title;
+	public String gravity_id = "";
 	public ArrayList<TaskModel> tasks = new ArrayList<TaskModel>(); //task_data;
 	public TaskListModel() {
 		_id = -1;

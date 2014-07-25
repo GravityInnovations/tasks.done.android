@@ -45,7 +45,7 @@ public class Common {
 	public static final String USER_IS_REGISTERED = prefix + "UserRegistered";
 	public static final String SHARED_PREF_KEY = prefix;
 	public static final int SPLASH_TIME_OUT = 3000;
-	public static final int SPLASH_TIME_OUT_SMALL = 1000;
+	public static final int SPLASH_TIME_OUT_SMALL = 3000;
 	public static final String ACCOUNT_TYPE = "com.google";
 	public static final String AUTH_TOKEN = prefix + "AuthToken";
 	public static final String AUTH_TOKEN_TYPE = "oauth2:profile https://www.googleapis.com/auth/plus.login https://www.googleapis.com/auth/plus.me";//https://www.googleapis.com/auth/userinfo.profile";// https://www.googleapis.com/auth/drive.file https://www.googleapis.com/auth/datastoremobile https://www.googleapis.com/auth/appstate";
@@ -91,6 +91,8 @@ public class Common {
 	public static final String GRAVITY_BASE_URL = "http://192.168.1.4/";
 	public static final String GRAVITY_ACCOUNT_URL = GRAVITY_BASE_URL+"Account/";
 	public static final String GRAVITY_GCM_URL = GRAVITY_BASE_URL+"GCM/";
+	public static final String GRAVITY_TASKLIST_URL = GRAVITY_BASE_URL+"TaskList/";
+	
 	//google urls
 	public static final String USER_INFO_URL = "https://www.googleapis.com/oauth2/v1/userinfo?access_token=";//require token
 	// request codes
@@ -136,7 +138,12 @@ public class Common {
 
 	}
 	
-
+	public static class HttpMethod{
+		public static final int HttpGet = 1;
+		public static final int HttpPost = 2;
+		public static final int HttpDelete = 3;
+		public static final int HttpPut = 4;
+	}
 	public static boolean hasInternet(Activity mActivity) {
 
 		ConnectivityManager cm = (ConnectivityManager) mActivity
@@ -160,6 +167,7 @@ public class Common {
 		public String google_reg_id;
 		public int google_regVer;
 		public String google_AuthToken;
+		public String gravity_user_id;
 		public userData() {
 
 		}

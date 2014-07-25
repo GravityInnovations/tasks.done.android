@@ -333,7 +333,7 @@ public class SplashActivity extends Activity implements
 	@Override
 	public void GravityRegister() {
 		GravityController.register_gravity_account(mActivity,
-				user_data.email, user_data.google_reg_id, Common.RequestCodes.GRAVITY_REGISTER);
+				user_data.email, user_data.google_reg_id, "", Common.RequestCodes.GRAVITY_REGISTER);
 		//AccountsController.get_gravity_accounts(Common.RequestCodes.GRAVITY_REGISTER);
 	
 	}
