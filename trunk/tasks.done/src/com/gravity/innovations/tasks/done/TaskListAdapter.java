@@ -51,9 +51,9 @@ public class TaskListAdapter extends ArrayAdapter<TaskListModel> {
 			row.setTag(holder);
 		} else {
 			holder = (TaskListHolder) row.getTag();
-		}
-		row.setBackgroundColor(mActivity.getResources().getColor(
-				android.R.color.background_light)); // default color
+ 		}
+//		row.setBackgroundColor(mActivity.getResources().getColor(
+//				android.R.color.background_light)); // default color
 		tasklist = data.get(position);
 		holder.title.setText(tasklist.title);
 		return row;
