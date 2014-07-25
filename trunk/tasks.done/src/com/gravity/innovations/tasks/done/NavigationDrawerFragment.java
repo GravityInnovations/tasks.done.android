@@ -1,6 +1,7 @@
 package com.gravity.innovations.tasks.done;
 
 import java.util.ArrayList;
+
 import android.app.Activity;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -387,9 +388,9 @@ public class NavigationDrawerFragment extends Fragment {
 		// selectItem(this.mAdapter.getPosition(temp));
 	}
 
-	private void editTask(TaskModel task, TaskModel temp) {
-		// TODO Auto-generated method stub
-
+	private void editTask(TaskModel task )//, TaskModel temp) {
+	{		// TODO Auto-generated method stub
+		this.mAdapter.notifyDataSetChanged();
 	}
 
 	public void addOrEditTaskList(final TaskListModel tasklist) {
@@ -465,7 +466,7 @@ public class NavigationDrawerFragment extends Fragment {
 				dialogTitle);
 	}
 
-	public void addOrEditTask(final TaskListModel tasklist, final TaskModel task) {
+	public void addOrEditTask(final TaskListModel tasklist,    final TaskModel task) {
 		View view = getActivity().getLayoutInflater().inflate(
 				R.layout.addoredit_task_dialog, null);
 		final EditText et_title = (EditText) view.findViewById(R.id.et_title);
@@ -475,6 +476,8 @@ public class NavigationDrawerFragment extends Fragment {
 		final EditText et_notes = (EditText) view.findViewById(R.id.et_notes);
 
 		et_title.setText(task.title);
+		et_details.setText(task.details);
+		et_notes.setText(task.notes);
 		String dialogTitle = "";
 		if (task._id == -1) {
 			dialogTitle = "New Task";
@@ -499,7 +502,6 @@ public class NavigationDrawerFragment extends Fragment {
 								temp._id = db.New_Task(temp);
 								if (temp._id != -1) {
 									// toastMsg = "tasklist added";
-
 									addTask(tasklist, temp);
 								} else {
 									// toastMsg =
@@ -507,8 +509,6 @@ public class NavigationDrawerFragment extends Fragment {
 								}
 								// Common.CustomToast.CreateAToast(mContext,
 								// toastMsg);
-								// mTaskListAdapter.notifyDataSetChanged();
-								// mNavigationDrawerFragment.notifyDataSetChanges();
 							} catch (Exception e) {
 								Log.e("MainActivity", "newOrEditTaskList");
 							} finally {
@@ -516,18 +516,17 @@ public class NavigationDrawerFragment extends Fragment {
 							}// finally
 						}
 					} else {
-						// update tasklist
-						// Log.d(title, "this is the title");
-						if (title.length() != 0) {
-							TaskModel temp = new TaskModel(tasklist._id, title,
-									details, notes, tasklist._id);
-							int nRows = db.Edit_Task(temp);
+						 if (title.length() != 0) {
+						 	TaskModel temp = new TaskModel( //tasklist._id
+						 			task._id, title,
+						 		details, notes, tasklist._id);   
+						 int nRows = db.Edit_Task(temp);
+				 
 							if (nRows > 0) {
 								// tasklist.title = title;
-
-								editTask(task, temp);
-
+								editTask(task);//, temp);
 							}
+								
 							// mNavigationDrawerFragment.list_data.clear();
 							// mNavigationDrawerFragment.list_adapter.notifyDataSetChanged();//
 							// reinit();
@@ -587,18 +586,35 @@ public class NavigationDrawerFragment extends Fragment {
 				R.string.dialog_cancel, negListener, posListener);
 	}
 
+	public void deleteTask(final Integer temp) {
+		DialogInterface.OnClickListener posListener = new DialogInterface.OnClickListener() {
+			@Override
+			public void onClick(DialogInterface dialog, int which) {
+				try {
+					db.Task_Delete(temp);
+				} catch (Exception E) {
+					Log.e("MainActivity", "Delete TaskList");
+				} finally {
+					// Update adapter
+				}
+
+			}
+		};
+		DialogInterface.OnClickListener negListener = new DialogInterface.OnClickListener() {
+			@Override
+			public void onClick(DialogInterface dialog, int which) {
+				// TODO Auto-generated method stub
+				dialog.cancel();
+			}
+		};
+		Common.CustomDialog.CustomDialog(mContext, R.string.delete,
+				R.string.dialog_cancel, negListener, posListener);
+	}
+
 	public static interface NavigationDrawerCallbacks {
 		/**
 		 * Called when an item in the navigation drawer is selected.
 		 */
 		void onNavigationDrawerItemSelected(TaskListModel temp);
-	}
-
-	public void openDrawer() {
-		// TODO Auto-generated method stub
-
-		// mDrawerLayout.openDrawer(mFragmentContainerView);
-		mDrawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED);// .LOCK_MODE_LOCKED_OPEN);
-		// mDrawerLayout.openDrawer(1);
 	}
 }

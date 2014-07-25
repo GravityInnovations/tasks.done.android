@@ -91,11 +91,7 @@ public class MainActivity extends ActionBarActivity implements
 		try{
 			if (temp._id == -1){
 				int id = temp._id;
- 				 //		mNavigationDrawerFragment.setUp(R.id.navigation_drawer,
- 				// 	(DrawerLayout) findViewById(R.id.drawer_layout),mContext);//openDrawer();
-				
-		 		mNavigationDrawerFragment.onMinusOne(id);
-
+				mNavigationDrawerFragment.onMinusOne(id);
 			}else{
 		// update the main content by replacing fragments
 		FragmentManager fragmentManager = this.getSupportFragmentManager();
