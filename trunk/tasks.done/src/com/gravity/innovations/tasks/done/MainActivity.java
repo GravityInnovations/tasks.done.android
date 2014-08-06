@@ -159,6 +159,10 @@ public class MainActivity extends ActionBarActivity implements
 		if (id == R.id.action_settings) {
 			return true;
 		}
+		else if(id == R.id.action_add)
+		{
+			mNavigationDrawerFragment.addOrEditTaskList(new TaskListModel());
+		}
 		else if(id == R.id.action_delete)
 		{
 			mNavigationDrawerFragment.deleteTaskList(CurrentList);

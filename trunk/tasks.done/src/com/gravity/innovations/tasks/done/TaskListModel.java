@@ -38,4 +38,16 @@ public class TaskListModel {
 		}
 		return null;
 	}
+	public Boolean RemoveTask(int id)
+	{
+		for(TaskModel item:this.tasks)
+		{
+			if(item._id == id)
+			{
+				this.tasks.remove(item);
+				return true;
+			}
+		}
+		return false;
+	}
 }

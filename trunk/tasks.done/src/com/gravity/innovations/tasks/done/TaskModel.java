@@ -37,4 +37,10 @@ public class TaskModel {
 		this.notes = _task_notes;
 	}
 
+	public void set(TaskModel temp)
+	{
+		this.title = temp.title;
+		this.details = temp.details;
+		this.notes = temp.notes;
+	}
 }

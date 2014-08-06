@@ -99,7 +99,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 	 * All CRUD FOR TASK(Create, Read, Update, Delete) Operations
 	 */
 	// Add new TaskModel
-	public int New_Task(TaskModel task) {
+	public int Task_New(TaskModel task) {
 		// error, wrong foreign key
 		SQLiteDatabase db = this.getWritableDatabase();
 		ContentValues values = new ContentValues();
@@ -113,7 +113,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 	}
 
 	// Delete a TaskModel
-	public void Task_Delete(int id) {
+	public boolean Task_Delete(int id) {
 		SQLiteDatabase db = this.getWritableDatabase();
 		db.delete(TABLE_TASKS, KEY_PK + " = ?", // it will take
 															// input from
@@ -121,10 +121,11 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 				new String[] { String.valueOf(id) }); // and delete all tasks
 														// against that list
 		db.close();
+		return true;
 	}
 
 	// Updating a TaskModel
-	public int Edit_Task(TaskModel task) {
+	public int Task_Edit(TaskModel task) {
 		SQLiteDatabase db = this.getWritableDatabase();
 
 		ContentValues values = new ContentValues();
@@ -136,7 +137,6 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 	}
 
 	// Getting single TaskModel
-	// previous name Get_Task
 	public TaskModel Task_Single(int id) {
 		SQLiteDatabase db = this.getReadableDatabase();
 
@@ -155,7 +155,6 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 	}
 
 	// Getting All Tasks
-	// previous name Get_Tasks with fk
 	public ArrayList<TaskModel> Task_List(int id) {
 		ArrayList<TaskModel> data = new ArrayList<TaskModel>();
 		try {
@@ -198,7 +197,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 	 * All CRUD FOR TASK LIST(Create, Read, Update, Delete) Operations
 	 */
 	// Add a TaskListModel
-	public int New_TaskList(TaskListModel tasklist) {
+	public int TaskList_New(TaskListModel tasklist) {
 		SQLiteDatabase db = this.getWritableDatabase();
 		ContentValues values = new ContentValues();
 		values.put(KEY_TITLE, tasklist.title);
@@ -220,7 +219,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 	}
 
 	// Updating single TaskListModel
-	public int Edit_TaskList(TaskListModel tasklist) {
+	public int TaskList_Edit(TaskListModel tasklist) {
 		SQLiteDatabase db = this.getWritableDatabase();
 
 		ContentValues values = new ContentValues();
@@ -230,8 +229,8 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 	}
 
 	// Getting All TasksLists
-	// previous name Get_TaskTitleList
-	public ArrayList<TaskListModel> getList_TaskList() {
+	
+	public ArrayList<TaskListModel> TaskList_List() {
 		ArrayList<TaskListModel> data = new ArrayList<TaskListModel>();
 		try {
 			// Select All Query
@@ -261,9 +260,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 		return data;
 
 	}
-
-	// Getting single TaskListModel
-	// previous name TaskListModel Get_TaskList(int id)
+	
 	public TaskListModel TaskList_Single(int id) {
 		SQLiteDatabase db = this.getReadableDatabase();
 
@@ -279,8 +276,6 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 		return tasklist;
 	}
 	
-	
-	//temp
 	public ArrayList<Common.CustomViewsData.MultiSelectRowData> Get_Users() {
 
 		ArrayList<Common.CustomViewsData.MultiSelectRowData> users
@@ -328,6 +323,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
 
 	}
+	
 	public void Add_User() {
 		SQLiteDatabase db = this.getWritableDatabase();
 		ContentValues values = new ContentValues();

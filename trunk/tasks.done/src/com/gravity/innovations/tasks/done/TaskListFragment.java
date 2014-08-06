@@ -24,7 +24,7 @@ public class TaskListFragment extends Fragment {
 	private TaskListModel data;
 	private ListView mListView;
 	public TaskAdapter mTaskAdapter;
-	private int selCount = 0; // for CAB multi select count
+	public int selCount = 0; // for CAB multi select count
 	NavigationDrawerFragment mNavigationDrawerFragment;
 
 	public TaskListFragment() {
@@ -67,11 +67,13 @@ public class TaskListFragment extends Fragment {
 						android.view.ActionMode mode, MenuItem item) {
 					switch (item.getItemId()) {
 					case R.id.item_delete:
-						  mNavigationDrawerFragment.deleteTask(mTaskAdapter.getSelectedTaskModels());
-						break;
+						  mNavigationDrawerFragment.deleteTask(data,mTaskAdapter.getSelectedTaskModels());
+						  mode.finish();
+						  break;
 					case R.id.item_edit:
 						mNavigationDrawerFragment.addOrEditTask(data,
 								mTaskAdapter.getSingularSelectedTaskModel());
+						mode.finish();
 						break;
 					}
 					return true;
@@ -88,6 +90,7 @@ public class TaskListFragment extends Fragment {
 				@Override
 				public void onDestroyActionMode(android.view.ActionMode mode) {
 					// TODO Auto-generated method stub
+					selCount=0;
 				}
 
 				@Override
@@ -109,31 +112,30 @@ public class TaskListFragment extends Fragment {
 						android.view.ActionMode mode, int position, long id,
 						boolean checked) {
 					if (checked) {
-						selCount++; // cab edit
+						selCount++;
 						mTaskAdapter.setNewSelection(position, checked);
 					} else {
 						selCount--;
-					mTaskAdapter.removeSelection(position); // cab edit
+					mTaskAdapter.removeSelection(position);
 					}
-					// cab edit
 					mode.setTitle(selCount + " selected");
-					mode.invalidate(); // Add this to Invalidate CAB
-					// cab edit
+					mode.invalidate();
 				}
 			});
-
-			mListView.setOnItemLongClickListener(new OnItemLongClickListener() {
-
-				@Override
-				public boolean onItemLongClick(AdapterView<?> arg0, View arg1,
-						int position, long arg3) {
-					// TODO Auto-generated method stub
-
-					mListView.setItemChecked(position,
-							!mTaskAdapter.isPositionChecked(position));
-					return false;
-				}
-			});
+ 
+//			mListView.setOnItemLongClickListener(new OnItemLongClickListener() {
+//
+//				@Override
+//				public boolean onItemLongClick(AdapterView<?> arg0, View arg1,
+//						int position, long arg3) {
+//					// TODO Auto-generated method stub
+//
+//					mListView.setItemChecked(position,
+//							!mTaskAdapter.isPositionChecked(position));
+//					return false;
+//				}
+//			});
+			
 			mListView.setOnItemClickListener(new OnItemClickListener() {
 
 				@Override
@@ -146,8 +148,6 @@ public class TaskListFragment extends Fragment {
 		return rootView;
 	}
 
-	public void AddItem(TaskModel temp) {
-
-	}
+	
 
 }

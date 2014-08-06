@@ -1,6 +1,7 @@
 package com.gravity.innovations.tasks.done;
 
 import java.util.ArrayList;
+
 import android.app.Activity;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -59,6 +60,9 @@ public class NavigationDrawerFragment extends Fragment {
 	 */
 	private ActionBarDrawerToggle mDrawerToggle;
 	public TaskListAdapter mAdapter;
+
+	TaskListFragment mTaskListFragment;//m
+
 	private DrawerLayout mDrawerLayout;
 	private ListView mDrawerListView;
 	private View mFragmentContainerView;
@@ -105,17 +109,15 @@ public class NavigationDrawerFragment extends Fragment {
 		mDrawerListView = (ListView) inflater.inflate(
 				R.layout.fragment_navigation_drawer, container, false);
 		View header = inflater.inflate(R.layout.navigation_drawer_header, null);
-		Button btn_add_tasklist = (Button) header.findViewById(R.id.btn_add);
+		//Button btn_add_tasklist = (Button) header.findViewById(R.id.btn_add);
 		mDrawerListView.addHeaderView(header);
-		btn_add_tasklist.setOnClickListener(new OnClickListener() {
-
-			@Override
-			public void onClick(View v) {
-				addOrEditTaskList(new TaskListModel());
-				// TODO Auto-generated method stub
-
-			}
-		});
+//		btn_add_tasklist.setOnClickListener(new OnClickListener() {
+//
+//			@Override
+//			public void onClick(View v) {
+//				addOrEditTaskList(new TaskListModel());
+//			}
+//		});
 
 		mDrawerListView
 				.setOnItemClickListener(new AdapterView.OnItemClickListener() {
@@ -126,7 +128,7 @@ public class NavigationDrawerFragment extends Fragment {
 					}
 				});
 		db = new DatabaseHelper(mContext);
-		this.data = db.getList_TaskList();
+		this.data = db.TaskList_List();
 
 		mAdapter = new TaskListAdapter(getActivity(),
 				R.layout.tasklist_listview_row, data);
@@ -153,7 +155,7 @@ public class NavigationDrawerFragment extends Fragment {
 	public void setUp(int fragmentId, DrawerLayout drawerLayout,
 			Context mContext) {
 		db = new DatabaseHelper(mContext);
-		this.data = db.getList_TaskList();
+		this.data = db.TaskList_List();
 		mAdapter = new TaskListAdapter(getActivity(),
 				R.layout.tasklist_listview_row, data);
 		mDrawerListView.setAdapter(mAdapter);
@@ -334,64 +336,6 @@ public class NavigationDrawerFragment extends Fragment {
 		return ((ActionBarActivity) getActivity()).getSupportActionBar();
 	}
 
-	/**
-	 * Callbacks interface that all activities using this fragment must
-	 * implement.
-	 */
-	private void addTaskList(TaskListModel temp) {
-		data.add(temp);
-		// this.mAdapter.add(temp);
-		this.mAdapter.notifyDataSetChanged();
-		int position = this.mAdapter.getPosition(temp);
-		selectItem(++position);
-	}
-
-	private void removeTaskList(TaskListModel temp) {
-
-		int position = 0;// this.mAdapter.getPosition(temp);
-		boolean flag = false;
-		for (TaskListModel i : this.data) {
-			if (flag) {
-				position = this.mAdapter.getPosition(i);
-				break;
-			}
-			if (i._id == temp._id)
-				flag = true;
-		}
-		data.remove(temp);
-
-		// this.mAdapter.add(temp);
-		this.mAdapter.notifyDataSetChanged();
-		selectItem(position);
-	}
-
-	private void editTaskList(TaskListModel Old, String Title) {
-		// this.mAdapter.add(temp);
-		// this.mAdapter.getPosition(old)
-
-		this.mAdapter.notifyDataSetChanged();
-		int position = this.mAdapter.getPosition(Old);
-		selectItem(++position);
-	}
-
-	private void addTask(TaskListModel parent, TaskModel temp) {
-		parent.tasks.add(temp);
-		this.mAdapter.notifyDataSetChanged();
-		int position = this.mAdapter.getPosition(parent);
-		selectItem(++position);
-		// TaskModel dump = parent.GetTask(temp._id);
-		// data.add(temp);
-		// //this.mAdapter.add(temp);
-		// this.mAdapter.notifyDataSetChanged();
-		//
-		// selectItem(this.mAdapter.getPosition(temp));
-	}
-
-	private void editTask(TaskModel task, TaskModel temp) {
-		// TODO Auto-generated method stub
-
-	}
-
 	public void addOrEditTaskList(final TaskListModel tasklist) {
 		View view = getActivity().getLayoutInflater().inflate(
 				R.layout.addoredit_tasklist_dialog, null);
@@ -414,10 +358,9 @@ public class NavigationDrawerFragment extends Fragment {
 							try {
 								TaskListModel temp = new TaskListModel(title);
 								// should retun a bool on true
-								temp._id = db.New_TaskList(temp);
+								temp._id = db.TaskList_New(temp);
 								if (temp._id != -1) {
 									// toastMsg = "tasklist added";
-
 									addTaskList(temp);
 								} else {
 									// toastMsg =
@@ -425,8 +368,6 @@ public class NavigationDrawerFragment extends Fragment {
 								}
 								// Common.CustomToast.CreateAToast(mContext,
 								// toastMsg);
-								// mTaskListAdapter.notifyDataSetChanged();
-								// mNavigationDrawerFragment.notifyDataSetChanges();
 							} catch (Exception e) {
 								Log.e("MainActivity", "newOrEditTaskList");
 							} finally {
@@ -436,13 +377,12 @@ public class NavigationDrawerFragment extends Fragment {
 					} else {
 						// update tasklist
 						String title = et_title.getText().toString();
-						// Log.d(title, "this is the title");
 						if (title.length() != 0) {
-							int nRows = db.Edit_TaskList(new TaskListModel(
+							int nRows = db.TaskList_Edit(new TaskListModel(
 									tasklist._id, title));
 							if (nRows > 0) {
 								tasklist.title = title;
-								editTaskList(tasklist, title);
+								editTaskList(tasklist );
 
 							}
 						}
@@ -456,7 +396,6 @@ public class NavigationDrawerFragment extends Fragment {
 		DialogInterface.OnClickListener negListener = new DialogInterface.OnClickListener() {
 			@Override
 			public void onClick(DialogInterface dialog, int which) {
-				// TODO Auto-generated method stub
 				dialog.cancel();
 			}
 		};
@@ -465,6 +404,19 @@ public class NavigationDrawerFragment extends Fragment {
 				dialogTitle);
 	}
 
+	private void addTaskList(TaskListModel temp) {
+		data.add(temp);
+		this.mAdapter.notifyDataSetChanged();
+		int position = this.mAdapter.getPosition(temp);
+		selectItem(++position);
+	}
+	
+	private void editTaskList(TaskListModel Old) {
+		this.mAdapter.notifyDataSetChanged();
+		int position = this.mAdapter.getPosition(Old);
+		selectItem(++position);
+	}
+	
 	public void addOrEditTask(final TaskListModel tasklist, final TaskModel task) {
 		View view = getActivity().getLayoutInflater().inflate(
 				R.layout.addoredit_task_dialog, null);
@@ -498,7 +450,7 @@ public class NavigationDrawerFragment extends Fragment {
 								TaskModel temp = new TaskModel(title, details,
 										notes, tasklist._id);
 								// should retun a bool on true
-								temp._id = db.New_Task(temp);
+								temp._id = db.Task_New(temp);
 								if (temp._id != -1) {
 									// toastMsg = "tasklist added";
 									addTask(tasklist, temp);
@@ -515,16 +467,18 @@ public class NavigationDrawerFragment extends Fragment {
 							}// finally
 						}
 					} else {
-						 if (title.length() != 0) {
-						 	TaskModel temp = new TaskModel( //tasklist._id
-						 			task._id, title,
-						 		details, notes, tasklist._id);   
-						 int nRows = db.Edit_Task(temp);
-				 
+						if (title.length() != 0) {
+							TaskModel temp = new TaskModel(
+									// tasklist._id
+									task._id, title, details, notes,
+									tasklist._id);
+							int nRows = db.Task_Edit(temp);
+
 							if (nRows > 0) {
 								// tasklist.title = title;
 
-								editTask(task, temp);
+								editTask(tasklist, temp); // task and temp
+								// mTaskListFragment.editTask();
 
 							}
 							// mNavigationDrawerFragment.list_data.clear();
@@ -551,7 +505,6 @@ public class NavigationDrawerFragment extends Fragment {
 		DialogInterface.OnClickListener negListener = new DialogInterface.OnClickListener() {
 			@Override
 			public void onClick(DialogInterface dialog, int which) {
-				// TODO Auto-generated method stub
 				dialog.cancel();
 			}
 		};
@@ -560,6 +513,22 @@ public class NavigationDrawerFragment extends Fragment {
 				dialogTitle);
 	}
 
+	private void addTask(TaskListModel parent, TaskModel temp) {
+		parent.tasks.add(temp);
+		this.mAdapter.notifyDataSetChanged();
+		int position = this.mAdapter.getPosition(parent);
+		selectItem(++position);
+	}
+
+	private void editTask(TaskListModel parent, TaskModel temp)// (TaskModel task, TaskModel temp)
+	{ 
+		int position = mAdapter.getPosition(parent);
+		this.mAdapter.getItem(position).GetTask(temp._id).set(temp);
+		this.mAdapter.notifyDataSetChanged();
+		position = this.mAdapter.getPosition(parent);
+		selectItem(++position);
+	}
+	
 	public void deleteTaskList(final TaskListModel tasklist) {
 		DialogInterface.OnClickListener posListener = new DialogInterface.OnClickListener() {
 			@Override
@@ -578,7 +547,6 @@ public class NavigationDrawerFragment extends Fragment {
 		DialogInterface.OnClickListener negListener = new DialogInterface.OnClickListener() {
 			@Override
 			public void onClick(DialogInterface dialog, int which) {
-				// TODO Auto-generated method stub
 				dialog.cancel();
 			}
 		};
@@ -586,32 +554,60 @@ public class NavigationDrawerFragment extends Fragment {
 				R.string.dialog_cancel, negListener, posListener);
 	}
 
-	public void deleteTask(final ArrayList<Integer> arrayList) {
+	private void removeTaskList(TaskListModel temp) {
+
+		int position = 0;// this.mAdapter.getPosition(temp);
+		boolean flag = false;
+		for (TaskListModel i : this.data) {
+			if (flag) {
+				position = this.mAdapter.getPosition(i);
+				break;
+			}
+			if (i._id == temp._id)
+				flag = true;
+		}
+		data.remove(temp);
+		this.mAdapter.notifyDataSetChanged();
+		selectItem(position);
+	}
+	
+	public void deleteTask(final TaskListModel parent, final ArrayList<Integer> arrayList) {
 		DialogInterface.OnClickListener posListener = new DialogInterface.OnClickListener() {
 			@Override
 			public void onClick(DialogInterface dialog, int which) {
-				try {			
+				try {
+					int position = mAdapter.getPosition(parent);
 					for (int temp : arrayList) {
-					    db.Task_Delete(temp);
-					}
+						if (db.Task_Delete(temp) == true){//conditional
+						mAdapter.getItem(position).RemoveTask(temp);//handle true false
+						}else {
+							Log.e("NDF deleteTask", "bool if condition error");
+						}
+						}
+					mAdapter.notifyDataSetChanged();
+					selectItem(++position);
 				} catch (Exception E) {
 					Log.e("MainActivity", "Delete Task");
 				} finally {
 					// Update adapter
 				}
-
 			}
 		};
 		DialogInterface.OnClickListener negListener = new DialogInterface.OnClickListener() {
 			@Override
 			public void onClick(DialogInterface dialog, int which) {
-				// TODO Auto-generated method stub
 				dialog.cancel();
 			}
 		};
 		Common.CustomDialog.CustomDialog(mContext, R.string.delete,
 				R.string.dialog_cancel, negListener, posListener);
 	}
+	
+	/**
+	 * Callbacks interface that all activities using this fragment must
+	 * implement.
+	 */
+	
 	public static interface NavigationDrawerCallbacks {
 		/**
 		 * Called when an item in the navigation drawer is selected.

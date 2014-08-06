@@ -2,14 +2,11 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#cccc"
+    android:background="#eee"
     android:choiceMode="singleChoice"
-    
-    android:divider="@android:color/transparent"
-    
+    android:divider="@color/line_divider"
     android:focusableInTouchMode="true"
-    
-    android:dividerHeight="5dp"
+    android:dividerHeight="1dp"
     android:padding="5dp"
     tools:context="com.gravity.innovations.tasks.done.NavigationDrawerFragment" />
 
