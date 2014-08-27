@@ -8,11 +8,9 @@
         android:id="@+id/txt_title"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
-        android:text=""
-        android:textAppearance="?android:attr/textAppearanceLarge" 
         android:padding="10dp"
-        />
-
+        android:text=""
+        android:textAppearance="?android:attr/textAppearanceLarge"
+         />
 
 </LinearLayout>
-

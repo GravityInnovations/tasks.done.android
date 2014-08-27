@@ -2,7 +2,6 @@ package com.gravity.innovations.tasks.done;
 
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
-
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Context;
@@ -28,16 +27,12 @@ import android.widget.AdapterView.OnItemClickListener;
 import android.widget.EditText;
 import android.widget.TextView;
 
-
-
 public class MainActivity extends ActionBarActivity implements
 		NavigationDrawerFragment.NavigationDrawerCallbacks {
-
 	/**
 	 * Fragment managing the behaviors, interactions and presentation of the
 	 * navigation drawer.
 	 */
-	
 	private NavigationDrawerFragment mNavigationDrawerFragment;
 	private Context mContext;
 	private TaskListModel CurrentList;
@@ -48,70 +43,54 @@ public class MainActivity extends ActionBarActivity implements
 	private ActionBar actionBar;
 	private CharSequence mTitle;
 	public TaskListFragment mTaskListFragment;
-	
+
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-
 		setContentView(R.layout.activity_main);
-		//String x = getHash("Faik");
+		// String x = getHash("Faik");
 		mContext = this;
-		
-		
 		mNavigationDrawerFragment = (NavigationDrawerFragment) getSupportFragmentManager()
 				.findFragmentById(R.id.navigation_drawer);
 		mTitle = getTitle();
-
 		// Set up the drawer.
-		
 		mNavigationDrawerFragment.setUp(R.id.navigation_drawer,
-				(DrawerLayout) findViewById(R.id.drawer_layout),mContext);
-		
-		
-		/*try{
-		Common.CustomDialog.CustomDialog(mContext, view, 
-				negListener, posListener, R.string.dialog_ok, 
-				R.string.dialog_cancel, "Share");
-		//Put in listview
-		adapter = new MultiSelectListAdapter(MainActivity.this,
-				R.layout.multiselectlist_row, h.Get_Users());
-		String[] from = { "php_key","c_key","android_key","hacking_key" };
-				//listview.setAdapter(new ArrayAdapter<String>(mContext, R.layout.multiselectlist_row,R.id.textView1,from));  
-			listview.setAdapter(adapter);
-		}
-		catch(Exception ex)
-		{
-			String x;
-		}
-		*/
-
+				(DrawerLayout) findViewById(R.id.drawer_layout), mContext);
+		/*
+		 * try{ Common.CustomDialog.CustomDialog(mContext, view, negListener,
+		 * posListener, R.string.dialog_ok, R.string.dialog_cancel, "Share");
+		 * //Put in listview adapter = new
+		 * MultiSelectListAdapter(MainActivity.this,
+		 * R.layout.multiselectlist_row, h.Get_Users()); String[] from = {
+		 * "php_key","c_key","android_key","hacking_key" };
+		 * //listview.setAdapter(new ArrayAdapter<String>(mContext,
+		 * R.layout.multiselectlist_row,R.id.textView1,from));
+		 * listview.setAdapter(adapter); } catch(Exception ex) { String x; }
+		 */
 	}
 
 	@Override
 	public void onNavigationDrawerItemSelected(TaskListModel temp) {
-		
 		CurrentList = temp;
-		
-		try{
-			if (temp._id == -1){
+		try {
+			if (temp._id == -1) {
 				int id = temp._id;
 				mNavigationDrawerFragment.onMinusOne(id);
-			}else{
-		// update the main content by replacing fragments
-		FragmentManager fragmentManager = this.getSupportFragmentManager();
-		mTaskListFragment = new TaskListFragment();
-		mTaskListFragment.newInstance(temp, mNavigationDrawerFragment);
-		fragmentManager
-				.beginTransaction()
-				.replace(R.id.container, mTaskListFragment.getFragment()).commit();
-		actionBar.setTitle(CurrentList.title);
-		}
-		}	
-		catch(Exception ex)
-		{
+			} else {
+				// update the main content by replacing fragments
+				FragmentManager fragmentManager = this
+						.getSupportFragmentManager();
+				mTaskListFragment = new TaskListFragment();
+				mTaskListFragment.newInstance(temp, mNavigationDrawerFragment);
+				fragmentManager
+						.beginTransaction()
+						.replace(R.id.container,
+								mTaskListFragment.getFragment()).commit();
+				actionBar.setTitle(CurrentList.title);
+			}
+		} catch (Exception ex) {
 			String x = ex.getLocalizedMessage();
 		}
-		
 	}
 
 	public void onSectionAttached(int number) {
@@ -132,7 +111,7 @@ public class MainActivity extends ActionBarActivity implements
 		actionBar = getSupportActionBar();
 		actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_STANDARD);
 		actionBar.setDisplayShowTitleEnabled(true);
-		//actionBar.setTitle(mTitle);
+		// actionBar.setTitle(mTitle);
 		actionBar.setTitle(CurrentList.title);
 	}
 
@@ -158,83 +137,59 @@ public class MainActivity extends ActionBarActivity implements
 		int id = item.getItemId();
 		if (id == R.id.action_settings) {
 			return true;
-		}
-		else if(id == R.id.action_add)
-		{
+		} else if (id == R.id.action_add) {
 			mNavigationDrawerFragment.addOrEditTaskList(new TaskListModel());
-		}
-		else if(id == R.id.action_delete)
-		{
+		} else if (id == R.id.action_delete) {
 			mNavigationDrawerFragment.deleteTaskList(CurrentList);
-		}
-		else if(id == R.id.action_edit)
-		{
+		} else if (id == R.id.action_edit) {
 			mNavigationDrawerFragment.addOrEditTaskList(CurrentList);
-		}
-		else if(id == R.id.action_developer)
-		{
+		} else if (id == R.id.action_developer) {
 			Intent i = new Intent(MainActivity.this, GravityActivity.class);
 			startActivity(i);
-		}
-		else if(id == R.id.action_store)
-		{
+		} else if (id == R.id.action_store) {
 			Intent i = new Intent(MainActivity.this, StoreActivity.class);
 			startActivity(i);
-		}
-		else if(id == R.id.action_add_task)
-		{
-			
-			mNavigationDrawerFragment.addOrEditTask(CurrentList,new TaskModel());
-		}
-		else if(id == R.id.action_share)
-		{
+		} else if (id == R.id.action_add_task) {
+			mNavigationDrawerFragment.addOrEditTask(CurrentList,
+					new TaskModel());
+		} else if (id == R.id.action_share) {
 			DatabaseHelper h = new DatabaseHelper(mContext);
 			//
 			DialogInterface.OnClickListener negListener = new OnClickListener() {
-				
 				@Override
 				public void onClick(DialogInterface dialog, int which) {
 					dialog.cancel();
-					
 				}
 			};
-			
 			DialogInterface.OnClickListener posListener = new OnClickListener() {
-				
 				@Override
 				public void onClick(DialogInterface dialog, int which) {
 					dialog.cancel();
 				}
 			};
-			
-			
-			final MultiSelectListAdapter adapter = new MultiSelectListAdapter(this,
-					R.layout.multiselectlist_row, h.Get_Users());
+			final MultiSelectListAdapter adapter = new MultiSelectListAdapter(
+					this, R.layout.multiselectlist_row, h.Get_Users());
 			DialogInterface.OnClickListener itemClickListner = new OnClickListener() {
-				
 				@Override
 				public void onClick(DialogInterface dialog, int which) {
-					//dialog.cancel();
+					// dialog.cancel();
 					adapter.setNewSelection(which, true);
 				}
 			};
-			
-				OnItemClickListener onItemClickListener = new OnItemClickListener(){
-
-					@Override
-					public void onItemClick(AdapterView<?> parent, View view,
-							int position, long id) {
-						adapter.setOrRemoveSelection(position);
-						
-					}};
-			Common.CustomDialog.MultiChoiceDialog(mContext, 
-					adapter, onItemClickListener,
-					negListener, posListener, 
-					 R.string.dialog_ok, R.string.dialog_cancel, 
-					"Share");
+			OnItemClickListener onItemClickListener = new OnItemClickListener() {
+				@Override
+				public void onItemClick(AdapterView<?> parent, View view,
+						int position, long id) {
+					adapter.setOrRemoveSelection(position);
+				}
+			};
+			Common.CustomDialog.MultiChoiceDialog(mContext, adapter,
+					onItemClickListener, negListener, posListener,
+					R.string.dialog_ok, R.string.dialog_cancel, "Share");
 		}
 		return super.onOptionsItemSelected(item);
 	}
+
 	public String getHash(String message) {
 		String algorithm = "SHA384";
 		String hex = "";
@@ -243,19 +198,19 @@ public class MainActivity extends ActionBarActivity implements
 			MessageDigest md = MessageDigest.getInstance(algorithm);
 			md.update(buffer);
 			byte[] digest = md.digest();
-			
-			for(int i = 0 ; i < digest.length ; i++) {
+			for (int i = 0; i < digest.length; i++) {
 				int b = digest[i] & 0xff;
-				if (Integer.toHexString(b).length() == 1) hex = hex + "0";
-				hex  = hex + Integer.toHexString(b);
+				if (Integer.toHexString(b).length() == 1)
+					hex = hex + "0";
+				hex = hex + Integer.toHexString(b);
 			}
 			return hex;
-		} catch(NoSuchAlgorithmException e) {
+		} catch (NoSuchAlgorithmException e) {
 			e.printStackTrace();
 			return null;
 		}
-		
 	}
+
 	/**
 	 * A placeholder fragment containing a simple view.
 	 */
@@ -299,7 +254,4 @@ public class MainActivity extends ActionBarActivity implements
 					ARG_SECTION_NUMBER));
 		}
 	}
-	
-	
-
 }

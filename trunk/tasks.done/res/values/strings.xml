@@ -3,6 +3,7 @@
 
     <color name="line_divider">#bbb</color>
 
+    <string name="add_task">Add Task</string>
     <string name="app_name">tasks.done</string>
     <string name="title_section1">Section 1</string>
     <string name="title_section2">Section 2</string>
@@ -48,5 +49,6 @@
     <string name="dialog_ok">OK</string>
     <string name="delete_message_confirm">Delete Sure?</string>
     <string name="delete">Delete</string>
+    <string name="attl">Add The Task List</string>
 
 </resources>

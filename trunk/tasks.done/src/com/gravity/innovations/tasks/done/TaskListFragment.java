@@ -60,6 +60,27 @@ public class TaskListFragment extends Fragment {
 					R.layout.task_listview_row, data.tasks);
 			mListView.setAdapter(mTaskAdapter);
 			mTaskAdapter.notifyDataSetChanged();
+			// Swipe to delete task
+			/*
+			 * SwipeDismissListViewTouchListener touchListener = new
+			 * SwipeDismissListViewTouchListener( mListView, new
+			 * SwipeDismissListViewTouchListener.DismissCallbacks() {
+			 * 
+			 * @Override public boolean canDismiss(int position) { return true;
+			 * }
+			 * 
+			 * @Override public void onDismiss(ListView listView, int[]
+			 * reverseSortedPositions) { for (int position :
+			 * reverseSortedPositions) {
+			 * mTaskAdapter.remove(mTaskAdapter.getItem(position));
+			 * 
+			 * mNavigationDrawerFragment.deleteTask(data,
+			 * mTaskAdapter.getSelectedTaskModels());
+			 * 
+			 * } mTaskAdapter.notifyDataSetChanged(); } });
+			 * mListView.setOnTouchListener(touchListener);
+			 */
+			// swipe to delete task
 			mListView.setChoiceMode(ListView.CHOICE_MODE_MULTIPLE_MODAL);
 			mListView.setMultiChoiceModeListener(new MultiChoiceModeListener() {
 				@Override
@@ -67,9 +88,10 @@ public class TaskListFragment extends Fragment {
 						android.view.ActionMode mode, MenuItem item) {
 					switch (item.getItemId()) {
 					case R.id.item_delete:
-						  mNavigationDrawerFragment.deleteTask(data,mTaskAdapter.getSelectedTaskModels());
-						  mode.finish();
-						  break;
+						mNavigationDrawerFragment.deleteTask(data,
+								mTaskAdapter.getSelectedTaskModels());
+						mode.finish();
+						break;
 					case R.id.item_edit:
 						mNavigationDrawerFragment.addOrEditTask(data,
 								mTaskAdapter.getSingularSelectedTaskModel());
@@ -90,7 +112,7 @@ public class TaskListFragment extends Fragment {
 				@Override
 				public void onDestroyActionMode(android.view.ActionMode mode) {
 					// TODO Auto-generated method stub
-					selCount=0;
+					selCount = 0;
 				}
 
 				@Override
@@ -116,26 +138,27 @@ public class TaskListFragment extends Fragment {
 						mTaskAdapter.setNewSelection(position, checked);
 					} else {
 						selCount--;
-					mTaskAdapter.removeSelection(position);
+						mTaskAdapter.removeSelection(position);
 					}
 					mode.setTitle(selCount + " selected");
 					mode.invalidate();
 				}
 			});
- 
-//			mListView.setOnItemLongClickListener(new OnItemLongClickListener() {
-//
-//				@Override
-//				public boolean onItemLongClick(AdapterView<?> arg0, View arg1,
-//						int position, long arg3) {
-//					// TODO Auto-generated method stub
-//
-//					mListView.setItemChecked(position,
-//							!mTaskAdapter.isPositionChecked(position));
-//					return false;
-//				}
-//			});
-			
+
+			// mListView.setOnItemLongClickListener(new
+			// OnItemLongClickListener() {
+			//
+			// @Override
+			// public boolean onItemLongClick(AdapterView<?> arg0, View arg1,
+			// int position, long arg3) {
+			// // TODO Auto-generated method stub
+			//
+			// mListView.setItemChecked(position,
+			// !mTaskAdapter.isPositionChecked(position));
+			// return false;
+			// }
+			// });
+
 			mListView.setOnItemClickListener(new OnItemClickListener() {
 
 				@Override
@@ -147,7 +170,5 @@ public class TaskListFragment extends Fragment {
 		}
 		return rootView;
 	}
-
-	
 
 }

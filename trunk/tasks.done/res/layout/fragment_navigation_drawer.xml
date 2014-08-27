@@ -9,6 +9,3 @@
     android:dividerHeight="1dp"
     android:padding="5dp"
     tools:context="com.gravity.innovations.tasks.done.NavigationDrawerFragment" />
-
-
-

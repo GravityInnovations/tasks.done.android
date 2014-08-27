@@ -15,6 +15,8 @@ import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBarActivity;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -26,6 +28,7 @@ import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.ListView;
 
 /**
@@ -36,20 +39,17 @@ import android.widget.ListView;
  * implemented here.
  */
 public class NavigationDrawerFragment extends Fragment {
-
 	private ArrayList<TaskListModel> data = new ArrayList<TaskListModel>();
 	private DatabaseHelper db;
 	/**
 	 * Remember the position of the selected item.
 	 */
 	private static final String STATE_SELECTED_POSITION = "selected_navigation_drawer_position";
-
 	/**
 	 * Per the design guidelines, you should show the drawer on launch until the
 	 * user manually expands it. This shared preference tracks this.
 	 */
 	private static final String PREF_USER_LEARNED_DRAWER = "navigation_drawer_learned";
-
 	/**
 	 * A pointer to the current callbacks instance (the Activity).
 	 */
@@ -60,13 +60,10 @@ public class NavigationDrawerFragment extends Fragment {
 	 */
 	private ActionBarDrawerToggle mDrawerToggle;
 	public TaskListAdapter mAdapter;
-
-	TaskListFragment mTaskListFragment;//m
-
+	TaskListFragment mTaskListFragment;// m
 	private DrawerLayout mDrawerLayout;
 	private ListView mDrawerListView;
 	private View mFragmentContainerView;
-
 	private int mCurrentSelectedPosition = 0;
 	private boolean mFromSavedInstanceState;
 	private boolean mUserLearnedDrawer;
@@ -84,13 +81,11 @@ public class NavigationDrawerFragment extends Fragment {
 		SharedPreferences sp = PreferenceManager
 				.getDefaultSharedPreferences(getActivity());
 		mUserLearnedDrawer = sp.getBoolean(PREF_USER_LEARNED_DRAWER, false);
-
 		if (savedInstanceState != null) {
 			mCurrentSelectedPosition = savedInstanceState
 					.getInt(STATE_SELECTED_POSITION);
 			mFromSavedInstanceState = true;
 		}
-
 		// Select either the default item (0) or the last selected item.
 		selectItem(mCurrentSelectedPosition);
 	}
@@ -108,17 +103,27 @@ public class NavigationDrawerFragment extends Fragment {
 			Bundle savedInstanceState) {
 		mDrawerListView = (ListView) inflater.inflate(
 				R.layout.fragment_navigation_drawer, container, false);
-		View header = inflater.inflate(R.layout.navigation_drawer_header, null);
-		//Button btn_add_tasklist = (Button) header.findViewById(R.id.btn_add);
+		View header = inflater.inflate(
+				R.layout.fragment_navigation_drawer_header, null);// navigation_drawer_header,
+																	// null);
+		// ImageView image = (ImageView) header.findViewById(R.id.image);
+		// EditText name = (EditText) header.findViewById(R.id.text_name);
+		// EditText email = (EditText) header.findViewById(R.id.text_email);
+		EditText search = (EditText) header.findViewById(R.id.search);
 		mDrawerListView.addHeaderView(header);
-//		btn_add_tasklist.setOnClickListener(new OnClickListener() {
-//
-//			@Override
-//			public void onClick(View v) {
-//				addOrEditTaskList(new TaskListModel());
-//			}
-//		});
 
+		View footer = inflater.inflate(
+				R.layout.fragment_navigation_drawer_footer, null);// navigation_drawer_header,
+																	// null);
+		Button btn_add_tasklist = (Button) footer.findViewById(R.id.btn_add);
+		mDrawerListView.addFooterView(footer);
+		btn_add_tasklist.setOnClickListener(new OnClickListener() {
+
+			@Override
+			public void onClick(View v) {
+				addOrEditTaskList(new TaskListModel());
+			}
+		});
 		mDrawerListView
 				.setOnItemClickListener(new AdapterView.OnItemClickListener() {
 					@Override
@@ -127,13 +132,61 @@ public class NavigationDrawerFragment extends Fragment {
 						selectItem(position);
 					}
 				});
+
+		// start swipe
+		/*
+		SwipeDismissListViewTouchListener touchListener = new SwipeDismissListViewTouchListener(
+				mDrawerListView,
+				new SwipeDismissListViewTouchListener.DismissCallbacks() {
+					@Override
+					public boolean canDismiss(int position) {
+						return true;
+					}
+
+					@Override
+					public void onDismiss(ListView listView,
+							int[] reverseSortedPositions) {
+						for (int position : reverseSortedPositions) {
+							mAdapter.remove(mAdapter.getItem(position));
+						}
+						mAdapter.notifyDataSetChanged();
+					}
+				});
+
+		mDrawerListView.setOnTouchListener(touchListener);
+		*/
+		// end swipe
+		mDrawerListView.setTextFilterEnabled(true);
+
+		search.addTextChangedListener(new TextWatcher() {
+
+			@Override
+			public void onTextChanged(CharSequence s, int start, int before,
+					int count) {
+				try {
+					mAdapter.getFilter().filter(s.toString());
+				} catch (Exception e) {
+					Log.e("onTextChanged", "NotWorking");
+				} finally {
+					// NavigationDrawerFragment.this.mAdapter.notifyDataSetChanged();
+				}
+			}
+
+			@Override
+			public void beforeTextChanged(CharSequence s, int start, int count,
+					int after) {
+			}
+
+			@Override
+			public void afterTextChanged(Editable s) {
+			}
+		});
+
 		db = new DatabaseHelper(mContext);
 		this.data = db.TaskList_List();
-
 		mAdapter = new TaskListAdapter(getActivity(),
 				R.layout.tasklist_listview_row, data);
 		mDrawerListView.setAdapter(mAdapter);
-
 		mDrawerListView.setItemChecked(mCurrentSelectedPosition, true);
 		return mDrawerListView;
 	}
@@ -162,17 +215,14 @@ public class NavigationDrawerFragment extends Fragment {
 		selectItem(1);
 		mFragmentContainerView = getActivity().findViewById(fragmentId);
 		mDrawerLayout = drawerLayout;
-
 		// set a custom shadow that overlays the main content when the drawer
 		// opens
 		mDrawerLayout.setDrawerShadow(R.drawable.drawer_shadow,
 				GravityCompat.START);
 		// set up the drawer's list view with items and click listener
-
 		ActionBar actionBar = getActionBar();
 		actionBar.setDisplayHomeAsUpEnabled(true);
 		actionBar.setHomeButtonEnabled(true);
-
 		// ActionBarDrawerToggle ties together the the proper interactions
 		// between the navigation drawer and the action bar app icon.
 		mDrawerToggle = new ActionBarDrawerToggle(getActivity(), /* host Activity */
@@ -193,9 +243,8 @@ public class NavigationDrawerFragment extends Fragment {
 				if (!isAdded()) {
 					return;
 				}
-
 				getActivity().supportInvalidateOptionsMenu(); // calls
-																// onPrepareOptionsMenu()
+				// onPrepareOptionsMenu()
 			}
 
 			@Override
@@ -204,7 +253,6 @@ public class NavigationDrawerFragment extends Fragment {
 				if (!isAdded()) {
 					return;
 				}
-
 				if (!mUserLearnedDrawer) {
 					// The user manually opened the drawer; store this flag to
 					// prevent auto-showing
@@ -215,19 +263,16 @@ public class NavigationDrawerFragment extends Fragment {
 					sp.edit().putBoolean(PREF_USER_LEARNED_DRAWER, true)
 							.apply();
 				}
-
 				getActivity().supportInvalidateOptionsMenu(); // calls
-																// onPrepareOptionsMenu()
+				// onPrepareOptionsMenu()
 			}
 		};
-
 		// If the user hasn't 'learned' about the drawer, open it to introduce
 		// them to the drawer,
 		// per the navigation drawer design guidelines.
 		if (!mUserLearnedDrawer && !mFromSavedInstanceState) {
 			mDrawerLayout.openDrawer(mFragmentContainerView);
 		}
-
 		// Defer code dependent on restoration of previous instance state.
 		mDrawerLayout.post(new Runnable() {
 			@Override
@@ -235,9 +280,7 @@ public class NavigationDrawerFragment extends Fragment {
 				mDrawerToggle.syncState();
 			}
 		});
-
 		mDrawerLayout.setDrawerListener(mDrawerToggle);
-
 	}
 
 	public void onMinusOne(int id) {
@@ -264,9 +307,7 @@ public class NavigationDrawerFragment extends Fragment {
 			} catch (Exception ex) {
 				temp = new TaskListModel();
 			}
-
 			mCallbacks.onNavigationDrawerItemSelected(temp);
-
 		}
 	}
 
@@ -368,6 +409,15 @@ public class NavigationDrawerFragment extends Fragment {
 								}
 								// Common.CustomToast.CreateAToast(mContext,
 								// toastMsg);
+
+								/**
+								 * update data
+								 */
+								mAdapter.updateData(data); //update data
+								/**
+								 * update data
+								 */
+
 							} catch (Exception e) {
 								Log.e("MainActivity", "newOrEditTaskList");
 							} finally {
@@ -382,16 +432,22 @@ public class NavigationDrawerFragment extends Fragment {
 									tasklist._id, title));
 							if (nRows > 0) {
 								tasklist.title = title;
-								editTaskList(tasklist );
-
+								editTaskList(tasklist);
 							}
 						}
+						/**
+						 * update data
+						 */
+						mAdapter.updateData(data); //update data
+						/**
+						 * update data
+						 */
+
 					}
 				} catch (Exception e) {
 					Log.d("Exception on", "Positive Listener");
 				}
 			}
-
 		};
 		DialogInterface.OnClickListener negListener = new DialogInterface.OnClickListener() {
 			@Override
@@ -410,22 +466,20 @@ public class NavigationDrawerFragment extends Fragment {
 		int position = this.mAdapter.getPosition(temp);
 		selectItem(++position);
 	}
-	
+
 	private void editTaskList(TaskListModel Old) {
 		this.mAdapter.notifyDataSetChanged();
 		int position = this.mAdapter.getPosition(Old);
 		selectItem(++position);
 	}
-	
+
 	public void addOrEditTask(final TaskListModel tasklist, final TaskModel task) {
 		View view = getActivity().getLayoutInflater().inflate(
 				R.layout.addoredit_task_dialog, null);
 		final EditText et_title = (EditText) view.findViewById(R.id.et_title);
 		final EditText et_details = (EditText) view
 				.findViewById(R.id.et_details);
-
 		final EditText et_notes = (EditText) view.findViewById(R.id.et_notes);
-
 		et_title.setText(task.title);
 		et_details.setText(task.details);
 		et_notes.setText(task.notes);
@@ -442,7 +496,6 @@ public class NavigationDrawerFragment extends Fragment {
 					String title = et_title.getText().toString();
 					String details = et_details.getText().toString();
 					String notes = et_notes.getText().toString();
-
 					if (task._id == -1) {
 						// create
 						if (title.length() != 0) {
@@ -473,24 +526,11 @@ public class NavigationDrawerFragment extends Fragment {
 									task._id, title, details, notes,
 									tasklist._id);
 							int nRows = db.Task_Edit(temp);
-
 							if (nRows > 0) {
 								// tasklist.title = title;
-
 								editTask(tasklist, temp); // task and temp
 								// mTaskListFragment.editTask();
-
 							}
-							// mNavigationDrawerFragment.list_data.clear();
-							// mNavigationDrawerFragment.list_adapter.notifyDataSetChanged();//
-							// reinit();
-							// ArrayList<TaskList>
-							// data = db.TaskList_List();
-							// mNavigationDrawerFragment.setUp(mContext,
-							// list_data,// mTaskListAdapter,
-							// R.id.navigation_drawer,
-							// (DrawerLayout) findViewById(R.id.drawer_layout));
-							//
 							// toastMsg = "Data Updated successfully";
 							// Common.CustomToast.CreateAToast(mContext,
 							// toastMsg);
@@ -500,7 +540,6 @@ public class NavigationDrawerFragment extends Fragment {
 					Log.d("Exception on", "Positive Listener");
 				}
 			}
-
 		};
 		DialogInterface.OnClickListener negListener = new DialogInterface.OnClickListener() {
 			@Override
@@ -516,19 +555,36 @@ public class NavigationDrawerFragment extends Fragment {
 	private void addTask(TaskListModel parent, TaskModel temp) {
 		parent.tasks.add(temp);
 		this.mAdapter.notifyDataSetChanged();
+		/**
+		 * update data
+		 */
+		mAdapter.updateData(data); //update data
+		/**
+		 * update data
+		 */
 		int position = this.mAdapter.getPosition(parent);
 		selectItem(++position);
 	}
 
-	private void editTask(TaskListModel parent, TaskModel temp)// (TaskModel task, TaskModel temp)
-	{ 
+	private void editTask(TaskListModel parent, TaskModel temp)// (TaskModel
+																// task,
+																// TaskModel
+																// temp)
+	{
 		int position = mAdapter.getPosition(parent);
 		this.mAdapter.getItem(position).GetTask(temp._id).set(temp);
 		this.mAdapter.notifyDataSetChanged();
+		/**
+		 * update data
+		 */
+		mAdapter.updateData(data); //update data
+		/**
+		 * update data
+		 */
 		position = this.mAdapter.getPosition(parent);
 		selectItem(++position);
 	}
-	
+
 	public void deleteTaskList(final TaskListModel tasklist) {
 		DialogInterface.OnClickListener posListener = new DialogInterface.OnClickListener() {
 			@Override
@@ -536,12 +592,20 @@ public class NavigationDrawerFragment extends Fragment {
 				try {
 					db.TaskList_Delete(tasklist._id);
 					removeTaskList(tasklist);
+
+					/**
+					 * update data
+					 */
+					mAdapter.updateData(data); //update data
+					/**
+					 * update data
+					 */
+
 				} catch (Exception E) {
 					Log.e("MainActivity", "Delete TaskList");
 				} finally {
 					// Update adapter
 				}
-
 			}
 		};
 		DialogInterface.OnClickListener negListener = new DialogInterface.OnClickListener() {
@@ -555,7 +619,6 @@ public class NavigationDrawerFragment extends Fragment {
 	}
 
 	private void removeTaskList(TaskListModel temp) {
-
 		int position = 0;// this.mAdapter.getPosition(temp);
 		boolean flag = false;
 		for (TaskListModel i : this.data) {
@@ -568,23 +631,40 @@ public class NavigationDrawerFragment extends Fragment {
 		}
 		data.remove(temp);
 		this.mAdapter.notifyDataSetChanged();
+		/**
+		 * update data
+		 */
+		mAdapter.updateData(data); //update data
+		/**
+		 * update data
+		 */
 		selectItem(position);
 	}
-	
-	public void deleteTask(final TaskListModel parent, final ArrayList<Integer> arrayList) {
+
+	public void deleteTask(final TaskListModel parent,
+			final ArrayList<Integer> arrayList) {
 		DialogInterface.OnClickListener posListener = new DialogInterface.OnClickListener() {
 			@Override
 			public void onClick(DialogInterface dialog, int which) {
 				try {
 					int position = mAdapter.getPosition(parent);
 					for (int temp : arrayList) {
-						if (db.Task_Delete(temp) == true){//conditional
-						mAdapter.getItem(position).RemoveTask(temp);//handle true false
-						}else {
+						if (db.Task_Delete(temp) == true) {// conditional
+							mAdapter.getItem(position).RemoveTask(temp);// handle
+																		// true
+																		// false
+						} else {
 							Log.e("NDF deleteTask", "bool if condition error");
 						}
-						}
+					}
 					mAdapter.notifyDataSetChanged();
+					/**
+					 * update data
+					 */
+					mAdapter.updateData(data); //update data
+					/**
+					 * update data
+					 */
 					selectItem(++position);
 				} catch (Exception E) {
 					Log.e("MainActivity", "Delete Task");
@@ -602,12 +682,11 @@ public class NavigationDrawerFragment extends Fragment {
 		Common.CustomDialog.CustomDialog(mContext, R.string.delete,
 				R.string.dialog_cancel, negListener, posListener);
 	}
-	
+
 	/**
 	 * Callbacks interface that all activities using this fragment must
 	 * implement.
 	 */
-	
 	public static interface NavigationDrawerCallbacks {
 		/**
 		 * Called when an item in the navigation drawer is selected.

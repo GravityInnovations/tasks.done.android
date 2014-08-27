@@ -3,6 +3,14 @@
     android:layout_height="?android:attr/listPreferredItemHeight"
     android:padding="5dip" >
 
+    <EditText
+        android:id="@+id/et"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+         android:layout_alignParentBottom="true"
+        android:layout_alignParentTop="true"
+        android:ems="10" />
+        
     <Button
         android:id="@+id/btn_add"
         android:layout_width="fill_parent"
@@ -13,9 +21,8 @@
     <ImageView
         android:id="@+id/image"
         android:layout_width="wrap_content"
-        android:layout_height="fill_parent"
-        android:layout_alignParentBottom="true"
-        android:layout_alignParentTop="true"
+        android:layout_height="wrap_content" 
+        android:layout_below="@+id/image" 
         android:layout_marginRight="6dip"
         android:src="@drawable/ic_launcher" />
 
