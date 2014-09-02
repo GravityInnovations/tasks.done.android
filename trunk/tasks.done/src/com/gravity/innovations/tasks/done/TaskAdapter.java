@@ -30,7 +30,7 @@ public class TaskAdapter extends ArrayAdapter<TaskModel> {
 
 	public TaskModel getSingularSelectedTaskModel() {
 		if (mSelection.size() == 1) {
-			for (Integer temp : getCurrentCheckedPosition())
+		for (Integer temp : getCurrentCheckedPosition())
 				return task_data.get(temp);
 		}
 		return null;
@@ -45,6 +45,7 @@ public class TaskAdapter extends ArrayAdapter<TaskModel> {
 		}
 		return temp;
 	}	
+	
 	public void setNewSelection(int position, boolean value) {
 		mSelection.put(position, value);
 		notifyDataSetChanged();

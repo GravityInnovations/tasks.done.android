@@ -1,6 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
+    <color name="line_divider">#bbb</color>
+
+    <string name="add_task">Add Task</string>
     <string name="app_name">tasks.done</string>
     <string name="title_section1">Section 1</string>
     <string name="title_section2">Section 2</string>
@@ -9,12 +12,14 @@
     <string name="navigation_drawer_close">Close navigation drawer</string>
     <string name="action_example">Example action</string>
     <string name="action_settings">Settings</string>
+    <string name="action_add">Add</string>
     <string name="action_edit">Edit</string>
-    <string name="action_delete">Delete</string> 
+    <string name="action_delete">Delete</string>
     <string name="action_developer">Developers</string>
     <string name="action_share">Share</string>
     <string name="action_store">Get more apps</string>
-	<string name="skip">Skip</string>
+
+    <string name="skip">Skip</string>
 	<string name="auth">Authenticate</string>
 	<string name="gravity_register">Registering Account to Gravity Innovations</string>
 	<string name="gravity_registration_complete">Registeration Complete</string>
@@ -43,12 +48,13 @@
 		<string name="config_gcm">Configuring Communication Settings</string>
 		<string name="gcm_invalid_device">Device Not supported</string>
 		<string name="gcm_play_service_success">Device validated for play store</string>
- <!-- String Resources for Dialogs -->
+    <!-- String Resources for Dialogs -->
     <string name="edit">Edit</string>
     <string name="dialog_save">Save</string>
     <string name="dialog_cancel">Cancel</string>
-    <string name="dialog_ok">Ok</string>
+    <string name="dialog_ok">OK</string>
     <string name="delete_message_confirm">Delete Sure?</string>
     <string name="delete">Delete</string>
+    <string name="attl">Add The Task List</string>
 
 </resources>

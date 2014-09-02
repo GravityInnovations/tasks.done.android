@@ -1,10 +1,38 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto" >
 
+		<!--     later added	 -->
+
     <item
-        android:id="@+id/action_settings"
-        android:orderInCategory="100"
-        android:title="@string/action_settings"
-        app:showAsAction="never"/>
+        android:id="@+id/action_add"
+        android:icon="@android:drawable/ic_menu_add"
+        android:orderInCategory="97"
+        android:showAsAction="ifRoom|collapseActionView"
+        android:title="@string/action_add"
+        android:titleCondensed="Add"
+        app:showAsAction="withText|ifRoom"/>
+ 
+    <!--     later added	 -->
+    <item
+        android:id="@+id/action_edit"
+        android:icon="@android:drawable/ic_menu_edit"
+        android:orderInCategory="98"
+        android:showAsAction="ifRoom|collapseActionView"
+        android:title="@string/action_edit"
+        android:titleCondensed="Edit"
+        app:showAsAction="withText|ifRoom"/>
+    <item
+        android:id="@+id/action_delete"
+        android:icon="@android:drawable/ic_menu_delete"
+        android:orderInCategory="99"
+        android:showAsAction="ifRoom|collapseActionView"
+        android:title="@string/action_delete"
+        android:titleCondensed="Delete"
+        app:showAsAction="withText|ifRoom"/>
+<!--     <item -->
+<!--         android:id="@+id/action_settings" -->
+<!--         android:orderInCategory="100" -->
+<!--         android:title="@string/action_settings" -->
+<!--         app:showAsAction="never"/> -->
 
 </menu>

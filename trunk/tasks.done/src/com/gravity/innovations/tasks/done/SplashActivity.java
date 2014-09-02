@@ -252,7 +252,7 @@ public class SplashActivity extends Activity implements
 					try {
 						JSONObject temp = arr_data.getJSONObject(i);
 						TaskListModel model = new TaskListModel(temp.getString("Title"));
-						db.New_TaskList(model);
+						db.TaskList_New(model);
 					} catch (JSONException e) {
 						// TODO Auto-generated catch block
 						e.printStackTrace();

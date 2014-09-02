@@ -17,28 +17,28 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 	private static final String DATABASE_NAME = "tasksManager";
 
 	// TABLE NAMES
-	// Tasks table
-	// tasks has Auto inc. id, title, details and notes
+	// TaskModel table
+	// task has Auto inc. id, title, details and notes
 	private static final String TABLE_TASKS = "tasks";
-	// TaskModel List Table
+	// TaskListModel table
 	// task list has Auto inc. id and a title
 	private static final String TABLE_TASK_LIST = "task_list";
-	// Users Table
-	// task list has Auto inc. id name and a email
+	// Users table
+	// user has Auto inc. id name and a email
 	private static final String TABLE_USERS = "users";
 	// TABLE NAMES
 
-	// Tasks Table Columns names
+	// TaskModel Table Columns names
 	private static final String KEY_PK = "_id";
 	private static final String KEY_TITLE = "title";
 	private static final String KEY_DETAILS = "details";
 	private static final String KEY_NOTES = "notes";
 	private static final String KEY_FK_TASKLIST_ID = "fk_tasklist_id";
 
-	// TaskModel List Table Columns names
+	// TaskListModel Table Columns names
 	// id and title and as above
 
-	// id same
+	// Users id same as
 	private static final String KEY_USER_NAME = "user_name";
 	private static final String KEY_USER_EMAIL = "user_email";
 
@@ -78,6 +78,11 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 		} catch (Exception e) {
 			Log.e("onCreate Error", "TASK_LIST_TABLE not created");
 		}
+		try {
+			db.execSQL(CREATE_USERS_TABLE);// create user table
+		} catch (Exception e) {
+			Log.e("onCreate Error", "USERS_TABLE not created");
+		}
 	}
 
 	// Upgrading database
@@ -85,7 +90,8 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 	public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
 		// Drop older table if existed
 		try {
-			db.execSQL("DROP TABLE IF EXISTS " + TABLE_TASKS);// Drop TaskModel Table
+			db.execSQL("DROP TABLE IF EXISTS " + TABLE_TASKS);// Drop TaskModel
+																// Table
 			db.execSQL("DROP TABLE IF EXISTS " + TABLE_TASK_LIST);// Drop
 																	// TaskListModel
 																	// Table
@@ -99,7 +105,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 	 * All CRUD FOR TASK(Create, Read, Update, Delete) Operations
 	 */
 	// Add new TaskModel
-	public int New_Task(TaskModel task) {
+	public int Task_New(TaskModel task) {
 		// error, wrong foreign key
 		SQLiteDatabase db = this.getWritableDatabase();
 		ContentValues values = new ContentValues();
@@ -113,18 +119,19 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 	}
 
 	// Delete a TaskModel
-	public void Task_Delete(int id) {
+	public boolean Task_Delete(int id) {
 		SQLiteDatabase db = this.getWritableDatabase();
-		db.delete(TABLE_TASKS, KEY_FK_TASKLIST_ID + " = ?", // it will take
-															// input from
-															// TaskList_Delete
+		db.delete(TABLE_TASKS, KEY_PK + " = ?", // it will take
+												// input from
+												// TaskList_Delete
 				new String[] { String.valueOf(id) }); // and delete all tasks
 														// against that list
 		db.close();
+		return true;
 	}
 
 	// Updating a TaskModel
-	public int Edit_Task(TaskModel task) {
+	public int Task_Edit(TaskModel task) {
 		SQLiteDatabase db = this.getWritableDatabase();
 
 		ContentValues values = new ContentValues();
@@ -136,7 +143,6 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 	}
 
 	// Getting single TaskModel
-	// previous name Get_Task
 	public TaskModel Task_Single(int id) {
 		SQLiteDatabase db = this.getReadableDatabase();
 
@@ -155,7 +161,6 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 	}
 
 	// Getting All Tasks
-	// previous name Get_Tasks with fk
 	public ArrayList<TaskModel> Task_List(int id) {
 		ArrayList<TaskModel> data = new ArrayList<TaskModel>();
 		try {
@@ -198,7 +203,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 	 * All CRUD FOR TASK LIST(Create, Read, Update, Delete) Operations
 	 */
 	// Add a TaskListModel
-	public int New_TaskList(TaskListModel tasklist) {
+	public int TaskList_New(TaskListModel tasklist) {
 		SQLiteDatabase db = this.getWritableDatabase();
 		ContentValues values = new ContentValues();
 		values.put(KEY_TITLE, tasklist.title);
@@ -215,12 +220,12 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 		SQLiteDatabase db = this.getWritableDatabase();
 		db.delete(TABLE_TASK_LIST, KEY_PK + " = ?",
 				new String[] { String.valueOf(id) });
-		Task_Delete(id); // Delete tasks and then delete list
+		// Task_Delete(id); // Delete tasks and then delete list
 		db.close();
 	}
 
 	// Updating single TaskListModel
-	public int Edit_TaskList(TaskListModel tasklist) {
+	public int TaskList_Edit(TaskListModel tasklist) {
 		SQLiteDatabase db = this.getWritableDatabase();
 
 		ContentValues values = new ContentValues();
@@ -230,8 +235,8 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 	}
 
 	// Getting All TasksLists
-	// previous name Get_TaskTitleList
-	public ArrayList<TaskListModel> getList_TaskList() {
+
+	public ArrayList<TaskListModel> TaskList_List() {
 		ArrayList<TaskListModel> data = new ArrayList<TaskListModel>();
 		try {
 			// Select All Query
@@ -262,8 +267,6 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
 	}
 
-	// Getting single TaskListModel
-	// previous name TaskListModel Get_TaskList(int id)
 	public TaskListModel TaskList_Single(int id) {
 		SQLiteDatabase db = this.getReadableDatabase();
 
@@ -272,19 +275,16 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 				new String[] { String.valueOf(id) }, null, null, null, null);
 		if (cursor != null)
 			cursor.moveToFirst();
-		TaskListModel tasklist = new TaskListModel(Integer.parseInt(cursor.getString(0)),
-				cursor.getString(1));// return TaskListModel
+		TaskListModel tasklist = new TaskListModel(Integer.parseInt(cursor
+				.getString(0)), cursor.getString(1));// return TaskListModel
 		cursor.close();
 		db.close();
 		return tasklist;
 	}
-	
-	
-	//temp
+
 	public ArrayList<Common.CustomViewsData.MultiSelectRowData> Get_Users() {
 
-		ArrayList<Common.CustomViewsData.MultiSelectRowData> users
-			= new ArrayList<Common.CustomViewsData.MultiSelectRowData>();
+		ArrayList<Common.CustomViewsData.MultiSelectRowData> users = new ArrayList<Common.CustomViewsData.MultiSelectRowData>();
 
 		try {
 			// Select All Query
@@ -294,31 +294,29 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 			Cursor cursor = db.rawQuery(selectQuery, null);
 
 			// looping through all rows and adding to list
-//			if (cursor.moveToFirst()) {
-//				do {
-//					Common.CustomViewsData.MultiSelectRowData user = 
-//							new Common.CustomViewsData.MultiSelectRowData();
-//					user.text1 = (cursor.getString(0));
-//					user.text2 = (cursor.getString(1));
-//					// Adding Task to list
-//					users.add(user);
-//				} while (cursor.moveToNext());
-//			}
+			// if (cursor.moveToFirst()) {
+			// do {
+			// Common.CustomViewsData.MultiSelectRowData user =
+			// new Common.CustomViewsData.MultiSelectRowData();
+			// user.text1 = (cursor.getString(0));
+			// user.text2 = (cursor.getString(1));
+			// // Adding Task to list
+			// users.add(user);
+			// } while (cursor.moveToNext());
+			// }
 
 			// return Task list
 			cursor.close();
 			db.close();
-			for(int i=0;i<30;i++)
-			{
-				Common.CustomViewsData.MultiSelectRowData user = 
-						new Common.CustomViewsData.MultiSelectRowData();
+			for (int i = 0; i < 30; i++) {
+				Common.CustomViewsData.MultiSelectRowData user = new Common.CustomViewsData.MultiSelectRowData();
 				user.text1 = "h";
 				user.text2 = "some";
 				user.iconRes = R.drawable.ic_launcher;
 				// Adding Task to list
 				users.add(user);
 			}
-			//return users;
+			// return users;
 		} catch (Exception e) {
 			// TODO: handle exception
 			Log.e("all_Task", "" + e);
@@ -326,8 +324,11 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
 		return users;
 
-
 	}
+
+	/**
+	 * All CRUD FOR Users(Create, Read, Update, Delete) Operations
+	 */
 	public void Add_User() {
 		SQLiteDatabase db = this.getWritableDatabase();
 		ContentValues values = new ContentValues();
@@ -338,5 +339,26 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 		// Inserting Row
 		db.insert(TABLE_USERS, null, values);
 		db.close(); // Closing database connection
-	}//ends
+	}// ends
+
+	// Add a user
+	public int User_New(UserModel user) {
+		SQLiteDatabase db = this.getWritableDatabase();
+		ContentValues values = new ContentValues();
+		values.put(KEY_USER_NAME, user.name);
+		values.put(KEY_USER_EMAIL, user.email);
+		int id = (int) db.insert(TABLE_USERS, null, values);
+		db.close();
+		return id;
+		// return true; //boolean to check if the user is added in db
+	}
+
+	// Delete a user
+	public void User_Delete(int id) {
+		SQLiteDatabase db = this.getWritableDatabase();
+		db.delete(TABLE_USERS, KEY_PK + " = ?",
+				new String[] { String.valueOf(id) });
+		db.close();
+	}
+
 }

@@ -20,6 +20,8 @@ import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBarActivity;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -31,8 +33,9 @@ import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.ListView;
-//update
+
 /**
  * Fragment used for managing interactions for and presentation of a navigation
  * drawer. See the <a href=
@@ -49,13 +52,11 @@ public class NavigationDrawerFragment extends Fragment implements Common.Callbac
 	 * Remember the position of the selected item.
 	 */
 	private static final String STATE_SELECTED_POSITION = "selected_navigation_drawer_position";
-
 	/**
 	 * Per the design guidelines, you should show the drawer on launch until the
 	 * user manually expands it. This shared preference tracks this.
 	 */
 	private static final String PREF_USER_LEARNED_DRAWER = "navigation_drawer_learned";
-
 	/**
 	 * A pointer to the current callbacks instance (the Activity).
 	 */
@@ -66,6 +67,7 @@ public class NavigationDrawerFragment extends Fragment implements Common.Callbac
 	 */
 	private ActionBarDrawerToggle mDrawerToggle;
 	public TaskListAdapter mAdapter;
+	TaskListFragment mTaskListFragment;// m
 	private DrawerLayout mDrawerLayout;
 	private ListView mDrawerListView;
 	private View mFragmentContainerView;
@@ -88,13 +90,11 @@ public class NavigationDrawerFragment extends Fragment implements Common.Callbac
 		SharedPreferences sp = PreferenceManager
 				.getDefaultSharedPreferences(getActivity());
 		mUserLearnedDrawer = sp.getBoolean(PREF_USER_LEARNED_DRAWER, false);
-
 		if (savedInstanceState != null) {
 			mCurrentSelectedPosition = savedInstanceState
 					.getInt(STATE_SELECTED_POSITION);
 			mFromSavedInstanceState = true;
 		}
-
 		// Select either the default item (0) or the last selected item.
 		selectItem(mCurrentSelectedPosition);
 	}
@@ -112,19 +112,27 @@ public class NavigationDrawerFragment extends Fragment implements Common.Callbac
 			Bundle savedInstanceState) {
 		mDrawerListView = (ListView) inflater.inflate(
 				R.layout.fragment_navigation_drawer, container, false);
-		View header = inflater.inflate(R.layout.navigation_drawer_header, null);
-		Button btn_add_tasklist = (Button) header.findViewById(R.id.btn_add);
+		View header = inflater.inflate(
+				R.layout.fragment_navigation_drawer_header, null);// navigation_drawer_header,
+																	// null);
+		// ImageView image = (ImageView) header.findViewById(R.id.image);
+		// EditText name = (EditText) header.findViewById(R.id.text_name);
+		// EditText email = (EditText) header.findViewById(R.id.text_email);
+		EditText search = (EditText) header.findViewById(R.id.search);
 		mDrawerListView.addHeaderView(header);
+
+		View footer = inflater.inflate(
+				R.layout.fragment_navigation_drawer_footer, null);// navigation_drawer_header,
+																	// null);
+		Button btn_add_tasklist = (Button) footer.findViewById(R.id.btn_add);
+		mDrawerListView.addFooterView(footer);
 		btn_add_tasklist.setOnClickListener(new OnClickListener() {
 
 			@Override
 			public void onClick(View v) {
 				addOrEditTaskList(new TaskListModel());
-				// TODO Auto-generated method stub
-
 			}
 		});
-
 		mDrawerListView
 				.setOnItemClickListener(new AdapterView.OnItemClickListener() {
 					@Override
@@ -133,13 +141,61 @@ public class NavigationDrawerFragment extends Fragment implements Common.Callbac
 						selectItem(position);
 					}
 				});
-		db = new DatabaseHelper(mContext);
-		this.data = db.getList_TaskList();
 
+		// start swipe
+		/*
+		SwipeDismissListViewTouchListener touchListener = new SwipeDismissListViewTouchListener(
+				mDrawerListView,
+				new SwipeDismissListViewTouchListener.DismissCallbacks() {
+					@Override
+					public boolean canDismiss(int position) {
+						return true;
+					}
+
+					@Override
+					public void onDismiss(ListView listView,
+							int[] reverseSortedPositions) {
+						for (int position : reverseSortedPositions) {
+							mAdapter.remove(mAdapter.getItem(position));
+						}
+						mAdapter.notifyDataSetChanged();
+					}
+				});
+
+		mDrawerListView.setOnTouchListener(touchListener);
+		*/
+		// end swipe
+		mDrawerListView.setTextFilterEnabled(true);
+
+		search.addTextChangedListener(new TextWatcher() {
+
+			@Override
+			public void onTextChanged(CharSequence s, int start, int before,
+					int count) {
+				try {
+					mAdapter.getFilter().filter(s.toString());
+				} catch (Exception e) {
+					Log.e("onTextChanged", "NotWorking");
+				} finally {
+					// NavigationDrawerFragment.this.mAdapter.notifyDataSetChanged();
+				}
+			}
+
+			@Override
+			public void beforeTextChanged(CharSequence s, int start, int count,
+					int after) {
+			}
+
+			@Override
+			public void afterTextChanged(Editable s) {
+			}
+		});
+
+		db = new DatabaseHelper(mContext);
+		this.data = db.TaskList_List();
 		mAdapter = new TaskListAdapter(getActivity(),
 				R.layout.tasklist_listview_row, data);
 		mDrawerListView.setAdapter(mAdapter);
-
 		mDrawerListView.setItemChecked(mCurrentSelectedPosition, true);
 		return mDrawerListView;
 	}
@@ -162,25 +218,22 @@ public class NavigationDrawerFragment extends Fragment implements Common.Callbac
 	public void setUp(int fragmentId, DrawerLayout drawerLayout,
 			Context mContext, userData user_data) {
 		db = new DatabaseHelper(mContext);
-		this.data = db.getList_TaskList();
 		this.user_data = user_data;
+		this.data = db.TaskList_List();
 		mAdapter = new TaskListAdapter(getActivity(),
 				R.layout.tasklist_listview_row, data);
 		mDrawerListView.setAdapter(mAdapter);
 		selectItem(1);
 		mFragmentContainerView = getActivity().findViewById(fragmentId);
 		mDrawerLayout = drawerLayout;
-
 		// set a custom shadow that overlays the main content when the drawer
 		// opens
 		mDrawerLayout.setDrawerShadow(R.drawable.drawer_shadow,
 				GravityCompat.START);
 		// set up the drawer's list view with items and click listener
-
 		ActionBar actionBar = getActionBar();
 		actionBar.setDisplayHomeAsUpEnabled(true);
 		actionBar.setHomeButtonEnabled(true);
-
 		// ActionBarDrawerToggle ties together the the proper interactions
 		// between the navigation drawer and the action bar app icon.
 		mDrawerToggle = new ActionBarDrawerToggle(getActivity(), /* host Activity */
@@ -201,9 +254,8 @@ public class NavigationDrawerFragment extends Fragment implements Common.Callbac
 				if (!isAdded()) {
 					return;
 				}
-
 				getActivity().supportInvalidateOptionsMenu(); // calls
-																// onPrepareOptionsMenu()
+				// onPrepareOptionsMenu()
 			}
 
 			@Override
@@ -212,7 +264,6 @@ public class NavigationDrawerFragment extends Fragment implements Common.Callbac
 				if (!isAdded()) {
 					return;
 				}
-
 				if (!mUserLearnedDrawer) {
 					// The user manually opened the drawer; store this flag to
 					// prevent auto-showing
@@ -223,19 +274,16 @@ public class NavigationDrawerFragment extends Fragment implements Common.Callbac
 					sp.edit().putBoolean(PREF_USER_LEARNED_DRAWER, true)
 							.apply();
 				}
-
 				getActivity().supportInvalidateOptionsMenu(); // calls
-																// onPrepareOptionsMenu()
+				// onPrepareOptionsMenu()
 			}
 		};
-
 		// If the user hasn't 'learned' about the drawer, open it to introduce
 		// them to the drawer,
 		// per the navigation drawer design guidelines.
 		if (!mUserLearnedDrawer && !mFromSavedInstanceState) {
 			mDrawerLayout.openDrawer(mFragmentContainerView);
 		}
-
 		// Defer code dependent on restoration of previous instance state.
 		mDrawerLayout.post(new Runnable() {
 			@Override
@@ -243,9 +291,7 @@ public class NavigationDrawerFragment extends Fragment implements Common.Callbac
 				mDrawerToggle.syncState();
 			}
 		});
-
 		mDrawerLayout.setDrawerListener(mDrawerToggle);
-
 	}
 
 	public void onMinusOne(int id) {
@@ -272,9 +318,7 @@ public class NavigationDrawerFragment extends Fragment implements Common.Callbac
 			} catch (Exception ex) {
 				temp = new TaskListModel();
 			}
-
 			mCallbacks.onNavigationDrawerItemSelected(temp);
-
 		}
 	}
 
@@ -344,10 +388,7 @@ public class NavigationDrawerFragment extends Fragment implements Common.Callbac
 		return ((ActionBarActivity) getActivity()).getSupportActionBar();
 	}
 
-	/**
-	 * Callbacks interface that all activities using this fragment must
-	 * implement.
-	 */
+
 	private void addTaskList(TaskListModel temp) {
 		data.add(temp);
 		// this.mAdapter.add(temp);
@@ -362,24 +403,6 @@ public class NavigationDrawerFragment extends Fragment implements Common.Callbac
 		}
 	}
 
-	private void removeTaskList(TaskListModel temp) {
-
-		int position = 0;// this.mAdapter.getPosition(temp);
-		boolean flag = false;
-		for (TaskListModel i : this.data) {
-			if (flag) {
-				position = this.mAdapter.getPosition(i);
-				break;
-			}
-			if (i._id == temp._id)
-				flag = true;
-		}
-		data.remove(temp);
-
-		// this.mAdapter.add(temp);
-		this.mAdapter.notifyDataSetChanged();
-		selectItem(position);
-	}
 
 	private void editTaskList(TaskListModel Old, String Title) {
 		// this.mAdapter.add(temp);
@@ -390,27 +413,12 @@ public class NavigationDrawerFragment extends Fragment implements Common.Callbac
 		selectItem(++position);
 	}
 
-	private void addTask(TaskListModel parent, TaskModel temp) {
-		parent.tasks.add(temp);
-		this.mAdapter.notifyDataSetChanged();
-		int position = this.mAdapter.getPosition(parent);
-		selectItem(++position);
-		// TaskModel dump = parent.GetTask(temp._id);
-		// data.add(temp);
-		// //this.mAdapter.add(temp);
-		// this.mAdapter.notifyDataSetChanged();
-		//
-		// selectItem(this.mAdapter.getPosition(temp));
-	}
-
+	
     /**
      * Callbacks interface that all activities using this fragment must implement.
      */
     
-    private void editTask(TaskModel task, TaskModel temp) {
-		// TODO Auto-generated method stub
-
-	}
+    
 
 	public void addOrEditTaskList(final TaskListModel tasklist) {
 		View view = getActivity().getLayoutInflater().inflate(
@@ -434,10 +442,9 @@ public class NavigationDrawerFragment extends Fragment implements Common.Callbac
 							try {
 								TaskListModel temp = new TaskListModel(title);
 								// should retun a bool on true
-								temp._id = db.New_TaskList(temp);
+								temp._id = db.TaskList_New(temp);
 								if (temp._id != -1) {
 									// toastMsg = "tasklist added";
-
 									addTaskList(temp);
 								} else {
 									// toastMsg =
@@ -445,8 +452,15 @@ public class NavigationDrawerFragment extends Fragment implements Common.Callbac
 								}
 								// Common.CustomToast.CreateAToast(mContext,
 								// toastMsg);
-								// mTaskListAdapter.notifyDataSetChanged();
-								// mNavigationDrawerFragment.notifyDataSetChanges();
+
+								/**
+								 * update data
+								 */
+								mAdapter.updateData(data); //update data
+								/**
+								 * update data
+								 */
+
 							} catch (Exception e) {
 								Log.e("MainActivity", "newOrEditTaskList");
 							} finally {
@@ -456,27 +470,31 @@ public class NavigationDrawerFragment extends Fragment implements Common.Callbac
 					} else {
 						// update tasklist
 						String title = et_title.getText().toString();
-						// Log.d(title, "this is the title");
 						if (title.length() != 0) {
-							int nRows = db.Edit_TaskList(new TaskListModel(
+							int nRows = db.TaskList_Edit(new TaskListModel(
 									tasklist._id, title));
 							if (nRows > 0) {
 								tasklist.title = title;
-								editTaskList(tasklist, title);
-
+								editTaskList(tasklist);
 							}
 						}
+						/**
+						 * update data
+						 */
+						mAdapter.updateData(data); //update data
+						/**
+						 * update data
+						 */
+
 					}
 				} catch (Exception e) {
 					Log.d("Exception on", "Positive Listener");
 				}
 			}
-
 		};
 		DialogInterface.OnClickListener negListener = new DialogInterface.OnClickListener() {
 			@Override
 			public void onClick(DialogInterface dialog, int which) {
-				// TODO Auto-generated method stub
 				dialog.cancel();
 			}
 		};
@@ -485,16 +503,23 @@ public class NavigationDrawerFragment extends Fragment implements Common.Callbac
 				dialogTitle);
 	}
 
+	
+	private void editTaskList(TaskListModel Old) {
+		this.mAdapter.notifyDataSetChanged();
+		int position = this.mAdapter.getPosition(Old);
+		selectItem(++position);
+	}
+
 	public void addOrEditTask(final TaskListModel tasklist, final TaskModel task) {
 		View view = getActivity().getLayoutInflater().inflate(
 				R.layout.addoredit_task_dialog, null);
 		final EditText et_title = (EditText) view.findViewById(R.id.et_title);
 		final EditText et_details = (EditText) view
 				.findViewById(R.id.et_details);
-
 		final EditText et_notes = (EditText) view.findViewById(R.id.et_notes);
-
 		et_title.setText(task.title);
+		et_details.setText(task.details);
+		et_notes.setText(task.notes);
 		String dialogTitle = "";
 		if (task._id == -1) {
 			dialogTitle = "New Task";
@@ -508,7 +533,6 @@ public class NavigationDrawerFragment extends Fragment implements Common.Callbac
 					String title = et_title.getText().toString();
 					String details = et_details.getText().toString();
 					String notes = et_notes.getText().toString();
-
 					if (task._id == -1) {
 						// create
 						if (title.length() != 0) {
@@ -516,10 +540,9 @@ public class NavigationDrawerFragment extends Fragment implements Common.Callbac
 								TaskModel temp = new TaskModel(title, details,
 										notes, tasklist._id);
 								// should retun a bool on true
-								temp._id = db.New_Task(temp);
+								temp._id = db.Task_New(temp);
 								if (temp._id != -1) {
 									// toastMsg = "tasklist added";
-
 									addTask(tasklist, temp);
 								} else {
 									// toastMsg =
@@ -527,8 +550,6 @@ public class NavigationDrawerFragment extends Fragment implements Common.Callbac
 								}
 								// Common.CustomToast.CreateAToast(mContext,
 								// toastMsg);
-								// mTaskListAdapter.notifyDataSetChanged();
-								// mNavigationDrawerFragment.notifyDataSetChanges();
 							} catch (Exception e) {
 								Log.e("MainActivity", "newOrEditTaskList");
 							} finally {
@@ -536,28 +557,17 @@ public class NavigationDrawerFragment extends Fragment implements Common.Callbac
 							}// finally
 						}
 					} else {
-						// update tasklist
-						// Log.d(title, "this is the title");
 						if (title.length() != 0) {
-							TaskModel temp = new TaskModel(tasklist._id, title,
-									details, notes, tasklist._id);
-							int nRows = db.Edit_Task(temp);
+							TaskModel temp = new TaskModel(
+									// tasklist._id
+									task._id, title, details, notes,
+									tasklist._id);
+							int nRows = db.Task_Edit(temp);
 							if (nRows > 0) {
 								// tasklist.title = title;
-
-								editTask(task, temp);
-
+								editTask(tasklist, temp); // task and temp
+								// mTaskListFragment.editTask();
 							}
-							// mNavigationDrawerFragment.list_data.clear();
-							// mNavigationDrawerFragment.list_adapter.notifyDataSetChanged();//
-							// reinit();
-							// ArrayList<TaskList>
-							// data = db.TaskList_List();
-							// mNavigationDrawerFragment.setUp(mContext,
-							// list_data,// mTaskListAdapter,
-							// R.id.navigation_drawer,
-							// (DrawerLayout) findViewById(R.id.drawer_layout));
-							//
 							// toastMsg = "Data Updated successfully";
 							// Common.CustomToast.CreateAToast(mContext,
 							// toastMsg);
@@ -567,18 +577,49 @@ public class NavigationDrawerFragment extends Fragment implements Common.Callbac
 					Log.d("Exception on", "Positive Listener");
 				}
 			}
-
 		};
 		DialogInterface.OnClickListener negListener = new DialogInterface.OnClickListener() {
 			@Override
 			public void onClick(DialogInterface dialog, int which) {
-				// TODO Auto-generated method stub
 				dialog.cancel();
 			}
 		};
 		Common.CustomDialog.CustomDialog(mContext, view, negListener,
 				posListener, R.string.dialog_save, R.string.dialog_cancel,
 				dialogTitle);
+	}
+
+	private void addTask(TaskListModel parent, TaskModel temp) {
+		parent.tasks.add(temp);
+		this.mAdapter.notifyDataSetChanged();
+		/**
+		 * update data
+		 */
+		mAdapter.updateData(data); //update data
+		/**
+		 * update data
+		 */
+		int position = this.mAdapter.getPosition(parent);
+		selectItem(++position);
+	}
+
+	private void editTask(TaskListModel parent, TaskModel temp)// (TaskModel
+																// task,
+																// TaskModel
+																// temp)
+	{
+		int position = mAdapter.getPosition(parent);
+		this.mAdapter.getItem(position).GetTask(temp._id).set(temp);
+		this.mAdapter.notifyDataSetChanged();
+		/**
+		 * update data
+		 */
+		mAdapter.updateData(data); //update data
+		/**
+		 * update data
+		 */
+		position = this.mAdapter.getPosition(parent);
+		selectItem(++position);
 	}
 
 	public void deleteTaskList(final TaskListModel tasklist) {
@@ -588,18 +629,25 @@ public class NavigationDrawerFragment extends Fragment implements Common.Callbac
 				try {
 					db.TaskList_Delete(tasklist._id);
 					removeTaskList(tasklist);
+
+					/**
+					 * update data
+					 */
+					mAdapter.updateData(data); //update data
+					/**
+					 * update data
+					 */
+
 				} catch (Exception E) {
 					Log.e("MainActivity", "Delete TaskList");
 				} finally {
 					// Update adapter
 				}
-
 			}
 		};
 		DialogInterface.OnClickListener negListener = new DialogInterface.OnClickListener() {
 			@Override
 			public void onClick(DialogInterface dialog, int which) {
-				// TODO Auto-generated method stub
 				dialog.cancel();
 			}
 		};
@@ -607,19 +655,80 @@ public class NavigationDrawerFragment extends Fragment implements Common.Callbac
 				R.string.dialog_cancel, negListener, posListener);
 	}
 
+	private void removeTaskList(TaskListModel temp) {
+		int position = 0;// this.mAdapter.getPosition(temp);
+		boolean flag = false;
+		for (TaskListModel i : this.data) {
+			if (flag) {
+				position = this.mAdapter.getPosition(i);
+				break;
+			}
+			if (i._id == temp._id)
+				flag = true;
+		}
+		data.remove(temp);
+		this.mAdapter.notifyDataSetChanged();
+		/**
+		 * update data
+		 */
+		mAdapter.updateData(data); //update data
+		/**
+		 * update data
+		 */
+		selectItem(position);
+	}
+
+	public void deleteTask(final TaskListModel parent,
+			final ArrayList<Integer> arrayList) {
+		DialogInterface.OnClickListener posListener = new DialogInterface.OnClickListener() {
+			@Override
+			public void onClick(DialogInterface dialog, int which) {
+				try {
+					int position = mAdapter.getPosition(parent);
+					for (int temp : arrayList) {
+						if (db.Task_Delete(temp) == true) {// conditional
+							mAdapter.getItem(position).RemoveTask(temp);// handle
+																		// true
+																		// false
+						} else {
+							Log.e("NDF deleteTask", "bool if condition error");
+						}
+					}
+					mAdapter.notifyDataSetChanged();
+					/**
+					 * update data
+					 */
+					mAdapter.updateData(data); //update data
+					/**
+					 * update data
+					 */
+					selectItem(++position);
+				} catch (Exception E) {
+					Log.e("MainActivity", "Delete Task");
+				} finally {
+					// Update adapter
+				}
+			}
+		};
+		DialogInterface.OnClickListener negListener = new DialogInterface.OnClickListener() {
+			@Override
+			public void onClick(DialogInterface dialog, int which) {
+				dialog.cancel();
+			}
+		};
+		Common.CustomDialog.CustomDialog(mContext, R.string.delete,
+				R.string.dialog_cancel, negListener, posListener);
+	}
+
+	/**
+	 * Callbacks interface that all activities using this fragment must
+	 * implement.
+	 */
 	public static interface NavigationDrawerCallbacks {
 		/**
 		 * Called when an item in the navigation drawer is selected.
 		 */
 		void onNavigationDrawerItemSelected(TaskListModel temp);
-	}
-
-	public void openDrawer() {
-		// TODO Auto-generated method stub
-
-		// mDrawerLayout.openDrawer(mFragmentContainerView);
-		mDrawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED);// .LOCK_MODE_LOCKED_OPEN);
-		// mDrawerLayout.openDrawer(1);
 	}
 
 	@Override
