@@ -1,6 +1,12 @@
 package com.gravity.innovations.tasks.done;
 
 import java.util.ArrayList;
+
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import com.gravity.innovations.tasks.done.Common.userData;
+
 import android.app.Activity;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -34,10 +40,11 @@ import android.widget.ListView;
  * > design guidelines</a> for a complete explanation of the behaviors
  * implemented here.
  */
-public class NavigationDrawerFragment extends Fragment {
+public class NavigationDrawerFragment extends Fragment implements Common.Callbacks.HttpCallback{
 
 	private ArrayList<TaskListModel> data = new ArrayList<TaskListModel>();
 	private DatabaseHelper db;
+	private Common.userData user_data;
 	/**
 	 * Remember the position of the selected item.
 	 */
@@ -62,7 +69,7 @@ public class NavigationDrawerFragment extends Fragment {
 	private DrawerLayout mDrawerLayout;
 	private ListView mDrawerListView;
 	private View mFragmentContainerView;
-
+	private Activity mActivity;
 	private int mCurrentSelectedPosition = 0;
 	private boolean mFromSavedInstanceState;
 	private boolean mUserLearnedDrawer;
@@ -74,6 +81,7 @@ public class NavigationDrawerFragment extends Fragment {
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		mContext = getActivity();
+		mActivity = getActivity();
 		// Read in the flag indicating whether or not the user has demonstrated
 		// awareness of the
 		// drawer. See PREF_USER_LEARNED_DRAWER for details.
@@ -149,11 +157,13 @@ public class NavigationDrawerFragment extends Fragment {
 	 *            The android:id of this fragment in its activity's layout.
 	 * @param drawerLayout
 	 *            The DrawerLayout containing this fragment's UI.
+	 * @param user_data 
 	 */
 	public void setUp(int fragmentId, DrawerLayout drawerLayout,
-			Context mContext) {
+			Context mContext, userData user_data) {
 		db = new DatabaseHelper(mContext);
 		this.data = db.getList_TaskList();
+		this.user_data = user_data;
 		mAdapter = new TaskListAdapter(getActivity(),
 				R.layout.tasklist_listview_row, data);
 		mDrawerListView.setAdapter(mAdapter);
@@ -344,6 +354,12 @@ public class NavigationDrawerFragment extends Fragment {
 		this.mAdapter.notifyDataSetChanged();
 		int position = this.mAdapter.getPosition(temp);
 		selectItem(++position);
+		
+		if(user_data.is_sync_type && Common.hasInternet(mActivity))
+		{
+			GravityController.post_tasklist(mActivity, user_data, temp, 
+					Common.RequestCodes.GRAVITY_SEND_TASKLIST);
+		}
 	}
 
 	private void removeTaskList(TaskListModel temp) {
@@ -604,5 +620,27 @@ public class NavigationDrawerFragment extends Fragment {
 		// mDrawerLayout.openDrawer(mFragmentContainerView);
 		mDrawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED);// .LOCK_MODE_LOCKED_OPEN);
 		// mDrawerLayout.openDrawer(1);
+	}
+
+	@Override
+	public void httpResult(JSONObject data, int RequestCode, int ResultCode) {
+		// TODO Auto-generated method stub
+		switch (RequestCode) {
+		case Common.RequestCodes.GRAVITY_SEND_TASKLIST:
+			if(ResultCode == Common.HTTP_RESPONSE_OK)
+			{
+				try {
+					data = data.getJSONObject("data");
+					data.get("TaskListId");
+				} catch (JSONException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+			}
+			else{
+				
+			}
+			break;
+		}
 	}
 }

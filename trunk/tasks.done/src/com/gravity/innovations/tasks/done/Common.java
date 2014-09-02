@@ -3,6 +3,8 @@ package com.gravity.innovations.tasks.done;
 import java.io.Serializable;
 import java.util.ArrayList;
 
+import org.json.JSONObject;
+
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.ContentResolver;
@@ -43,9 +45,10 @@ public class Common {
 			+ "GoogleVerificationComplete";
 	public static final String USER_IS_SYNC_TYPE = prefix + "UserWillSync";
 	public static final String USER_IS_REGISTERED = prefix + "UserRegistered";
+	public static final String USER_ID_GRAVITY = prefix + "gUserId";
 	public static final String SHARED_PREF_KEY = prefix;
 	public static final int SPLASH_TIME_OUT = 3000;
-	public static final int SPLASH_TIME_OUT_SMALL = 3000;
+	public static final int SPLASH_TIME_OUT_SMALL = 1000;
 	public static final String ACCOUNT_TYPE = "com.google";
 	public static final String AUTH_TOKEN = prefix + "AuthToken";
 	public static final String AUTH_TOKEN_TYPE = "oauth2:profile https://www.googleapis.com/auth/plus.login https://www.googleapis.com/auth/plus.me";//https://www.googleapis.com/auth/userinfo.profile";// https://www.googleapis.com/auth/drive.file https://www.googleapis.com/auth/datastoremobile https://www.googleapis.com/auth/appstate";
@@ -84,11 +87,12 @@ public class Common {
 	public static final int GRAVITY_REGISTER = 6;
 	public static final int GO_TO_MAIN = 7;
 	public static final int CONFIG_GCM = 8;
+	public static final int GRAVITY_SYNC = 9;
 	// Activity Names
 	public static final String AUTH_ACTIVITY = "AuthenticationActivity";
 	public static final String SPLASH_ACTIVITY = "SplashActivity";
 	//gravity urls
-	public static final String GRAVITY_BASE_URL = "http://192.168.1.4/";
+	public static final String GRAVITY_BASE_URL = "http://192.168.1.2/";
 	public static final String GRAVITY_ACCOUNT_URL = GRAVITY_BASE_URL+"Account/";
 	public static final String GRAVITY_GCM_URL = GRAVITY_BASE_URL+"GCM/";
 	public static final String GRAVITY_TASKLIST_URL = GRAVITY_BASE_URL+"TaskList/";
@@ -101,6 +105,8 @@ public class Common {
 		public static final int SPLASH_AUTH = 996;
 		public static final int GRAVITY_REGISTER = 998;
 		public static final int GRAVITY_SEND_GCM_CODE = 997;
+		public static final int GRAVITY_SEND_TASKLIST = 995;
+		public static final int GRAVITY_GET_TASKLISTS = 994;
 	}
 	public class EXCEPTIONS {
 		public static final int NoException = 0;
@@ -118,7 +124,7 @@ public class Common {
 			public void storeGCMRegisterationId(String regid, int appVersion);
 		}
 		public interface HttpCallback{
-			public void httpResult(Object data, int RequestCode, int ResultCode);
+			public void httpResult(JSONObject data, int RequestCode, int ResultCode);
 		}
 		public interface AuthActivityCallback extends GoogleAuthCallback {
 		}
@@ -134,6 +140,7 @@ public class Common {
 			public void GravityRegister();
 			public void GoToMain();
 			public void ConfigureGCM();
+			public void Sync();
 		}
 
 	}

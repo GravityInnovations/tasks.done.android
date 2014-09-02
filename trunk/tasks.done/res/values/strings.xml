@@ -19,7 +19,9 @@
 	<string name="gravity_register">Registering Account to Gravity Innovations</string>
 	<string name="gravity_registration_complete">Registeration Complete</string>
 	<string name="gravity_registration_error">Error while registeration</string>
-	
+	<string name="gravity_fetch_data_success">Fetch Complete</string>
+	<string name="gravity_fetch_data_failed">Fetch Error</string>
+	<string name="gravity_sync">syncing with server</string>
 	<string name="complete">Loading Complete</string>
 	<string name="text_require_google_account">
 			You are required to login using Your current google account for using complete features of this application

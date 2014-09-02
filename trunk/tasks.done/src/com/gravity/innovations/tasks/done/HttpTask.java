@@ -111,7 +111,12 @@ public class HttpTask extends AsyncTask<Void, Void, JSONObject> {
 			HttpEntity entity = response.getEntity();
 			resultString = EntityUtils.toString(entity);
 			jsonObject = JsonHelper.toJsonObject(resultString);
+			String status = jsonObject.getString("status");
+			if(status.equals("Success"))
 			this.ResponseCode = Common.HTTP_RESPONSE_OK;
+			else 
+				this.ResponseCode = Common.HTTP_RESPONSE_ERROR;
+			
 		} catch (ClientProtocolException e) {
 			this.ResponseCode = Common.HTTP_RESPONSE_ERROR;
 			// Log.e("SOME_TAG", Log.getStackTraceString(e));
@@ -145,9 +150,11 @@ public class HttpTask extends AsyncTask<Void, Void, JSONObject> {
 			HttpEntity entity = response.getEntity();
 			resultString = EntityUtils.toString(entity);
 			jsonObject = JsonHelper.toJsonObject(resultString);
-			if(jsonObject.get("status") == "success")
+			String status = jsonObject.getString("status");
+			if(status.equals("Success"))
 			this.ResponseCode = Common.HTTP_RESPONSE_OK;
-			else this.ResponseCode = Common.HTTP_RESPONSE_ERROR;
+			else 
+				this.ResponseCode = Common.HTTP_RESPONSE_ERROR;
 		} catch (ClientProtocolException e) {
 			this.ResponseCode = Common.HTTP_RESPONSE_ERROR;
 			// Log.e("SOME_TAG", Log.getStackTraceString(e));

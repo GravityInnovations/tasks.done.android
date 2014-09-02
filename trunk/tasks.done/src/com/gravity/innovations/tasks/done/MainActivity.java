@@ -3,6 +3,9 @@ package com.gravity.innovations.tasks.done;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Context;
@@ -31,7 +34,7 @@ import android.widget.TextView;
 
 
 public class MainActivity extends ActionBarActivity implements
-		NavigationDrawerFragment.NavigationDrawerCallbacks {
+		NavigationDrawerFragment.NavigationDrawerCallbacks, Common.Callbacks.HttpCallback {
 
 	/**
 	 * Fragment managing the behaviors, interactions and presentation of the
@@ -41,6 +44,7 @@ public class MainActivity extends ActionBarActivity implements
 	private NavigationDrawerFragment mNavigationDrawerFragment;
 	private Context mContext;
 	private TaskListModel CurrentList;
+	Common.userData user_data;
 	/**
 	 * Used to store the last screen title. For use in
 	 * {@link #restoreActionBar()}.
@@ -57,15 +61,16 @@ public class MainActivity extends ActionBarActivity implements
 		//String x = getHash("Faik");
 		mContext = this;
 		
-		
 		mNavigationDrawerFragment = (NavigationDrawerFragment) getSupportFragmentManager()
 				.findFragmentById(R.id.navigation_drawer);
 		mTitle = getTitle();
-
+		
+		user_data = (Common.userData)getIntent().getExtras().getSerializable("user");
+		//init user_data from intent extras
 		// Set up the drawer.
 		
 		mNavigationDrawerFragment.setUp(R.id.navigation_drawer,
-				(DrawerLayout) findViewById(R.id.drawer_layout),mContext);
+				(DrawerLayout) findViewById(R.id.drawer_layout),mContext, user_data);
 		
 		
 		/*try{
@@ -161,7 +166,8 @@ public class MainActivity extends ActionBarActivity implements
 		// as you specify a parent activity in AndroidManifest.xml.
 		int id = item.getItemId();
 		if (id == R.id.action_settings) {
-			return true;
+			Intent i = new Intent(MainActivity.this, SettingsActivity.class);
+			startActivity(i);
 		}
 		else if(id == R.id.action_delete)
 		{
@@ -298,6 +304,28 @@ public class MainActivity extends ActionBarActivity implements
 			((MainActivity) activity).onSectionAttached(getArguments().getInt(
 					ARG_SECTION_NUMBER));
 		}
+	}
+	@Override
+	public void httpResult(JSONObject data, int RequestCode, int ResultCode) {
+		// TODO Auto-generated method stub
+		switch (RequestCode) {
+		case Common.RequestCodes.GRAVITY_SEND_TASKLIST:
+			if(ResultCode == Common.HTTP_RESPONSE_OK)
+			{
+				try {
+					data = data.getJSONObject("data");
+					data.get("TaskListId");
+				} catch (JSONException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+			}
+			else{
+				
+			}
+			break;
+		}
+	
 	}
 	
 	

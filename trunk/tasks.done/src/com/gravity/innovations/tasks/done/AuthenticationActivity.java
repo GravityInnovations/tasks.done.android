@@ -8,6 +8,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
+import android.support.v7.app.ActionBarActivity;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.Window;
@@ -17,7 +18,7 @@ import android.widget.RadioButton;
 import android.widget.RadioGroup;
 import android.widget.RadioGroup.OnCheckedChangeListener;
 import android.widget.Toast;
-public class AuthenticationActivity extends Activity implements Common.Callbacks.AuthActivityCallback {
+public class AuthenticationActivity extends ActionBarActivity implements Common.Callbacks.AuthActivityCallback {
 	private GoogleAuth mAuth;
 	private Button btn_auth;
 	private Button btn_skip;
@@ -73,11 +74,19 @@ public class AuthenticationActivity extends Activity implements Common.Callbacks
 				  finish();*/
 				Account selectedAccount = null;
 				RadioButton temp = (RadioButton) findViewById(account_options.getCheckedRadioButtonId());
-				
 				for(Account mAccount:mAuth.getAccounts())
 				{
-					if(mAccount.name == temp.getText())
+					if(temp!=null)
+					{
+						if(mAccount.name.equals(temp.getText())||mAccount.name == temp.getText())
+							selectedAccount = mAccount;
+				
+					}
+					else
+					{
 						selectedAccount = mAccount;
+						break;
+					}
 				}
 				if(selectedAccount != null)
 //					if(Common.hasInternet(mActivity))
@@ -93,8 +102,10 @@ public class AuthenticationActivity extends Activity implements Common.Callbacks
 //						setResult(Activity.RESULT_OK, i);
 //						finish();
 //					}
-				i.putExtra(Common.USER_EMAIL, selectedAccount.name);
+			{
+					i.putExtra(Common.USER_EMAIL, selectedAccount.name);
 				setResult(Activity.RESULT_OK, i);
+			}
 				finish();
 				
 				
