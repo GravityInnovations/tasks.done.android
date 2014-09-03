@@ -5,6 +5,8 @@ import java.security.NoSuchAlgorithmException;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import com.gravity.innovations.tasks.done.Common.userData;
+
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Context;
@@ -59,7 +61,7 @@ public class MainActivity extends ActionBarActivity implements
 				.findFragmentById(R.id.navigation_drawer);
 		mTitle = getTitle();
 		
-		user_data = (Common.userData)getIntent().getExtras().getSerializable("user");
+		user_data = new userData();//(Common.userData)getIntent().getExtras().getSerializable("user");
 		//init user_data from intent extras
 		// Set up the drawer.
 		mNavigationDrawerFragment.setUp(R.id.navigation_drawer,

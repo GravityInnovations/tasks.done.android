@@ -35,6 +35,7 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.ListView;
+import android.widget.RelativeLayout;
 
 /**
  * Fragment used for managing interactions for and presentation of a navigation
@@ -110,22 +111,26 @@ public class NavigationDrawerFragment extends Fragment implements Common.Callbac
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container,
 			Bundle savedInstanceState) {
-		mDrawerListView = (ListView) inflater.inflate(
+		View p = (View)inflater.inflate(
 				R.layout.fragment_navigation_drawer, container, false);
+		mDrawerListView = (ListView) p.findViewById(R.id.nav_drawer_listview);
+//		mDrawerListView = (ListView) inflater.inflate(
+//				R.layout.fragment_navigation_drawer, container, false);
+//		
 		View header = inflater.inflate(
 				R.layout.fragment_navigation_drawer_header, null);// navigation_drawer_header,
 																	// null);
 		// ImageView image = (ImageView) header.findViewById(R.id.image);
 		// EditText name = (EditText) header.findViewById(R.id.text_name);
 		// EditText email = (EditText) header.findViewById(R.id.text_email);
-		EditText search = (EditText) header.findViewById(R.id.search);
+		EditText search = (EditText) p.findViewById(R.id.search);
 		mDrawerListView.addHeaderView(header);
 
 		View footer = inflater.inflate(
 				R.layout.fragment_navigation_drawer_footer, null);// navigation_drawer_header,
 																	// null);
 		Button btn_add_tasklist = (Button) footer.findViewById(R.id.btn_add);
-		mDrawerListView.addFooterView(footer);
+		//mDrawerListView.addFooterView(footer);
 		btn_add_tasklist.setOnClickListener(new OnClickListener() {
 
 			@Override
@@ -197,7 +202,7 @@ public class NavigationDrawerFragment extends Fragment implements Common.Callbac
 				R.layout.tasklist_listview_row, data);
 		mDrawerListView.setAdapter(mAdapter);
 		mDrawerListView.setItemChecked(mCurrentSelectedPosition, true);
-		return mDrawerListView;
+		return p;//mDrawerListView;
 	}
 
 	public boolean isDrawerOpen() {

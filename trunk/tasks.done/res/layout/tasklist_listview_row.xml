@@ -1,16 +1,33 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="fill_parent"
     android:layout_height="fill_parent"
+    android:padding="5dp"
     android:orientation="vertical" >
 
     <TextView
         android:id="@+id/txt_title"
-        android:layout_width="fill_parent"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:padding="10dp"
-        android:text=""
-        android:textAppearance="?android:attr/textAppearanceLarge"
-         />
+        android:layout_centerVertical="true"
+        android:layout_toRightOf="@+id/list_icon"
+        android:layout_alignParentRight="true"
+         android:padding="10dp"
+        android:text="" />
+<!--         android:layout_toLeftOf="@+id/list_context_settings" -->
+       
 
-</LinearLayout>
+    <ImageView
+        android:id="@+id/list_icon"
+        android:layout_centerVertical="true"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:src="@drawable/ic_action_phone" />
+<!--  <ImageView -->
+<!--         android:id="@+id/list_context_settings" -->
+<!--         android:layout_centerVertical="true" -->
+<!--         android:layout_width="wrap_content" -->
+<!--         android:layout_height="wrap_content" -->
+<!--         android:src="@drawable/ic_action_overflow"  -->
+<!--         android:layout_alignParentRight="true"/> -->
+</RelativeLayout>
