@@ -42,6 +42,13 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 	private static final String KEY_USER_NAME = "user_name";
 	private static final String KEY_USER_EMAIL = "user_email";
 
+	private static final String KEY_SERVER_ID = "server_id";
+	private static final String KEY_USER_IMAGE = "user_image";
+	
+	// Table
+	private static final String KEY_DISPLAY_NAME = "display_name";
+	private static final String KEY_CONTACT_ID = "contact_id";
+	
 	// SQLite Create Queries
 	// Tasks Table
 	private static final String CREATE_TASKS_TABLE = "CREATE TABLE "
@@ -56,10 +63,23 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 			+ TABLE_TASK_LIST + "(" + KEY_PK
 			+ " INTEGER PRIMARY KEY AUTOINCREMENT," + KEY_TITLE + " TEXT" + ")";
 
-	private static final String CREATE_USERS_TABLE = "CREATE TABLE "
+	/*
+	  private static final String CREATE_USERS_TABLE = "CREATE TABLE "
+	 
 			+ TABLE_USERS + "(" + KEY_PK
 			+ " INTEGER PRIMARY KEY AUTOINCREMENT," + KEY_USER_NAME + " TEXT,"
 			+ KEY_USER_EMAIL + " TEXT" + ")";
+	*/
+	private static final String CREATE_USERS_TABLE = "CREATE TABLE "
+			+ TABLE_USERS + "(" + KEY_PK
+			+ " INTEGER PRIMARY KEY AUTOINCREMENT," 
+			+ KEY_USER_NAME + " TEXT,"
+			+ KEY_USER_EMAIL + " TEXT," 
+			+ KEY_SERVER_ID + " TEXT,"
+			+ KEY_USER_IMAGE + " BLOB,"
+			+ KEY_CONTACT_ID + " TEXT,"
+			+ KEY_DISPLAY_NAME + " TEXT"
+			+ ")";
 
 	public DatabaseHelper(Context cContext) {
 		super(cContext, DATABASE_NAME, null, DATABASE_VERSION);
@@ -329,23 +349,26 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 	/**
 	 * All CRUD FOR Users(Create, Read, Update, Delete) Operations
 	 */
-	public void Add_User() {
+ 
+	
+/*	
+	public int User_New() {
 		SQLiteDatabase db = this.getWritableDatabase();
 		ContentValues values = new ContentValues();
-		values.put("name", "faik malik"); // Task Name
-		values.put("email", "faik.malik89@gmail.com"); // Task Phone
-		values.put("username", "faik.malik"); // Task Email
-		values.put("checked", "false");
+		values.put(KEY_USER_NAME, "mushahid.hassan"); // Task Name
+		values.put(KEY_USER_EMAIL, "mushahidhassan110@gmail.com"); // Task Phone
+	 
 		// Inserting Row
-		db.insert(TABLE_USERS, null, values);
+		int id = (int) db.insert(TABLE_USERS, null, values);
 		db.close(); // Closing database connection
+		return id;
 	}// ends
-
+*/
 	// Add a user
 	public int User_New(UserModel user) {
 		SQLiteDatabase db = this.getWritableDatabase();
 		ContentValues values = new ContentValues();
-		values.put(KEY_USER_NAME, user.name);
+		values.put(KEY_DISPLAY_NAME, user.displayName);
 		values.put(KEY_USER_EMAIL, user.email);
 		int id = (int) db.insert(TABLE_USERS, null, values);
 		db.close();
@@ -360,5 +383,39 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 				new String[] { String.valueOf(id) });
 		db.close();
 	}
+	public ArrayList<UserModel> User_List() {
+		ArrayList<UserModel> data = new ArrayList<UserModel>();
+		try {
+			// Select All Query
+			String selectQuery = "SELECT  * FROM " + TABLE_USERS;
 
+			SQLiteDatabase db = this.getWritableDatabase();
+
+			Cursor cursor = db.rawQuery(selectQuery, null);
+
+			// looping through all rows and adding to list
+			if (cursor.moveToFirst()) {
+				do {
+					UserModel tasklist = new UserModel();
+					tasklist._id = (Integer.parseInt(cursor.getString(0)));
+					
+					tasklist.email = (cursor.getString(1));
+					tasklist.displayName = (cursor.getString(2));
+					
+					tasklist.contact_id = (cursor.getString(3));
+					tasklist.name = (cursor.getString(4));
+					tasklist.server_id = (cursor.getString(5));
+					
+					data.add(tasklist);
+				} while (cursor.moveToNext());
+			}
+			cursor.close();
+			db.close();
+		} catch (Exception e) {
+			// TODO: handle exception
+			Log.e("all_TaskTitleList", "DBHelper GetTaskTitleList" + e);
+		}
+		return data;
+
+	}
 }

@@ -2,20 +2,16 @@ package com.gravity.innovations.tasks.done;
 
 import java.io.IOException;
 import java.util.ArrayList;
-
+import android.accounts.Account;
+import android.accounts.AccountManager;
+import android.content.Context;
+import android.content.Intent;
+import android.os.AsyncTask;
 import com.google.android.gms.auth.GoogleAuthException;
 import com.google.android.gms.auth.GoogleAuthUtil;
 import com.google.android.gms.auth.GooglePlayServicesAvailabilityException;
 import com.google.android.gms.auth.UserRecoverableAuthException;
 import com.gravity.innovations.tasks.done.Common.Callbacks.GoogleAuthCallback;
-
-import android.accounts.Account;
-import android.accounts.AccountManager;
-import android.app.Activity;
-import android.content.Context;
-import android.content.Intent;
-import android.os.AsyncTask;
-import android.os.Bundle;
 
 public class GoogleAuth extends AsyncTask<Void, Void, Void> {
 	private Context mContext;

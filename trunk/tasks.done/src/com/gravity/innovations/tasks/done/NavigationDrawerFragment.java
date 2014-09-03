@@ -103,6 +103,7 @@ public class NavigationDrawerFragment extends Fragment {
 			Bundle savedInstanceState) {
 		mDrawerListView = (ListView) inflater.inflate(
 				R.layout.fragment_navigation_drawer, container, false);
+		
 		View header = inflater.inflate(
 				R.layout.fragment_navigation_drawer_header, null);// navigation_drawer_header,
 																	// null);
@@ -110,12 +111,14 @@ public class NavigationDrawerFragment extends Fragment {
 		// EditText name = (EditText) header.findViewById(R.id.text_name);
 		// EditText email = (EditText) header.findViewById(R.id.text_email);
 		EditText search = (EditText) header.findViewById(R.id.search);
+
 		mDrawerListView.addHeaderView(header);
 
 		View footer = inflater.inflate(
 				R.layout.fragment_navigation_drawer_footer, null);// navigation_drawer_header,
 																	// null);
 		Button btn_add_tasklist = (Button) footer.findViewById(R.id.btn_add);
+		
 		mDrawerListView.addFooterView(footer);
 		btn_add_tasklist.setOnClickListener(new OnClickListener() {
 

@@ -2,21 +2,44 @@ package com.gravity.innovations.tasks.done;
 
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.util.ArrayList;
+import java.util.regex.Pattern;
+
+import com.google.android.gms.auth.GoogleAuthUtil;
+import com.google.android.gms.internal.cr;
+import com.gravity.innovations.tasks.done.Common.User;
+
+import android.accounts.Account;
+import android.accounts.AccountManager;
 import android.annotation.SuppressLint;
 import android.app.Activity;
+import android.app.Application;
+import android.content.ContentProviderOperation;
+import android.content.ContentResolver;
 import android.content.Context;
+import android.content.CursorLoader;
 import android.content.DialogInterface;
 import android.content.SharedPreferences;
 import android.content.DialogInterface.OnClickListener;
 import android.content.Intent;
+import android.database.Cursor;
+import android.net.Uri;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
+import android.provider.Contacts;
+import android.provider.ContactsContract;
+import android.provider.ContactsContract.CommonDataKinds.Email;
+import android.provider.ContactsContract.Data;
+import android.provider.ContactsContract.RawContacts;
 import android.support.v4.app.ActionBarDrawerToggle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBarActivity;
+import android.text.InputFilter.LengthFilter;
+import android.util.Log;
+import android.util.Patterns;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -26,6 +49,10 @@ import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.EditText;
 import android.widget.TextView;
+import android.widget.Toast;
+import android.provider.ContactsContract;
+import android.database.Cursor;
+import android.hardware.Camera.Size;
 
 public class MainActivity extends ActionBarActivity implements
 		NavigationDrawerFragment.NavigationDrawerCallbacks {
@@ -36,6 +63,13 @@ public class MainActivity extends ActionBarActivity implements
 	private NavigationDrawerFragment mNavigationDrawerFragment;
 	private Context mContext;
 	private TaskListModel CurrentList;
+
+	AccountManager mAccountManager;
+	ArrayList<Account> mAccounts;
+	Account mAccount;
+
+	DatabaseHelper db;
+
 	/**
 	 * Used to store the last screen title. For use in
 	 * {@link #restoreActionBar()}.
@@ -153,8 +187,16 @@ public class MainActivity extends ActionBarActivity implements
 			mNavigationDrawerFragment.addOrEditTask(CurrentList,
 					new TaskModel());
 		} else if (id == R.id.action_share) {
+			 /*		 		
+			db = new DatabaseHelper(mContext);
+			for (int i=0;i<=10;i++ ){
+			db.User_New();
+			} 
+		
+		*/
+			//  getContacts();
+		 
 			DatabaseHelper h = new DatabaseHelper(mContext);
-			//
 			DialogInterface.OnClickListener negListener = new OnClickListener() {
 				@Override
 				public void onClick(DialogInterface dialog, int which) {
@@ -167,8 +209,22 @@ public class MainActivity extends ActionBarActivity implements
 					dialog.cancel();
 				}
 			};
+			
+			
+			ArrayList<UserModel> email_records = new ArrayList<UserModel>();
+			ArrayList<Common.CustomViewsData.MultiSelectRowData> users = new ArrayList<Common.CustomViewsData.MultiSelectRowData>();
+			
+		  	email_records = h.User_List();
+			for (UserModel temp : email_records) {
+				Common.CustomViewsData.MultiSelectRowData user = new Common.CustomViewsData.MultiSelectRowData();
+				user.text1 = temp.displayName;
+				user.text2 = temp.email;
+				user.iconRes = R.drawable.ic_launcher;
+				users.add(user);
+			}
+			
 			final MultiSelectListAdapter adapter = new MultiSelectListAdapter(
-					this, R.layout.multiselectlist_row, h.Get_Users());
+					this, R.layout.multiselectlist_row, users);
 			DialogInterface.OnClickListener itemClickListner = new OnClickListener() {
 				@Override
 				public void onClick(DialogInterface dialog, int which) {
@@ -186,8 +242,100 @@ public class MainActivity extends ActionBarActivity implements
 			Common.CustomDialog.MultiChoiceDialog(mContext, adapter,
 					onItemClickListener, negListener, posListener,
 					R.string.dialog_ok, R.string.dialog_cancel, "Share");
-		}
+ 	     }
+		 
 		return super.onOptionsItemSelected(item);
+	}
+
+	// @SuppressLint("NewApi")
+	public ArrayList<String> getContacts() {
+
+		ArrayList<String> data_emails = new ArrayList<String>();
+		ArrayList<String> emails = new ArrayList<String>();
+		final String[] PROJECTION = new String[] {
+				ContactsContract.CommonDataKinds.Email.CONTACT_ID,
+				ContactsContract.Contacts.DISPLAY_NAME };
+
+		ContentResolver cr = getContentResolver();
+		Cursor cursor = cr.query(ContactsContract.Data.CONTENT_URI, null, null,
+				null, null);
+		if (cursor != null) {
+			try {
+				db = new DatabaseHelper(mContext);
+				final int contactIdIndex = cursor
+						.getColumnIndex(ContactsContract.Data.CONTACT_ID);
+				final int displayNameIndex = cursor
+						.getColumnIndex(ContactsContract.Data.DISPLAY_NAME);
+				long contactId;
+				String displayName;
+				// ArrayList<String> emails = new ArrayList<String>();
+				while (cursor.moveToNext()) {
+
+					displayName = cursor.getString(displayNameIndex);
+					contactId = cursor.getLong(contactIdIndex);
+					emails = getEmails(contactId, displayName);
+					for (String email : emails) {
+						UserModel user = new UserModel(
+								String.valueOf(contactId), email, displayName);
+					 	db.User_New(user);   
+					}
+					// emails.add(displayName);
+					// data_emails = emails;
+					// for (int i=0; i<=emails.size(); i++){
+					// // data_emails.addAll(emails);
+					// db = new DatabaseHelper(mContext);
+					// db.Users_Email_New(String.valueOf(contactId),
+					// displayName, emails.get(i++));
+					// Log.e("String.valueOf( contactId) + displayName","emails");
+					// }
+				}
+
+			} finally {
+				cursor.close();
+
+			}
+
+		}
+
+		String x = "";
+		return data_emails;
+		// return data_email;
+
+	}
+
+	public ArrayList<String> getEmails(long contactId, String displayName) {
+		ArrayList<String> emails = new ArrayList<String>();
+		final String[] projection = new String[] { Email.DATA, // use
+																// Email.ADDRESS
+																// for API-Level
+																// 11+
+				Email.TYPE };
+		ContentResolver cr = getContentResolver();
+		Cursor cursor = cr.query(
+				ContactsContract.CommonDataKinds.Email.CONTENT_URI, null,
+				ContactsContract.CommonDataKinds.Email.CONTACT_ID + "="
+						+ contactId, null, null);
+		if (cursor != null) {
+			try {
+
+				final int emailIndex = cursor
+						.getColumnIndex(ContactsContract.CommonDataKinds.Email.DATA);
+				final int typeIndex = cursor
+						.getColumnIndex(ContactsContract.CommonDataKinds.Email.CONTENT_TYPE);
+				String email, type;
+				while (cursor.moveToNext()) {
+					email = cursor.getString(emailIndex);
+					// type = cursor.getString(typeIndex);
+					if (email.contains("gmail.com"))
+						emails.add(email);
+
+				}
+			} finally {
+				cursor.close();
+			}
+		}
+
+		return emails;
 	}
 
 	public String getHash(String message) {
