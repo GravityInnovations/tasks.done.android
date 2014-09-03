@@ -18,30 +18,36 @@
     <string name="action_developer">Developers</string>
     <string name="action_share">Share</string>
     <string name="action_store">Get more apps</string>
+
     <string name="skip">Skip</string>
-    <string name="auth">Authenticate</string>
-    <string name="gravity_register">Registering Account to Gravity Innovations</string>
-    <string name="gravity_registration_complete">Registeration Complete</string>
-    <string name="gravity_registration_error">Error while registeration</string>
-    <string name="complete">Loading Complete</string>
-    <string name="text_require_google_account">			You are required to login using Your current google account for using complete features of this application</string>
-    <string name="check_internet">Checking Internet Connectivity</string>
-    <string name="no_internet">Unable to connect to internet</string>
-    <string name="internet_stable">Internet stablilty checked</string>
-    <string name="require_internet">This application Requires Internet to sync with Google</string>
-    <string name="load_sp">Loading cache</string>
-    <string name="load_db">Loading database</string>
-    <string name="get_google_acc">Preparing to get your information</string>
-    <string name="loading_comp">Loading application components</string>
-    <string name="creating_ui">Creating UI</string>
-    <string name="checking_other_settings">Checking other settings</string>
-    <string name="google_result_ok">Account information saved</string>
-    <string name="google_result_cancel">User skiped google authentication</string>
-    <string name="google_disable_sync">Disabling cloud sync with google</string>
-    <string name="google_auth">Authenticating with Google</string>
-    <string name="config_gcm">Configuring Communication Settings</string>
-    <string name="gcm_invalid_device">Device Not supported</string>
-    <string name="gcm_play_service_success">Device validated for play store</string>
+	<string name="auth">Authenticate</string>
+	<string name="gravity_register">Registering Account to Gravity Innovations</string>
+	<string name="gravity_registration_complete">Registeration Complete</string>
+	<string name="gravity_registration_error">Error while registeration</string>
+	<string name="gravity_fetch_data_success">Fetch Complete</string>
+	<string name="gravity_fetch_data_failed">Fetch Error</string>
+	<string name="gravity_sync">syncing with server</string>
+	<string name="complete">Loading Complete</string>
+	<string name="text_require_google_account">
+			You are required to login using Your current google account for using complete features of this application
+		</string>
+		<string name="check_internet">Checking Internet Connectivity</string>
+		<string name="no_internet">Unable to connect to internet</string>
+		<string name="internet_stable">Internet stablilty checked</string>
+		<string name="require_internet">This application Requires Internet to sync with Google</string>
+		<string name="load_sp">Loading cache</string>
+		<string name="load_db">Loading database</string>
+		<string name="get_google_acc">Preparing to get your information</string>
+		<string name="loading_comp">Loading application components</string>
+		<string name="creating_ui">Creating UI</string>
+		<string name="checking_other_settings">Checking other settings</string>
+		<string name="google_result_ok">Account information saved</string>
+		<string name="google_result_cancel">User skiped google authentication</string>
+		<string name="google_disable_sync">Disabling cloud sync with google</string>
+		<string name="google_auth">Authenticating with Google</string>
+		<string name="config_gcm">Configuring Communication Settings</string>
+		<string name="gcm_invalid_device">Device Not supported</string>
+		<string name="gcm_play_service_success">Device validated for play store</string>
     <!-- String Resources for Dialogs -->
     <string name="edit">Edit</string>
     <string name="dialog_save">Save</string>

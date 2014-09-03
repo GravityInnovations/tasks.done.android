@@ -2,6 +2,11 @@ package com.gravity.innovations.tasks.done;
 
 import java.util.ArrayList;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import com.gravity.innovations.tasks.done.Common.userData;
+
 import android.app.Activity;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -30,6 +35,7 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.ListView;
+import android.widget.RelativeLayout;
 
 /**
  * Fragment used for managing interactions for and presentation of a navigation
@@ -38,9 +44,12 @@ import android.widget.ListView;
  * > design guidelines</a> for a complete explanation of the behaviors
  * implemented here.
  */
-public class NavigationDrawerFragment extends Fragment {
+public class NavigationDrawerFragment extends Fragment implements
+		Common.Callbacks.HttpCallback {
+
 	private ArrayList<TaskListModel> data = new ArrayList<TaskListModel>();
 	private DatabaseHelper db;
+	private Common.userData user_data;
 	/**
 	 * Remember the position of the selected item.
 	 */
@@ -64,6 +73,7 @@ public class NavigationDrawerFragment extends Fragment {
 	private DrawerLayout mDrawerLayout;
 	private ListView mDrawerListView;
 	private View mFragmentContainerView;
+	private Activity mActivity;
 	private int mCurrentSelectedPosition = 0;
 	private boolean mFromSavedInstanceState;
 	private boolean mUserLearnedDrawer;
@@ -75,6 +85,7 @@ public class NavigationDrawerFragment extends Fragment {
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		mContext = getActivity();
+		mActivity = getActivity();
 		// Read in the flag indicating whether or not the user has demonstrated
 		// awareness of the
 		// drawer. See PREF_USER_LEARNED_DRAWER for details.
@@ -101,25 +112,29 @@ public class NavigationDrawerFragment extends Fragment {
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container,
 			Bundle savedInstanceState) {
-		mDrawerListView = (ListView) inflater.inflate(
-				R.layout.fragment_navigation_drawer, container, false);
-		
+		View p = (View) inflater.inflate(R.layout.fragment_navigation_drawer,
+				container, false);
+
+		mDrawerListView = (ListView) p.findViewById(R.id.nav_drawer_listview);
+		// mDrawerListView = (ListView) inflater.inflate(
+		// R.layout.fragment_navigation_drawer, container, false);
+
 		View header = inflater.inflate(
 				R.layout.fragment_navigation_drawer_header, null);// navigation_drawer_header,
 																	// null);
 		// ImageView image = (ImageView) header.findViewById(R.id.image);
 		// EditText name = (EditText) header.findViewById(R.id.text_name);
 		// EditText email = (EditText) header.findViewById(R.id.text_email);
-		EditText search = (EditText) header.findViewById(R.id.search);
 
+		EditText search = (EditText) p.findViewById(R.id.search);
 		mDrawerListView.addHeaderView(header);
 
 		View footer = inflater.inflate(
 				R.layout.fragment_navigation_drawer_footer, null);// navigation_drawer_header,
 																	// null);
 		Button btn_add_tasklist = (Button) footer.findViewById(R.id.btn_add);
-		
-		mDrawerListView.addFooterView(footer);
+
+		// mDrawerListView.addFooterView(footer);
 		btn_add_tasklist.setOnClickListener(new OnClickListener() {
 
 			@Override
@@ -138,26 +153,19 @@ public class NavigationDrawerFragment extends Fragment {
 
 		// start swipe
 		/*
-		SwipeDismissListViewTouchListener touchListener = new SwipeDismissListViewTouchListener(
-				mDrawerListView,
-				new SwipeDismissListViewTouchListener.DismissCallbacks() {
-					@Override
-					public boolean canDismiss(int position) {
-						return true;
-					}
-
-					@Override
-					public void onDismiss(ListView listView,
-							int[] reverseSortedPositions) {
-						for (int position : reverseSortedPositions) {
-							mAdapter.remove(mAdapter.getItem(position));
-						}
-						mAdapter.notifyDataSetChanged();
-					}
-				});
-
-		mDrawerListView.setOnTouchListener(touchListener);
-		*/
+		 * SwipeDismissListViewTouchListener touchListener = new
+		 * SwipeDismissListViewTouchListener( mDrawerListView, new
+		 * SwipeDismissListViewTouchListener.DismissCallbacks() {
+		 * 
+		 * @Override public boolean canDismiss(int position) { return true; }
+		 * 
+		 * @Override public void onDismiss(ListView listView, int[]
+		 * reverseSortedPositions) { for (int position : reverseSortedPositions)
+		 * { mAdapter.remove(mAdapter.getItem(position)); }
+		 * mAdapter.notifyDataSetChanged(); } });
+		 * 
+		 * mDrawerListView.setOnTouchListener(touchListener);
+		 */
 		// end swipe
 		mDrawerListView.setTextFilterEnabled(true);
 
@@ -191,7 +199,7 @@ public class NavigationDrawerFragment extends Fragment {
 				R.layout.tasklist_listview_row, data);
 		mDrawerListView.setAdapter(mAdapter);
 		mDrawerListView.setItemChecked(mCurrentSelectedPosition, true);
-		return mDrawerListView;
+		return p;// mDrawerListView;
 	}
 
 	public boolean isDrawerOpen() {
@@ -207,10 +215,12 @@ public class NavigationDrawerFragment extends Fragment {
 	 *            The android:id of this fragment in its activity's layout.
 	 * @param drawerLayout
 	 *            The DrawerLayout containing this fragment's UI.
+	 * @param user_data
 	 */
 	public void setUp(int fragmentId, DrawerLayout drawerLayout,
-			Context mContext) {
+			Context mContext, userData user_data) {
 		db = new DatabaseHelper(mContext);
+		this.user_data = user_data;
 		this.data = db.TaskList_List();
 		mAdapter = new TaskListAdapter(getActivity(),
 				R.layout.tasklist_listview_row, data);
@@ -380,6 +390,33 @@ public class NavigationDrawerFragment extends Fragment {
 		return ((ActionBarActivity) getActivity()).getSupportActionBar();
 	}
 
+	private void addTaskList(TaskListModel temp) {
+		data.add(temp);
+		// this.mAdapter.add(temp);
+		this.mAdapter.notifyDataSetChanged();
+		int position = this.mAdapter.getPosition(temp);
+		selectItem(++position);
+
+		if (user_data.is_sync_type && Common.hasInternet(mActivity)) {
+			GravityController.post_tasklist(mActivity, user_data, temp,
+					Common.RequestCodes.GRAVITY_SEND_TASKLIST);
+		}
+	}
+
+	private void editTaskList(TaskListModel Old, String Title) {
+		// this.mAdapter.add(temp);
+		// this.mAdapter.getPosition(old)
+
+		this.mAdapter.notifyDataSetChanged();
+		int position = this.mAdapter.getPosition(Old);
+		selectItem(++position);
+	}
+
+	/**
+	 * Callbacks interface that all activities using this fragment must
+	 * implement.
+	 */
+
 	public void addOrEditTaskList(final TaskListModel tasklist) {
 		View view = getActivity().getLayoutInflater().inflate(
 				R.layout.addoredit_tasklist_dialog, null);
@@ -416,7 +453,7 @@ public class NavigationDrawerFragment extends Fragment {
 								/**
 								 * update data
 								 */
-								mAdapter.updateData(data); //update data
+								mAdapter.updateData(data); // update data
 								/**
 								 * update data
 								 */
@@ -441,7 +478,7 @@ public class NavigationDrawerFragment extends Fragment {
 						/**
 						 * update data
 						 */
-						mAdapter.updateData(data); //update data
+						mAdapter.updateData(data); // update data
 						/**
 						 * update data
 						 */
@@ -461,13 +498,6 @@ public class NavigationDrawerFragment extends Fragment {
 		Common.CustomDialog.CustomDialog(mContext, view, negListener,
 				posListener, R.string.dialog_save, R.string.dialog_cancel,
 				dialogTitle);
-	}
-
-	private void addTaskList(TaskListModel temp) {
-		data.add(temp);
-		this.mAdapter.notifyDataSetChanged();
-		int position = this.mAdapter.getPosition(temp);
-		selectItem(++position);
 	}
 
 	private void editTaskList(TaskListModel Old) {
@@ -561,7 +591,7 @@ public class NavigationDrawerFragment extends Fragment {
 		/**
 		 * update data
 		 */
-		mAdapter.updateData(data); //update data
+		mAdapter.updateData(data); // update data
 		/**
 		 * update data
 		 */
@@ -580,7 +610,7 @@ public class NavigationDrawerFragment extends Fragment {
 		/**
 		 * update data
 		 */
-		mAdapter.updateData(data); //update data
+		mAdapter.updateData(data); // update data
 		/**
 		 * update data
 		 */
@@ -599,7 +629,7 @@ public class NavigationDrawerFragment extends Fragment {
 					/**
 					 * update data
 					 */
-					mAdapter.updateData(data); //update data
+					mAdapter.updateData(data); // update data
 					/**
 					 * update data
 					 */
@@ -637,7 +667,7 @@ public class NavigationDrawerFragment extends Fragment {
 		/**
 		 * update data
 		 */
-		mAdapter.updateData(data); //update data
+		mAdapter.updateData(data); // update data
 		/**
 		 * update data
 		 */
@@ -664,7 +694,7 @@ public class NavigationDrawerFragment extends Fragment {
 					/**
 					 * update data
 					 */
-					mAdapter.updateData(data); //update data
+					mAdapter.updateData(data); // update data
 					/**
 					 * update data
 					 */
@@ -695,5 +725,25 @@ public class NavigationDrawerFragment extends Fragment {
 		 * Called when an item in the navigation drawer is selected.
 		 */
 		void onNavigationDrawerItemSelected(TaskListModel temp);
+	}
+
+	@Override
+	public void httpResult(JSONObject data, int RequestCode, int ResultCode) {
+		// TODO Auto-generated method stub
+		switch (RequestCode) {
+		case Common.RequestCodes.GRAVITY_SEND_TASKLIST:
+			if (ResultCode == Common.HTTP_RESPONSE_OK) {
+				try {
+					data = data.getJSONObject("data");
+					data.get("TaskListId");
+				} catch (JSONException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+			} else {
+
+			}
+			break;
+		}
 	}
 }

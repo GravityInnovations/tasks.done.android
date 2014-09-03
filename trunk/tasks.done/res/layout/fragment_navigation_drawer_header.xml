@@ -3,16 +3,25 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical" >
-    <EditText
-        android:id="@+id/search"
-        android:layout_width="fill_parent"
+     <TextView
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:hint="Search Here" 
-        android:visibility="visible"/>
-
+        android:text="Your Account" 
+        android:paddingLeft="5dip"
+        android:layout_marginTop="15dip"
+        
+    android:textAppearance="?android:attr/textAppearanceMedium" 
+        />
+<View
+    android:layout_width="fill_parent"
+    android:layout_height="2dp"
+    
+    android:background="@color/line_divider"
+    
+    />
     <RelativeLayout
         android:layout_width="fill_parent"
-        android:layout_height="fill_parent"
+        android:layout_height="wrap_content"
         android:padding="5dip" >
 
 
@@ -47,6 +56,24 @@
             android:text="Email"
             android:textSize="10sp" />
     </RelativeLayout>
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Your Task Lists" 
+        android:paddingLeft="5dip"
+        android:layout_marginTop="15dip"
+        
+    android:textAppearance="?android:attr/textAppearanceMedium" 
+        />
+<View
+    android:layout_width="fill_parent"
+    android:layout_height="2dp"
+    
+    android:background="@color/line_divider"
+    
+    />
+
 
 
 </LinearLayout>

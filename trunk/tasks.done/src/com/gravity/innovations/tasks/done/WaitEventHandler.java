@@ -40,6 +40,9 @@ public class WaitEventHandler extends Handler{
 				case Common.GO_TO_MAIN:
 					((SplashActivity) mActivity).GoToMain();
 					break;
+				case Common.GRAVITY_SYNC:
+					((SplashActivity) mActivity).Sync();
+					break;
 				default:
 					break;
 				}

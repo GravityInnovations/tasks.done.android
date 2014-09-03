@@ -38,8 +38,16 @@ public class GravityController {
 		HttpTask Temp = new HttpTask(Common.GRAVITY_ACCOUNT_URL, RequestCode);
 		Temp.execute();
 	}
-	
-	public static void post_tasklist(Activity activity, String action,Common.userData user_data, TaskListModel tasklist, int RequestCode)
+	public static void get_tasklists(Activity activity, Common.userData user_data,int RequestCode)
+	{
+		String params = "?id="+user_data.gravity_user_id;
+		//HttpTask Temp = new HttpTask(Common.GRAVITY_TASKLIST_URL+params, RequestCode);
+		HttpTask Temp = new HttpTask(activity, Common.GRAVITY_TASKLIST_URL+params, null,
+				Common.HttpMethod.HttpGet,
+				RequestCode);
+		Temp.execute();
+	}
+	public static void post_tasklist(Activity activity,Common.userData user_data, TaskListModel tasklist, int RequestCode)
 	{
 		List<NameValuePair> postData = new ArrayList<NameValuePair>();
 		postData.add(new BasicNameValuePair("deviceid", user_data.google_reg_id));
@@ -51,7 +59,7 @@ public class GravityController {
 		}
 		else
 			postData.add(new BasicNameValuePair("action", "add"));
-		postData.add(new BasicNameValuePair("Title", tasklist.title));
+		postData.add(new BasicNameValuePair("title", tasklist.title));
 		HttpTask Temp = new HttpTask(activity, Common.GRAVITY_TASKLIST_URL, postData,Common.HttpMethod.HttpPost,
 				RequestCode);
 		Temp.execute();

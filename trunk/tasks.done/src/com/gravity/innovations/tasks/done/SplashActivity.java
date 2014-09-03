@@ -2,6 +2,10 @@ package com.gravity.innovations.tasks.done;
 
 import java.util.ArrayList;
 
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import com.google.android.gms.auth.UserRecoverableAuthException;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GooglePlayServicesUtil;
@@ -54,6 +58,8 @@ public class SplashActivity extends Activity implements
 		
 		user_data.gravity_is_registered = mSharedPreferences.getBoolean(
 				Common.USER_IS_REGISTERED, false);
+		user_data.gravity_user_id = mSharedPreferences.getString(
+				Common.USER_ID_GRAVITY, null);
 		user_data.google_reg_id = 
 				mSharedPreferences.getString(Common.GOOGLE_PROPERTY_REG_ID, "");
 		user_data.google_regVer = 
@@ -64,6 +70,7 @@ public class SplashActivity extends Activity implements
 	   txt += "\nEmail: "+user_data.email;
 	   txt += "\nIs_Sync_type: "+user_data.is_sync_type;
 	   txt += "\nIs Registered: "+user_data.gravity_is_registered;
+	   txt += "\nReg id gravity: "+user_data.gravity_user_id;
 	   txt += "\nReg id: "+user_data.google_reg_id;
 	   txt += "\nReg Ver: "+user_data.google_regVer;
 	   txt += "\nGoogle Auth token: "+user_data.google_AuthToken;
@@ -207,15 +214,19 @@ public class SplashActivity extends Activity implements
 	
 
 	@Override
-	public void httpResult(Object data, int RequestCode, int ResultCode) {
+	public void httpResult(JSONObject data, int RequestCode, int ResultCode) {
 		switch (RequestCode) {
 		case Common.RequestCodes.GRAVITY_REGISTER:
 			
 			if(ResultCode == Common.HTTP_RESPONSE_OK)
 			{
+				data = data.optJSONObject("data");
+				user_data.gravity_user_id =data.optString("UserId"); 
 				addProgressTask(getString(R.string.gravity_registration_complete));
-			mSharedPreferencesEditor
+				mSharedPreferencesEditor
 					.putBoolean(Common.USER_IS_REGISTERED, true);
+				mSharedPreferencesEditor
+				.putString(Common.USER_ID_GRAVITY, user_data.gravity_user_id);
 			}
 			else
 			{	addProgressTask(getString(R.string.gravity_registration_error));
@@ -223,13 +234,39 @@ public class SplashActivity extends Activity implements
 				.putBoolean(Common.USER_IS_REGISTERED, false);
 			}
 			mSharedPreferencesEditor.commit();
-			TriggerWaitEvent(Common.GO_TO_MAIN);
-			addProgressTask(getString(R.string.complete));
+			TriggerWaitEvent(Common.GRAVITY_SYNC);
+			addProgressTask(getString(R.string.gravity_sync));
 			//TriggerWaitEvent(Common.CONFIG_GCM);
 			//addProgressTask(getString(R.string.checking_other_settings));
 			break;
 		case Common.RequestCodes.GRAVITY_SEND_GCM_CODE:
 			Toast.makeText(this, "Result from gravity for gcm code send request "+ResultCode, Toast.LENGTH_LONG).show();
+			break;
+		case Common.RequestCodes.GRAVITY_GET_TASKLISTS:
+			if(ResultCode == Common.HTTP_RESPONSE_OK)
+			{
+				JSONArray arr_data = data.optJSONArray("data");
+				DatabaseHelper db = new DatabaseHelper(this);
+				for(int i=0;i<arr_data.length();i++)
+				{
+					try {
+						JSONObject temp = arr_data.getJSONObject(i);
+						TaskListModel model = new TaskListModel(temp.getString("Title"));
+						db.TaskList_New(model);
+					} catch (JSONException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+					
+				}
+				addProgressTask(getString(R.string.gravity_fetch_data_success));
+			}
+			else
+			{
+				addProgressTask(getString(R.string.gravity_fetch_data_failed));
+			}
+			TriggerWaitEvent(Common.GO_TO_MAIN);
+			addProgressTask(getString(R.string.complete));
 			break;
 			
 		}
@@ -284,6 +321,8 @@ public class SplashActivity extends Activity implements
 				mSharedPreferences.getString(Common.GOOGLE_PROPERTY_REG_ID, "");
 		user_data.google_regVer = 
 				mSharedPreferences.getInt(Common.GOOGLE_PROPERTY_APP_VERSION, Integer.MIN_VALUE);
+		user_data.google_reg_id = 
+				mSharedPreferences.getString(Common.GOOGLE_PROPERTY_REG_ID, "");
 		TriggerWaitEvent(Common.LOAD_LOCAL_DB);
 		addProgressTask(getString(R.string.load_db));
 		updateLog();
@@ -341,6 +380,7 @@ public class SplashActivity extends Activity implements
 	@Override
 	public void GoToMain() {
 		Intent i = new Intent(SplashActivity.this, MainActivity.class);
+		i.putExtra("user", user_data);
 		startActivity(i);
 		finish();
 	}
@@ -413,6 +453,12 @@ public class SplashActivity extends Activity implements
 			//runWorker
 		}
 		//updateLog();
+	}
+	@Override
+	public void Sync() {
+		// TODO Auto-generated method stub
+		GravityController.get_tasklists(mActivity, user_data,
+				Common.RequestCodes.GRAVITY_GET_TASKLISTS);
 	}
 
 	

@@ -3,43 +3,28 @@ package com.gravity.innovations.tasks.done;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
-import java.util.regex.Pattern;
-
-import com.google.android.gms.auth.GoogleAuthUtil;
-import com.google.android.gms.internal.cr;
-import com.gravity.innovations.tasks.done.Common.User;
-
 import android.accounts.Account;
 import android.accounts.AccountManager;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import com.gravity.innovations.tasks.done.Common.userData;
 import android.annotation.SuppressLint;
 import android.app.Activity;
-import android.app.Application;
-import android.content.ContentProviderOperation;
 import android.content.ContentResolver;
 import android.content.Context;
-import android.content.CursorLoader;
 import android.content.DialogInterface;
-import android.content.SharedPreferences;
 import android.content.DialogInterface.OnClickListener;
 import android.content.Intent;
 import android.database.Cursor;
-import android.net.Uri;
 import android.os.Bundle;
-import android.preference.PreferenceManager;
-import android.provider.Contacts;
 import android.provider.ContactsContract;
 import android.provider.ContactsContract.CommonDataKinds.Email;
-import android.provider.ContactsContract.Data;
-import android.provider.ContactsContract.RawContacts;
-import android.support.v4.app.ActionBarDrawerToggle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBarActivity;
-import android.text.InputFilter.LengthFilter;
-import android.util.Log;
-import android.util.Patterns;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -47,15 +32,11 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
-import android.widget.EditText;
 import android.widget.TextView;
-import android.widget.Toast;
-import android.provider.ContactsContract;
-import android.database.Cursor;
-import android.hardware.Camera.Size;
 
 public class MainActivity extends ActionBarActivity implements
-		NavigationDrawerFragment.NavigationDrawerCallbacks {
+	NavigationDrawerFragment.NavigationDrawerCallbacks, Common.Callbacks.HttpCallback {
+
 	/**
 	 * Fragment managing the behaviors, interactions and presentation of the
 	 * navigation drawer.
@@ -70,6 +51,8 @@ public class MainActivity extends ActionBarActivity implements
 
 	DatabaseHelper db;
 
+
+	Common.userData user_data;
 	/**
 	 * Used to store the last screen title. For use in
 	 * {@link #restoreActionBar()}.
@@ -87,10 +70,32 @@ public class MainActivity extends ActionBarActivity implements
 		mNavigationDrawerFragment = (NavigationDrawerFragment) getSupportFragmentManager()
 				.findFragmentById(R.id.navigation_drawer);
 		mTitle = getTitle();
+		
+		user_data = new userData();//(Common.userData)getIntent().getExtras().getSerializable("user");
+		//init user_data from intent extras
 		// Set up the drawer.
 		mNavigationDrawerFragment.setUp(R.id.navigation_drawer,
-				(DrawerLayout) findViewById(R.id.drawer_layout), mContext);
-		/*
+				(DrawerLayout) findViewById(R.id.drawer_layout),mContext, user_data);
+		
+		
+		/*try{
+		Common.CustomDialog.CustomDialog(mContext, view, 
+				negListener, posListener, R.string.dialog_ok, 
+				R.string.dialog_cancel, "Share");
+		//Put in listview
+		adapter = new MultiSelectListAdapter(MainActivity.this,
+				R.layout.multiselectlist_row, h.Get_Users());
+		String[] from = { "php_key","c_key","android_key","hacking_key" };
+				//listview.setAdapter(new ArrayAdapter<String>(mContext, R.layout.multiselectlist_row,R.id.textView1,from));  
+			listview.setAdapter(adapter);
+		}
+		catch(Exception ex)
+		{
+			String x;
+		}
+		*/
+
+	/*
 		 * try{ Common.CustomDialog.CustomDialog(mContext, view, negListener,
 		 * posListener, R.string.dialog_ok, R.string.dialog_cancel, "Share");
 		 * //Put in listview adapter = new
@@ -170,8 +175,11 @@ public class MainActivity extends ActionBarActivity implements
 		// as you specify a parent activity in AndroidManifest.xml.
 		int id = item.getItemId();
 		if (id == R.id.action_settings) {
-			return true;
-		} else if (id == R.id.action_add) {
+
+			Intent i = new Intent(MainActivity.this, SettingsActivity.class);
+			startActivity(i);
+		}
+		else if (id == R.id.action_add) {
 			mNavigationDrawerFragment.addOrEditTaskList(new TaskListModel());
 		} else if (id == R.id.action_delete) {
 			mNavigationDrawerFragment.deleteTaskList(CurrentList);
@@ -402,4 +410,29 @@ public class MainActivity extends ActionBarActivity implements
 					ARG_SECTION_NUMBER));
 		}
 	}
+	@Override
+	public void httpResult(JSONObject data, int RequestCode, int ResultCode) {
+		// TODO Auto-generated method stub
+		switch (RequestCode) {
+		case Common.RequestCodes.GRAVITY_SEND_TASKLIST:
+			if(ResultCode == Common.HTTP_RESPONSE_OK)
+			{
+				try {
+					data = data.getJSONObject("data");
+					data.get("TaskListId");
+				} catch (JSONException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+			}
+			else{
+				
+			}
+			break;
+		}
+	
+	}
+	
+	
+
 }
