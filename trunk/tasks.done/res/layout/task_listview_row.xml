@@ -1,12 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout 
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="fill_parent"
     android:layout_height="wrap_content"
     android:orientation="horizontal"
     android:weightSum="2" >
-
-  
 
     <RelativeLayout
         android:layout_width="wrap_content"
@@ -19,6 +16,9 @@
             android:layout_height="wrap_content"
             android:layout_alignParentLeft="true"
             android:layout_alignParentTop="true"
+            android:maxLength="10"
+            android:ellipsize="end"
+            android:singleLine="true"
             android:text=""
             android:textAppearance="?android:attr/textAppearanceLarge" />
 
@@ -27,48 +27,45 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_alignParentLeft="true"
+            android:layout_below="@+id/user_task_title"
+            android:ellipsize="end"
+            android:singleLine="true"
             android:text=""
-            android:textAppearance="?android:attr/textAppearanceSmall"
-            android:layout_below="@+id/user_task_title" />
+            android:textAppearance="?android:attr/textAppearanceSmall" />
 
         <TextView
             android:id="@+id/user_task_notes"
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
             android:layout_alignParentLeft="true"
+            android:layout_below="@+id/user_task_details"
             android:text=""
             android:textAppearance="?android:attr/textAppearanceSmall"
-            android:layout_below="@+id/user_task_details"/>
-        
-        
-        
-          <GridView
-        android:id="@+id/gridView1"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_alignParentBottom="true"
-        android:background="#f00"
-        android:numColumns="4" >
-    </GridView>
+            android:visibility="gone" />
+
+<!--         <GridView -->
+<!--             android:id="@+id/gridView1" -->
+<!--             android:layout_width="match_parent" -->
+<!--             android:layout_height="wrap_content" -->
+<!--             android:layout_alignParentBottom="true" -->
+<!--             android:background="#f00" -->
+<!--             android:numColumns="4" > -->
+<!--         </GridView> -->
     </RelativeLayout>
 
-    
-   <RelativeLayout
+    <RelativeLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_weight="1" >
 
         <TextView
-            android:id="@+id/date_time"
+            android:id="@+id/updated"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_alignParentRight="true"
             android:layout_alignParentTop="true"
-            android:text="02/09/2014 0144"
+            android:text=""
             android:textAppearance="?android:attr/textAppearanceSmall" />
-        
-        
     </RelativeLayout>
- 
 
 </RelativeLayout>

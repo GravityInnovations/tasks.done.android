@@ -2,36 +2,48 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="fill_parent"
     android:layout_height="fill_parent"
-    android:orientation="vertical" >
+    android:orientation="vertical"
+    android:scrollbarAlwaysDrawVerticalTrack="true"
+    android:scrollbars="vertical" >
 
- 
-
-    <EditText
-        android:id="@+id/et_title"
-        android:layout_width="match_parent"
+    <LinearLayout
+        android:id="@+id/step1"
+        android:layout_width="fill_parent"
         android:layout_height="wrap_content"
-        android:ems="10"
-        android:hint="Title"
-        android:inputType="text" >
+        android:orientation="vertical" >
 
-        <requestFocus />
-    </EditText>
-	<EditText
-        android:id="@+id/et_details"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:ems="10"
-        android:hint="Details"
-        android:inputType="text" >
+        <EditText
+            android:id="@+id/et_title"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:ems="10"
+            android:hint="Title"
+            android:inputType="text" >
 
-    </EditText>
-    <EditText
-        android:id="@+id/et_notes"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:ems="10"
-        android:hint="Notes"
-        android:inputType="text" >
+            <requestFocus />
+        </EditText>
 
-    </EditText>
+        <EditText
+            android:id="@+id/et_details"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:ems="10"
+            android:gravity="top|left"
+            android:hint="Details"
+            android:inputType="textMultiLine"
+            android:lines="3" >
+        </EditText>
+
+        <EditText
+            android:id="@+id/et_notes"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:ems="10"
+            android:gravity="top|left"
+            android:hint="Notes"
+            android:inputType="textMultiLine"
+            android:lines="2" >
+        </EditText>
+    </LinearLayout>
+
 </LinearLayout>

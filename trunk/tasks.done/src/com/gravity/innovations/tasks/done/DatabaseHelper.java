@@ -1,11 +1,15 @@
 package com.gravity.innovations.tasks.done;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
+
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
+import android.text.format.Time;
 import android.util.Log;
 
 public class DatabaseHelper extends SQLiteOpenHelper {
@@ -35,12 +39,14 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 	private static final String KEY_NOTES = "notes";
 	private static final String KEY_FK_TASKLIST_ID = "fk_tasklist_id";
 
+
 	// TaskListModel Table Columns names
 	// id and title and as above
 
 	// Users id same as
 	private static final String KEY_USER_NAME = "user_name";
 	private static final String KEY_USER_EMAIL = "user_email";
+	private static final String KEY_USER_PHONE_NUM = "user_phone";
 
 	private static final String KEY_SERVER_ID = "server_id";
 	private static final String KEY_USER_IMAGE = "user_image";
@@ -49,12 +55,33 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 	private static final String KEY_DISPLAY_NAME = "display_name";
 	private static final String KEY_CONTACT_ID = "contact_id";
 	
+	
+	private static final String KEY_UPDATED_AT = "updated_date_time";
+	private static final String KEY_DUE_AT = "due_date_tTime";
+	private static final String KEY_COMPLETED_AT = "completed_date_time";
+	
+	private static final String KEY_REMIND_AT = "remind_date_time";
+	private static final String KEY_REMIND_INTERVAL = "remind_interval";
+	
+	SimpleDateFormat simpledateformat = new SimpleDateFormat("yyyy-MM-dd "+ "hh-mm-ss"); //("ddMMyyyyhhmmss");
+	public String currentDateTime = simpledateformat.format(new Date());	
+	
 	// SQLite Create Queries
 	// Tasks Table
 	private static final String CREATE_TASKS_TABLE = "CREATE TABLE "
 			+ TABLE_TASKS + "(" + KEY_PK
-			+ " INTEGER PRIMARY KEY AUTOINCREMENT," + KEY_TITLE + " TEXT,"
-			+ KEY_DETAILS + " TEXT," + KEY_NOTES + " TEXT,"
+			+ " INTEGER PRIMARY KEY AUTOINCREMENT," 
+			+ KEY_TITLE + " TEXT,"
+			+ KEY_DETAILS + " TEXT," 
+			+ KEY_NOTES + " TEXT,"
+			
+			+ KEY_UPDATED_AT + " DATETIME DEFAULT CURRENT_TIMESTAMP,"
+			+ KEY_DUE_AT + " DATETIME," //date time
+			+ KEY_COMPLETED_AT + "  DATETIME DEFAULT CURRENT_TIMESTAMP," //date time
+			
+			+ KEY_REMIND_AT + " DATETIME, "
+			+ KEY_REMIND_INTERVAL + " INTEGER, " //values between 0 to 3
+			
 			+ KEY_FK_TASKLIST_ID + " INTEGER," + " FOREIGN KEY ("
 			+ KEY_FK_TASKLIST_ID + ")" + "REFERENCES " + TABLE_TASK_LIST + "("
 			+ KEY_PK + ")" + ")";
@@ -78,7 +105,8 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 			+ KEY_SERVER_ID + " TEXT,"
 			+ KEY_USER_IMAGE + " BLOB,"
 			+ KEY_CONTACT_ID + " TEXT,"
-			+ KEY_DISPLAY_NAME + " TEXT"
+			+ KEY_DISPLAY_NAME + " TEXT,"
+			+ KEY_USER_PHONE_NUM + " TEXT"  //added this line
 			+ ")";
 
 	public DatabaseHelper(Context cContext) {
@@ -132,6 +160,16 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 		values.put(KEY_TITLE, task.title);
 		values.put(KEY_DETAILS, task.details);
 		values.put(KEY_NOTES, task.notes);
+		
+		
+		
+		values.put(KEY_UPDATED_AT, currentDateTime); //currentDateTime gets its value from above declared string
+		
+		values.put(KEY_DUE_AT, task.due_at);
+		
+		values.put(KEY_REMIND_AT, task.remind_at);
+		values.put(KEY_REMIND_INTERVAL, task.remind_interval);
+		
 		values.put(KEY_FK_TASKLIST_ID, task.fk_tasklist_id);
 		int id = (int) db.insert(TABLE_TASKS, null, values);
 		db.close();
@@ -158,6 +196,9 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 		values.put(KEY_TITLE, task.title);
 		values.put(KEY_DETAILS, task.details);
 		values.put(KEY_NOTES, task.notes);
+		values.put(KEY_UPDATED_AT, task.updated_at); //correct this one this may be the wrong assignment
+		values.put(KEY_REMIND_AT, task.remind_at);
+		values.put(KEY_REMIND_INTERVAL, task.remind_interval);
 		return db.update(TABLE_TASKS, values, KEY_PK + " = ?",
 				new String[] { String.valueOf(task._id) });// updating row
 	}
@@ -201,8 +242,13 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 					task.title = (cursor.getString(1));
 					task.details = (cursor.getString(2));
 					task.notes = (cursor.getString(3));
+					
+					task.updated =(cursor.getString(4));
+					task.remind_at = (cursor.getString(7));
+					task.remind_interval = (Integer.parseInt(cursor.getString(8)));
+					
 					task.fk_tasklist_id = (Integer
-							.parseInt(cursor.getString(4)));
+							.parseInt(cursor.getString(9)));
 					// Adding TaskModel to list
 					data.add(task);
 				} while (cursor.moveToNext());
@@ -314,36 +360,64 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 			Cursor cursor = db.rawQuery(selectQuery, null);
 
 			// looping through all rows and adding to list
-			// if (cursor.moveToFirst()) {
-			// do {
-			// Common.CustomViewsData.MultiSelectRowData user =
-			// new Common.CustomViewsData.MultiSelectRowData();
-			// user.text1 = (cursor.getString(0));
-			// user.text2 = (cursor.getString(1));
-			// // Adding Task to list
-			// users.add(user);
-			// } while (cursor.moveToNext());
-			// }
+			 if (cursor.moveToFirst()) {
+			 do {
+			 Common.CustomViewsData.MultiSelectRowData user =
+			 new Common.CustomViewsData.MultiSelectRowData();
+			 user.text1 = (cursor.getString(1));
+			 user.text2 = (cursor.getString(2));
+			 user.iconRes = (cursor.getBlob(4));
+			 
+			 // Adding Task to list
+			 users.add(user);
+			 } while (cursor.moveToNext());
+			 }
 
-			// return Task list
-			cursor.close();
-			db.close();
-			for (int i = 0; i < 30; i++) {
-				Common.CustomViewsData.MultiSelectRowData user = new Common.CustomViewsData.MultiSelectRowData();
-				user.text1 = "h";
-				user.text2 = "some";
-				user.iconRes = R.drawable.ic_launcher;
-				// Adding Task to list
-				users.add(user);
-			}
-			// return users;
-		} catch (Exception e) {
-			// TODO: handle exception
-			Log.e("all_Task", "" + e);
+			 return users;
+		
+			
+			
+			
+			//cursor.close();
+		//	db.close();
+//			for (int i = 0; i < 30; i++) {
+//				Common.CustomViewsData.MultiSelectRowData user = new Common.CustomViewsData.MultiSelectRowData();
+//				user.text1 = "h";
+//				user.text2 = "some";
+//				user.iconRes = R.drawable.ic_launcher;
+//				// Adding Task to list
+//				users.add(user);
+//			}
+//			// return users;
+//		} catch (Exception e) {
+//			// TODO: handle exception
+//			Log.e("all_Task", "" + e);
+//		}
+
+			
+			
+			
+//			if (cursor.moveToFirst()) {
+//				do {
+			 
+//					Common.CustomViewsData.MultiSelectRowData user = new Common.CustomViewsData.MultiSelectRowData();
+//					user.text1 = (cursor.getString(2));
+//					user.text2 = (cursor.getString(1));
+//					user.iconRes = (cursor.getBlob(4));
+//					// Adding TaskModel to list
+//					users.add (user); 
+//				} while (cursor.moveToNext());
+//			}
+			
+	//	
+	}
+	catch(Exception e){
+		Log.e("", "");
+		
+	}
+		finally{
+			return users;
 		}
-
-		return users;
-
 	}
 
 	/**
@@ -370,6 +444,10 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 		ContentValues values = new ContentValues();
 		values.put(KEY_DISPLAY_NAME, user.displayName);
 		values.put(KEY_USER_EMAIL, user.email);
+		
+		values.put(KEY_USER_PHONE_NUM, user.phone);
+		values.put(KEY_USER_IMAGE, user.image);
+		
 		int id = (int) db.insert(TABLE_USERS, null, values);
 		db.close();
 		return id;
@@ -397,14 +475,13 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 			if (cursor.moveToFirst()) {
 				do {
 					UserModel tasklist = new UserModel();
-					tasklist._id = (Integer.parseInt(cursor.getString(0)));
-					
-					tasklist.email = (cursor.getString(1));
-					tasklist.displayName = (cursor.getString(2));
-					
-					tasklist.contact_id = (cursor.getString(3));
-					tasklist.name = (cursor.getString(4));
-					tasklist.server_id = (cursor.getString(5));
+					 tasklist._id = (Integer.parseInt(cursor.getString(0)));
+
+					tasklist.displayName = (cursor.getString(6));
+					tasklist.email = (cursor.getString(2));
+					 
+					tasklist.image = (cursor.getBlob(4)); 
+				
 					
 					data.add(tasklist);
 				} while (cursor.moveToNext());

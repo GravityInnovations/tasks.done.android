@@ -1,41 +1,81 @@
 package com.gravity.innovations.tasks.done;
 
+import java.io.File;
+import java.io.FileOutputStream;
+import java.nio.ByteBuffer;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Random;
+
 import android.accounts.Account;
 import android.accounts.AccountManager;
+
 import org.json.JSONException;
 import org.json.JSONObject;
-//test
+
 import com.gravity.innovations.tasks.done.Common.userData;
+
 import android.annotation.SuppressLint;
 import android.app.Activity;
+import android.app.AlertDialog;
+import android.app.ProgressDialog;
+import android.app.TimePickerDialog;
+import android.content.BroadcastReceiver;
 import android.content.ContentResolver;
+import android.content.ContentValues;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.IntentFilter;
 import android.content.DialogInterface.OnClickListener;
 import android.content.Intent;
 import android.database.Cursor;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
+import android.net.Uri;
+import android.net.wifi.WifiInfo;
+import android.net.wifi.WifiManager;
 import android.os.Bundle;
+import android.os.Environment;
 import android.provider.ContactsContract;
 import android.provider.ContactsContract.CommonDataKinds.Email;
+import android.provider.ContactsContract.CommonDataKinds.Phone;
+import android.provider.ContactsContract.Contacts;
+import android.provider.ContactsContract.Contacts.Photo;
+import android.provider.ContactsContract.Data;
+import android.provider.ContactsContract.RawContacts;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBarActivity;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.MotionEvent;
 import android.view.View;
+import android.view.View.OnTouchListener;
 import android.view.ViewGroup;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
+import android.widget.EditText;
+import android.widget.ImageView;
+import android.widget.ProgressBar;
 import android.widget.TextView;
+import android.widget.TimePicker;
+import android.widget.Toast;
 
 public class MainActivity extends ActionBarActivity implements
-	NavigationDrawerFragment.NavigationDrawerCallbacks, Common.Callbacks.HttpCallback {
+		NavigationDrawerFragment.NavigationDrawerCallbacks,
+		Common.Callbacks.HttpCallback {
 
 	/**
 	 * Fragment managing the behaviors, interactions and presentation of the
@@ -48,10 +88,16 @@ public class MainActivity extends ActionBarActivity implements
 	AccountManager mAccountManager;
 	ArrayList<Account> mAccounts;
 	Account mAccount;
+ 
+	TimePicker mTimePicker;
+	 int hour;
+	  int minute;
 
 	DatabaseHelper db;
-
-
+	ImageView mImageView;
+	EditText mEditText;
+	ProgressBar mProgressBar;
+	ProgressDialog mProgressDialog;
 	Common.userData user_data;
 	/**
 	 * Used to store the last screen title. For use in
@@ -70,32 +116,36 @@ public class MainActivity extends ActionBarActivity implements
 		mNavigationDrawerFragment = (NavigationDrawerFragment) getSupportFragmentManager()
 				.findFragmentById(R.id.navigation_drawer);
 		mTitle = getTitle();
-		
-		user_data = new userData();//(Common.userData)getIntent().getExtras().getSerializable("user");
-		//init user_data from intent extras
+
+		user_data = new userData();// (Common.userData)getIntent().getExtras().getSerializable("user");
+		// init user_data from intent extras
 		// Set up the drawer.
 		mNavigationDrawerFragment.setUp(R.id.navigation_drawer,
-				(DrawerLayout) findViewById(R.id.drawer_layout),mContext, user_data);
-		
-		
-		/*try{
-		Common.CustomDialog.CustomDialog(mContext, view, 
-				negListener, posListener, R.string.dialog_ok, 
-				R.string.dialog_cancel, "Share");
-		//Put in listview
-		adapter = new MultiSelectListAdapter(MainActivity.this,
-				R.layout.multiselectlist_row, h.Get_Users());
-		String[] from = { "php_key","c_key","android_key","hacking_key" };
-				//listview.setAdapter(new ArrayAdapter<String>(mContext, R.layout.multiselectlist_row,R.id.textView1,from));  
-			listview.setAdapter(adapter);
-		}
-		catch(Exception ex)
-		{
-			String x;
-		}
-		*/
+				(DrawerLayout) findViewById(R.id.drawer_layout), mContext,
+				user_data);
+		mEditText = (EditText) findViewById(R.id.search);
+		mProgressBar = (ProgressBar) findViewById(R.id.progressBar1);
+		mImageView = (ImageView) findViewById(R.id.keyboard);
+		mImageView.setFocusableInTouchMode(true);
 
-	/*
+		mImageView.setOnTouchListener(new OnTouchListener() {
+			@Override
+			public boolean onTouch(View v, MotionEvent event) {
+				switch (event.getAction()) {
+				case MotionEvent.ACTION_DOWN:
+					try {
+						showSoftKeyboard(mImageView);
+					} catch (Exception e) {
+						Log.e("Error MA onCreate", "Error");
+					}
+					break;
+				}
+
+				return true;
+			}
+		});
+
+		/*
 		 * try{ Common.CustomDialog.CustomDialog(mContext, view, negListener,
 		 * posListener, R.string.dialog_ok, R.string.dialog_cancel, "Share");
 		 * //Put in listview adapter = new
@@ -106,6 +156,101 @@ public class MainActivity extends ActionBarActivity implements
 		 * R.layout.multiselectlist_row,R.id.textView1,from));
 		 * listview.setAdapter(adapter); } catch(Exception ex) { String x; }
 		 */
+		this.registerReceiver(this.mConnReceiver, new IntentFilter(
+				ConnectivityManager.CONNECTIVITY_ACTION));
+		this.registerReceiver(this.mNetworkChange, new IntentFilter(
+				ConnectivityManager.CONNECTIVITY_ACTION));
+ 
+
+	}
+ 
+
+	private BroadcastReceiver mConnReceiver = new BroadcastReceiver() {
+		@Override
+		public void onReceive(Context context, Intent intent) {
+			try {
+				ConnectivityManager cm = (ConnectivityManager) mContext
+						.getSystemService(Context.CONNECTIVITY_SERVICE);
+
+				NetworkInfo activeNetwork = cm.getActiveNetworkInfo();
+				boolean isConnected = activeNetwork != null
+						&& activeNetwork.isConnectedOrConnecting();
+				boolean isWiFi = activeNetwork.getType() == ConnectivityManager.TYPE_WIFI;
+				boolean isMobile = activeNetwork.getType() == ConnectivityManager.TYPE_MOBILE;
+				if (isConnected) {
+
+					if (isWiFi) {
+						WifiManager wifiManager = (WifiManager) getSystemService(Context.WIFI_SERVICE);
+						if (wifiManager != null) {
+							WifiInfo info = wifiManager.getConnectionInfo();
+							if (info != null) {
+								String ssid = info.getSSID();
+								Toast.makeText(getApplicationContext(),
+										ssid + " Connected", Toast.LENGTH_LONG)
+										.show();
+							}
+						}
+
+					} else if (isMobile) {
+						Toast.makeText(getApplicationContext(),
+								"Mobile internet Connected", Toast.LENGTH_LONG)
+								.show();
+					}
+				} else {
+					Toast.makeText(getApplicationContext(),
+							"Internet Not Connected", Toast.LENGTH_LONG).show();
+				}
+			} catch (Exception e) {
+				Log.e("interetCheck", "MainActivity");
+			}
+		}
+
+	};
+
+	private BroadcastReceiver mNetworkChange = new BroadcastReceiver() {
+
+		@Override
+		public void onReceive(Context context, Intent intent) {
+			// TODO Auto-generated method stub
+			final ConnectivityManager connMgr = (ConnectivityManager) context
+					.getSystemService(Context.CONNECTIVITY_SERVICE);
+
+			final android.net.NetworkInfo wifi = connMgr
+					.getNetworkInfo(ConnectivityManager.TYPE_WIFI);
+
+			final android.net.NetworkInfo mobile = connMgr
+					.getNetworkInfo(ConnectivityManager.TYPE_MOBILE);
+
+			if (wifi.isAvailable()) {
+				Log.d("Wifi Netowk Available ", "Flag No 1");
+			} else if (mobile.isAvailable()) {
+				Log.d("mobile Netowk Available ", "Flag No 1");
+			}
+		}
+
+	};
+
+	@Override
+	public void onPause() {
+		super.onPause();
+	}
+
+	@Override
+	protected void onDestroy() {
+		super.onDestroy();
+		unregisterReceiver(mConnReceiver);
+		unregisterReceiver(mNetworkChange);
+	}
+
+	@SuppressLint("NewApi")
+	public void showSoftKeyboard(View view) {
+		if (view.requestFocus()) {
+			mEditText.setFocusable(true);
+			mEditText.requestFocus();// this line is also worth a try
+			InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+			imm.showSoftInput(mEditText, InputMethodManager.SHOW_IMPLICIT);
+
+		}
 	}
 
 	@Override
@@ -132,19 +277,19 @@ public class MainActivity extends ActionBarActivity implements
 		}
 	}
 
-	public void onSectionAttached(int number) {
-		switch (number) {
-		case 1:
-			mTitle = getString(R.string.title_section1);
-			break;
-		case 2:
-			mTitle = getString(R.string.title_section2);
-			break;
-		case 3:
-			mTitle = getString(R.string.title_section3);
-			break;
-		}
-	}
+	// public void onSectionAttached(int number) {
+	// switch (number) {
+	// case 1:
+	// mTitle = getString(R.string.title_section1);
+	// break;
+	// case 2:
+	// mTitle = getString(R.string.title_section2);
+	// break;
+	// case 3:
+	// mTitle = getString(R.string.title_section3);
+	// break;
+	// }
+	// }
 
 	public void restoreActionBar() {
 		actionBar = getSupportActionBar();
@@ -175,11 +320,9 @@ public class MainActivity extends ActionBarActivity implements
 		// as you specify a parent activity in AndroidManifest.xml.
 		int id = item.getItemId();
 		if (id == R.id.action_settings) {
-
 			Intent i = new Intent(MainActivity.this, SettingsActivity.class);
 			startActivity(i);
-		}
-		else if (id == R.id.action_add) {
+		} else if (id == R.id.action_add) {
 			mNavigationDrawerFragment.addOrEditTaskList(new TaskListModel());
 		} else if (id == R.id.action_delete) {
 			mNavigationDrawerFragment.deleteTaskList(CurrentList);
@@ -195,74 +338,397 @@ public class MainActivity extends ActionBarActivity implements
 			mNavigationDrawerFragment.addOrEditTask(CurrentList,
 					new TaskModel());
 		} else if (id == R.id.action_share) {
-			 /*		 		
-			db = new DatabaseHelper(mContext);
-			for (int i=0;i<=10;i++ ){
-			db.User_New();
-			} 
-		
-		*/
-			//  getContacts();
-		 
-			DatabaseHelper h = new DatabaseHelper(mContext);
-			DialogInterface.OnClickListener negListener = new OnClickListener() {
-				@Override
-				public void onClick(DialogInterface dialog, int which) {
-					dialog.cancel();
-				}
-			};
-			DialogInterface.OnClickListener posListener = new OnClickListener() {
-				@Override
-				public void onClick(DialogInterface dialog, int which) {
-					dialog.cancel();
-				}
-			};
-			
-			
-			ArrayList<UserModel> email_records = new ArrayList<UserModel>();
-			ArrayList<Common.CustomViewsData.MultiSelectRowData> users = new ArrayList<Common.CustomViewsData.MultiSelectRowData>();
-			
-		  	email_records = h.User_List();
-			for (UserModel temp : email_records) {
-				Common.CustomViewsData.MultiSelectRowData user = new Common.CustomViewsData.MultiSelectRowData();
-				user.text1 = temp.displayName;
-				user.text2 = temp.email;
-				user.iconRes = R.drawable.ic_launcher;
-				users.add(user);
-			}
-			
-			final MultiSelectListAdapter adapter = new MultiSelectListAdapter(
-					this, R.layout.multiselectlist_row, users);
-			DialogInterface.OnClickListener itemClickListner = new OnClickListener() {
-				@Override
-				public void onClick(DialogInterface dialog, int which) {
-					// dialog.cancel();
-					adapter.setNewSelection(which, true);
-				}
-			};
-			OnItemClickListener onItemClickListener = new OnItemClickListener() {
-				@Override
-				public void onItemClick(AdapterView<?> parent, View view,
-						int position, long id) {
-					adapter.setOrRemoveSelection(position);
-				}
-			};
-			Common.CustomDialog.MultiChoiceDialog(mContext, adapter,
-					onItemClickListener, negListener, posListener,
-					R.string.dialog_ok, R.string.dialog_cancel, "Share");
- 	     }
-		 
+			  listof_nameEmailPic(); // for calling list of name email and pics
+			// startProcess(); // for calling thread
+		} 
 		return super.onOptionsItemSelected(item);
 	}
 
-	// @SuppressLint("NewApi")
-	public ArrayList<String> getContacts() {
+	private void startProcess() {
+		mProgressDialog = ProgressDialog.show(MainActivity.this, null,
+				"please donot interupt let it finish", true);
+		mProgressDialog.setCancelable(true);
+		new Thread(new Task()).start();
+	}
 
+	class Task implements Runnable {
+		@Override
+		public void run() {
+			try {
+				 //getContacts();
+				
+				dbInsertion();
+				
+				mProgressDialog.dismiss();
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+
+		}
+	}
+
+	public void listof_nameEmailPic() {
+		DatabaseHelper h = new DatabaseHelper(mContext);
+		DialogInterface.OnClickListener negListener = new OnClickListener() {
+			@Override
+			public void onClick(DialogInterface dialog, int which) {
+				dialog.cancel();
+			}
+		};
+		DialogInterface.OnClickListener posListener = new OnClickListener() {
+			@Override
+			public void onClick(DialogInterface dialog, int which) {
+				dialog.cancel();
+			}
+		};
+
+		ArrayList<UserModel> email_records = new ArrayList<UserModel>();
+		ArrayList<Common.CustomViewsData.MultiSelectRowData> users = new ArrayList<Common.CustomViewsData.MultiSelectRowData>();
+
+		email_records = h.User_List();
+		for (UserModel temp : email_records) {
+			Common.CustomViewsData.MultiSelectRowData user = new Common.CustomViewsData.MultiSelectRowData();
+			user.text1 = temp.displayName;
+			user.text2 = temp.email;
+			user.iconRes = temp.image;
+			
+			users.add(user);
+		}
+
+		final MultiSelectListAdapter adapter = new MultiSelectListAdapter(this,
+				R.layout.multiselectlist_row, users);
+		DialogInterface.OnClickListener itemClickListner = new OnClickListener() {
+			@Override
+			public void onClick(DialogInterface dialog, int which) {
+				// dialog.cancel();
+				adapter.setNewSelection(which, true);
+			}
+		};
+		OnItemClickListener onItemClickListener = new OnItemClickListener() {
+			@Override
+			public void onItemClick(AdapterView<?> parent, View view,
+					int position, long id) {
+				adapter.setOrRemoveSelection(position);
+			}
+		};
+		Common.CustomDialog.MultiChoiceDialog(mContext, adapter,
+				onItemClickListener, negListener, posListener,
+				R.string.dialog_ok, R.string.dialog_cancel, "Share");
+	}
+
+	
+
+	// //////////////////new method/////////////////////////////
+	public ArrayList<HashMap<String, Object>> getContacts() {
+
+		ArrayList<HashMap<String, Object>> contacts = new ArrayList<HashMap<String, Object>>();
+		final String[] projection = new String[] { RawContacts.CONTACT_ID,
+				RawContacts.DELETED };
+
+		// @SuppressWarnings("deprecation")
+		ContentResolver cr = getContentResolver();
+		Cursor rawContacts = cr.query(RawContacts.CONTENT_URI, projection,
+				null, null, null);
+
+		final int contactIdColumnIndex = rawContacts
+				.getColumnIndex(RawContacts.CONTACT_ID);
+		final int deletedColumnIndex = rawContacts
+				.getColumnIndex(RawContacts.DELETED);
+
+		if (rawContacts.moveToFirst()) {
+			while (!rawContacts.isAfterLast()) {
+				final int contactId = rawContacts.getInt(contactIdColumnIndex);
+				final boolean deleted = (rawContacts.getInt(deletedColumnIndex) == 1);
+				if (!deleted) {
+					HashMap<String, Object> contactInfo = new HashMap<String, Object>() {
+						{
+							put("contactId", "");
+							put("name", "");
+							put("email", "");
+							put("address", "");
+							put("photo", "");
+							put("phone", "");
+						}
+					};
+					contactInfo.put("contactId", "" + contactId);
+					contactInfo.put("name", getName(contactId));
+					contactInfo.put("email", getEmail(contactId));
+					contactInfo.put("photo",
+							getPhoto(contactId) != null ? getPhoto(contactId)
+									: "");
+					contactInfo.put("address", getAddress(contactId));
+					contactInfo.put("phone", getPhoneNumber(contactId));
+					contactInfo.put("isChecked", "false");
+					contacts.add(contactInfo);
+
+					// db = new DatabaseHelper(mContext);
+					// UserModel user = new UserModel(getName(contactId),
+					// getEmail(contactId));
+					// db.User_New(user);
+
+				}
+				rawContacts.moveToNext();
+
+			}
+		}
+
+		rawContacts.close();
+		// dbInsertion(contacts);
+		return contacts;
+
+	}
+
+	// public void dbInsertion(ArrayList<HashMap<String, Object>> contacts) {
+	@SuppressLint("NewApi") public void dbInsertion() {
+		ArrayList<HashMap<String, Object>> contacts = getContacts();
+		db = new DatabaseHelper(mContext);
+		int size = contacts.size();
+		for (int i = 0; i < size; i++) {
+
+			HashMap<String, Object> contactItem = contacts.get(i);
+
+			ContentValues dataToInsert = new ContentValues();
+
+			UserModel userModel = new UserModel();
+
+			// userModel.setContactId(contactItem.get("contactId").toString());
+			// userModel.setDisplayName(contactItem.get("name").toString());
+			// userModel.setEmail(contactItem.get("email").toString());
+			// userModel.setAddress(contactItem.get("address").toString());
+			// userModel.setPhone(contactItem.get("phone").toString());
+
+			// userModel.contact_id.("contactId").toString();
+			// userModel.contactItem.get("name").toString();
+			// userModel.contactItem.get("email").toString();
+			// userModel.contactItem.get("address").toString();
+			// userModel.contactItem.get("phone").toString();
+
+
+if(contactItem.get("email") != null){
+	
+
+			 if(contactItem.get("photo")!=null && contactItem.get("photo")
+			 instanceof Bitmap){
+			
+				  Bitmap b = (Bitmap)contactItem.get("photo");
+	                int bytes = b.getByteCount();
+
+	                ByteBuffer buffer = ByteBuffer.allocate(bytes); //Create a new buffer
+	                b.copyPixelsToBuffer(buffer); //Move the byte data to the buffer
+	                byte[] array = buffer.array();
+			
+			// userModel.setPhoto(array);
+			 
+//				UserModel user = 
+//						new UserModel(
+//						contactItem.get("name").toString(),
+//						contactItem.get("email").toString(),
+//						contactItem.get("phone").toString(),
+//						array 
+//						);
+//				db.User_New(user);
+			 
+	            	UserModel user = new UserModel(
+							contactItem.get("name").toString(),
+							contactItem.get("email").toString(),
+							array 
+							//contactItem.get("phone").toString()
+							);
+					db.User_New(user); 
+			 
+			 
+			 }else {
+//					UserModel user = new UserModel(
+//							contactItem.get("name").toString(),
+//							contactItem.get("email").toString(),
+//							array 
+//							//contactItem.get("phone").toString()
+//							);
+//					db.User_New(user); 
+				 
+			 }
+			 
+			 /*	 
+			UserModel user = new UserModel(
+					contactItem.get("name").toString(),
+					contactItem.get("email").toString());
+			 db.User_New(user);*/
+		}
+		}
+	}
+
+	private String getName(int contactId) {
+		String name = "";
+		final String[] projection = new String[] { Contacts.DISPLAY_NAME };
+
+		ContentResolver cr = getContentResolver();
+		Cursor contact = cr.query(Contacts.CONTENT_URI, projection,
+				Contacts._ID + "=?",
+				new String[] { String.valueOf(contactId) }, null);
+
+		if (contact.moveToFirst()) {
+			name = contact.getString(contact
+					.getColumnIndex(Contacts.DISPLAY_NAME));
+			contact.close();
+		}
+		contact.close();
+		return name;
+
+	}
+
+	private String getEmail(int contactId) {
+		String emailStr = "";
+		final String[] projection = new String[] { Email.DATA, // use
+				// Email.ADDRESS
+				// for API-Level
+				// 11+
+				Email.TYPE };
+		ContentResolver cr = getContentResolver();
+		Cursor email = cr.query(Email.CONTENT_URI, projection, Data.CONTACT_ID
+				+ "=?", new String[] { String.valueOf(contactId) }, null);
+
+		if (email.moveToFirst()) {
+			final int contactEmailColumnIndex = email
+					.getColumnIndex(Email.DATA);
+
+			while (!email.isAfterLast()) {
+				emailStr = emailStr + email.getString(contactEmailColumnIndex)
+						+ ";";
+				email.moveToNext();
+			}
+		}
+		email.close();
+		return emailStr;
+
+	}
+
+	private Bitmap getPhoto(int contactId) {
+		Bitmap photo = null;
+		final String[] projection = new String[] { Contacts.PHOTO_ID };
+		ContentResolver cr = getContentResolver();
+		Cursor contact = cr.query(Contacts.CONTENT_URI, projection,
+				Contacts._ID + "=?",
+				new String[] { String.valueOf(contactId) }, null);
+
+		if (contact.moveToFirst()) {
+			final String photoId = contact.getString(contact
+					.getColumnIndex(Contacts.PHOTO_ID));
+			if (photoId != null) {
+				photo = getBitmap(photoId);
+			} else {
+				photo = null;
+			}
+		}
+		contact.close();
+
+		return photo;
+	}
+
+	private Bitmap getBitmap(String photoId) {
+		ContentResolver cr = getContentResolver();
+		Cursor photo = cr.query(Data.CONTENT_URI, new String[] { Photo.PHOTO },
+				Data._ID + "=?", new String[] { photoId }, null);
+
+		final Bitmap photoBitmap;
+		if (photo.moveToFirst()) {
+			byte[] photoBlob = photo.getBlob(photo.getColumnIndex(Photo.PHOTO));
+			photoBitmap = BitmapFactory.decodeByteArray(photoBlob, 0,
+					photoBlob.length);
+		} else {
+			photoBitmap = null;
+		}
+
+		photo.close();
+		saveImage(photoBitmap);
+		return photoBitmap;
+	}
+
+	public void saveImage(Bitmap bmp) {
+		Random generator = new Random();
+		int n = 10000;
+		n = generator.nextInt(n);
+		String fname = "Image-" + n + ".jpg";
+
+		String root = Environment.getExternalStorageDirectory().toString();
+
+		File myDir = new File(root + "/contact_images");
+		myDir.mkdirs();
+
+		File file = new File(myDir, fname);
+
+		if (file.exists())
+			file.delete();
+
+		try {
+			FileOutputStream out = new FileOutputStream(file);
+			bmp.compress(Bitmap.CompressFormat.JPEG, 90, out);
+			out.flush();
+			out.close();
+			getApplicationContext().sendBroadcast(
+					new Intent(Intent.ACTION_MEDIA_MOUNTED, Uri.parse("file://"
+							+ Environment.getExternalStorageDirectory())));
+		} catch (Exception e) {
+			e.printStackTrace();
+		} finally {
+
+		}
+	}
+
+	private String getAddress(int contactId) {
+		String postalData = "";
+		String addrWhere = ContactsContract.Data.CONTACT_ID + " = ? AND "
+				+ ContactsContract.Data.MIMETYPE + " = ?";
+		String[] addrWhereParams = new String[] {
+				String.valueOf(contactId),
+				ContactsContract.CommonDataKinds.StructuredPostal.CONTENT_ITEM_TYPE };
+		ContentResolver cr = getContentResolver();
+		Cursor addrCur = cr.query(ContactsContract.Data.CONTENT_URI, null,
+				addrWhere, addrWhereParams, null);
+
+		if (addrCur.moveToFirst()) {
+			postalData = addrCur
+					.getString(addrCur
+							.getColumnIndex(ContactsContract.CommonDataKinds.StructuredPostal.FORMATTED_ADDRESS));
+		}
+		addrCur.close();
+		return postalData;
+	}
+
+	private String getPhoneNumber(int contactId) {
+
+		String phoneNumber = "";
+		final String[] projection = new String[] { Phone.NUMBER, Phone.TYPE, };
+		ContentResolver cr = getContentResolver();
+		Cursor phone = cr.query(Phone.CONTENT_URI, projection, Data.CONTACT_ID
+				+ "=?", new String[] { String.valueOf(contactId) }, null);
+
+		if (phone.moveToFirst()) {
+			final int contactNumberColumnIndex = phone
+					.getColumnIndex(Phone.DATA);
+
+			while (!phone.isAfterLast()) {
+				phoneNumber = phoneNumber
+						+ phone.getString(contactNumberColumnIndex) + ";";
+				phone.moveToNext();
+			}
+
+		}
+		phone.close();
+		return phoneNumber;
+	}
+
+	// /////////////////////new method//////////////////////////////
+
+	// @SuppressLint("NewApi")
+	public ArrayList<String> getContacts2() {
 		ArrayList<String> data_emails = new ArrayList<String>();
+
 		ArrayList<String> emails = new ArrayList<String>();
+
 		final String[] PROJECTION = new String[] {
 				ContactsContract.CommonDataKinds.Email.CONTACT_ID,
-				ContactsContract.Contacts.DISPLAY_NAME };
+				ContactsContract.Contacts.DISPLAY_NAME,
+				ContactsContract.CommonDataKinds.Photo.PHOTO };
 
 		ContentResolver cr = getContentResolver();
 		Cursor cursor = cr.query(ContactsContract.Data.CONTENT_URI, null, null,
@@ -274,19 +740,34 @@ public class MainActivity extends ActionBarActivity implements
 						.getColumnIndex(ContactsContract.Data.CONTACT_ID);
 				final int displayNameIndex = cursor
 						.getColumnIndex(ContactsContract.Data.DISPLAY_NAME);
+				final int displayPicIndex = cursor
+						.getColumnIndex(ContactsContract.CommonDataKinds.Photo.PHOTO);
+
 				long contactId;
 				String displayName;
+				byte[] photo;
+
 				// ArrayList<String> emails = new ArrayList<String>();
 				while (cursor.moveToNext()) {
 
 					displayName = cursor.getString(displayNameIndex);
 					contactId = cursor.getLong(contactIdIndex);
+					photo = cursor.getBlob(displayPicIndex);
+
 					emails = getEmails(contactId, displayName);
+
 					for (String email : emails) {
-						UserModel user = new UserModel(
-								String.valueOf(contactId), email, displayName);
-					 	db.User_New(user);   
+//						UserModel user = new UserModel(displayName, email,
+//								photo);
+//						db.User_New(user);
+						
+						
+						
+						
+//						// data_emails.add(email);
+
 					}
+
 					// emails.add(displayName);
 					// data_emails = emails;
 					// for (int i=0; i<=emails.size(); i++){
@@ -315,7 +796,8 @@ public class MainActivity extends ActionBarActivity implements
 		ArrayList<String> emails = new ArrayList<String>();
 		final String[] projection = new String[] { Email.DATA, // use
 																// Email.ADDRESS
-																// for API-Level
+																// for
+																// API-Level
 																// 11+
 				Email.TYPE };
 		ContentResolver cr = getContentResolver();
@@ -330,13 +812,12 @@ public class MainActivity extends ActionBarActivity implements
 						.getColumnIndex(ContactsContract.CommonDataKinds.Email.DATA);
 				final int typeIndex = cursor
 						.getColumnIndex(ContactsContract.CommonDataKinds.Email.CONTENT_TYPE);
-				String email, type;
+				String email, type = "gmail.com";
 				while (cursor.moveToNext()) {
 					email = cursor.getString(emailIndex);
 					// type = cursor.getString(typeIndex);
 					if (email.contains("gmail.com"))
 						emails.add(email);
-
 				}
 			} finally {
 				cursor.close();
@@ -406,17 +887,17 @@ public class MainActivity extends ActionBarActivity implements
 		@Override
 		public void onAttach(Activity activity) {
 			super.onAttach(activity);
-			((MainActivity) activity).onSectionAttached(getArguments().getInt(
-					ARG_SECTION_NUMBER));
+			// ((MainActivity)
+			// activity).onSectionAttached(getArguments().getInt(ARG_SECTION_NUMBER));
 		}
 	}
+
 	@Override
 	public void httpResult(JSONObject data, int RequestCode, int ResultCode) {
 		// TODO Auto-generated method stub
 		switch (RequestCode) {
 		case Common.RequestCodes.GRAVITY_SEND_TASKLIST:
-			if(ResultCode == Common.HTTP_RESPONSE_OK)
-			{
+			if (ResultCode == Common.HTTP_RESPONSE_OK) {
 				try {
 					data = data.getJSONObject("data");
 					data.get("TaskListId");
@@ -424,15 +905,12 @@ public class MainActivity extends ActionBarActivity implements
 					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
-			}
-			else{
-				
+			} else {
+
 			}
 			break;
 		}
-	
+
 	}
-	
-	
 
 }
