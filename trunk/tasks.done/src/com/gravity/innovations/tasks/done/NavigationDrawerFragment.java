@@ -151,7 +151,7 @@ public class NavigationDrawerFragment extends Fragment implements
 				container, false);
 		mDrawerListView = (ListView) p.findViewById(R.id.nav_drawer_listview);
 
-		// int width = getResources().getDisplayMetrics().widthPixels/2;
+		/// int width = getResources().getDisplayMetrics().widthPixels/2;
 		// RelativeLayout.LayoutParams params = (RelativeLayout.LayoutParams)
 		// mDrawerListView.getLayoutParams();
 		// params.width = width;
