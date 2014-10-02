@@ -112,6 +112,11 @@ public class Common {
 	}
 
 	public static class Callbacks {
+		public interface TimeCallBack{
+			 public void onTimeReceive(Context mContext, Intent intent);
+			
+		}
+		
 		public interface GoogleAuthCallback {
 			public void AuthResult(Intent i);
 

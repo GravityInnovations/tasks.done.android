@@ -6,6 +6,7 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Set;
+import java.util.StringTokenizer;
 
 import android.app.Activity;
 import android.content.Context;
@@ -24,6 +25,7 @@ public class TaskAdapter extends ArrayAdapter<TaskModel> {
 	TaskModel task;
 	int MAX_CHARS = 10;
 	ArrayList<TaskModel> task_data = new ArrayList<TaskModel>();
+	final long currentTimeMills = System.currentTimeMillis();
 	private HashMap<Integer, Boolean> mSelection = new HashMap<Integer, Boolean>();
 
 	public TaskAdapter(Activity act, int layoutResourceId,
@@ -79,7 +81,9 @@ public class TaskAdapter extends ArrayAdapter<TaskModel> {
 
 	@Override
 	public View getView(int position, View convertView, ViewGroup parent) {
+		
 		View row = convertView;
+		//try{
 		TaskModelHolder holder = null;
 		if (row == null) {
 			LayoutInflater inflater = LayoutInflater.from(activity);
@@ -104,58 +108,126 @@ public class TaskAdapter extends ArrayAdapter<TaskModel> {
 					android.R.color.holo_blue_light));
 		}
 		task = task_data.get(position);
-
-		/*
-		 * 
-		 * String givenDateString // = holder.update.getText().toString(); =
-		 * "Tue Apr 24 11:00:00 GMT+05:30 2013"; SimpleDateFormat sdf = new
-		 * SimpleDateFormat( "EEE MMM dd HH:mm:ss z yyyy");
-		 */
-		try {
-			// Date mDate = sdf.parse(givenDateString);
-			// long timeInMilliseconds = mDate.getTime();
-			// System.out.println("Date in milli :: " + timeInMilliseconds);
-			// String s = String.valueOf(timeInMilliseconds);
-			// int old = Integer.parseInt(s);
-			// Date d = new Date();
-			// CharSequence sss = DateFormat.format("EEEE, MMMM d, yyyy ",
-			// d.getTime());
-			// String dd = sss.toString();
-			// int neww = Integer.parseInt(dd);
-			// int current = old - neww;
-			// String curr = String.valueOf(current);
-			// holder.update.setText(curr);
-
-			/******************************/
-			// limits have to be defined
-
-			Calendar calendarIO = Calendar.getInstance();
-			calendarIO.set(2014, 8, 12, 23, 59);
-			// calendarIO.set(2014, 2, 14, 7, 0);
-
-			long milliseconds1 = calendarIO.getTimeInMillis();
-			long milliseconds2 = System.currentTimeMillis();
-			long diff = milliseconds2 - milliseconds1;
-			long diffSeconds = diff / 1000;
-			long diffMinutes = diff / (60 * 1000);
-			long diffHours = diff / (60 * 60 * 1000);
-			long diffDays = diff / (24 * 60 * 60 * 1000);
-
-			String relativeTime = null;
-			if (diffDays > 1) {
-				relativeTime = diffDays + " days ";
-			} else if (diffDays > 0) {
-				relativeTime = diffDays + " days " + diffHours + " hours";
-			} else if (diffHours > 1) {
-				relativeTime = diffHours + " hours";
-			} else if (diffMinutes > 0) {
-				relativeTime = diffMinutes + " minutes.";
-			}
-			holder.update.setText(relativeTime);
-
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
+		
+//		try {
+//
+//			String s = task.updated.toString();
+//			long previousTime = Long.valueOf(s).longValue();
+//			long diff = currentTimeMills - previousTime;
+//
+//			String relativeTime = null;
+//
+//			if (diff /1000 < 1){
+//				relativeTime = " Just Now";
+//			}else if (diff / 1000 >= 1 && diff / 1000 <= 60) {
+//				relativeTime = " Less than a minute "; // Just Now
+//			} else if (diff / 60000 >= 1 && diff / 60000 <= 60) {
+//				if (diff / 60000 == 1) {
+//					relativeTime = diff / 60000 + " min earlier "; // for 1
+//																	// minute
+//																	// earlier
+//																	// exactly
+//				} else if (diff / 1000 > 1 && diff / 60000 <= 60) {
+//					relativeTime = diff / 60000 + " mins earlier "; // for
+//																	// minutes
+//																	// greater
+//																	// then 1
+//																	// minute
+//				}
+//			} else if (diff / 3600000 >= 1 && diff / 3600000 <= 24) {
+//				if (diff / 3600000 == 1) {
+//					relativeTime = diff / 3600000 + " hr earlier"; // for number
+//																	// of hours
+//																	// exactly 1
+//																	// hour
+//				} else if (diff / 3600000 > 1 && diff / 3600000 <= 6) {
+//					relativeTime = diff / 3600000 + " hrs earlier"; // for
+//																	// number of
+//																	// hours
+//																	// less then
+//																	// 6 hours
+//				} else if (diff / 3600000 > 6 && diff / 3600000 <= 24) {
+//					// relativeTime = diff / 3600000 + " hrs earlier"; //for
+//					// number of hours greater then 6 hours
+//					Calendar cl = Calendar.getInstance();
+//					cl.setTimeInMillis(previousTime); // here your time in
+//														// milliseconds
+//					relativeTime = "" + cl.get(Calendar.HOUR_OF_DAY) + ":" 
+//							+ cl.get(Calendar.MINUTE);// + " " +
+//														// cl.get(Calendar.AM_PM);
+//				}
+//				// now write condition to check for previous days
+//			} else if (diff / (3600000 * 24) >= 1 && diff / (3600000 * 24) <= 7) {
+//
+//				Calendar cl = Calendar.getInstance();
+//				cl.setTimeInMillis(previousTime); // here your time in
+//													// milliseconds
+//				// relativeTime = "" + cl.get(Calendar.DAY_OF_WEEK);
+//				if (cl.get(Calendar.DAY_OF_WEEK) == 1) {
+//					relativeTime = "Sun";
+//				} else if (cl.get(Calendar.DAY_OF_WEEK) == 2) {
+//					relativeTime = "Mon";
+//				} else if (cl.get(Calendar.DAY_OF_WEEK) == 3) {
+//					relativeTime = "Tues";
+//				} else if (cl.get(Calendar.DAY_OF_WEEK) == 4) {
+//					relativeTime = "Wed";
+//				} else if (cl.get(Calendar.DAY_OF_WEEK) == 5) {
+//					relativeTime = "Thurs";
+//				} else if (cl.get(Calendar.DAY_OF_WEEK) == 6) {
+//					relativeTime = "Fri";
+//				} else if (cl.get(Calendar.DAY_OF_WEEK) == 7) {
+//					relativeTime = "Sat";
+//				}
+//			} else if (diff / (3600000 * 24) > 7 && diff / (3600000 * 24) <= 30) {
+//				// relativeTime = " Days ";
+//				Calendar cl = Calendar.getInstance();
+//				cl.setTimeInMillis(previousTime); // here your time in
+//													// milliseconds
+//				// relativeTime = "" + cl.get(Calendar.DAY_OF_MONTH) + ":" +
+//				// (cl.get(Calendar.MONTH)+1); //increment because this was
+//				// giving the wrong month
+//				if ((cl.get(Calendar.MONTH) + 1) == 1) {
+//					relativeTime = "" + cl.get(Calendar.DAY_OF_MONTH) + " Jan";
+//				} else if ((cl.get(Calendar.MONTH) + 1) == 2) {
+//					relativeTime = "" + cl.get(Calendar.DAY_OF_MONTH) + " Feb";
+//				} else if ((cl.get(Calendar.MONTH) + 1) == 3) {
+//					relativeTime = "" + cl.get(Calendar.DAY_OF_MONTH) + " Mar";
+//				} else if ((cl.get(Calendar.MONTH) + 1) == 4) {
+//					relativeTime = "" + cl.get(Calendar.DAY_OF_MONTH) + " Apr";
+//				} else if ((cl.get(Calendar.MONTH) + 1) == 5) {
+//					relativeTime = "" + cl.get(Calendar.DAY_OF_MONTH) + " May";
+//				} else if ((cl.get(Calendar.MONTH) + 1) == 6) {
+//					relativeTime = "" + cl.get(Calendar.DAY_OF_MONTH) + " Jun";
+//				} else if ((cl.get(Calendar.MONTH) + 1) == 7) {
+//					relativeTime = "" + cl.get(Calendar.DAY_OF_MONTH) + " Jul";
+//				} else if ((cl.get(Calendar.MONTH) + 1) == 8) {
+//					relativeTime = "" + cl.get(Calendar.DAY_OF_MONTH) + " Aug";
+//				} else if ((cl.get(Calendar.MONTH) + 1) == 9) {
+//					relativeTime = "" + cl.get(Calendar.DAY_OF_MONTH) + " Sep";
+//				} else if ((cl.get(Calendar.MONTH) + 1) == 10) {
+//					relativeTime = "" + cl.get(Calendar.DAY_OF_MONTH) + " Oct";
+//				} else if ((cl.get(Calendar.MONTH) + 1) == 11) {
+//					relativeTime = "" + cl.get(Calendar.DAY_OF_MONTH) + " Nov";
+//				} else if ((cl.get(Calendar.MONTH) + 1) == 12) {
+//					relativeTime = "" + cl.get(Calendar.DAY_OF_MONTH) + " Dec";
+//				}
+//			} else // if (diff / (3600000*24*12) >= 1 && diff / (3600000*24*12)
+//					// <= 60) {
+//			{ // relativeTime = " Years ";
+//				Calendar cl = Calendar.getInstance();
+//				cl.setTimeInMillis(previousTime); // here your time in
+//													// milliseconds
+//				relativeTime = "" + cl.get(Calendar.YEAR)
+//						+ (cl.get(Calendar.MONTH) + 1)
+//						+ cl.get(Calendar.DAY_OF_MONTH); // increment because
+//															// this was giving
+//															// the wrong month
+//			}
+//			holder.update.setText(relativeTime);
+//
+//		} catch (Exception e) {
+//			e.printStackTrace();
+//		}
 
 		// try {
 		// if (holder.title.getText().toString().length() >= MAX_CHARS) {
@@ -163,7 +235,7 @@ public class TaskAdapter extends ArrayAdapter<TaskModel> {
 		// holder.title.setText(task.title.toString().substring(0,
 		// MAX_CHARS)
 		// + "...");
-		// }
+		// ; }
 		//
 		// else if (holder.title.getText().toString().length() <= MAX_CHARS) {
 		// holder.title.setText(task.title);
@@ -174,11 +246,18 @@ public class TaskAdapter extends ArrayAdapter<TaskModel> {
 		// Log.e(tag, msg);
 		// }
 		//
-
+		if(task.relativeTime== "" || task.relativeTime == null)
+			task.updateRelativeTime(currentTimeMills);
+		holder.update.setText(task.relativeTime);
+		
 		holder.title.setText(task.title);
 		holder.details.setText(task.details);
 		holder.notes.setText(task.notes);
 		// holder.update.setText(task.updated);
+		
+//		}catch(Exception e){
+//			Log.e("AdapterTask", "Error");
+//		}
 		return row;
 	}
 

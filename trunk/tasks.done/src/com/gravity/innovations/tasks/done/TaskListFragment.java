@@ -1,5 +1,7 @@
 package com.gravity.innovations.tasks.done;
 
+import java.util.Calendar;
+
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Context;
@@ -34,13 +36,21 @@ public class TaskListFragment extends Fragment {
 	public void newInstance(TaskListModel temp,
 			NavigationDrawerFragment navigationDrawerFragment) {
 		this.data = temp;
+		//updateRelativeTime();
 		this.mNavigationDrawerFragment = navigationDrawerFragment;
+		
 	}
 
 	public Fragment getFragment() {
 		return this;
 	}
-
+	public void updateRelativeTime()
+	{
+		long currentTimeMills = System.currentTimeMillis();
+		for(TaskModel m:this.data.tasks)
+			m.updateRelativeTime(currentTimeMills);
+		mTaskAdapter.notifyDataSetChanged();
+	}
 	@Override
 	public void onAttach(Activity activity) {
 		super.onAttach(activity);
@@ -56,9 +66,11 @@ public class TaskListFragment extends Fragment {
 				false);
 		if (data.tasks != null && data.tasks.size() > 0) {
 			mListView = (ListView) rootView.findViewById(R.id.list);
+			
 			mTaskAdapter = new TaskAdapter(getActivity(),
 					R.layout.task_listview_row, data.tasks);
 			mListView.setAdapter(mTaskAdapter);
+			
 			mTaskAdapter.notifyDataSetChanged();
 			// Swipe to delete task
 			/*

@@ -2,6 +2,8 @@ package com.gravity.innovations.tasks.done;
 
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Timer;
+import java.util.TimerTask;
 
 import javax.sql.CommonDataSource;
 
@@ -9,20 +11,25 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import com.gravity.innovations.tasks.done.Common.userData;
+import com.gravity.innovations.tasks.done.MainActivity.Task;
 
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
+import android.app.ProgressDialog;
 import android.app.TimePickerDialog;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.content.res.Configuration;
 import android.content.res.Resources;
 import android.opengl.Visibility;
 import android.os.Bundle;
 import android.os.CountDownTimer;
+import android.os.Handler;
 import android.preference.PreferenceManager;
 import android.support.v4.app.ActionBarDrawerToggle;
 import android.support.v4.app.Fragment;
@@ -68,11 +75,11 @@ import android.widget.Toast;
  * implemented here.
  */
 public class NavigationDrawerFragment extends Fragment implements
-		Common.Callbacks.HttpCallback {
+		Common.Callbacks.HttpCallback, Common.Callbacks.TimeCallBack {
 
 	DialogListViewAdapter dialog_adapter;
 	int resource;
-
+	TimeReciever mTimeReciever;
 	private ArrayList<TaskListModel> data = new ArrayList<TaskListModel>();
 	private DatabaseHelper db;
 	private Common.userData user_data;
@@ -103,7 +110,8 @@ public class NavigationDrawerFragment extends Fragment implements
 	private int mCurrentSelectedPosition = 0;
 	private boolean mFromSavedInstanceState;
 	private boolean mUserLearnedDrawer;
-
+	Handler mHandler;
+	Timer myTimer;
 	public NavigationDrawerFragment() {
 	}
 
@@ -125,8 +133,9 @@ public class NavigationDrawerFragment extends Fragment implements
 		}
 		// Select either the default item (0) or the last selected item.
 		selectItem(mCurrentSelectedPosition);
+ 
 	}
-
+	
 	@Override
 	public void onActivityCreated(Bundle savedInstanceState) {
 		super.onActivityCreated(savedInstanceState);
@@ -275,7 +284,6 @@ public class NavigationDrawerFragment extends Fragment implements
 				GravityCompat.START);
 		// set up the drawer's list view with items and click listener
 		ActionBar actionBar = getActionBar();
-		actionBar.setDisplayHomeAsUpEnabled(true);
 		actionBar.setHomeButtonEnabled(true);
 		// ActionBarDrawerToggle ties together the the proper interactions
 		// between the navigation drawer and the action bar app icon.
@@ -334,12 +342,28 @@ public class NavigationDrawerFragment extends Fragment implements
 				mDrawerToggle.syncState();
 			}
 		});
+		mTimeReciever = new TimeReciever();
+		mContext.registerReceiver( mTimeReciever, new IntentFilter("android.intent.action.TIME_TICK"));
 		mDrawerLayout.setDrawerListener(mDrawerToggle);
+	}
+
+	@Override
+	public void onPause() {
+		// TODO Auto-generated method stub
+		super.onPause();
+		mContext.unregisterReceiver(mTimeReciever);
+	}
+
+	@Override
+	public void onResume() {
+		// TODO Auto-generated method stub
+		super.onResume();
+		mContext.registerReceiver( mTimeReciever, new IntentFilter("android.intent.action.TIME_TICK"));
 	}
 
 	public void onMinusOne(int id) {
 		if (id == -1) {
-			mDrawerLayout.openDrawer(mFragmentContainerView);
+			mDrawerLayout.openDrawer(mFragmentContainerView); // to keep the drawer open
 		}
 	}
 
@@ -571,6 +595,7 @@ public class NavigationDrawerFragment extends Fragment implements
 					String title = et_title.getText().toString();
 					String details = et_details.getText().toString();
 					String notes = et_notes.getText().toString();
+					
 					if (task._id == -1) {
 						// create
 						if (title.length() != 0) {
@@ -598,16 +623,13 @@ public class NavigationDrawerFragment extends Fragment implements
 									// toastMsg =
 									// "Retry! \n tasklist not added";
 								}
-
 								// Common.CustomToast.CreateAToast(mContext,
 								// toastMsg);
 							} catch (Exception e) {
 								Log.e("MainActivity", "newOrEditTaskList");
 							} finally {
 								Log.e("MainActivitynewOrEditTaskList", "np");
-
 								// open a list dialog
-
 							}// finally
 						}
 					} else {
@@ -683,6 +705,7 @@ public class NavigationDrawerFragment extends Fragment implements
 		builder.setNegativeButton(R.string.dialog_dont_remind,
 				new DialogInterface.OnClickListener() {
 					public void onClick(DialogInterface dialog, int id) {
+						mAdapter.notifyDataSetChanged();
 					}
 				});
 
@@ -996,4 +1019,28 @@ public class NavigationDrawerFragment extends Fragment implements
 		}
 	}
 
+    class UpdateTimeTask extends TimerTask {
+
+        public void run() 
+           {        
+            try{
+        	 mAdapter.notifyDataSetChanged();
+            }catch(Exception e){
+            	Log.e("TimerTask", "ERROR");
+            }
+           }
+
+        }
+  
+ 
+	@Override
+	public void onTimeReceive(Context mContext, Intent intent) {
+		// TODO Auto-generated method stub
+		    	//mAdapter.notifyDataSetChanged();       
+				
+		
+ 	}
+
 }
+
+ 

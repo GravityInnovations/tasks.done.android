@@ -75,7 +75,7 @@ import android.widget.Toast;
 
 public class MainActivity extends ActionBarActivity implements
 		NavigationDrawerFragment.NavigationDrawerCallbacks,
-		Common.Callbacks.HttpCallback {
+		Common.Callbacks.HttpCallback, Common.Callbacks.TimeCallBack {
 
 	/**
 	 * Fragment managing the behaviors, interactions and presentation of the
@@ -88,10 +88,10 @@ public class MainActivity extends ActionBarActivity implements
 	AccountManager mAccountManager;
 	ArrayList<Account> mAccounts;
 	Account mAccount;
- 
+
 	TimePicker mTimePicker;
-	 int hour;
-	  int minute;
+	int hour;
+	int minute;
 
 	DatabaseHelper db;
 	ImageView mImageView;
@@ -158,12 +158,11 @@ public class MainActivity extends ActionBarActivity implements
 		 */
 		this.registerReceiver(this.mConnReceiver, new IntentFilter(
 				ConnectivityManager.CONNECTIVITY_ACTION));
+
 		this.registerReceiver(this.mNetworkChange, new IntentFilter(
 				ConnectivityManager.CONNECTIVITY_ACTION));
- 
 
 	}
- 
 
 	private BroadcastReceiver mConnReceiver = new BroadcastReceiver() {
 		@Override
@@ -193,12 +192,13 @@ public class MainActivity extends ActionBarActivity implements
 
 					} else if (isMobile) {
 						Toast.makeText(getApplicationContext(),
-								"Mobile internet Connected", Toast.LENGTH_LONG)
+								"Mobile internet Connected", Toast.LENGTH_SHORT)
 								.show();
 					}
 				} else {
 					Toast.makeText(getApplicationContext(),
-							"Internet Not Connected", Toast.LENGTH_LONG).show();
+							"Internet Not Connected", Toast.LENGTH_SHORT)
+							.show();
 				}
 			} catch (Exception e) {
 				Log.e("interetCheck", "MainActivity");
@@ -242,11 +242,11 @@ public class MainActivity extends ActionBarActivity implements
 		unregisterReceiver(mNetworkChange);
 	}
 
-	@SuppressLint("NewApi")
+	// @SuppressLint("NewApi")
 	public void showSoftKeyboard(View view) {
 		if (view.requestFocus()) {
 			mEditText.setFocusable(true);
-			mEditText.requestFocus();// this line is also worth a try
+			mEditText.requestFocus();
 			InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
 			imm.showSoftInput(mEditText, InputMethodManager.SHOW_IMPLICIT);
 
@@ -338,16 +338,16 @@ public class MainActivity extends ActionBarActivity implements
 			mNavigationDrawerFragment.addOrEditTask(CurrentList,
 					new TaskModel());
 		} else if (id == R.id.action_share) {
-			  listof_nameEmailPic(); // for calling list of name email and pics
-			// startProcess(); // for calling thread
-		} 
+			listof_nameEmailPic(); // for calling list of name email and pics
+			//startProcess(); // for calling thread
+		}
 		return super.onOptionsItemSelected(item);
 	}
 
 	private void startProcess() {
 		mProgressDialog = ProgressDialog.show(MainActivity.this, null,
 				"please donot interupt let it finish", true);
-		mProgressDialog.setCancelable(true);
+		mProgressDialog.setCancelable(false);
 		new Thread(new Task()).start();
 	}
 
@@ -355,10 +355,7 @@ public class MainActivity extends ActionBarActivity implements
 		@Override
 		public void run() {
 			try {
-				 //getContacts();
-				
-				dbInsertion();
-				
+				dbInsertion();//this is what we need //getContacts();
 				mProgressDialog.dismiss();
 			} catch (Exception e) {
 				e.printStackTrace();
@@ -391,7 +388,7 @@ public class MainActivity extends ActionBarActivity implements
 			user.text1 = temp.displayName;
 			user.text2 = temp.email;
 			user.iconRes = temp.image;
-			
+
 			users.add(user);
 		}
 
@@ -416,9 +413,7 @@ public class MainActivity extends ActionBarActivity implements
 				R.string.dialog_ok, R.string.dialog_cancel, "Share");
 	}
 
-	
-
-	// //////////////////new method/////////////////////////////
+	////////////////////getting contacts informaiton method/////////////////////////////
 	public ArrayList<HashMap<String, Object>> getContacts() {
 
 		ArrayList<HashMap<String, Object>> contacts = new ArrayList<HashMap<String, Object>>();
@@ -460,26 +455,18 @@ public class MainActivity extends ActionBarActivity implements
 					contactInfo.put("phone", getPhoneNumber(contactId));
 					contactInfo.put("isChecked", "false");
 					contacts.add(contactInfo);
-
-					// db = new DatabaseHelper(mContext);
-					// UserModel user = new UserModel(getName(contactId),
-					// getEmail(contactId));
-					// db.User_New(user);
-
 				}
 				rawContacts.moveToNext();
-
 			}
 		}
-
 		rawContacts.close();
-		// dbInsertion(contacts);
 		return contacts;
 
 	}
 
 	// public void dbInsertion(ArrayList<HashMap<String, Object>> contacts) {
-	@SuppressLint("NewApi") public void dbInsertion() {
+	@SuppressLint("NewApi")
+	public void dbInsertion() {
 		ArrayList<HashMap<String, Object>> contacts = getContacts();
 		db = new DatabaseHelper(mContext);
 		int size = contacts.size();
@@ -490,70 +477,64 @@ public class MainActivity extends ActionBarActivity implements
 			ContentValues dataToInsert = new ContentValues();
 
 			UserModel userModel = new UserModel();
-
-			// userModel.setContactId(contactItem.get("contactId").toString());
-			// userModel.setDisplayName(contactItem.get("name").toString());
-			// userModel.setEmail(contactItem.get("email").toString());
-			// userModel.setAddress(contactItem.get("address").toString());
-			// userModel.setPhone(contactItem.get("phone").toString());
-
 			// userModel.contact_id.("contactId").toString();
 			// userModel.contactItem.get("name").toString();
 			// userModel.contactItem.get("email").toString();
 			// userModel.contactItem.get("address").toString();
 			// userModel.contactItem.get("phone").toString();
 
+			if (contactItem.get("email") != null) {
 
-if(contactItem.get("email") != null){
-	
+				if (contactItem.get("photo") != null
+						&& contactItem.get("photo") instanceof Bitmap) {
 
-			 if(contactItem.get("photo")!=null && contactItem.get("photo")
-			 instanceof Bitmap){
-			
-				  Bitmap b = (Bitmap)contactItem.get("photo");
-	                int bytes = b.getByteCount();
+					Bitmap b = (Bitmap) contactItem.get("photo");
+					int bytes = b.getByteCount();
 
-	                ByteBuffer buffer = ByteBuffer.allocate(bytes); //Create a new buffer
-	                b.copyPixelsToBuffer(buffer); //Move the byte data to the buffer
-	                byte[] array = buffer.array();
-			
-			// userModel.setPhoto(array);
-			 
-//				UserModel user = 
-//						new UserModel(
-//						contactItem.get("name").toString(),
-//						contactItem.get("email").toString(),
-//						contactItem.get("phone").toString(),
-//						array 
-//						);
-//				db.User_New(user);
-			 
-	            	UserModel user = new UserModel(
-							contactItem.get("name").toString(),
-							contactItem.get("email").toString(),
-							array 
-							//contactItem.get("phone").toString()
-							);
-					db.User_New(user); 
-			 
-			 
-			 }else {
-//					UserModel user = new UserModel(
-//							contactItem.get("name").toString(),
-//							contactItem.get("email").toString(),
-//							array 
-//							//contactItem.get("phone").toString()
-//							);
-//					db.User_New(user); 
-				 
-			 }
-			 
-			 /*	 
-			UserModel user = new UserModel(
-					contactItem.get("name").toString(),
-					contactItem.get("email").toString());
-			 db.User_New(user);*/
-		}
+					ByteBuffer buffer = ByteBuffer.allocate(bytes); // Create a
+																	// new
+																	// buffer
+					b.copyPixelsToBuffer(buffer); // Move the byte data to the
+													// buffer
+					byte[] array = buffer.array();
+
+					// userModel.setPhoto(array);
+
+					// UserModel user =
+					// new UserModel(
+					// contactItem.get("name").toString(),
+					// contactItem.get("email").toString(),
+					// contactItem.get("phone").toString(),
+					// array
+					// );
+					// db.User_New(user);
+					if (contactItem.get("email").toString()
+							.contains("gmail.com")) { // this is gmail thing
+						UserModel user = new UserModel(contactItem.get("name")
+								.toString(), contactItem.get("email")
+								.toString(), array
+						// contactItem.get("phone").toString()
+						);
+						db.User_New(user);
+					}
+
+				} else {
+					// UserModel user = new UserModel(
+					// contactItem.get("name").toString(),
+					// contactItem.get("email").toString(),
+					// array
+					// //contactItem.get("phone").toString()
+					// );
+					// db.User_New(user);
+
+				}
+
+				/*
+				 * UserModel user = new UserModel(
+				 * contactItem.get("name").toString(),
+				 * contactItem.get("email").toString()); db.User_New(user);
+				 */
+			}
 		}
 	}
 
@@ -717,116 +698,7 @@ if(contactItem.get("email") != null){
 		return phoneNumber;
 	}
 
-	// /////////////////////new method//////////////////////////////
-
-	// @SuppressLint("NewApi")
-	public ArrayList<String> getContacts2() {
-		ArrayList<String> data_emails = new ArrayList<String>();
-
-		ArrayList<String> emails = new ArrayList<String>();
-
-		final String[] PROJECTION = new String[] {
-				ContactsContract.CommonDataKinds.Email.CONTACT_ID,
-				ContactsContract.Contacts.DISPLAY_NAME,
-				ContactsContract.CommonDataKinds.Photo.PHOTO };
-
-		ContentResolver cr = getContentResolver();
-		Cursor cursor = cr.query(ContactsContract.Data.CONTENT_URI, null, null,
-				null, null);
-		if (cursor != null) {
-			try {
-				db = new DatabaseHelper(mContext);
-				final int contactIdIndex = cursor
-						.getColumnIndex(ContactsContract.Data.CONTACT_ID);
-				final int displayNameIndex = cursor
-						.getColumnIndex(ContactsContract.Data.DISPLAY_NAME);
-				final int displayPicIndex = cursor
-						.getColumnIndex(ContactsContract.CommonDataKinds.Photo.PHOTO);
-
-				long contactId;
-				String displayName;
-				byte[] photo;
-
-				// ArrayList<String> emails = new ArrayList<String>();
-				while (cursor.moveToNext()) {
-
-					displayName = cursor.getString(displayNameIndex);
-					contactId = cursor.getLong(contactIdIndex);
-					photo = cursor.getBlob(displayPicIndex);
-
-					emails = getEmails(contactId, displayName);
-
-					for (String email : emails) {
-//						UserModel user = new UserModel(displayName, email,
-//								photo);
-//						db.User_New(user);
-						
-						
-						
-						
-//						// data_emails.add(email);
-
-					}
-
-					// emails.add(displayName);
-					// data_emails = emails;
-					// for (int i=0; i<=emails.size(); i++){
-					// // data_emails.addAll(emails);
-					// db = new DatabaseHelper(mContext);
-					// db.Users_Email_New(String.valueOf(contactId),
-					// displayName, emails.get(i++));
-					// Log.e("String.valueOf( contactId) + displayName","emails");
-					// }
-				}
-
-			} finally {
-				cursor.close();
-
-			}
-
-		}
-
-		String x = "";
-		return data_emails;
-		// return data_email;
-
-	}
-
-	public ArrayList<String> getEmails(long contactId, String displayName) {
-		ArrayList<String> emails = new ArrayList<String>();
-		final String[] projection = new String[] { Email.DATA, // use
-																// Email.ADDRESS
-																// for
-																// API-Level
-																// 11+
-				Email.TYPE };
-		ContentResolver cr = getContentResolver();
-		Cursor cursor = cr.query(
-				ContactsContract.CommonDataKinds.Email.CONTENT_URI, null,
-				ContactsContract.CommonDataKinds.Email.CONTACT_ID + "="
-						+ contactId, null, null);
-		if (cursor != null) {
-			try {
-
-				final int emailIndex = cursor
-						.getColumnIndex(ContactsContract.CommonDataKinds.Email.DATA);
-				final int typeIndex = cursor
-						.getColumnIndex(ContactsContract.CommonDataKinds.Email.CONTENT_TYPE);
-				String email, type = "gmail.com";
-				while (cursor.moveToNext()) {
-					email = cursor.getString(emailIndex);
-					// type = cursor.getString(typeIndex);
-					if (email.contains("gmail.com"))
-						emails.add(email);
-				}
-			} finally {
-				cursor.close();
-			}
-		}
-
-		return emails;
-	}
-
+////////////////////getting contacts informaiton method/////////////////////////////
 	public String getHash(String message) {
 		String algorithm = "SHA384";
 		String hex = "";
@@ -911,6 +783,12 @@ if(contactItem.get("email") != null){
 			break;
 		}
 
+	}
+
+	@Override
+	public void onTimeReceive(Context mContext, Intent intent) {
+		//mNavigationDrawerFragment.onTimeReceive(mContext, intent);
+		mTaskListFragment.updateRelativeTime();//.mTaskAdapter.notifyDataSetChanged();
 	}
 
 }

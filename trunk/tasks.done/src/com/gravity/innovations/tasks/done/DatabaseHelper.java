@@ -2,6 +2,7 @@ package com.gravity.innovations.tasks.done;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
 
 import android.content.ContentValues;
@@ -63,8 +64,19 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 	private static final String KEY_REMIND_AT = "remind_date_time";
 	private static final String KEY_REMIND_INTERVAL = "remind_interval";
 	
-	SimpleDateFormat simpledateformat = new SimpleDateFormat("yyyy-MM-dd "+ "hh-mm-ss"); //("ddMMyyyyhhmmss");
-	public String currentDateTime = simpledateformat.format(new Date());	
+	//SimpleDateFormat simpledateformat = new SimpleDateFormat("yyyy-MM-dd-hh-mm-ss");//("yyyy-MM-dd "+ "hh-mm-ss"); //("ddMMyyyyhhmmss");
+	
+	//public String currentDateTime = simpledateformat.format(new Date());
+//	long a = System.currentTimeMillis();
+//	String currentDateTime = Long.toString(a);
+	
+	/*
+	  
+	Calendar rightNow = Calendar.getInstance();
+	long offset = rightNow.get(Calendar.ZONE_OFFSET) +
+	    rightNow.get(Calendar.DST_OFFSET);
+
+	*/
 	
 	// SQLite Create Queries
 	// Tasks Table
@@ -116,6 +128,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 	// Creating Tables
 	@Override
 	public void onCreate(SQLiteDatabase db) {
+		
 		try {
 			db.execSQL(CREATE_TASKS_TABLE);// create task table
 		} catch (Exception e) {
@@ -163,7 +176,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 		
 		
 		
-		values.put(KEY_UPDATED_AT, currentDateTime); //currentDateTime gets its value from above declared string
+		values.put(KEY_UPDATED_AT, task.updated); //currentDateTime gets its value from above declared string
 		
 		values.put(KEY_DUE_AT, task.due_at);
 		
@@ -196,7 +209,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 		values.put(KEY_TITLE, task.title);
 		values.put(KEY_DETAILS, task.details);
 		values.put(KEY_NOTES, task.notes);
-		values.put(KEY_UPDATED_AT, task.updated_at); //correct this one this may be the wrong assignment
+		values.put(KEY_UPDATED_AT, task.updated);//task.updated_at); //correct this one this may be the wrong assignment
 		values.put(KEY_REMIND_AT, task.remind_at);
 		values.put(KEY_REMIND_INTERVAL, task.remind_interval);
 		return db.update(TABLE_TASKS, values, KEY_PK + " = ?",

@@ -106,7 +106,11 @@
         </receiver>
         <receiver android:name=".mNetworkChange" >
             <intent-filter>
-          
+            </intent-filter>
+        </receiver>
+       <receiver android:name=".TimeReciever" >
+            <intent-filter>
+                <action android:name="android.intent.action.TIME_TICK"></action>
             </intent-filter>
         </receiver>
     </application>
