@@ -54,9 +54,9 @@ public class TaskModel {
 				String relativeTime = null;
 
 				if (diff /1000 < 1){
-					relativeTime = " Just Now";
+					relativeTime = " just now";
 				}else if (diff / 1000 >= 1 && diff / 1000 <= 60) {
-					relativeTime = " Just Now";
+					relativeTime = " just now";
 				} else if (diff / 60000 >= 1 && diff / 60000 <= 60) {
 					if (diff / 60000 == 1) {
 						relativeTime = "about "+ diff / 60000 + " min ago"; // for 1
