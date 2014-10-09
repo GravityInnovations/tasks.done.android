@@ -36,6 +36,7 @@ import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.RelativeLayout;
+import android.widget.TextView;
 
 /**
  * Fragment used for managing interactions for and presentation of a navigation
@@ -121,11 +122,10 @@ public class NavigationDrawerFragment extends Fragment implements Common.Callbac
 				R.layout.fragment_navigation_drawer_header, null);// navigation_drawer_header,
 																	// null);
 		// ImageView image = (ImageView) header.findViewById(R.id.image);
-		// EditText name = (EditText) header.findViewById(R.id.text_name);
-		// EditText email = (EditText) header.findViewById(R.id.text_email);
-		EditText search = (EditText) p.findViewById(R.id.search);
+		
+		 EditText search = (EditText) p.findViewById(R.id.search);
 		mDrawerListView.addHeaderView(header);
-
+		
 		View footer = inflater.inflate(
 				R.layout.fragment_navigation_drawer_footer, null);// navigation_drawer_header,
 																	// null);
@@ -233,6 +233,12 @@ public class NavigationDrawerFragment extends Fragment implements Common.Callbac
 		mDrawerLayout = drawerLayout;
 		// set a custom shadow that overlays the main content when the drawer
 		// opens
+		TextView name = (TextView) mDrawerLayout.findViewById(R.id.text_name);
+		 name.setText(user_data.name);
+		 TextView email = (TextView) mDrawerLayout.findViewById(R.id.text_email);
+		email.setText(user_data.email);
+		ImageView profile = (ImageView)mDrawerLayout.findViewById(R.id.profile_image);
+		profile.setImageBitmap(user_data.image);
 		mDrawerLayout.setDrawerShadow(R.drawable.drawer_shadow,
 				GravityCompat.START);
 		// set up the drawer's list view with items and click listener

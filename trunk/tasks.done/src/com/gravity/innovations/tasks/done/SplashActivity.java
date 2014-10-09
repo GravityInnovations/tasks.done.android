@@ -1,5 +1,8 @@
 package com.gravity.innovations.tasks.done;
 
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.InputStream;
 import java.util.ArrayList;
 
 import org.json.JSONArray;
@@ -16,19 +19,24 @@ import android.accounts.AccountManager;
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Context;
+import android.content.ContextWrapper;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager.NameNotFoundException;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.graphics.LinearGradient;
 import android.graphics.Shader;
 import android.graphics.Shader.TileMode;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.provider.ContactsContract;
 import android.provider.ContactsContract.CommonDataKinds.Phone;
 import android.provider.ContactsContract.Contacts;
 import android.view.Window;
+import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -268,7 +276,23 @@ public class SplashActivity extends Activity implements
 			TriggerWaitEvent(Common.GO_TO_MAIN);
 			addProgressTask(getString(R.string.complete));
 			break;
+		case Common.RequestCodes.GOOGLE_GET_USER_INFO:
+			//save user info
+			try {
+				user_data.name = data.getString("name");
+				mSharedPreferencesEditor
+				.putString(Common.USER_NAME, user_data.name);
+				
+				getAndSaveBitmap(data.getString("picture"));
+				//next step in getAndSaveBitmap function
+				mSharedPreferencesEditor.commit();
+				
+			} catch (JSONException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
 			
+			break;
 		}
 	}
 
@@ -323,6 +347,17 @@ public class SplashActivity extends Activity implements
 				mSharedPreferences.getInt(Common.GOOGLE_PROPERTY_APP_VERSION, Integer.MIN_VALUE);
 		user_data.google_reg_id = 
 				mSharedPreferences.getString(Common.GOOGLE_PROPERTY_REG_ID, "");
+		user_data.name = mSharedPreferences.getString(Common.USER_NAME, "");
+		//user_data.image = BitmapFactory.decodeFile( mSharedPreferences.getString(Common.USER_IMAGE, ""));
+		try{
+		user_data.image = Bitmap.createScaledBitmap(BitmapFactory.decodeFile( mSharedPreferences.getString(Common.USER_IMAGE, "")),75, 75, true);
+		}
+		catch(Exception ex)
+		{
+			
+		}
+		//		ImageView v = (ImageView)findViewById(R.id.logo);
+//		v.setImageBitmap(user_data.image);
 		TriggerWaitEvent(Common.LOAD_LOCAL_DB);
 		addProgressTask(getString(R.string.load_db));
 		updateLog();
@@ -437,30 +472,94 @@ public class SplashActivity extends Activity implements
 //			TriggerWaitEvent(Common.CONFIG_GCM);
 //			addProgressTask(getString(R.string.checking_other_settings));
 //			addProgressTask(getString(R.string.config_gcm));
-			if(!user_data.gravity_is_registered)
+			if(Common.hasInternet(mActivity))
 			{
-				addProgressTask(getString(R.string.gravity_register));
+				addProgressTask(getString(R.string.google_get_user_info));
 				
-				TriggerWaitEvent(Common.GRAVITY_REGISTER);
-				
+				TriggerWaitEvent(Common.GOOGLE_USER_INFO);
 			}
-			else
-			{
-				TriggerWaitEvent(Common.GO_TO_MAIN);
-				addProgressTask(getString(R.string.complete));
-			}
+			
 			
 			//runWorker
 		}
 		//updateLog();
 	}
+	
+	
 	@Override
 	public void Sync() {
 		// TODO Auto-generated method stub
 		GravityController.get_tasklists(mActivity, user_data,
 				Common.RequestCodes.GRAVITY_GET_TASKLISTS);
 	}
+	@Override
+	public void GetUserDataFromGoogle() {
+		// TODO Auto-generated method stub
+		HttpTask Temp =  new HttpTask(mActivity, 
+				Common.USER_INFO_URL+user_data.google_AuthToken, null,
+				Common.HttpMethod.HttpGet,
+				Common.RequestCodes.GOOGLE_GET_USER_INFO);
+		Temp.execute();
+	}
+	public void getAndSaveBitmap(final String url)
+    {
+		new Thread(new Runnable() {
+			
+			@Override
+			public void run() {
+				Bitmap bitmapImage = null;
+		        try 
+		        {
+		            InputStream in = new java.net.URL(url).openStream();
+		            bitmapImage = BitmapFactory.decodeStream(in);
+		            ContextWrapper cw = new ContextWrapper(getApplicationContext());
+		            File directory = cw.getDir("taskdone", Context.MODE_PRIVATE);
+		            if(!directory.exists())
+			            directory.mkdir();
+		            File mypath=new File(directory,"profile.jpg");
+		            if (mypath.exists())
+		            	mypath.delete();
+		            FileOutputStream fos = null;
+		            try {
+		               // fos = openFileOutput(filename, Context.MODE_PRIVATE);
 
+		                fos = new FileOutputStream(mypath);
+
+		                // Use the compress method on the BitMap object to write image to the OutputStream
+		                bitmapImage.compress(Bitmap.CompressFormat.JPEG, 100, fos);
+		                fos.flush();
+		                fos.close();
+		            } catch (Exception e) {
+		                e.printStackTrace();
+		            }
+		            //user_data.image = bitmapImage;
+		            user_data.image = Bitmap.createScaledBitmap(bitmapImage,75, 75, true);
+		            mSharedPreferencesEditor
+					.putString(Common.USER_IMAGE, mypath.getAbsolutePath());
+		            mSharedPreferencesEditor.commit();
+		          //reg to gravity
+					if(!user_data.gravity_is_registered)
+					{
+						addProgressTask(getString(R.string.gravity_register));
+						
+						TriggerWaitEvent(Common.GRAVITY_REGISTER);
+						
+					}
+					else
+					{
+						TriggerWaitEvent(Common.GO_TO_MAIN);
+						addProgressTask(getString(R.string.complete));
+					}
+		            //return bitmapImage;
+		        }//End of try block...... 
+		        catch (Exception e) 
+		        {
+		            //status = e.getMessage();
+		            //return null;
+		        }
+			}
+		}).start();
+    }
 	
 	//gcm functions
 	

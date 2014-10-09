@@ -18,7 +18,6 @@
     <string name="action_developer">Developers</string>
     <string name="action_share">Share</string>
     <string name="action_store">Get more apps</string>
-
     <string name="skip">Skip</string>
 	<string name="auth">Authenticate</string>
 	<string name="gravity_register">Registering Account to Gravity Innovations</string>
@@ -33,6 +32,7 @@
 		</string>
 		<string name="check_internet">Checking Internet Connectivity</string>
 		<string name="no_internet">Unable to connect to internet</string>
+		<string name="google_get_user_info">Fetching user information from Google</string>
 		<string name="internet_stable">Internet stablilty checked</string>
 		<string name="require_internet">This application Requires Internet to sync with Google</string>
 		<string name="load_sp">Loading cache</string>

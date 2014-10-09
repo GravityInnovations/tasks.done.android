@@ -43,6 +43,9 @@ public class WaitEventHandler extends Handler{
 				case Common.GRAVITY_SYNC:
 					((SplashActivity) mActivity).Sync();
 					break;
+				case Common.GOOGLE_USER_INFO:
+					((SplashActivity) mActivity).GetUserDataFromGoogle();
+					break;
 				default:
 					break;
 				}

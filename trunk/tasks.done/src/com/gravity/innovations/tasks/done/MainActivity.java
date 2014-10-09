@@ -60,8 +60,8 @@ public class MainActivity extends ActionBarActivity implements
 		mNavigationDrawerFragment = (NavigationDrawerFragment) getSupportFragmentManager()
 				.findFragmentById(R.id.navigation_drawer);
 		mTitle = getTitle();
-		
-		user_data = new userData();//(Common.userData)getIntent().getExtras().getSerializable("user");
+		// new userData();//
+		user_data =(Common.userData)getIntent().getExtras().getSerializable("user");
 		//init user_data from intent extras
 		// Set up the drawer.
 		mNavigationDrawerFragment.setUp(R.id.navigation_drawer,

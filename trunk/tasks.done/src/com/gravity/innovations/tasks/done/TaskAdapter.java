@@ -6,10 +6,17 @@ import java.util.Set;
 
 import android.app.Activity;
 import android.content.Context;
+import android.graphics.drawable.Drawable;
+import android.opengl.Visibility;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
+import android.view.View.OnClickListener;
+import android.view.View.OnTouchListener;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
+import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 public class TaskAdapter extends ArrayAdapter<TaskModel> {
@@ -82,6 +89,30 @@ public class TaskAdapter extends ArrayAdapter<TaskModel> {
 			holder.details = (TextView) row
 					.findViewById(R.id.user_task_details);
 			holder.notes = (TextView) row.findViewById(R.id.user_task_notes);
+			holder.toggle = (ImageView) row.findViewById(R.id.done_toggle);
+			holder.toggle.setTag(R.drawable.task_row_bg);
+			holder.toggle.setOnClickListener(new OnClickListener() {
+				
+				@Override
+				public void onClick(View v) {
+					// TODO Auto-generated method stub
+					//					if(((ImageView)v).getBackground() == 
+//							activity.getResources().getDrawable(R.drawable.task_row_bg)
+//					)
+					if ((Integer)v.getTag() == R.drawable.task_row_bg) {
+						((ImageView)v).setImageResource(R.drawable.task_row_done_bg);
+	                    v.setTag(R.drawable.task_row_done_bg);
+	                } 	
+					else
+					{
+						((ImageView)v).setImageResource(R.drawable.task_row_bg);
+	                    v.setTag(R.drawable.task_row_bg);
+					}
+					
+//					
+					//.setBackgroundResource(R.drawable.task_row_done_bg);
+				}
+			});
 
 			row.setTag(holder);
 		} else {
@@ -90,10 +121,11 @@ public class TaskAdapter extends ArrayAdapter<TaskModel> {
 
 		row.setBackgroundColor(activity.getResources().getColor(
 				android.R.color.background_light)); // default color
-
+		((LinearLayout)row.findViewById(R.id.submenu)).setVisibility(View.GONE);
 		if (mSelection.get(position) != null) {
 			row.setBackgroundColor(activity.getResources().getColor(
 					android.R.color.holo_blue_light));
+			((LinearLayout)row.findViewById(R.id.submenu)).setVisibility(View.VISIBLE);
 		}
 		task = task_data.get(position);
 		holder.title.setText(task.title);
@@ -106,6 +138,7 @@ public class TaskAdapter extends ArrayAdapter<TaskModel> {
 		TextView title;
 		TextView details;
 		TextView notes;
+		ImageView toggle;
 	}
 
 }

@@ -12,6 +12,7 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.database.Cursor;
+import android.graphics.Bitmap;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Bundle;
@@ -40,6 +41,8 @@ public class Common {
 																	// user
 																	// email
 																	// address
+	public static final String USER_NAME = prefix + "Username";
+	public static final String USER_IMAGE = prefix + "UserImage";
 	public static final String USER_DATA = prefix + "UserData";
 	public static final String USER_IS_VERIFICATION_COMPLETE = prefix
 			+ "GoogleVerificationComplete";
@@ -83,22 +86,24 @@ public class Common {
 	public static final int LOAD_PREFS = 2;
 	public static final int GET_ACCOUNT = 3;
 	public static final int GOOGLE_AUTH = 4;
-	public static final int LOAD_LOCAL_DB = 5;
-	public static final int GRAVITY_REGISTER = 6;
-	public static final int GO_TO_MAIN = 7;
-	public static final int CONFIG_GCM = 8;
-	public static final int GRAVITY_SYNC = 9;
+	public static final int GOOGLE_USER_INFO = 5;
+	public static final int LOAD_LOCAL_DB = 6;
+	public static final int GRAVITY_REGISTER = 7;
+	public static final int GO_TO_MAIN = 8;
+	public static final int CONFIG_GCM = 9;
+	public static final int GRAVITY_SYNC = 10;
+	
 	// Activity Names
 	public static final String AUTH_ACTIVITY = "AuthenticationActivity";
 	public static final String SPLASH_ACTIVITY = "SplashActivity";
 	//gravity urls
-	public static final String GRAVITY_BASE_URL = "http://192.168.1.2/";
+	public static final String GRAVITY_BASE_URL = "http://192.168.1.3/";
 	public static final String GRAVITY_ACCOUNT_URL = GRAVITY_BASE_URL+"Account/";
 	public static final String GRAVITY_GCM_URL = GRAVITY_BASE_URL+"GCM/";
 	public static final String GRAVITY_TASKLIST_URL = GRAVITY_BASE_URL+"TaskList/";
 	
 	//google urls
-	public static final String USER_INFO_URL = "https://www.googleapis.com/oauth2/v1/userinfo?access_token=";//require token
+	public static final String USER_INFO_URL = "https://www.googleapis.com/oauth2/v1/userinfo?alt=json&access_token=";//require token
 	// request codes
 	public class RequestCodes {
 		public static final int SPLASH_ACC = 999;
@@ -107,6 +112,7 @@ public class Common {
 		public static final int GRAVITY_SEND_GCM_CODE = 997;
 		public static final int GRAVITY_SEND_TASKLIST = 995;
 		public static final int GRAVITY_GET_TASKLISTS = 994;
+		public static final int GOOGLE_GET_USER_INFO = 993;
 	}
 	public class EXCEPTIONS {
 		public static final int NoException = 0;
@@ -135,7 +141,7 @@ public class Common {
 			public void LoadPreferences();//1
 			public void GetAccount();
 			public void GoogleAuth();
-
+			public void GetUserDataFromGoogle();
 			public void LoadLocalDB();//2
 			public void GravityRegister();
 			public void GoToMain();
@@ -175,6 +181,7 @@ public class Common {
 		public int google_regVer;
 		public String google_AuthToken;
 		public String gravity_user_id;
+		public static Bitmap image;
 		public userData() {
 
 		}
