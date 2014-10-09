@@ -70,12 +70,26 @@ public class TaskListModel {
 
 	// new database changes
 	// constructor
+	 
+	public TaskListModel( String title, String _server_id, String _etag,
+			String _updated, String _self_link, String _kind, int _user_id, int _isSyncSent,
+			int _synced) {
+		this.title = title;
+		this.server_id = _server_id;
+		this.etag = _etag;
+		this.updated = _updated;
+		this.self_link = _self_link;
+		this.kind = _kind;
+		this.user_id =_user_id;
+		this.isSyncSent = _isSyncSent;
+		this.synced = _synced;
+		this.tasks = new ArrayList<TaskModel>();
+	}
 	public TaskListModel(int id, String title, String _server_id, String _etag,
 			String _updated, String _self_link, String _kind, int _user_id, int _isSyncSent,
 			int _synced) {
 		this._id = id;
 		this.title = title;
-
 		this.server_id = _server_id;
 		this.etag = _etag;
 		this.updated = _updated;
@@ -84,24 +98,6 @@ public class TaskListModel {
 		this.user_id =_user_id;
 		this.isSyncSent = _isSyncSent;
 		this.synced = _synced;
-		
 		this.tasks = new ArrayList<TaskModel>();
-	}
-
-	public TaskListModel( String title, String _server_id, String _etag,
-			String _updated, String _self_link, String _kind, int _user_id, int _isSyncSent,
-			int _synced) {
-		this.title = title;
-
-		this.server_id = _server_id;
-		this.etag = _etag;
-		this.updated = _updated;
-		this.self_link = _self_link;
-		this.kind = _kind;
-		this.user_id =_user_id;
-		this.isSyncSent = _isSyncSent;
-		this.synced = _synced;
-		
-		this.tasks = new ArrayList<TaskModel>();
-	}
+	} 
 }

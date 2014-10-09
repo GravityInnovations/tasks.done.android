@@ -1,0 +1,164 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical" >
+   <TextView
+        android:id="@+id/title"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentTop="true"
+        android:layout_marginLeft="14dp"
+        android:layout_marginTop="20dp"
+        android:text="Title:" />
+    
+    
+    <TextView
+        android:id="@+id/tv_title"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content" 
+        android:layout_alignParentRight="true"
+         android:layout_alignBaseline="@+id/tv_title"
+        android:layout_marginTop="20dp"
+        android:ems="10"
+        android:hint="Title Full" />
+    
+    <TextView
+        android:id="@+id/details"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentLeft="true"
+        android:layout_below="@+id/title"
+        android:layout_marginLeft="14dp"
+        android:layout_marginTop="20dp"
+        android:text="Details:" />
+    
+    <TextView
+        android:id="@+id/tv_details"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignBaseline="@+id/details"
+        android:layout_alignParentRight="true"
+        android:layout_below="@+id/tv_title"
+        android:ems="10"
+        android:hint="Details Full" />
+    
+    
+    
+        <TextView
+        android:id="@+id/notes"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentLeft="true"
+        android:layout_below="@+id/details"
+        android:layout_marginLeft="14dp"
+        android:layout_marginTop="20dp"
+        android:text="Notes:" />
+    
+    <TextView
+        android:id="@+id/tv_notes"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignBaseline="@+id/notes"
+        android:layout_alignParentRight="true"
+        android:layout_below="@+id/tv_details"
+        android:ems="10"
+        android:hint="Notes Full" />
+
+    <TextView
+        android:id="@+id/text_only"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentLeft="true"
+        android:layout_below="@+id/notes"
+        android:layout_marginLeft="14dp"
+        android:layout_marginTop="20dp"
+        android:text="Dates:" />
+    
+    <View
+    android:id="@+id/line_divider"
+    android:layout_width="fill_parent"
+    android:layout_height="1dip"
+    android:background="#cecece"
+    android:layout_below="@+id/text_only" />
+    
+            <TextView
+        android:id="@+id/created"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentLeft="true"
+        android:layout_below="@+id/line_divider"
+        android:layout_marginLeft="14dp"
+        android:layout_marginTop="20dp"
+        android:text="Created:" />
+    
+    <TextView
+        android:id="@+id/tv_date_created"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignBaseline="@+id/created"
+        android:layout_alignParentRight="true"
+        android:layout_below="@+id/line_divider"
+        android:ems="10"
+        android:hint="Cteated At" />
+    
+                <TextView
+        android:id="@+id/due"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentLeft="true"
+        android:layout_below="@+id/created"
+        android:layout_marginLeft="14dp"
+        android:layout_marginTop="20dp"
+        android:text="Due:" />
+    
+    <TextView
+        android:id="@+id/tv_date_due"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignBaseline="@+id/due"
+        android:layout_alignParentRight="true"
+        android:layout_below="@+id/date_created"
+        android:ems="10"
+        android:hint="Due At" />
+    
+        <TextView
+        android:id="@+id/text_only_1"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentLeft="true"
+        android:layout_below="@+id/due"
+        android:layout_marginLeft="14dp"
+        android:layout_marginTop="20dp"
+        android:text="Reminder:" />
+    
+    <View
+    android:id="@+id/line_divider_1"
+    android:layout_width="fill_parent"
+    android:layout_height="1dip"
+    android:background="#cecece"
+    android:layout_below="@+id/text_only_1" />
+    
+                    <TextView
+        android:id="@+id/interval"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentLeft="true"
+        android:layout_below="@+id/line_divider_1"
+        android:layout_marginLeft="14dp"
+        android:layout_marginTop="20dp"
+        android:text="Interval" />
+    
+    <TextView
+        android:id="@+id/tv_reminder_interval"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignBaseline="@+id/interval"
+        android:layout_alignParentRight="true"
+        android:layout_below="@+id/line_divider_1"
+        android:ems="10"
+        android:hint="Daily/Weekly/Monthly" />
+ 
+
+</RelativeLayout>

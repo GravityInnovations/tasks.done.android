@@ -1,34 +1,22 @@
 package com.gravity.innovations.tasks.done;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Calendar;
+import java.util.Date;
 import java.util.Timer;
 import java.util.TimerTask;
-
-import javax.sql.CommonDataSource;
-
 import org.json.JSONException;
 import org.json.JSONObject;
-
-import com.gravity.innovations.tasks.done.Common.userData;
-import com.gravity.innovations.tasks.done.MainActivity.Task;
-
-import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
-import android.app.ProgressDialog;
-import android.app.TimePickerDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.content.res.Configuration;
-import android.content.res.Resources;
-import android.opengl.Visibility;
 import android.os.Bundle;
-import android.os.CountDownTimer;
 import android.os.Handler;
 import android.preference.PreferenceManager;
 import android.support.v4.app.ActionBarDrawerToggle;
@@ -39,9 +27,7 @@ import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBarActivity;
 import android.text.Editable;
 import android.text.TextWatcher;
-import android.text.format.DateFormat;
 import android.util.Log;
-import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -49,23 +35,16 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
-import android.view.ViewGroup.LayoutParams;
-import android.webkit.WebView.FindListener;
 import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
-import android.widget.Button;
-import android.widget.CompoundButton;
 import android.widget.AdapterView.OnItemClickListener;
-import android.widget.CompoundButton.OnCheckedChangeListener;
+import android.widget.Button;
 import android.widget.DatePicker;
 import android.widget.EditText;
-import android.widget.ImageView;
-import android.widget.LinearLayout;
 import android.widget.ListView;
-import android.widget.RelativeLayout;
-import android.widget.Switch;
+import android.widget.TextView;
 import android.widget.TimePicker;
-import android.widget.Toast;
+
+import com.gravity.innovations.tasks.done.Common.userData;
 
 /**
  * Fragment used for managing interactions for and presentation of a navigation
@@ -570,7 +549,76 @@ public class NavigationDrawerFragment extends Fragment implements
 		selectItem(++position);
 	}
 
-	@SuppressLint("NewApi")
+	public void openTaskDetailsDialog( TaskModel current) {
+	 
+		View view = getActivity().getLayoutInflater().inflate(R.layout.dialog_task_full_details, null);
+		String dialogTitle = "Task Details";
+		
+		TextView tv_title=(TextView) view.findViewById(R.id.tv_title);
+		TextView tv_details=(TextView) view.findViewById(R.id.tv_details);
+		TextView tv_notes=(TextView) view.findViewById(R.id.tv_notes);
+		TextView tv_created=(TextView) view.findViewById(R.id.tv_date_created);
+		TextView tv_due=(TextView) view.findViewById(R.id.tv_date_due);
+		TextView tv_interval=(TextView) view.findViewById(R.id.tv_reminder_interval);
+		
+		String title = current.title.toString();
+		tv_title.setText(title);
+ 		
+		String details = current.details.toString();
+		tv_details.setText(details);
+		
+		String notes = current.notes.toString();
+	 	tv_notes.setText(notes);
+		
+	 	long date = Long.parseLong(current.updated.toString());
+	 	SimpleDateFormat formatter = new SimpleDateFormat("yyyy/MM/dd " +" "+"hh:MM:ss"); 
+	 	String dateString = formatter.format(new Date(date) );
+	 	tv_created.setText(dateString);
+	 	
+	 	
+//	 	String dueDate = current.due_at;
+//	 	String dueDateString = formatter.format(dueDate );
+		 String due = "well this needs to be fixed";//current.due_at.toString();
+		tv_due.setText(due);
+		
+		String interval = null;
+		if (current.remind_interval == 1 ){
+			interval = "none";
+			tv_interval.setText(interval);
+		}else if (current.remind_interval == 2 ){
+			 interval = "Daily";
+			 tv_interval.setText(interval);
+			}else if (current.remind_interval == 3 ){
+				interval = "Weekly";
+				tv_interval.setText(interval);
+				}else if (current.remind_interval == 4 ){
+					interval = "Yearly";
+					tv_interval.setText(interval);
+					}else {
+						interval = "none";
+						tv_interval.setText(interval);
+						}
+		
+
+		DialogInterface.OnClickListener posListener = new DialogInterface.OnClickListener() {
+			@Override
+			public void onClick(DialogInterface dialog, int which) {
+				dialog.cancel();
+			}
+		};
+
+		DialogInterface.OnClickListener negListener = new DialogInterface.OnClickListener() {
+			@Override
+			public void onClick(DialogInterface dialog, int which) {
+				dialog.cancel();
+			}
+		};
+		Common.CustomDialog.CustomDialog(mContext, view, negListener,
+				posListener, R.string.dialog_save, R.string.dialog_back,
+				dialogTitle);
+	}
+	
+	//@SuppressLint("NewApi")
 	public void addOrEditTask(final TaskListModel tasklist, final TaskModel task) {
 		final View view = getActivity().getLayoutInflater().inflate(
 				R.layout.addoredit_task_dialog, null);
@@ -601,14 +649,14 @@ public class NavigationDrawerFragment extends Fragment implements
 						if (title.length() != 0) {
 							try {
 								TaskModel temp = new TaskModel(title, details,
-										notes, null, // dueDateTime,
+										notes,
 										tasklist._id);
 
 								/*
 								 * Trying this for new db model and constructor
 								 */
 
-								openListDialog(temp);
+								openReminderListDialog(temp);
 
 								/*
 								 * Trying this for new db model and constructor
@@ -638,7 +686,7 @@ public class NavigationDrawerFragment extends Fragment implements
 									// tasklist._id
 									task._id, title, details, notes,
 									tasklist._id);
-							openListDialog(temp);// testing now
+							openReminderListDialog(temp);// testing now
 							int nRows = db.Task_Edit(temp);
 							if (nRows > 0) {
 								// tasklist.title = title;
@@ -666,7 +714,7 @@ public class NavigationDrawerFragment extends Fragment implements
 				dialogTitle);
 	}
 
-	public void openListDialog(final TaskModel temp) {
+	public void openReminderListDialog(final TaskModel temp) {
 		AlertDialog.Builder builder = new AlertDialog.Builder(mContext);
 		builder.setTitle("Reminder");
 		final ListView modeList = new ListView(mContext);
@@ -726,18 +774,18 @@ public class NavigationDrawerFragment extends Fragment implements
 
 	public void SelectDialogItemId(int id, TaskModel temp) {
 		if (id == 0) {
-			listDialogActionsOne(temp);// datetime picker dialog
+			reminderListDialogActionsOne(temp);// datetime picker dialog
 		} else if (id == 1) {
-			listDialogActionTwo(temp);// repeat dialog
+			reminderListDialogActionTwo(temp);// repeat dialog
 		} else if (id == 2) {
-			listDialogActionThree();// set location dialog
-		}
+			reminderListDialogActionThree();// set location dialog
+		} 
 	}
 
-	public void listDialogActionsOne(final TaskModel temp) {
+	public void reminderListDialogActionsOne(final TaskModel temp) {
 		View view = getActivity().getLayoutInflater().inflate(
 				R.layout.datetimepicker_dialog, null);
-		String dialogTitle = "TimePicker";
+		String dialogTitle = "Remind At Date Time";
 
 		final DatePicker datepicker = (DatePicker) view
 				.findViewById(R.id.dialog_datepicker);
@@ -776,7 +824,7 @@ public class NavigationDrawerFragment extends Fragment implements
 				db.Task_Edit(temp);
 				dialog.cancel();
 				dialog.dismiss();
-				openListDialog(temp);
+				openReminderListDialog(temp);
 			}
 		};
 
@@ -791,7 +839,7 @@ public class NavigationDrawerFragment extends Fragment implements
 				dialogTitle);
 	}
 
-	public void listDialogActionTwo(final TaskModel temp) {
+	public void reminderListDialogActionTwo(final TaskModel temp) {
 		AlertDialog.Builder builder = new AlertDialog.Builder(mContext);
 		builder.setTitle("Repeat");
 		final String[] items = { "Once", "Once a Day", "Once a Week",
@@ -823,7 +871,7 @@ public class NavigationDrawerFragment extends Fragment implements
 
 						db.Task_Edit(temp);
 						dialog.dismiss();
-						openListDialog(temp);
+						openReminderListDialog(temp);
 					}
 				});
 		builder.setNegativeButton(R.string.dialog_back,
@@ -836,7 +884,7 @@ public class NavigationDrawerFragment extends Fragment implements
 		dialog.show();
 	}
 
-	public void listDialogActionThree() {
+	public void reminderListDialogActionThree() {
 		AlertDialog.Builder builder = new AlertDialog.Builder(mContext);
 		builder.setTitle("Location");
 		builder.setMessage("Go Premium");
@@ -856,7 +904,7 @@ public class NavigationDrawerFragment extends Fragment implements
 		final Dialog dialog = builder.create();
 		dialog.show();
 	}
-
+	
 	private void addTask(TaskListModel parent, TaskModel temp) {
 		parent.tasks.add(temp);
 		this.mAdapter.notifyDataSetChanged();

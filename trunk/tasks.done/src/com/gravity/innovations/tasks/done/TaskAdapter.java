@@ -55,8 +55,12 @@ public class TaskAdapter extends ArrayAdapter<TaskModel> {
 		return temp;
 	}
 
+	public void sellectThisThing(int position){
+		mSelection.put(position, null);
+	}
+	
 	public void setNewSelection(int position, boolean value) {
-		mSelection.put(position, value);
+		mSelection.put(position, value); //just made it up
 		notifyDataSetChanged();
 	}
 
@@ -74,6 +78,11 @@ public class TaskAdapter extends ArrayAdapter<TaskModel> {
 		notifyDataSetChanged();
 	}
 
+	public void removeAllSelection() {
+		 mSelection.clear();// .remove();
+		notifyDataSetChanged();
+	}
+	
 	public void clearSelection() {
 		mSelection = new HashMap<Integer, Boolean>();
 		notifyDataSetChanged();
@@ -104,8 +113,8 @@ public class TaskAdapter extends ArrayAdapter<TaskModel> {
 				android.R.color.background_light)); // default color
 
 		if (mSelection.get(position) != null) {
-			row.setBackgroundColor(activity.getResources().getColor(
-					android.R.color.holo_blue_light));
+			row.setBackgroundColor(activity.getResources().getColor(R.color.selection_blue));
+					//getResources().getColor(android.R.color.holo_blue_light));
 		}
 		task = task_data.get(position);
 		

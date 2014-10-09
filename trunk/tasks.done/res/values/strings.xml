@@ -4,6 +4,7 @@
     <color name="pressed_color">#ccc</color>
     <color name="default_color">#eee</color>
     <color name="line_divider">#bbb</color>
+    <color name="selection_blue">#b7e1fc</color>
 
     <string name="add_task">Add Task</string>
     <string name="app_name">tasks.done</string>
