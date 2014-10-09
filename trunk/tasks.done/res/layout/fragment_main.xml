@@ -7,11 +7,28 @@
     <TextView
         android:id="@+id/section_label"
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content" />
-	<ListView
+        android:layout_height="wrap_content"
+        android:visibility="gone" />
+
+    <GridView
+        android:id="@+id/gridView1"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentTop="true"
+        android:layout_marginLeft="20dp"
+        android:layout_marginRight="20dp"
+        android:columnWidth="50dp"
+        android:numColumns="auto_fit" >
+    </GridView>
+
+    <ListView
         android:id="@+id/list"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
+        android:layout_below="@+id/gridView1"
         android:focusable="false"
-        android:focusableInTouchMode="false" />
+        android:focusableInTouchMode="false"
+        android:layout_marginLeft="20dp"
+        android:layout_marginRight="20dp" />
+
 </RelativeLayout>

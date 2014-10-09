@@ -2,29 +2,27 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:clickable="true"
     android:orientation="vertical" >
-     <TextView
+
+    <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Your Account" 
-        android:paddingLeft="5dip"
         android:layout_marginTop="15dip"
-        
-    android:textAppearance="?android:attr/textAppearanceMedium" 
-        />
-<View
-    android:layout_width="fill_parent"
-    android:layout_height="2dp"
-    
-    android:background="@color/line_divider"
-    
-    />
+        android:paddingLeft="5dip"
+        android:text="Your Account"
+        android:textAppearance="?android:attr/textAppearanceMedium" />
+
+    <View
+        android:layout_width="fill_parent"
+        android:layout_height="2dp"
+        android:background="@color/line_divider" />
+
     <RelativeLayout
         android:id="@+id/rl"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
         android:padding="5dip" >
-
 
         <ImageView
             android:id="@+id/profile_image"
@@ -60,20 +58,14 @@
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Your Task Lists" 
-        android:paddingLeft="5dip"
         android:layout_marginTop="15dip"
-        
-    android:textAppearance="?android:attr/textAppearanceMedium" 
-        />
-<View
-    android:layout_width="fill_parent"
-    android:layout_height="2dp"
-    
-    android:background="@color/line_divider"
-    
-    />
+        android:paddingLeft="5dip"
+        android:text="Your Task Lists"
+        android:textAppearance="?android:attr/textAppearanceMedium" />
 
-
+    <View
+        android:layout_width="fill_parent"
+        android:layout_height="2dp"
+        android:background="@color/line_divider" />
 
 </LinearLayout>

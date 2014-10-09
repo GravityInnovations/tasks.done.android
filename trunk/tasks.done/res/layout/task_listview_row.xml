@@ -2,14 +2,15 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="fill_parent"
     android:layout_height="wrap_content"
-    android:orientation="horizontal"
-    android:paddingTop="3dp"
-    android:paddingLeft="3dp">
+    android:orientation="horizontal">
+ <RelativeLayout
+        android:id="@+id/one"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_weight="1" >
 
-    
 
-   
-        <TextView
+       <TextView
             android:id="@+id/user_task_title"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -18,7 +19,7 @@
             android:ellipsize="end"
             android:maxLength="10"
             android:singleLine="true"
-            android:text="title"
+            android:text=""
             android:textAppearance="?android:attr/textAppearanceLarge" />
 
         <TextView
@@ -30,6 +31,7 @@
             android:ellipsize="end"
             android:singleLine="true"
             android:text="details"
+            android:hint="details"
             android:textAppearance="?android:attr/textAppearanceSmall" />
 
         <TextView
@@ -38,7 +40,7 @@
             android:layout_height="wrap_content"
             android:layout_alignParentLeft="true"
             android:layout_below="@+id/user_task_details"
-            android:text="notes"
+            android:text=""
             android:textAppearance="?android:attr/textAppearanceSmall"
             android:visibility="gone" />
 
@@ -89,5 +91,24 @@
  </LinearLayout>
        
        
+    </RelativeLayout>
+    <RelativeLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_weight="1" >
+
+        <TextView
+            android:id="@+id/updated"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentRight="true"
+            android:layout_alignParentTop="true"
+            android:hint="updated"
+            android:text=""
+            android:textAppearance="?android:attr/textAppearanceSmall" />
+    </RelativeLayout>
+
+ 
+   
 
 </RelativeLayout>

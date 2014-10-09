@@ -1,5 +1,7 @@
 package com.gravity.innovations.tasks.done;
 
+import java.util.Calendar;
+
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Context;
@@ -17,8 +19,11 @@ import android.widget.AbsListView.MultiChoiceModeListener;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.AdapterView.OnItemLongClickListener;
+import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.ListView;
+import android.widget.TextView;
+import android.widget.TimePicker;
 
 public class TaskListFragment extends Fragment {
 	private TaskListModel data;
@@ -34,11 +39,20 @@ public class TaskListFragment extends Fragment {
 	public void newInstance(TaskListModel temp,
 			NavigationDrawerFragment navigationDrawerFragment) {
 		this.data = temp;
+		// updateRelativeTime();
 		this.mNavigationDrawerFragment = navigationDrawerFragment;
+
 	}
 
 	public Fragment getFragment() {
 		return this;
+	}
+
+	public void updateRelativeTime() {
+		long currentTimeMills = System.currentTimeMillis();
+		for (TaskModel m : this.data.tasks)
+			m.updateRelativeTime(currentTimeMills);
+		mTaskAdapter.notifyDataSetChanged();
 	}
 
 	@Override
@@ -56,9 +70,11 @@ public class TaskListFragment extends Fragment {
 				false);
 		if (data.tasks != null && data.tasks.size() > 0) {
 			mListView = (ListView) rootView.findViewById(R.id.list);
+
 			mTaskAdapter = new TaskAdapter(getActivity(),
 					R.layout.task_listview_row, data.tasks);
 			mListView.setAdapter(mTaskAdapter);
+
 			mTaskAdapter.notifyDataSetChanged();
 			// Swipe to delete task
 			/*
@@ -113,6 +129,8 @@ public class TaskListFragment extends Fragment {
 				public void onDestroyActionMode(android.view.ActionMode mode) {
 					// TODO Auto-generated method stub
 					selCount = 0;
+					mode.invalidate();
+					mTaskAdapter.removeAllSelection();
 				}
 
 				@Override
@@ -145,30 +163,32 @@ public class TaskListFragment extends Fragment {
 				}
 			});
 
-			// mListView.setOnItemLongClickListener(new
-			// OnItemLongClickListener() {
-			//
-			// @Override
-			// public boolean onItemLongClick(AdapterView<?> arg0, View arg1,
-			// int position, long arg3) {
-			// // TODO Auto-generated method stub
-			//
-			// mListView.setItemChecked(position,
-			// !mTaskAdapter.isPositionChecked(position));
-			// return false;
-			// }
-			// });
+			mListView.setOnItemLongClickListener(new OnItemLongClickListener() {
+
+				@Override
+				public boolean onItemLongClick(AdapterView<?> arg0, View arg1,
+						int position, long arg3) {
+					mListView.setItemChecked(position,
+							!mTaskAdapter.isPositionChecked(position));
+					return false;
+				}
+			});
 
 			mListView.setOnItemClickListener(new OnItemClickListener() {
 
-				@Override
-				public void onItemClick(AdapterView<?> arg0, View arg1,
-						int pos, long arg3) {
-					mListView.setItemChecked(pos, true);
+				//@Override
+			 	public void onItemClick(AdapterView<?> arg0, View arg1,
+				 		int pos, long arg3) {
+				//mListView.setItemChecked(pos, true); //this is THE line
+				//mNavigationDrawerFragment.addOrEditTask(data,mTaskAdapter.getSingularSelectedTaskModel());
+				//mNavigationDrawerFragment.openTaskDetailsDialog();//data,mTaskAdapter.getSingularSelectedTaskModel());
+					
+			 		mNavigationDrawerFragment.openTaskDetailsDialog(mTaskAdapter.getItem(pos));//emId.getSingularSelectedTaskModel() );
+				//mTaskAdapter.sellectThisThing(pos);
 				}
 			});
+			
 		}
 		return rootView;
 	}
-
 }

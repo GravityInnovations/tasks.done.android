@@ -1,18 +1,23 @@
 package com.gravity.innovations.tasks.done;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-
+import java.util.Date;
+import java.util.Timer;
+import java.util.TimerTask;
 import org.json.JSONException;
 import org.json.JSONObject;
-
-import com.gravity.innovations.tasks.done.Common.userData;
-
 import android.app.Activity;
+import android.app.AlertDialog;
+import android.app.Dialog;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.content.res.Configuration;
 import android.os.Bundle;
+import android.os.Handler;
 import android.preference.PreferenceManager;
 import android.support.v4.app.ActionBarDrawerToggle;
 import android.support.v4.app.Fragment;
@@ -31,12 +36,18 @@ import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
+import android.widget.AdapterView.OnItemClickListener;
 import android.widget.Button;
+import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.ListView;
+
 import android.widget.RelativeLayout;
 import android.widget.TextView;
+import android.widget.TimePicker;
+
+import com.gravity.innovations.tasks.done.Common.userData;
 
 /**
  * Fragment used for managing interactions for and presentation of a navigation
@@ -45,8 +56,12 @@ import android.widget.TextView;
  * > design guidelines</a> for a complete explanation of the behaviors
  * implemented here.
  */
-public class NavigationDrawerFragment extends Fragment implements Common.Callbacks.HttpCallback{
+public class NavigationDrawerFragment extends Fragment implements
+		Common.Callbacks.HttpCallback, Common.Callbacks.TimeCallBack {
 
+	DialogListViewAdapter dialog_adapter;
+	int resource;
+	TimeReciever mTimeReciever;
 	private ArrayList<TaskListModel> data = new ArrayList<TaskListModel>();
 	private DatabaseHelper db;
 	private Common.userData user_data;
@@ -69,7 +84,7 @@ public class NavigationDrawerFragment extends Fragment implements Common.Callbac
 	 */
 	private ActionBarDrawerToggle mDrawerToggle;
 	public TaskListAdapter mAdapter;
-	TaskListFragment mTaskListFragment;// m
+	// TaskListFragment mTaskListFragment;// m
 	private DrawerLayout mDrawerLayout;
 	private ListView mDrawerListView;
 	private View mFragmentContainerView;
@@ -77,7 +92,8 @@ public class NavigationDrawerFragment extends Fragment implements Common.Callbac
 	private int mCurrentSelectedPosition = 0;
 	private boolean mFromSavedInstanceState;
 	private boolean mUserLearnedDrawer;
-
+	Handler mHandler;
+	Timer myTimer;
 	public NavigationDrawerFragment() {
 	}
 
@@ -99,8 +115,9 @@ public class NavigationDrawerFragment extends Fragment implements Common.Callbac
 		}
 		// Select either the default item (0) or the last selected item.
 		selectItem(mCurrentSelectedPosition);
+ 
 	}
-
+	
 	@Override
 	public void onActivityCreated(Bundle savedInstanceState) {
 		super.onActivityCreated(savedInstanceState);
@@ -112,25 +129,42 @@ public class NavigationDrawerFragment extends Fragment implements Common.Callbac
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container,
 			Bundle savedInstanceState) {
-		View p = (View)inflater.inflate(
-				R.layout.fragment_navigation_drawer, container, false);
+		View p = (View) inflater.inflate(R.layout.fragment_navigation_drawer,
+				container, false);
 		mDrawerListView = (ListView) p.findViewById(R.id.nav_drawer_listview);
-//		mDrawerListView = (ListView) inflater.inflate(
-//				R.layout.fragment_navigation_drawer, container, false);
-//		
+
+		// int width = getResources().getDisplayMetrics().widthPixels/2;
+		// RelativeLayout.LayoutParams params = (RelativeLayout.LayoutParams)
+		// mDrawerListView.getLayoutParams();
+		// params.width = width;
+		// mDrawerListView.setLayoutParams(params);
+
+		// ViewGroup.LayoutParams params = (ViewGroup.LayoutParams)
+		// p.getLayoutParams();
+		// params.width = getResources().getDisplayMetrics().widthPixels/2;
+		// p.setLayoutParams(params);
+		//
+
+		// mDrawerListView = (ListView) inflater.inflate(
+		// R.layout.fragment_navigation_drawer, container, false);
 		View header = inflater.inflate(
 				R.layout.fragment_navigation_drawer_header, null);// navigation_drawer_header,
 																	// null);
+
 		// ImageView image = (ImageView) header.findViewById(R.id.image);
 		
 		 EditText search = (EditText) p.findViewById(R.id.search);
+		// EditText name = (EditText) header.findViewById(R.id.text_name);
+		// EditText email = (EditText) header.findViewById(R.id.text_email);
+
 		mDrawerListView.addHeaderView(header);
 		
 		View footer = inflater.inflate(
 				R.layout.fragment_navigation_drawer_footer, null);// navigation_drawer_header,
 																	// null);
 		Button btn_add_tasklist = (Button) footer.findViewById(R.id.btn_add);
-		//mDrawerListView.addFooterView(footer);
+
+		// mDrawerListView.addFooterView(footer);
 		btn_add_tasklist.setOnClickListener(new OnClickListener() {
 
 			@Override
@@ -143,33 +177,28 @@ public class NavigationDrawerFragment extends Fragment implements Common.Callbac
 					@Override
 					public void onItemClick(AdapterView<?> parent, View view,
 							int position, long id) {
+						view.setSelected(true);
 						selectItem(position);
 					}
 				});
 
 		// start swipe
 		/*
-		SwipeDismissListViewTouchListener touchListener = new SwipeDismissListViewTouchListener(
-				mDrawerListView,
-				new SwipeDismissListViewTouchListener.DismissCallbacks() {
-					@Override
-					public boolean canDismiss(int position) {
-						return true;
-					}
-
-					@Override
-					public void onDismiss(ListView listView,
-							int[] reverseSortedPositions) {
-						for (int position : reverseSortedPositions) {
-							mAdapter.remove(mAdapter.getItem(position));
-						}
-						mAdapter.notifyDataSetChanged();
-					}
-				});
-
-		mDrawerListView.setOnTouchListener(touchListener);
-		*/
+		 * SwipeDismissListViewTouchListener touchListener = new
+		 * SwipeDismissListViewTouchListener( mDrawerListView, new
+		 * SwipeDismissListViewTouchListener.DismissCallbacks() {
+		 * 
+		 * @Override public boolean canDismiss(int position) { return true; }
+		 * 
+		 * @Override public void onDismiss(ListView listView, int[]
+		 * reverseSortedPositions) { for (int position : reverseSortedPositions)
+		 * { mAdapter.remove(mAdapter.getItem(position)); }
+		 * mAdapter.notifyDataSetChanged(); } });
+		 * 
+		 * mDrawerListView.setOnTouchListener(touchListener);
+		 */
 		// end swipe
+
 		mDrawerListView.setTextFilterEnabled(true);
 
 		search.addTextChangedListener(new TextWatcher() {
@@ -202,7 +231,8 @@ public class NavigationDrawerFragment extends Fragment implements Common.Callbac
 				R.layout.tasklist_listview_row, data);
 		mDrawerListView.setAdapter(mAdapter);
 		mDrawerListView.setItemChecked(mCurrentSelectedPosition, true);
-		return p;//mDrawerListView;
+
+		return p;// mDrawerListView;
 	}
 
 	public boolean isDrawerOpen() {
@@ -218,7 +248,7 @@ public class NavigationDrawerFragment extends Fragment implements Common.Callbac
 	 *            The android:id of this fragment in its activity's layout.
 	 * @param drawerLayout
 	 *            The DrawerLayout containing this fragment's UI.
-	 * @param user_data 
+	 * @param user_data
 	 */
 	public void setUp(int fragmentId, DrawerLayout drawerLayout,
 			Context mContext, userData user_data) {
@@ -243,7 +273,6 @@ public class NavigationDrawerFragment extends Fragment implements Common.Callbac
 				GravityCompat.START);
 		// set up the drawer's list view with items and click listener
 		ActionBar actionBar = getActionBar();
-		actionBar.setDisplayHomeAsUpEnabled(true);
 		actionBar.setHomeButtonEnabled(true);
 		// ActionBarDrawerToggle ties together the the proper interactions
 		// between the navigation drawer and the action bar app icon.
@@ -302,12 +331,28 @@ public class NavigationDrawerFragment extends Fragment implements Common.Callbac
 				mDrawerToggle.syncState();
 			}
 		});
+		mTimeReciever = new TimeReciever();
+		mContext.registerReceiver( mTimeReciever, new IntentFilter("android.intent.action.TIME_TICK"));
 		mDrawerLayout.setDrawerListener(mDrawerToggle);
+	}
+
+	@Override
+	public void onPause() {
+		// TODO Auto-generated method stub
+		super.onPause();
+		mContext.unregisterReceiver(mTimeReciever);
+	}
+
+	@Override
+	public void onResume() {
+		// TODO Auto-generated method stub
+		super.onResume();
+		mContext.registerReceiver( mTimeReciever, new IntentFilter("android.intent.action.TIME_TICK"));
 	}
 
 	public void onMinusOne(int id) {
 		if (id == -1) {
-			mDrawerLayout.openDrawer(mFragmentContainerView);
+			mDrawerLayout.openDrawer(mFragmentContainerView); // to keep the drawer open
 		}
 	}
 
@@ -399,37 +444,31 @@ public class NavigationDrawerFragment extends Fragment implements Common.Callbac
 		return ((ActionBarActivity) getActivity()).getSupportActionBar();
 	}
 
-
 	private void addTaskList(TaskListModel temp) {
 		data.add(temp);
 		// this.mAdapter.add(temp);
 		this.mAdapter.notifyDataSetChanged();
 		int position = this.mAdapter.getPosition(temp);
 		selectItem(++position);
-		
-		if(user_data.is_sync_type && Common.hasInternet(mActivity))
-		{
-			GravityController.post_tasklist(mActivity, user_data, temp, 
+
+		if (user_data.is_sync_type && Common.hasInternet(mActivity)) {
+			GravityController.post_tasklist(mActivity, user_data, temp,
 					Common.RequestCodes.GRAVITY_SEND_TASKLIST);
 		}
 	}
 
-
 	private void editTaskList(TaskListModel Old, String Title) {
 		// this.mAdapter.add(temp);
 		// this.mAdapter.getPosition(old)
-
 		this.mAdapter.notifyDataSetChanged();
 		int position = this.mAdapter.getPosition(Old);
 		selectItem(++position);
-	}
+	}// later do check this one may be a redundant function
 
-	
-    /**
-     * Callbacks interface that all activities using this fragment must implement.
-     */
-    
-    
+	/**
+	 * Callbacks interface that all activities using this fragment must
+	 * implement.
+	 */
 
 	public void addOrEditTaskList(final TaskListModel tasklist) {
 		View view = getActivity().getLayoutInflater().inflate(
@@ -467,7 +506,7 @@ public class NavigationDrawerFragment extends Fragment implements Common.Callbac
 								/**
 								 * update data
 								 */
-								mAdapter.updateData(data); //update data
+								mAdapter.updateData(data); // update data
 								/**
 								 * update data
 								 */
@@ -492,7 +531,7 @@ public class NavigationDrawerFragment extends Fragment implements Common.Callbac
 						/**
 						 * update data
 						 */
-						mAdapter.updateData(data); //update data
+						mAdapter.updateData(data); // update data
 						/**
 						 * update data
 						 */
@@ -514,15 +553,67 @@ public class NavigationDrawerFragment extends Fragment implements Common.Callbac
 				dialogTitle);
 	}
 
-	
 	private void editTaskList(TaskListModel Old) {
 		this.mAdapter.notifyDataSetChanged();
 		int position = this.mAdapter.getPosition(Old);
 		selectItem(++position);
 	}
 
+	public void openTaskDetailsDialog( TaskModel current) {
+	 
+		View view = getActivity().getLayoutInflater().inflate(R.layout.dialog_task_full_details, null);
+		String dialogTitle = "Task Details";
+		
+		TextView tv_title=(TextView) view.findViewById(R.id.tv_title);
+		TextView tv_details=(TextView) view.findViewById(R.id.tv_details);
+		TextView tv_notes=(TextView) view.findViewById(R.id.tv_notes);
+		TextView tv_created=(TextView) view.findViewById(R.id.tv_date_created);
+		TextView tv_due=(TextView) view.findViewById(R.id.tv_date_due);
+		TextView tv_interval=(TextView) view.findViewById(R.id.tv_reminder_interval);
+		
+		String title = current.title.toString();
+		tv_title.setText(title);
+ 		
+		String details = current.details.toString();
+		tv_details.setText(details);
+		
+		String notes = current.notes.toString();
+	 	tv_notes.setText(notes);
+		
+	 	long date = Long.parseLong(current.updated.toString());
+	 	SimpleDateFormat formatter = new SimpleDateFormat("yyyy/MM/dd " +" "+"hh:MM:ss"); 
+	 	String dateString = formatter.format(new Date(date) );
+	 	tv_created.setText(dateString);
+	 	
+	 	
+//	 	String dueDate = current.due_at;
+//	 	String dueDateString = formatter.format(dueDate );
+		 String due = "well this needs to be fixed";//current.due_at.toString();
+		tv_due.setText(due);
+		
+		String interval = null;
+		if (current.remind_interval == 1 ){
+			interval = "none";
+			tv_interval.setText(interval);
+		}else if (current.remind_interval == 2 ){
+			 interval = "Daily";
+			 tv_interval.setText(interval);
+			}else if (current.remind_interval == 3 ){
+				interval = "Weekly";
+				tv_interval.setText(interval);
+				}else if (current.remind_interval == 4 ){
+					interval = "Yearly";
+					tv_interval.setText(interval);
+					}else {
+						interval = "none";
+						tv_interval.setText(interval);
+						}
+		Common.CustomDialog.CustomDialog(mContext, view ,dialogTitle);
+	}
+	
+	//@SuppressLint("NewApi")
 	public void addOrEditTask(final TaskListModel tasklist, final TaskModel task) {
-		View view = getActivity().getLayoutInflater().inflate(
+		final View view = getActivity().getLayoutInflater().inflate(
 				R.layout.addoredit_task_dialog, null);
 		final EditText et_title = (EditText) view.findViewById(R.id.et_title);
 		final EditText et_details = (EditText) view
@@ -531,6 +622,7 @@ public class NavigationDrawerFragment extends Fragment implements Common.Callbac
 		et_title.setText(task.title);
 		et_details.setText(task.details);
 		et_notes.setText(task.notes);
+
 		String dialogTitle = "";
 		if (task._id == -1) {
 			dialogTitle = "New Task";
@@ -544,12 +636,25 @@ public class NavigationDrawerFragment extends Fragment implements Common.Callbac
 					String title = et_title.getText().toString();
 					String details = et_details.getText().toString();
 					String notes = et_notes.getText().toString();
+					
 					if (task._id == -1) {
 						// create
 						if (title.length() != 0) {
 							try {
 								TaskModel temp = new TaskModel(title, details,
-										notes, tasklist._id);
+										notes,
+										tasklist._id);
+
+								/*
+								 * Trying this for new db model and constructor
+								 */
+
+								openReminderListDialog(temp);
+
+								/*
+								 * Trying this for new db model and constructor
+								 */
+
 								// should retun a bool on true
 								temp._id = db.Task_New(temp);
 								if (temp._id != -1) {
@@ -565,6 +670,7 @@ public class NavigationDrawerFragment extends Fragment implements Common.Callbac
 								Log.e("MainActivity", "newOrEditTaskList");
 							} finally {
 								Log.e("MainActivitynewOrEditTaskList", "np");
+								// open a list dialog
 							}// finally
 						}
 					} else {
@@ -573,6 +679,7 @@ public class NavigationDrawerFragment extends Fragment implements Common.Callbac
 									// tasklist._id
 									task._id, title, details, notes,
 									tasklist._id);
+							openReminderListDialog(temp);// testing now
 							int nRows = db.Task_Edit(temp);
 							if (nRows > 0) {
 								// tasklist.title = title;
@@ -600,13 +707,204 @@ public class NavigationDrawerFragment extends Fragment implements Common.Callbac
 				dialogTitle);
 	}
 
+	public void openReminderListDialog(final TaskModel temp) {
+		AlertDialog.Builder builder = new AlertDialog.Builder(mContext);
+		builder.setTitle("Reminder");
+		final ListView modeList = new ListView(mContext);
+
+		Integer[] imageId = { R.drawable.ic_action_keyboard,
+				R.drawable.ic_action_keyboard, R.drawable.ic_action_keyboard };// image
+																				// array
+
+		String[] list_item = { "Set Time and Date", "Repeat", "Set Location" };
+
+		if (temp.remind_at != null) {
+			list_item[0] = temp.remind_at;
+		}
+		if (temp.remind_interval == 1 || temp.remind_interval == 2
+				|| temp.remind_interval == 3 || temp.remind_interval == 4) {
+			if (temp.remind_interval == 1) {
+				list_item[1] = "Once"; // String.valueOf(temp.remind_interval);
+			} else if (temp.remind_interval == 2) {
+				list_item[1] = "Daily"; // String.valueOf(temp.remind_interval);
+			} else if (temp.remind_interval == 3) {
+				list_item[1] = "Weekly"; // String.valueOf(temp.remind_interval);
+			} else if (temp.remind_interval == 4) {
+				list_item[1] = "Yearly"; // String.valueOf(temp.remind_interval);
+			}
+		}
+		dialog_adapter = new DialogListViewAdapter(mActivity, resource,
+				list_item, imageId);// sending data to adapter
+		modeList.setAdapter(dialog_adapter);
+		builder.setView(modeList);
+
+		builder.setPositiveButton(R.string.dialog_finish,
+				new DialogInterface.OnClickListener() {
+					public void onClick(DialogInterface dialog, int id) {
+					}
+				});
+		builder.setNegativeButton(R.string.dialog_dont_remind,
+				new DialogInterface.OnClickListener() {
+					public void onClick(DialogInterface dialog, int id) {
+						mAdapter.notifyDataSetChanged();
+					}
+				});
+
+		builder.setCancelable(false);
+		final Dialog dialog = builder.create();
+		dialog.show();
+
+		modeList.setOnItemClickListener(new OnItemClickListener() {
+			public void onItemClick(AdapterView<?> myAdapter, View myView,
+					int myItemInt, long mylng) {
+				// String selectedFromList = (String) (modeList
+				// .getItemAtPosition(myItemInt));
+				SelectDialogItemId(myItemInt, temp);// listitemid
+				dialog.dismiss();
+			}
+		});
+	}
+
+	public void SelectDialogItemId(int id, TaskModel temp) {
+		if (id == 0) {
+			reminderListDialogActionsOne(temp);// datetime picker dialog
+		} else if (id == 1) {
+			reminderListDialogActionTwo(temp);// repeat dialog
+		} else if (id == 2) {
+			reminderListDialogActionThree();// set location dialog
+		} 
+	}
+
+	public void reminderListDialogActionsOne(final TaskModel temp) {
+		View view = getActivity().getLayoutInflater().inflate(
+				R.layout.datetimepicker_dialog, null);
+		String dialogTitle = "Remind At Date Time";
+
+		final DatePicker datepicker = (DatePicker) view
+				.findViewById(R.id.dialog_datepicker);
+		final TimePicker timepicker = (TimePicker) view
+				.findViewById(R.id.dialog_timepicker);
+
+		DialogInterface.OnClickListener posListener = new DialogInterface.OnClickListener() {
+			@Override
+			public void onClick(DialogInterface dialog, int which) {
+
+				int hour_int = timepicker.getCurrentHour();
+				String hour = Integer.toString(hour_int);
+				int minute_int = timepicker.getCurrentMinute();
+				String minute = Integer.toString(minute_int);
+
+				int year_int = datepicker.getYear();
+				String year = Integer.toString(year_int);
+				int month_int = datepicker.getMonth();
+				String month = Integer.toString(month_int + 1);
+				int date_int = datepicker.getDayOfMonth();
+				String date = Integer.toString(date_int);
+
+				String remind_DateTime = (year + "/" + month + "/" + date + " "
+						+ hour + ":" + minute);
+
+				db = new DatabaseHelper(mContext);
+				int recieved_id = temp._id;
+				String recieved_title = temp.title;
+				String recieved_details = temp.details;
+				String recieved_notes = temp.notes;
+				// remind_DateTime;
+				int recieved_fk_id = temp.fk_tasklist_id;
+				TaskModel temp = new TaskModel(recieved_id, recieved_title,
+						recieved_details, recieved_notes, remind_DateTime,
+						recieved_fk_id);
+				db.Task_Edit(temp);
+				dialog.cancel();
+				dialog.dismiss();
+				openReminderListDialog(temp);
+			}
+		};
+
+		DialogInterface.OnClickListener negListener = new DialogInterface.OnClickListener() {
+			@Override
+			public void onClick(DialogInterface dialog, int which) {
+				dialog.cancel();
+			}
+		};
+		Common.CustomDialog.CustomDialog(mContext, view, negListener,
+				posListener, R.string.dialog_save, R.string.dialog_back,
+				dialogTitle);
+	}
+
+	public void reminderListDialogActionTwo(final TaskModel temp) {
+		AlertDialog.Builder builder = new AlertDialog.Builder(mContext);
+		builder.setTitle("Repeat");
+		final String[] items = { "Once", "Once a Day", "Once a Week",
+				"Once a Year" };
+		builder.setSingleChoiceItems(items, -1,
+				new DialogInterface.OnClickListener() {
+					public void onClick(DialogInterface dialog, int item) {
+					}
+				});
+		builder.setPositiveButton(R.string.dialog_ok,
+				new DialogInterface.OnClickListener() {
+					public void onClick(DialogInterface dialog, int id) {
+
+						int remind_interval = ((AlertDialog) dialog)
+								.getListView().getCheckedItemPosition();// position
+						remind_interval++; // position ++;
+
+						db = new DatabaseHelper(mContext);
+						int recieved_id = temp._id;
+						String recieved_title = temp.title;
+						String recieved_details = temp.details;
+						String recieved_notes = temp.notes;
+						String remind_DateTime = temp.remind_at;
+						int recieved_fk_id = temp.fk_tasklist_id;
+						TaskModel temp = new TaskModel(recieved_id,
+								recieved_title, recieved_details,
+								recieved_notes, remind_DateTime,
+								remind_interval, recieved_fk_id);
+
+						db.Task_Edit(temp);
+						dialog.dismiss();
+						openReminderListDialog(temp);
+					}
+				});
+		builder.setNegativeButton(R.string.dialog_back,
+				new DialogInterface.OnClickListener() {
+					public void onClick(DialogInterface dialog, int id) {
+					}
+				});
+		builder.setCancelable(true);
+		final Dialog dialog = builder.create();
+		dialog.show();
+	}
+
+	public void reminderListDialogActionThree() {
+		AlertDialog.Builder builder = new AlertDialog.Builder(mContext);
+		builder.setTitle("Location");
+		builder.setMessage("Go Premium");
+		builder.setPositiveButton(R.string.dialog_ok,
+				new DialogInterface.OnClickListener() {
+					public void onClick(DialogInterface dialog, int id) {
+						dialog.dismiss();
+					}
+				});
+		builder.setNegativeButton(R.string.dialog_back,
+				new DialogInterface.OnClickListener() {
+					public void onClick(DialogInterface dialog, int id) {
+						dialog.dismiss();
+					}
+				});
+		builder.setCancelable(false);
+		final Dialog dialog = builder.create();
+		dialog.show();
+	}
+	
 	private void addTask(TaskListModel parent, TaskModel temp) {
 		parent.tasks.add(temp);
 		this.mAdapter.notifyDataSetChanged();
 		/**
 		 * update data
 		 */
-		mAdapter.updateData(data); //update data
+		mAdapter.updateData(data); // update data
 		/**
 		 * update data
 		 */
@@ -625,7 +923,7 @@ public class NavigationDrawerFragment extends Fragment implements Common.Callbac
 		/**
 		 * update data
 		 */
-		mAdapter.updateData(data); //update data
+		mAdapter.updateData(data); // update data
 		/**
 		 * update data
 		 */
@@ -644,7 +942,7 @@ public class NavigationDrawerFragment extends Fragment implements Common.Callbac
 					/**
 					 * update data
 					 */
-					mAdapter.updateData(data); //update data
+					mAdapter.updateData(data); // update data
 					/**
 					 * update data
 					 */
@@ -682,7 +980,7 @@ public class NavigationDrawerFragment extends Fragment implements Common.Callbac
 		/**
 		 * update data
 		 */
-		mAdapter.updateData(data); //update data
+		mAdapter.updateData(data); // update data
 		/**
 		 * update data
 		 */
@@ -709,7 +1007,7 @@ public class NavigationDrawerFragment extends Fragment implements Common.Callbac
 					/**
 					 * update data
 					 */
-					mAdapter.updateData(data); //update data
+					mAdapter.updateData(data); // update data
 					/**
 					 * update data
 					 */
@@ -747,8 +1045,7 @@ public class NavigationDrawerFragment extends Fragment implements Common.Callbac
 		// TODO Auto-generated method stub
 		switch (RequestCode) {
 		case Common.RequestCodes.GRAVITY_SEND_TASKLIST:
-			if(ResultCode == Common.HTTP_RESPONSE_OK)
-			{
+			if (ResultCode == Common.HTTP_RESPONSE_OK) {
 				try {
 					data = data.getJSONObject("data");
 					data.get("TaskListId");
@@ -756,11 +1053,35 @@ public class NavigationDrawerFragment extends Fragment implements Common.Callbac
 					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
-			}
-			else{
-				
+			} else {
+
 			}
 			break;
 		}
 	}
+
+    class UpdateTimeTask extends TimerTask {
+
+        public void run() 
+           {        
+            try{
+        	 mAdapter.notifyDataSetChanged();
+            }catch(Exception e){
+            	Log.e("TimerTask", "ERROR");
+            }
+           }
+
+        }
+  
+ 
+	@Override
+	public void onTimeReceive(Context mContext, Intent intent) {
+		// TODO Auto-generated method stub
+		    	//mAdapter.notifyDataSetChanged();       
+				
+		
+ 	}
+
 }
+
+ 

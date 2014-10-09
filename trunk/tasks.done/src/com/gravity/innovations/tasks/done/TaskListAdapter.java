@@ -3,6 +3,7 @@ package com.gravity.innovations.tasks.done;
 import java.util.ArrayList;
 
 import android.app.Activity;
+import android.graphics.Color;
 import android.support.v4.view.MotionEventCompat;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -18,6 +19,7 @@ public class TaskListAdapter extends ArrayAdapter<TaskListModel> {
 	TaskListModel tasklist;
 	Activity mActivity;
 	int layoutResourceId;
+	int MAX_CHARS = 10;
 	ArrayList<TaskListModel> data = new ArrayList<TaskListModel>();
 	ArrayList<TaskListModel> data_backup = new ArrayList<TaskListModel>();
 
@@ -32,10 +34,10 @@ public class TaskListAdapter extends ArrayAdapter<TaskListModel> {
 		notifyDataSetChanged();
 	}
 
-	public void updateData(ArrayList<TaskListModel> data1){
+	public void updateData(ArrayList<TaskListModel> data1) {
 		data_backup = data1;
 	}
-	
+
 	public long getItemId(int position) {
 		int id = data.get(position)._id;
 		return id;
@@ -47,8 +49,6 @@ public class TaskListAdapter extends ArrayAdapter<TaskListModel> {
 		return id;
 	}
 
-	
-	
 	@Override
 	public int getCount() {
 		// TODO Auto-generated method stub
@@ -64,16 +64,16 @@ public class TaskListAdapter extends ArrayAdapter<TaskListModel> {
 			protected void publishResults(CharSequence constraint,
 					FilterResults results) {
 				// data_backup = data; // data_backup source is un-filtered data
-				//data = (ArrayList<TaskListModel>) results.values;
+				// data = (ArrayList<TaskListModel>) results.values;
 				ArrayList<TaskListModel> temp = (ArrayList<TaskListModel>) results.values;
 				if (temp.size() == 0) { // .isEmpty()){
-					if(constraint == "")
+					if (constraint == "")
 						data = data_backup;
 					else
 						data = new ArrayList<TaskListModel>();
 					Log.d("AdapterFilterError", "Data is empty");
-					
-				} else{
+
+				} else {
 					Log.d("AdapterFilterError", "Data is not Empty");
 					data = temp;
 				}
@@ -86,38 +86,41 @@ public class TaskListAdapter extends ArrayAdapter<TaskListModel> {
 				ArrayList<TaskListModel> filteredResults = new ArrayList<TaskListModel>();
 				// getFilteredResults(constraint);
 				for (TaskListModel temp : data_backup) {
-					if (temp.title.toLowerCase().contains(constraint.toString().toLowerCase()))
+					if (temp.title.toLowerCase().contains(
+							constraint.toString().toLowerCase()))
 						filteredResults.add(temp);
 				}
 				FilterResults results = new FilterResults();
 				results.values = filteredResults;
 				return results;
-				
-//				if (constraint != null) {
-//					ArrayList<TaskListModel> filteredResults = new ArrayList<TaskListModel>();
-//					// getFilteredResults(constraint);
-//					for (TaskListModel temp : data) {
-//						if (temp.SearchFilter(constraint))
-//							filteredResults.add(temp);
-//					}
-//					FilterResults results = new FilterResults();
-//					results.values = filteredResults;
-//					return results;
-//				}
-//
-//				else if (constraint == null) {
-//					ArrayList<TaskListModel> unfilterResults = new ArrayList<TaskListModel>();
-//					// data = new ArrayList<TaskListModel>();
-//					// data = data_backup;
-//					for (TaskListModel temp : data_backup) {
-//						if (temp.SearchFilter(constraint))
-//							data_backup.remove(temp);
-//					}
-//					// data = data_backup;
-//					FilterResults results_backup = new FilterResults();
-//					results_backup.values = unfilterResults;
-//					return results_backup;
-//				}
+
+				// if (constraint != null) {
+				// ArrayList<TaskListModel> filteredResults = new
+				// ArrayList<TaskListModel>();
+				// // getFilteredResults(constraint);
+				// for (TaskListModel temp : data) {
+				// if (temp.SearchFilter(constraint))
+				// filteredResults.add(temp);
+				// }
+				// FilterResults results = new FilterResults();
+				// results.values = filteredResults;
+				// return results;
+				// }
+				//
+				// else if (constraint == null) {
+				// ArrayList<TaskListModel> unfilterResults = new
+				// ArrayList<TaskListModel>();
+				// // data = new ArrayList<TaskListModel>();
+				// // data = data_backup;
+				// for (TaskListModel temp : data_backup) {
+				// if (temp.SearchFilter(constraint))
+				// data_backup.remove(temp);
+				// }
+				// // data = data_backup;
+				// FilterResults results_backup = new FilterResults();
+				// results_backup.values = unfilterResults;
+				// return results_backup;
+				// }
 			}
 
 		};
@@ -127,6 +130,7 @@ public class TaskListAdapter extends ArrayAdapter<TaskListModel> {
 	public View getView(int position, View convertView, ViewGroup parent) {
 		View row = convertView;
 		TaskListHolder holder = null;
+		
 		if (row == null) {
 			LayoutInflater inflater = LayoutInflater.from(mActivity);
 			row = inflater.inflate(layoutResourceId, parent, false);
@@ -136,27 +140,47 @@ public class TaskListAdapter extends ArrayAdapter<TaskListModel> {
 		} else {
 			holder = (TaskListHolder) row.getTag();
 		}
-
 		// row.setBackgroundColor(mActivity.getResources().getColor(
 		// android.R.color.background_light)); // default color
+		
 		tasklist = data.get(position);
-		holder.title.setText(tasklist.title);
-		row.setOnTouchListener(new OnTouchListener() {
-			
-			@Override
-			public boolean onTouch(View v, MotionEvent event) {
-				// TODO Auto-generated method stub
-				int action = MotionEventCompat.getActionMasked(event);
-				switch(action)
-				{
-				case (MotionEvent.AXIS_HSCROLL):
-					return true;
-				case (MotionEvent.ACTION_MOVE):
-				return true;				}
-				return false;
-			}
-		});
+		//holder.title.setText(tasklist.title);
+		try{
+		if (tasklist.title.length() > MAX_CHARS) {
+
+		//	String temp= tasklist.title.toString();
+			//holder.title.setText( temp.substring(0,MAX_CHARS) + "...");
+	    	 String temp = tasklist.title.toString().substring(0,MAX_CHARS) + "...";
+			 holder.title.setText( temp);
+		 } 
+		else  {
+	   	  	holder.title.setText(tasklist.title);
+	    }
+	 }catch(Exception e){
+		 String tag = "TasklistAdapter";
+		 String msg = "truncation Error"; 
+		 Log.e(tag, msg);
+	 }
+ 	 
+		// row.setOnTouchListener(new OnTouchListener() {
+		//
+		// @Override
+		// public boolean onTouch(View v, MotionEvent event) {
+		// // TODO Auto-generated method stub
+		// int action = MotionEventCompat.getActionMasked(event);
+		// switch(action)
+		// {
+		// case (MotionEvent.AXIS_HSCROLL):
+		// return true;
+		// case (MotionEvent.ACTION_MOVE):
+		// return true; }
+		// return false;
+		// }
+		// });
+ 
+		
 		return row;
+		
 	}
 
 	class TaskListHolder {

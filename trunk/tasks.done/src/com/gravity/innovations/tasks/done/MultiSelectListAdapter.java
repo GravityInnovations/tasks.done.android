@@ -1,12 +1,13 @@
 package com.gravity.innovations.tasks.done;
 
-
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Set;
 
 import android.app.Activity;
 import android.content.Context;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -14,20 +15,18 @@ import android.widget.ArrayAdapter;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-public class  MultiSelectListAdapter extends 
-ArrayAdapter<Common.CustomViewsData.MultiSelectRowData> {
+public class MultiSelectListAdapter extends
+		ArrayAdapter<Common.CustomViewsData.MultiSelectRowData> {
 
-	
 	private Context mContext;
 	private Activity mActivity;
 	int layoutResourceId;
-	ArrayList<Common.CustomViewsData.MultiSelectRowData> data = 
-			new ArrayList<Common.CustomViewsData.MultiSelectRowData>();
+	ArrayList<Common.CustomViewsData.MultiSelectRowData> data = new ArrayList<Common.CustomViewsData.MultiSelectRowData>();
 	private HashMap<Integer, Boolean> mSelection = new HashMap<Integer, Boolean>();
 
 	public MultiSelectListAdapter(Activity mActivity, int layoutResourceId,
 			ArrayList<Common.CustomViewsData.MultiSelectRowData> data) {
-		//(data.getClass().toString())
+		// (data.getClass().toString())
 		super(mActivity, layoutResourceId, data);
 		this.mActivity = mActivity;
 		this.layoutResourceId = layoutResourceId;
@@ -58,15 +57,14 @@ ArrayAdapter<Common.CustomViewsData.MultiSelectRowData> {
 		mSelection.put(position, value);
 		notifyDataSetChanged();
 	}
-	public void setOrRemoveSelection(int position)
-	{
-		if(!isPositionChecked(position))
-		{
+
+	public void setOrRemoveSelection(int position) {
+		if (!isPositionChecked(position)) {
 			setNewSelection(position, true);
-		}
-		else
-		removeSelection(position);	
+		} else
+			removeSelection(position);
 	}
+
 	public boolean isPositionChecked(int position) {
 		Boolean result = mSelection.get(position);
 		return result == null ? false : result;
@@ -94,38 +92,46 @@ ArrayAdapter<Common.CustomViewsData.MultiSelectRowData> {
 			LayoutInflater inflater = LayoutInflater.from(mActivity);
 			row = inflater.inflate(R.layout.multiselectlist_row, parent, false);
 			holder.text1 = (TextView) row.findViewById(R.id.textView1);
-			holder.text2 = (TextView) row
-					.findViewById(R.id.textView2);
+			holder.text2 = (TextView) row.findViewById(R.id.textView2);
 			holder.icon = (ImageView) row.findViewById(R.id.imageView1);
+			// is image view ko correct name dall ke check karna ha
 
-			//row.setTag(holder);
+			// row.setTag(holder);
 		} else {
 			holder = (ViewHolder) row.getTag();
 		}
-		
-			 row.setBackgroundColor(mContext.getResources().getColor(android.R.color.background_light)); // default color
 
-		if (mSelection.get(position) != null) {
-			 row.setBackgroundColor(mContext.getResources().getColor(android.R.color.holo_blue_light));// makes a selected position colored
-		}
+		// row.setBackgroundColor(mContext.getResources().getColor(android.R.color.background_light));
+		// // default color
+		//
+		// if (mSelection.get(position) != null) {
+		// row.setBackgroundColor(mContext.getResources().getColor(android.R.color.holo_blue_light));//
+		// makes a selected position colored
+		// }
 		Common.CustomViewsData.MultiSelectRowData current = data.get(position);
-		try{
-		holder.text1.setText(current.text1);
-		}
-		catch(Exception ex)
-		{
+		try {
+			holder.text1.setText(current.text1);
+			holder.text2.setText(current.text2);
+			// holder.icon.setImageBitmap(converttoimage(current.iconRes));//
+			// there was nothing here
+		} catch (Exception ex) {
 			String x = ex.toString();
 		}
-		//holder.text2.setText(current.text2);
-		//holder.icon.setImageResource(current.iconRes);
+
+		// holder.icon.setImageResource(current.iconRes);
 		return row;
 
 	}
 
-	class ViewHolder{
-		TextView text1,text2;
+	public Bitmap converttoimage(byte[] _data) {
+		Bitmap bmp = BitmapFactory.decodeByteArray(_data, 0, _data.length);
+		return bmp;
+
+	}
+
+	class ViewHolder {
+		TextView text1, text2;
 		ImageView icon;
 	}
 
 }
-
