@@ -19,7 +19,7 @@ import android.app.Activity;
 import android.content.Context;
 import android.os.AsyncTask;
 import android.os.Bundle;
-
+//test
 public class Authentication  extends AsyncTask<Void, Void, Void> {
 	ArrayList<Account> mAccounts;
 	private AccountManager accountManager;
