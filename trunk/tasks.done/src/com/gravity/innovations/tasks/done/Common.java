@@ -238,6 +238,17 @@ public class Common {
 
 	// for dialog creation and handling
 	public static class CustomDialog {
+		public static final void CustomDialog(final Context context, View view, String dialogTitle) {
+
+			AlertDialog.Builder builder = new AlertDialog.Builder(context);
+			builder.setIcon(android.R.drawable.ic_dialog_alert);
+			builder.setTitle(dialogTitle);
+			builder.setView(view);
+			builder.create().show();
+		}
+		
+		
+		
 		public static final void CustomDialog(final Context context,
 				int posText, int negText,
 				DialogInterface.OnClickListener negListener,

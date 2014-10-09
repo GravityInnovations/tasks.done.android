@@ -598,24 +598,7 @@ public class NavigationDrawerFragment extends Fragment implements
 						interval = "none";
 						tv_interval.setText(interval);
 						}
-		
-
-		DialogInterface.OnClickListener posListener = new DialogInterface.OnClickListener() {
-			@Override
-			public void onClick(DialogInterface dialog, int which) {
-				dialog.cancel();
-			}
-		};
-
-		DialogInterface.OnClickListener negListener = new DialogInterface.OnClickListener() {
-			@Override
-			public void onClick(DialogInterface dialog, int which) {
-				dialog.cancel();
-			}
-		};
-		Common.CustomDialog.CustomDialog(mContext, view, negListener,
-				posListener, R.string.dialog_save, R.string.dialog_back,
-				dialogTitle);
+		Common.CustomDialog.CustomDialog(mContext, view ,dialogTitle);
 	}
 	
 	//@SuppressLint("NewApi")
