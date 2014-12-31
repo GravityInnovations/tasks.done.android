@@ -1,11 +1,17 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-    <color name="pressed_color">#ccc</color>
+  <color name="pressed_color">#ccc</color>
     <color name="default_color">#eee</color>
     <color name="line_divider">#bbb</color>
     <color name="selection_blue">#b7e1fc</color>
-
+    <color name="updatedtimecolor">#cecbcb</color>
+     <color name="pumpkin">#d35400</color>
+     <color name="cloud">#ecf0f1</color>
+     <color name="silver">#bdc3c7</color>
+     <color name="midnight_blue">#7f8c8d</color>
+     <color name="viewpager_blue">#909BAA</color>
+     <color name="viewpager_gray">#666</color>
     <string name="add_task">Add Task</string>
     <string name="app_name">tasks.done</string>
     <string name="title_section1">Section 1</string>
@@ -50,8 +56,9 @@
 		<string name="google_auth">Authenticating with Google</string>
 		<string name="config_gcm">Configuring Communication Settings</string>
 		<string name="gcm_invalid_device">Device Not supported</string>
-
-   
+<string name="users_sync">Syncing users</string>
+		<string name="users_sync_complete">All device users synced</string>
+   <string name="users_sync_error">Error while syncing device users</string>
     <string name="gcm_play_service_success">Device validated for play store</string>
    <!-- String Resources for Dialogs -->
     <string name="edit">Edit</string>
@@ -63,6 +70,18 @@
     <string name="dialog_dont_remind">Don\'t Remind</string>
     <string name="delete_message_confirm">Delete Sure?</string>
     <string name="delete">Delete</string>
+    <string name="proceed">Continue</string>
+	<string name="useoffline">Skip (use offline)</string>
     <string name="attl">Add The Task List</string>
-
+      <string name="share">Share</string>
+     <string-array name="weekdays_array">
+        <item>Sunday</item>
+        <item>Monday</item>
+        <item>Tuesday</item>
+        <item>Wednesday</item>
+        <item>Thursday</item>
+        <item>Friday</item>
+        <item>Saturday</item>
+    </string-array>
+	
 </resources>

@@ -3,32 +3,60 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context="com.gravity.innovations.tasks.done.MainActivity$PlaceholderFragment" >
+ 
+<!--     <TextView -->
+<!--         android:id="@+id/section_label" -->
+<!--         android:layout_width="wrap_content" -->
+<!--         android:layout_height="wrap_content" -->
+<!--         android:layout_alignParentTop="true" -->
+<!--         android:layout_centerInParent="true" -->
+<!--         android:layout_centerVertical="true" -->
+<!--         android:hint="List Title" -->
+<!--         android:textSize="30dp" -->
+<!--         android:textStyle="normal" -->
+<!--         android:paddingLeft="5dp" -->
+<!--         android:paddingTop="5dp" -->
+<!--         android:paddingRight="5dp" -->
+<!--         android:paddingBottom="5dp" -->
+<!--         android:visibility="visible" -->
+<!--         android:shadowColor="#cecece" -->
+<!--         android:shadowDx="5" -->
+<!--         android:shadowDy="10" -->
+<!--         android:shadowRadius="5"  -->
+<!--         android:background="@android:color/transparent" -->
+<!--          /> -->
 
-    <TextView
-        android:id="@+id/section_label"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:visibility="gone" />
-
-    <GridView
-        android:id="@+id/gridView1"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_alignParentTop="true"
-        android:layout_marginLeft="20dp"
-        android:layout_marginRight="20dp"
-        android:columnWidth="50dp"
-        android:numColumns="auto_fit" >
-    </GridView>
+<!--     <GridView -->
+<!--         android:id="@+id/gridView1" -->
+<!--         android:layout_width="wrap_content" -->
+<!--         android:layout_height="wrap_content" -->
+<!--         android:layout_below="@+id/section_label" -->
+<!--         android:columnWidth="50dp" -->
+<!--         android:numColumns="auto_fit" -->
+<!--         android:visibility="visible"  -->
+<!--         android:background="@color/selection_blue"> -->
+<!--     </GridView> -->
 
     <ListView
         android:id="@+id/list"
         android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
-        android:layout_below="@+id/gridView1"
+        android:layout_height="wrap_content" 
         android:focusable="false"
         android:focusableInTouchMode="false"
-        android:layout_marginLeft="20dp"
-        android:layout_marginRight="20dp" />
-
+        android:layout_below="@+id/gridView1" />
+ 
+    <Button
+        android:id="@+id/floating_button"
+        android:layout_width="60dp"
+        android:layout_height="60dp"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentRight="true"
+        android:layout_marginBottom="20dp"
+        android:layout_marginRight="20dp"
+        android:background="@drawable/floating_button_selector"
+        android:clickable="true"
+        android:drawableLeft="@drawable/ic_action_new"
+        android:gravity="center_vertical"
+        android:onClick="floatButtonOnClick" />
+ 
 </RelativeLayout>

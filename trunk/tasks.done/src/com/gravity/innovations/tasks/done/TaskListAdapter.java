@@ -1,18 +1,15 @@
 package com.gravity.innovations.tasks.done;
 
 import java.util.ArrayList;
-
 import android.app.Activity;
-import android.graphics.Color;
-import android.support.v4.view.MotionEventCompat;
+import android.content.res.Resources;
 import android.util.Log;
 import android.view.LayoutInflater;
-import android.view.MotionEvent;
 import android.view.View;
-import android.view.View.OnTouchListener;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.Filter;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 public class TaskListAdapter extends ArrayAdapter<TaskListModel> {
@@ -136,6 +133,9 @@ public class TaskListAdapter extends ArrayAdapter<TaskListModel> {
 			row = inflater.inflate(layoutResourceId, parent, false);
 			holder = new TaskListHolder();
 			holder.title = (TextView) row.findViewById(R.id.txt_title);
+			
+			holder.list_icon = (ImageView) row.findViewById(R.id.list_icon);
+			
 			row.setTag(holder);
 		} else {
 			holder = (TaskListHolder) row.getTag();
@@ -162,6 +162,27 @@ public class TaskListAdapter extends ArrayAdapter<TaskListModel> {
 		 Log.e(tag, msg);
 	 }
  	 
+		try{
+			Resources resources = mActivity.getResources();
+			if (tasklist.icon_identifier == 0){	
+				holder.list_icon.setImageDrawable(resources.getDrawable(R.drawable.catag_social));
+				}else if (tasklist.icon_identifier == 1){
+					holder.list_icon.setImageDrawable(resources.getDrawable(R.drawable.catag_personal));
+					}else if (tasklist.icon_identifier == 2){
+						holder.list_icon.setImageDrawable(resources.getDrawable(R.drawable.catag_others));
+						}else if (tasklist.icon_identifier == 3){
+							holder.list_icon.setImageDrawable(resources.getDrawable(R.drawable.catag_home));
+							}else if (tasklist.icon_identifier == 4){
+								holder.list_icon.setImageDrawable(resources.getDrawable(R.drawable.catag_work));
+								}else{//default case when no image is selected
+									holder.list_icon.setImageDrawable(resources.getDrawable(R.drawable.ic_list_default));
+								}
+		}catch(Exception e){
+			 String tag = "TasklistAdapter";
+			 String msg = "listICON"; 
+			 Log.e(tag, msg);
+		 }
+		
 		// row.setOnTouchListener(new OnTouchListener() {
 		//
 		// @Override
@@ -185,5 +206,6 @@ public class TaskListAdapter extends ArrayAdapter<TaskListModel> {
 
 	class TaskListHolder {
 		TextView title;
+		ImageView list_icon;
 	}
 }

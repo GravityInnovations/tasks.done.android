@@ -56,13 +56,21 @@ public class HttpTask extends AsyncTask<Void, Void, JSONObject> {
 
 		// this.callback = (MainActivityListener)context;
 	}
-
 	public HttpTask(Activity activity, String strUrl,
 			List<NameValuePair> postData, int HttpMethod, int RequestCode) {
 		this.Url = strUrl;
 		this.postData = postData;
 		this.RequestCode = RequestCode;
 		this.callback = (Common.Callbacks.HttpCallback) activity;
+		this.HttpMethod = HttpMethod;
+		// this.callback = (MainActivityListener)context;
+	}
+	public HttpTask(Context context, String strUrl,
+			List<NameValuePair> postData, int HttpMethod, int RequestCode) {
+		this.Url = strUrl;
+		this.postData = postData;
+		this.RequestCode = RequestCode;
+		this.callback = (Common.Callbacks.HttpCallback) context;
 		this.HttpMethod = HttpMethod;
 		// this.callback = (MainActivityListener)context;
 	}

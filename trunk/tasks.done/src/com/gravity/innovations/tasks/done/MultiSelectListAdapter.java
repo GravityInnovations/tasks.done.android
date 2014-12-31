@@ -94,7 +94,6 @@ public class MultiSelectListAdapter extends
 			holder.text1 = (TextView) row.findViewById(R.id.textView1);
 			holder.text2 = (TextView) row.findViewById(R.id.textView2);
 			holder.icon = (ImageView) row.findViewById(R.id.imageView1);
-			// is image view ko correct name dall ke check karna ha
 
 			// row.setTag(holder);
 		} else {
@@ -112,13 +111,13 @@ public class MultiSelectListAdapter extends
 		try {
 			holder.text1.setText(current.text1);
 			holder.text2.setText(current.text2);
-			// holder.icon.setImageBitmap(converttoimage(current.iconRes));//
+			holder.icon.setImageBitmap(converttoimage(current.iconRes));
 			// there was nothing here
 		} catch (Exception ex) {
 			String x = ex.toString();
 		}
 
-		// holder.icon.setImageResource(current.iconRes);
+		  //holder.icon.setImageResource(current.iconRes);
 		return row;
 
 	}
@@ -126,8 +125,7 @@ public class MultiSelectListAdapter extends
 	public Bitmap converttoimage(byte[] _data) {
 		Bitmap bmp = BitmapFactory.decodeByteArray(_data, 0, _data.length);
 		return bmp;
-
-	}
+}
 
 	class ViewHolder {
 		TextView text1, text2;

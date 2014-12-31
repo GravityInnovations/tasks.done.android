@@ -1,30 +1,22 @@
 package com.gravity.innovations.tasks.done;
 
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.Set;
-import java.util.StringTokenizer;
-
 import android.app.Activity;
 import android.content.Context;
-import android.graphics.drawable.Drawable;
-import android.opengl.Visibility;
-import android.text.format.DateFormat;
-import android.text.format.DateUtils;
 import android.util.Log;
 import android.view.LayoutInflater;
-import android.view.MotionEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
-import android.view.View.OnTouchListener;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
+import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ArrayAdapter;
+import android.widget.GridView;
 import android.widget.ImageView;
-import android.widget.LinearLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 public class TaskAdapter extends ArrayAdapter<TaskModel> {
 	Activity activity;
@@ -34,14 +26,26 @@ public class TaskAdapter extends ArrayAdapter<TaskModel> {
 	ArrayList<TaskModel> task_data = new ArrayList<TaskModel>();
 	final long currentTimeMills = System.currentTimeMillis();
 	private HashMap<Integer, Boolean> mSelection = new HashMap<Integer, Boolean>();
+	int flag = 0;
+	DatabaseHelper db;
+	Context mContext;
+	int HighlightTask;
 
 	public TaskAdapter(Activity act, int layoutResourceId,
-			ArrayList<TaskModel> data) {
+			ArrayList<TaskModel> data, int _selectedTaskId) {
 		super(act, layoutResourceId, data);
 		this.layoutResourceId = layoutResourceId;
 		this.activity = act;
 		this.task_data = data;
+		this.HighlightTask = _selectedTaskId;
 		notifyDataSetChanged();
+		mContext = act.getApplication().getApplicationContext();
+
+	}
+
+	public long getItemId(int position) {
+		int id = task_data.get(position)._id;
+		return id;
 	}
 
 	public TaskModel getSingularSelectedTaskModel() {
@@ -62,12 +66,17 @@ public class TaskAdapter extends ArrayAdapter<TaskModel> {
 		return temp;
 	}
 
-	public void sellectThisThing(int position){
-		mSelection.put(position, null);
-	}
-	
+	// unused method
+//	public void sellectThisThing(int position) {
+//		mSelection.put(position, null);
+//	}
+
 	public void setNewSelection(int position, boolean value) {
-		mSelection.put(position, value); //just made it up
+		/*
+		 *for fixing gridView problems  
+		 */
+		--position;
+		mSelection.put(position, value); 
 		notifyDataSetChanged();
 	}
 
@@ -86,10 +95,10 @@ public class TaskAdapter extends ArrayAdapter<TaskModel> {
 	}
 
 	public void removeAllSelection() {
-		 mSelection.clear();// .remove();
+		mSelection.clear();// .remove();
 		notifyDataSetChanged();
 	}
-	
+
 	public void clearSelection() {
 		mSelection = new HashMap<Integer, Boolean>();
 		notifyDataSetChanged();
@@ -97,9 +106,9 @@ public class TaskAdapter extends ArrayAdapter<TaskModel> {
 
 	@Override
 	public View getView(int position, View convertView, ViewGroup parent) {
-		
+
 		View row = convertView;
-		//try{
+		// try{
 		TaskModelHolder holder = null;
 		if (row == null) {
 			LayoutInflater inflater = LayoutInflater.from(activity);
@@ -109,30 +118,59 @@ public class TaskAdapter extends ArrayAdapter<TaskModel> {
 			holder.details = (TextView) row
 					.findViewById(R.id.user_task_details);
 			holder.notes = (TextView) row.findViewById(R.id.user_task_notes);
+			db = new DatabaseHelper(mContext);
+
 			holder.toggle = (ImageView) row.findViewById(R.id.done_toggle);
+
 			holder.toggle.setTag(R.drawable.task_row_bg);
+
+			holder.alarm_toggle = (ImageView) row
+					.findViewById(R.id.alarm_toggle);
+
+			holder.gridView = (GridView) row
+					.findViewById(R.id.tasklist_gridview);
+
+			final int pos = position;
+			long currTime = System.currentTimeMillis();
+			final String currentDateTime = Long.toString(currTime);
+
 			holder.toggle.setOnClickListener(new OnClickListener() {
-				
+
 				@Override
 				public void onClick(View v) {
-					// TODO Auto-generated method stub
-					//					if(((ImageView)v).getBackground() == 
-//							activity.getResources().getDrawable(R.drawable.task_row_bg)
-//					)
-					if ((Integer)v.getTag() == R.drawable.task_row_bg) {
-						((ImageView)v).setImageResource(R.drawable.task_row_done_bg);
-	                    v.setTag(R.drawable.task_row_done_bg);
-	                } 	
-					else
-					{
-						((ImageView)v).setImageResource(R.drawable.task_row_bg);
-	                    v.setTag(R.drawable.task_row_bg);
+					// if(((ImageView)v).getBackground()==activity.getResources().getDrawable(R.drawable.task_row_bg))
+					if ((Integer) v.getTag() == R.drawable.task_row_bg) {
+						((ImageView) v)
+								.setImageResource(R.drawable.task_row_done_bg);
+						v.setTag(R.drawable.task_row_done_bg);
+						// here send the done bit to db
+						TaskModel temp = task_data.get(pos);
+						temp.completed = 1;
+						temp.updated = currentDateTime;
+						// for removing alarm
+						temp.alarm_id = 0;
+						temp.remind_at = null;
+						temp.remind_interval = 0;
+						temp.alarm_status = 0;
+						temp.weekday = 0;
+						// for removing alarms
+						db.Task_Edit(temp);
+					} else {
+						((ImageView) v)
+								.setImageResource(R.drawable.task_row_bg);
+						TaskModel temp = task_data.get(pos);
+						temp.completed = 0;
+						temp.updated = currentDateTime;
+						db.Task_Edit(temp);
+						v.setTag(R.drawable.task_row_bg);
+						// db.Task_Completed(task_data.get(pos), flag);
 					}
-					
-//					
-					//.setBackgroundResource(R.drawable.task_row_done_bg);
+
+					//
+					// .setBackgroundResource(R.drawable.task_row_done_bg);
 				}
 			});
+
 			holder.update = (TextView) row.findViewById(R.id.updated);
 
 			row.setTag(holder);
@@ -142,136 +180,21 @@ public class TaskAdapter extends ArrayAdapter<TaskModel> {
 
 		row.setBackgroundColor(activity.getResources().getColor(
 				android.R.color.background_light)); // default color
-		((LinearLayout)row.findViewById(R.id.submenu)).setVisibility(View.GONE);
+		// ((LinearLayout)row.findViewById(R.id.submenu)).setVisibility(View.GONE);
 		if (mSelection.get(position) != null) {
-			//row.setBackgroundColor(activity.getResources().getColor(
-					//android.R.color.holo_blue_light));
-			((LinearLayout)row.findViewById(R.id.submenu)).setVisibility(View.VISIBLE);
-
-			row.setBackgroundColor(activity.getResources().getColor(R.color.selection_blue));
-					//getResources().getColor(android.R.color.holo_blue_light));
+			// ((LinearLayout)row.findViewById(R.id.submenu)).setVisibility(View.VISIBLE);
+			row.setBackgroundColor(activity.getResources().getColor(
+					R.color.selection_blue));
+			// getResources().getColor(android.R.color.holo_blue_light));
 		}
 		task = task_data.get(position);
-		
-//		try {
-//
-//			String s = task.updated.toString();
-//			long previousTime = Long.valueOf(s).longValue();
-//			long diff = currentTimeMills - previousTime;
-//
-//			String relativeTime = null;
-//
-//			if (diff /1000 < 1){
-//				relativeTime = " Just Now";
-//			}else if (diff / 1000 >= 1 && diff / 1000 <= 60) {
-//				relativeTime = " Less than a minute "; // Just Now
-//			} else if (diff / 60000 >= 1 && diff / 60000 <= 60) {
-//				if (diff / 60000 == 1) {
-//					relativeTime = diff / 60000 + " min earlier "; // for 1
-//																	// minute
-//																	// earlier
-//																	// exactly
-//				} else if (diff / 1000 > 1 && diff / 60000 <= 60) {
-//					relativeTime = diff / 60000 + " mins earlier "; // for
-//																	// minutes
-//																	// greater
-//																	// then 1
-//																	// minute
-//				}
-//			} else if (diff / 3600000 >= 1 && diff / 3600000 <= 24) {
-//				if (diff / 3600000 == 1) {
-//					relativeTime = diff / 3600000 + " hr earlier"; // for number
-//																	// of hours
-//																	// exactly 1
-//																	// hour
-//				} else if (diff / 3600000 > 1 && diff / 3600000 <= 6) {
-//					relativeTime = diff / 3600000 + " hrs earlier"; // for
-//																	// number of
-//																	// hours
-//																	// less then
-//																	// 6 hours
-//				} else if (diff / 3600000 > 6 && diff / 3600000 <= 24) {
-//					// relativeTime = diff / 3600000 + " hrs earlier"; //for
-//					// number of hours greater then 6 hours
-//					Calendar cl = Calendar.getInstance();
-//					cl.setTimeInMillis(previousTime); // here your time in
-//														// milliseconds
-//					relativeTime = "" + cl.get(Calendar.HOUR_OF_DAY) + ":" 
-//							+ cl.get(Calendar.MINUTE);// + " " +
-//														// cl.get(Calendar.AM_PM);
-//				}
-//				// now write condition to check for previous days
-//			} else if (diff / (3600000 * 24) >= 1 && diff / (3600000 * 24) <= 7) {
-//
-//				Calendar cl = Calendar.getInstance();
-//				cl.setTimeInMillis(previousTime); // here your time in
-//													// milliseconds
-//				// relativeTime = "" + cl.get(Calendar.DAY_OF_WEEK);
-//				if (cl.get(Calendar.DAY_OF_WEEK) == 1) {
-//					relativeTime = "Sun";
-//				} else if (cl.get(Calendar.DAY_OF_WEEK) == 2) {
-//					relativeTime = "Mon";
-//				} else if (cl.get(Calendar.DAY_OF_WEEK) == 3) {
-//					relativeTime = "Tues";
-//				} else if (cl.get(Calendar.DAY_OF_WEEK) == 4) {
-//					relativeTime = "Wed";
-//				} else if (cl.get(Calendar.DAY_OF_WEEK) == 5) {
-//					relativeTime = "Thurs";
-//				} else if (cl.get(Calendar.DAY_OF_WEEK) == 6) {
-//					relativeTime = "Fri";
-//				} else if (cl.get(Calendar.DAY_OF_WEEK) == 7) {
-//					relativeTime = "Sat";
-//				}
-//			} else if (diff / (3600000 * 24) > 7 && diff / (3600000 * 24) <= 30) {
-//				// relativeTime = " Days ";
-//				Calendar cl = Calendar.getInstance();
-//				cl.setTimeInMillis(previousTime); // here your time in
-//													// milliseconds
-//				// relativeTime = "" + cl.get(Calendar.DAY_OF_MONTH) + ":" +
-//				// (cl.get(Calendar.MONTH)+1); //increment because this was
-//				// giving the wrong month
-//				if ((cl.get(Calendar.MONTH) + 1) == 1) {
-//					relativeTime = "" + cl.get(Calendar.DAY_OF_MONTH) + " Jan";
-//				} else if ((cl.get(Calendar.MONTH) + 1) == 2) {
-//					relativeTime = "" + cl.get(Calendar.DAY_OF_MONTH) + " Feb";
-//				} else if ((cl.get(Calendar.MONTH) + 1) == 3) {
-//					relativeTime = "" + cl.get(Calendar.DAY_OF_MONTH) + " Mar";
-//				} else if ((cl.get(Calendar.MONTH) + 1) == 4) {
-//					relativeTime = "" + cl.get(Calendar.DAY_OF_MONTH) + " Apr";
-//				} else if ((cl.get(Calendar.MONTH) + 1) == 5) {
-//					relativeTime = "" + cl.get(Calendar.DAY_OF_MONTH) + " May";
-//				} else if ((cl.get(Calendar.MONTH) + 1) == 6) {
-//					relativeTime = "" + cl.get(Calendar.DAY_OF_MONTH) + " Jun";
-//				} else if ((cl.get(Calendar.MONTH) + 1) == 7) {
-//					relativeTime = "" + cl.get(Calendar.DAY_OF_MONTH) + " Jul";
-//				} else if ((cl.get(Calendar.MONTH) + 1) == 8) {
-//					relativeTime = "" + cl.get(Calendar.DAY_OF_MONTH) + " Aug";
-//				} else if ((cl.get(Calendar.MONTH) + 1) == 9) {
-//					relativeTime = "" + cl.get(Calendar.DAY_OF_MONTH) + " Sep";
-//				} else if ((cl.get(Calendar.MONTH) + 1) == 10) {
-//					relativeTime = "" + cl.get(Calendar.DAY_OF_MONTH) + " Oct";
-//				} else if ((cl.get(Calendar.MONTH) + 1) == 11) {
-//					relativeTime = "" + cl.get(Calendar.DAY_OF_MONTH) + " Nov";
-//				} else if ((cl.get(Calendar.MONTH) + 1) == 12) {
-//					relativeTime = "" + cl.get(Calendar.DAY_OF_MONTH) + " Dec";
-//				}
-//			} else // if (diff / (3600000*24*12) >= 1 && diff / (3600000*24*12)
-//					// <= 60) {
-//			{ // relativeTime = " Years ";
-//				Calendar cl = Calendar.getInstance();
-//				cl.setTimeInMillis(previousTime); // here your time in
-//													// milliseconds
-//				relativeTime = "" + cl.get(Calendar.YEAR)
-//						+ (cl.get(Calendar.MONTH) + 1)
-//						+ cl.get(Calendar.DAY_OF_MONTH); // increment because
-//															// this was giving
-//															// the wrong month
-//			}
-//			holder.update.setText(relativeTime);
-//
-//		} catch (Exception e) {
-//			e.printStackTrace();
-//		}
+
+		// if (HighlightTask !=-1 && task._id == HighlightTask){
+		//
+		// Animation animationFadeIn = AnimationUtils
+		// .loadAnimation(this.mContext, R.anim.fade_in);
+		// row.startAnimation(animationFadeIn);
+		// }
 
 		// try {
 		// if (holder.title.getText().toString().length() >= MAX_CHARS) {
@@ -290,28 +213,83 @@ public class TaskAdapter extends ArrayAdapter<TaskModel> {
 		// Log.e(tag, msg);
 		// }
 		//
-		if(task.relativeTime== "" || task.relativeTime == null)
+
+		if (task.relativeTime == "" || task.relativeTime == null)
 			task.updateRelativeTime(currentTimeMills);
 		holder.update.setText(task.relativeTime);
-		
+
+		try {
+			if (task.completed == 1) {
+				holder.toggle.setImageResource(R.drawable.task_row_done_bg);
+			} else if (task.completed == 0) {
+				holder.toggle.setImageResource(R.drawable.task_row_bg);
+			}
+		} catch (Exception e) {
+			Log.e("taskAdapter", "doneToggle");
+		}
+
+		try {
+			if (task.remind_interval == 0) {
+				holder.alarm_toggle.setVisibility(View.INVISIBLE);
+			} else {
+				holder.alarm_toggle.setVisibility(View.VISIBLE);
+				// holder.alarm_toggle.setImageResource(R.drawable.alarm_taskrow_visible);
+			}
+		} catch (Exception e) {
+			Log.e("taskAdapter", "alarmToggle");
+		}
+
 		holder.title.setText(task.title);
 		holder.details.setText(task.details);
 		holder.notes.setText(task.notes);
+			
+		//this to show images at tasks
+		  Integer[] mThumbIds = {
+		   R.drawable.catag_home 
+		  };
+		  
+		  holder.gridView.setAdapter(new ImageGridAdapter( mThumbIds , mContext ));
+		 
+		  holder.gridView.setOnItemClickListener(new OnItemClickListener() {
+		  public void onItemClick(AdapterView<?> parent, View v, int position,
+		  long id) { Toast.makeText(mContext, "" + position,
+		  Toast.LENGTH_SHORT).show(); } });
+		//this to show images at tasks 
+		  
 		// holder.update.setText(task.updated);
-		
-//		}catch(Exception e){
-//			Log.e("AdapterTask", "Error");
-//		}
+
+		// }catch(Exception e){
+		// Log.e("AdapterTask", "Error");
+		// }
+
+		// if (HighlightTask !=-1 && task._id == HighlightTask){
+		//
+		// Animation animationFadeIn = AnimationUtils
+		// .loadAnimation(this.mContext, R.anim.fade_in);
+		// row.startAnimation(animationFadeIn);
+		// }
 		return row;
 	}
 
-	class TaskModelHolder {
+	public void blinkTask(int id) {
 
+		// if (HighlightTask !=-1 & task._id == HizghlightTask){
+
+		// Animation animationFadeIn = AnimationUtils
+		// .loadAnimation(this.mContext, R.anim.fade_in);
+		// row.startAnimation(animationFadeIn);
+		// }
+	}
+
+	class TaskModelHolder {
 		TextView title;
 		TextView details;
 		TextView notes;
 		ImageView toggle;
 		TextView update;
+		ImageView alarm_toggle;
+
+		GridView gridView; // 20 november 2014
 	}
 
 }

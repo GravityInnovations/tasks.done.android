@@ -5,7 +5,7 @@
     android:orientation="vertical" >
 
     <DatePicker
-        android:id="@+id/dialog_datepicker"
+        android:id="@+id/datepicker"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_gravity="center"
@@ -14,7 +14,7 @@
     </DatePicker>
 
     <TimePicker
-        android:id="@+id/dialog_timepicker"
+        android:id="@+id/timepicker"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_gravity="center" >

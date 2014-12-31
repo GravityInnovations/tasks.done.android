@@ -7,6 +7,7 @@ import org.apache.http.NameValuePair;
 import org.apache.http.message.BasicNameValuePair;
 
 import android.app.Activity;
+import android.content.Context;
 
 public class GravityController {
 
@@ -22,13 +23,13 @@ public class GravityController {
 		/*HttpTask temp = new HttpTask(Common.USER_INFO_URL);
 		temp.execute();*/
 	}
-	public static void register_gravity_account(Activity activity,String Email, String gcm_reg_id,String Username, int RequestCode)
+	public static void register_gravity_account(Context context,String Email, String gcm_reg_id,String Username, int RequestCode)
 	{
 		List<NameValuePair> postData = new ArrayList<NameValuePair>();          
 		postData.add(new BasicNameValuePair("Email", Email));
 		postData.add(new BasicNameValuePair("Regid", gcm_reg_id));
 		postData.add(new BasicNameValuePair("Name", Username));
-		HttpTask Temp = new HttpTask(activity, Common.GRAVITY_ACCOUNT_URL, postData,
+		HttpTask Temp = new HttpTask(context, Common.GRAVITY_ACCOUNT_URL, postData,
 				Common.HttpMethod.HttpPost,RequestCode);
 		Temp.execute();
 	}
