@@ -47,7 +47,7 @@ public class GoogleAuth extends AsyncTask<Void, Void, Void> {
 	public Account getAccount(String Email)
 	{
 		for (Account i:this.mAccounts) {
-	    	if(i.name.equals(Email))
+	    	if(i.name.equals(Email) || i.name.toString() == Email)
 	    		return i;
 	    }
 		return null;
@@ -74,9 +74,10 @@ public class GoogleAuth extends AsyncTask<Void, Void, Void> {
 		
 		}
 		catch(GooglePlayServicesAvailabilityException e){
-			
-//			((GoogleAuthCallback) mContext).pushFailure(
-//					e.getLocalizedMessage(), null);
+			i = e.getIntent();
+			i.putExtra(Common.HAS_EXCEPTION, true);
+			i.putExtra(Common.EXCEPTION_TYPE, Common.EXCEPTIONS.UserRecoverableAuthException);
+			i.putExtra(Common.MESSAGE, e.getLocalizedMessage());
 		}
 		catch (UserRecoverableAuthException e) {
 			// TODO Auto-generated catch block
@@ -88,10 +89,10 @@ public class GoogleAuth extends AsyncTask<Void, Void, Void> {
 //					e.getClass().toString(), null);
 
 		}  catch (GoogleAuthException e) {
-			
-			// TODO Auto-generated catch block
-//			((GoogleAuthCallback) mContext).pushFailure(
-//						e.getLocalizedMessage(), null);
+			//i = e.getIntent();
+			i.putExtra(Common.HAS_EXCEPTION, true);
+			i.putExtra(Common.EXCEPTION_TYPE, Common.EXCEPTIONS.UserRecoverableAuthException);
+			i.putExtra(Common.MESSAGE, e.getLocalizedMessage());
 
 		}catch (IOException e) {
 			// TODO Auto-generated catch block

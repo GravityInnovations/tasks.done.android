@@ -1,39 +1,50 @@
 package com.gravity.innovations.tasks.done;
 
-import java.util.Calendar;
+import java.util.zip.Inflater;
 
 import android.annotation.SuppressLint;
 import android.app.Activity;
-import android.content.Context;
-import android.content.DialogInterface;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
-import android.util.Log;
-import android.view.ActionMode;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
 import android.widget.AbsListView.MultiChoiceModeListener;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.AdapterView.OnItemLongClickListener;
-import android.widget.DatePicker;
-import android.widget.EditText;
+import android.widget.GridView;
 import android.widget.ListView;
 import android.widget.TextView;
-import android.widget.TimePicker;
 
 public class TaskListFragment extends Fragment {
 	private TaskListModel data;
 	private ListView mListView;
+	private GridView mGridView;
+	private TextView mTextView;
 	public TaskAdapter mTaskAdapter;
 	public int selCount = 0; // for CAB multi select count
 	NavigationDrawerFragment mNavigationDrawerFragment;
+	Activity mActivity;
+	public int selectedTaskID;
+	Integer[] mThumbIds = { R.drawable.catag_home };
 
 	public TaskListFragment() {
 
+	}
+
+	public void newInstance(TaskListModel temp, int _selectTaskId,
+			NavigationDrawerFragment mNavigationDrawerFragment) {
+		// TODO Auto-generated method stub
+		this.data = temp;
+		// updateRelativeTime();
+		this.mNavigationDrawerFragment = mNavigationDrawerFragment;
+		this.selectedTaskID = _selectTaskId;
+		//this.mThumbIds= mThumbIds;
 	}
 
 	public void newInstance(TaskListModel temp,
@@ -69,13 +80,30 @@ public class TaskListFragment extends Fragment {
 		View rootView = inflater.inflate(R.layout.fragment_main, container,
 				false);
 		if (data.tasks != null && data.tasks.size() > 0) {
-			mListView = (ListView) rootView.findViewById(R.id.list);
-
+			mListView = (ListView) rootView.findViewById(R.id.list);	
+			
+			//header on each fragment
+			View headerView = inflater.inflate(
+					R.layout.tasks_fragment_header, null);
+			
+			mTextView = (TextView) headerView.findViewById(R.id.section_label);
+			String listTitle = data.title;
+			mTextView.setText(listTitle);
+			
+			mGridView = (GridView) headerView
+					.findViewById(R.id.gridView1);
+			mGridView.setAdapter(new ImageGridAdapter( mThumbIds , getActivity().getApplicationContext() ));
+			
+			mListView.addHeaderView(headerView); 
+			//header on each fragment
+			
 			mTaskAdapter = new TaskAdapter(getActivity(),
-					R.layout.task_listview_row, data.tasks);
+					R.layout.task_listview_row, data.tasks, selectedTaskID);
 			mListView.setAdapter(mTaskAdapter);
-
+			
+			
 			mTaskAdapter.notifyDataSetChanged();
+			
 			// Swipe to delete task
 			/*
 			 * SwipeDismissListViewTouchListener touchListener = new
@@ -98,6 +126,7 @@ public class TaskListFragment extends Fragment {
 			 */
 			// swipe to delete task
 			mListView.setChoiceMode(ListView.CHOICE_MODE_MULTIPLE_MODAL);
+
 			mListView.setMultiChoiceModeListener(new MultiChoiceModeListener() {
 				@Override
 				public boolean onActionItemClicked(
@@ -111,6 +140,9 @@ public class TaskListFragment extends Fragment {
 					case R.id.item_edit:
 						mNavigationDrawerFragment.addOrEditTask(data,
 								mTaskAdapter.getSingularSelectedTaskModel());
+						mode.finish();
+					case R.id.item_share:
+						// listof_nameEmailPic();
 						mode.finish();
 						break;
 					}
@@ -136,13 +168,19 @@ public class TaskListFragment extends Fragment {
 				@Override
 				public boolean onPrepareActionMode(
 						android.view.ActionMode mode, Menu menu) {
+					MenuItem item_edit, item_share;
 					if (selCount == 1) {
-						MenuItem item = menu.findItem(R.id.item_edit);
-						item.setVisible(true);
+						item_edit = menu.findItem(R.id.item_edit);
+						item_share = menu.findItem(R.id.item_share);
+						item_edit.setVisible(true);
+						item_share.setVisible(true);
 						return true;
 					} else {
-						MenuItem item = menu.findItem(R.id.item_edit);
-						item.setVisible(false);
+						// on multiple item selection hide below item
+						item_edit = menu.findItem(R.id.item_edit);
+						item_share = menu.findItem(R.id.item_share);
+						item_edit.setVisible(false);
+						item_share.setVisible(false);
 						return true;
 					}
 				}
@@ -176,19 +214,28 @@ public class TaskListFragment extends Fragment {
 
 			mListView.setOnItemClickListener(new OnItemClickListener() {
 
-				//@Override
-			 	public void onItemClick(AdapterView<?> arg0, View arg1,
-				 		int pos, long arg3) {
-				//mListView.setItemChecked(pos, true); //this is THE line
-				//mNavigationDrawerFragment.addOrEditTask(data,mTaskAdapter.getSingularSelectedTaskModel());
-				//mNavigationDrawerFragment.openTaskDetailsDialog();//data,mTaskAdapter.getSingularSelectedTaskModel());
+				// @Override
+				public void onItemClick(AdapterView<?> arg0, View arg1,
+						int pos, long arg3) {
+					// mListView.setItemChecked(pos, true); //this is THE line
+					mActivity = getActivity();
+					final Animation animationFadeIn = AnimationUtils
+							.loadAnimation(mActivity, R.anim.fade_in);
+					// arg1.startAnimation(animationFadeIn);
+					/*
+					 *for fixing gridView problems  
+					 */
+					--pos;
+					mNavigationDrawerFragment
+							.openTaskDetailsDialog(mTaskAdapter.getItem(pos));
 					
-			 		mNavigationDrawerFragment.openTaskDetailsDialog(mTaskAdapter.getItem(pos));//emId.getSingularSelectedTaskModel() );
-				//mTaskAdapter.sellectThisThing(pos);
+					
+					// emId.getSingularSelectedTaskModel() );
+					// mTaskAdapter.sellectThisThing(pos);
 				}
 			});
-			
 		}
 		return rootView;
 	}
+	
 }

@@ -2,12 +2,15 @@ package com.gravity.innovations.tasks.done;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.StringTokenizer;
+
 import org.json.JSONObject;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.ContentResolver;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.DialogInterface.OnClickListener;
 import android.content.Intent;
 import android.database.Cursor;
 import android.graphics.Bitmap;
@@ -43,6 +46,7 @@ public class Common {
 	public static final String USER_IS_SYNC_TYPE = prefix + "UserWillSync";
 	public static final String USER_IS_REGISTERED = prefix + "UserRegistered";
 	public static final String USER_ID_GRAVITY = prefix + "gUserId";
+	public static final String ALL_USERS_SYNCED = prefix + "allUsersSynced";
 	public static final String SHARED_PREF_KEY = prefix;
 	public static final int SPLASH_TIME_OUT = 3000;
 	public static final int SPLASH_TIME_OUT_SMALL = 1000;
@@ -51,6 +55,7 @@ public class Common {
 	public static final String AUTH_TOKEN_TYPE = "oauth2:profile https://www.googleapis.com/auth/plus.login https://www.googleapis.com/auth/plus.me";// https://www.googleapis.com/auth/userinfo.profile";// https://www.googleapis.com/auth/drive.file https://www.googleapis.com/auth/datastoremobile https://www.googleapis.com/auth/appstate";
 	public static final String EXTRA_MESSAGE = "message";
 	public static final String GOOGLE_PROPERTY_REG_ID = "registration_id";
+	public static final String GOOGLE_IS_USER_SYNCED = prefix+"ProfileDataSynced";
 	public static final String GOOGLE_PROPERTY_APP_VERSION = "appVersion";
 	public final static int PLAY_SERVICES_RESOLUTION_REQUEST = 9000;
 	public final static String HAS_EXCEPTION = prefix + "hasException";
@@ -78,6 +83,7 @@ public class Common {
 	public static final int CHECK_INTERNET = 1;
 	public static final int LOAD_PREFS = 2;
 	public static final int GET_ACCOUNT = 3;
+	public static final int GOT_ACCOUNT = 12;
 	public static final int GOOGLE_AUTH = 4;
 	public static final int GOOGLE_USER_INFO = 5;
 	public static final int LOAD_LOCAL_DB = 6;
@@ -85,12 +91,13 @@ public class Common {
 	public static final int GO_TO_MAIN = 8;
 	public static final int CONFIG_GCM = 9;
 	public static final int GRAVITY_SYNC = 10;
+	public static final int USERS_SYNC = 11;
 	
 	// Activity Names
 	public static final String AUTH_ACTIVITY = "AuthenticationActivity";
 	public static final String SPLASH_ACTIVITY = "SplashActivity";
 	//gravity urls
-	public static final String GRAVITY_BASE_URL = "http://192.168.1.3/";
+	public static final String GRAVITY_BASE_URL = "http://192.168.1.4/";
 	public static final String GRAVITY_ACCOUNT_URL = GRAVITY_BASE_URL+"Account/";
 	public static final String GRAVITY_GCM_URL = GRAVITY_BASE_URL+"GCM/";
 	public static final String GRAVITY_TASKLIST_URL = GRAVITY_BASE_URL+"TaskList/";
@@ -107,13 +114,19 @@ public class Common {
 		public static final int GRAVITY_GET_TASKLISTS = 994;
 		public static final int GOOGLE_GET_USER_INFO = 993;
 	}
-
+	public static class serviceActions{
+		public static final String START_APP = "startapplication";
+	}
 	public class EXCEPTIONS {
 		public static final int NoException = 0;
 		public static final int UserRecoverableAuthException = 1;
 	}
 
 	public static class Callbacks {
+		public interface ServiceCallback{
+			public void onServiceBound(AppHandlerService handleService);
+			void startResultActivity(Intent intent, int RequestCode);
+		}
 		public interface TimeCallBack{
 			 public void onTimeReceive(Context mContext, Intent intent);
 			
@@ -138,28 +151,36 @@ public class Common {
 
 		public interface AuthActivityCallback extends GoogleAuthCallback {
 		}
+		public interface SplashCallback{
+	public void CheckInternet();
 
+	public void LoadPreferences();// 1
+
+	public void GetAccount();
+
+	public void GoogleAuth();
+	public void GetUserDataFromGoogle();
+	public void LoadLocalDB();//2
+
+
+	public void GravityRegister();
+
+	public void GoToMainThread();
+
+	public void ConfigureGCM();
+
+	public void SyncAppData();
+	public void SyncUsers();
+
+}
 		public interface SplashActivityCallback extends GoogleAuthCallback,
-				HttpCallback, GCMCallback {
-			public void CheckInternet();
-
-			public void LoadPreferences();// 1
-
-			public void GetAccount();
-
-			public void GoogleAuth();
-			public void GetUserDataFromGoogle();
-			public void LoadLocalDB();//2
-
-
-			public void GravityRegister();
-
-			public void GoToMain();
-
-			public void ConfigureGCM();
-
-			public void Sync();
+				HttpCallback, GCMCallback, ServiceCallback, SplashCallback {
+			
 		}
+		public interface SplashServiceCallback extends GoogleAuthCallback,
+		HttpCallback, GCMCallback, SplashCallback {
+			public void onAccountProvided(String email, int ResultCode);
+}
 
 	}
 
@@ -170,9 +191,9 @@ public class Common {
 		public static final int HttpPut = 4;
 	}
 
-	public static boolean hasInternet(Activity mActivity) {
+	public static boolean hasInternet(Context mContext) {
 
-		ConnectivityManager cm = (ConnectivityManager) mActivity
+		ConnectivityManager cm = (ConnectivityManager) mContext
 				.getSystemService(Context.CONNECTIVITY_SERVICE);
 		NetworkInfo i = cm.getActiveNetworkInfo();
 		if (i == null)
@@ -194,6 +215,8 @@ public class Common {
 		public int google_regVer;
 		public String google_AuthToken;
 		public String gravity_user_id;
+		public Boolean google_is_data_synced;
+		public Boolean all_users_synced;
 		public static Bitmap image;
 		public userData() {
 
@@ -314,5 +337,210 @@ public class Common {
 			builder.getListView().setOnItemClickListener(onItemClickListener);
 			builder.show();
 		}
+		public static void CustomDialog(Context mContext, String title,
+				String message, String posText, String negText,
+				OnClickListener posListener, OnClickListener negListener) {
+			// TODO Auto-generated method stub
+			AlertDialog.Builder builder = new AlertDialog.Builder(mContext);
+			builder.setIcon(android.R.drawable.ic_popup_reminder);
+			builder.setTitle(title);
+			builder.setCancelable(false);
+			builder.setMessage(message);
+			// builder.setView(view);
+
+			if (posListener != null) {
+				builder.setPositiveButton(posText, posListener);
+			}
+			if (negListener != null) {
+				builder.setNegativeButton(negText, negListener);
+			}
+
+			builder.create().show();
+			
+		}
 	}
+	public static class FormateTimeStrings {
+		//this class only return formated time String to the dialogs
+		public static String getFormatedDateTimeString(String remindAt) {
+			StringTokenizer tokens = new StringTokenizer(remindAt, "/");
+			String year_string = tokens.nextToken();// year
+			String month_string = tokens.nextToken();// month
+			int month = Integer.parseInt(month_string);
+			String date_string = tokens.nextToken();// date
+			String hours_string = tokens.nextToken();// time
+			String minute_string = tokens.nextToken();// minute
+			String newFormatedDate = null;
+			if (month == 0) {
+				newFormatedDate = year_string + " Jan " + date_string + ", "
+						+ hours_string + ":" + minute_string;
+				// list_item[0] = "Repeat; Once at " + newFormatedDate;
+			} else if (month == 1) {
+				newFormatedDate = year_string + " Feb " + date_string + ", "
+						+ hours_string + ":" + minute_string;
+				// list_item[0] = "Repeat; Once at " + newFormatedDate;
+			} else if (month == 2) {
+				newFormatedDate = year_string + " Mar " + date_string + ", "
+						+ hours_string + ":" + minute_string;
+				// list_item[0] = "Repeat; Once at " + newFormatedDate;
+			} else if (month == 3) {
+				newFormatedDate = year_string + " Apr " + date_string + ", "
+						+ hours_string + ":" + minute_string;
+				// list_item[0] = "Repeat; Once at " + newFormatedDate;
+			} else if (month == 4) {
+				newFormatedDate = year_string + " May " + date_string + ", "
+						+ hours_string + ":" + minute_string;
+				// list_item[0] = "Repeat; Once at " + newFormatedDate;
+			} else if (month == 5) {
+				newFormatedDate = year_string + " Jun " + date_string + ", "
+						+ hours_string + ":" + minute_string;
+				// list_item[0] = "Repeat; Once at " + newFormatedDate;
+			} else if (month == 6) {
+				newFormatedDate = year_string + " Jul " + date_string + ", "
+						+ hours_string + ":" + minute_string;
+				// list_item[0] = "Repeat; Once at " + newFormatedDate;
+			} else if (month == 7) {
+				newFormatedDate = year_string + " Aug " + date_string + ", "
+						+ hours_string + ":" + minute_string;
+				// list_item[0] = "Repeat; Once at " + newFormatedDate;
+			} else if (month == 8) {
+				newFormatedDate = year_string + " Sept " + date_string + ", "
+						+ hours_string + ":" + minute_string;
+				// list_item[0] = "Repeat; Once at " + newFormatedDate;
+			} else if (month == 9) {
+				newFormatedDate = year_string + " Oct " + date_string + ", "
+						+ hours_string + ":" + minute_string;
+				// list_item[0] = "Repeat; Once at " + newFormatedDate;
+			} else if (month == 10) {
+				newFormatedDate = year_string + " Nov " + date_string + ", "
+						+ hours_string + ":" + minute_string;
+				// list_item[0] = "Repeat; Once at " + newFormatedDate;
+			} else if (month == 11) {
+				newFormatedDate = year_string + " Dec " + date_string + ", "
+						+ hours_string + ":" + minute_string;
+			}
+			// list_item[0] = "Repeat; Once at " + newFormatedDate;
+			// list_item[0] = "Repeat: Once at " + temp.remind_at + " "; //
+			// String.valueOf(temp.remind_interval);
+			return newFormatedDate;
+		}
+		public static String getFormatedTimeString(String remindAt) {
+
+			StringTokenizer tokens = new StringTokenizer(remindAt, "/");
+			String year_string = tokens.nextToken();// year
+			String month_string = tokens.nextToken();// month
+			String date_string = tokens.nextToken();// date
+			String hours_string = tokens.nextToken();// time
+			String minute_string = tokens.nextToken();// minute
+			String newFormatedDate = hours_string + ":" + minute_string;
+			return newFormatedDate;
+		}
+
+		public static String getFormatedWeeklyTimeString(int weekday, String remindAt) {
+			StringTokenizer tokens = new StringTokenizer(remindAt, "/");
+			String year_string = tokens.nextToken();// year
+			String month_string = tokens.nextToken();// month
+			String date_string = tokens.nextToken();// date
+			String hours_string = tokens.nextToken();// time
+			String minute_string = tokens.nextToken();// minute
+			String newFormatedDate = null;
+			if (weekday == 0) {
+				newFormatedDate = " Sun, at " + hours_string + ":"
+						+ minute_string;
+			} else if (weekday == 1) {
+				newFormatedDate = " Mon, at " + hours_string + ":"
+						+ minute_string;
+			} else if (weekday == 2) {
+				newFormatedDate = " Tue, at " + hours_string + ":"
+						+ minute_string;
+			} else if (weekday == 3) {
+				newFormatedDate = " Wed, at " + hours_string + ":"
+						+ minute_string;
+			} else if (weekday == 4) {
+				newFormatedDate = " Thu, at " + hours_string + ":"
+						+ minute_string;
+			} else if (weekday == 5) {
+				newFormatedDate = " Fri, at " + hours_string + ":"
+						+ minute_string;
+			} else if (weekday == 6) {
+				newFormatedDate = " Sat, at " + hours_string + ":"
+						+ minute_string;
+			}
+			return newFormatedDate;
+		}
+
+		public static String getFormatedMonthlyDateTimeString(String remindAt) {
+
+			StringTokenizer tokens = new StringTokenizer(remindAt, "/");
+			String year_string = tokens.nextToken();// year
+			String month_string = tokens.nextToken();// month
+			String date_string = tokens.nextToken();// date
+			int date = Integer.parseInt(date_string);
+			String hours_string = tokens.nextToken();// time
+			String minute_string = tokens.nextToken();// minute
+			String newFormatedDate = null;
+			if (date == 1) {
+				newFormatedDate = date_string + "st, At: " + hours_string + ":"
+						+ minute_string;
+				// list_item[0] = "Repeat; Once at " + newFormatedDate;
+			} else {
+				newFormatedDate = date_string + "nd, At: " + hours_string + ":"
+						+ minute_string;
+			}
+			// list_item[0] = "Repeat; Once at " + newFormatedDate;
+			// list_item[0] = "Repeat: Once at " + temp.remind_at + " "; //
+			// String.valueOf(temp.remind_interval);
+			return newFormatedDate;
+		}
+
+		public static String getFormatedYearlyDateTimeString(String remindAt) {
+
+			StringTokenizer tokens = new StringTokenizer(remindAt, "/");
+			String year_string = tokens.nextToken();// year
+			String month_string = tokens.nextToken();// month
+			int month = Integer.parseInt(month_string);
+			String date_string = tokens.nextToken();// date
+			String hours_string = tokens.nextToken();// time
+			String minute_string = tokens.nextToken();// minute
+			String newFormatedDate = null;
+			if (month == 0) {
+				newFormatedDate = "Jan " + date_string + ", " + hours_string + ":"
+						+ minute_string;
+			} else if (month == 1) {
+				newFormatedDate = "Feb " + date_string + ", " + hours_string + ":"
+						+ minute_string;
+			} else if (month == 2) {
+				newFormatedDate = "Mar " + date_string + ", " + hours_string + ":"
+						+ minute_string;
+			} else if (month == 3) {
+				newFormatedDate = "Apr " + date_string + ", " + hours_string + ":"
+						+ minute_string;
+			} else if (month == 4) {
+				newFormatedDate = "May " + date_string + ", " + hours_string + ":"
+						+ minute_string;
+			} else if (month == 5) {
+				newFormatedDate = "Jun " + date_string + ", " + hours_string + ":"
+						+ minute_string;
+			} else if (month == 6) {
+				newFormatedDate = "Jul " + date_string + ", " + hours_string + ":"
+						+ minute_string;
+			} else if (month == 7) {
+				newFormatedDate = "Aug " + date_string + ", " + hours_string + ":"
+						+ minute_string;
+			} else if (month == 8) {
+				newFormatedDate = "Sept " + date_string + ", " + hours_string + ":"
+						+ minute_string;
+			} else if (month == 9) {
+				newFormatedDate = "Oct " + date_string + ", " + hours_string + ":"
+						+ minute_string;
+			} else if (month == 10) {
+				newFormatedDate = "Nov " + date_string + ", " + hours_string + ":"
+						+ minute_string;
+			} else if (month == 11) {
+				newFormatedDate = "Dec " + date_string + ", " + hours_string + ":"
+						+ minute_string;
+			}
+			return newFormatedDate;
+		}
+	}
+
 }

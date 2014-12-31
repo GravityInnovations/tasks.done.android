@@ -1,164 +1,188 @@
-<?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:orientation="vertical" >
-   <TextView
-        android:id="@+id/title"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentLeft="true"
-        android:layout_alignParentTop="true"
-        android:layout_marginLeft="14dp"
-        android:layout_marginTop="20dp"
-        android:text="Title:" />
-    
-    
-    <TextView
-        android:id="@+id/tv_title"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content" 
-        android:layout_alignParentRight="true"
-         android:layout_alignBaseline="@+id/tv_title"
-        android:layout_marginTop="20dp"
-        android:ems="10"
-        android:hint="Title Full" />
-    
-    <TextView
-        android:id="@+id/details"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentLeft="true"
-        android:layout_below="@+id/title"
-        android:layout_marginLeft="14dp"
-        android:layout_marginTop="20dp"
-        android:text="Details:" />
-    
-    <TextView
-        android:id="@+id/tv_details"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignBaseline="@+id/details"
-        android:layout_alignParentRight="true"
-        android:layout_below="@+id/tv_title"
-        android:ems="10"
-        android:hint="Details Full" />
-    
-    
-    
-        <TextView
-        android:id="@+id/notes"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentLeft="true"
-        android:layout_below="@+id/details"
-        android:layout_marginLeft="14dp"
-        android:layout_marginTop="20dp"
-        android:text="Notes:" />
-    
-    <TextView
-        android:id="@+id/tv_notes"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignBaseline="@+id/notes"
-        android:layout_alignParentRight="true"
-        android:layout_below="@+id/tv_details"
-        android:ems="10"
-        android:hint="Notes Full" />
-
-    <TextView
-        android:id="@+id/text_only"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentLeft="true"
-        android:layout_below="@+id/notes"
-        android:layout_marginLeft="14dp"
-        android:layout_marginTop="20dp"
-        android:text="Dates:" />
-    
-    <View
-    android:id="@+id/line_divider"
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="fill_parent"
-    android:layout_height="1dip"
-    android:background="#cecece"
-    android:layout_below="@+id/text_only" />
-    
-            <TextView
-        android:id="@+id/created"
-        android:layout_width="wrap_content"
+    android:layout_height="wrap_content" >
+
+    <LinearLayout
+        android:layout_width="fill_parent"
         android:layout_height="wrap_content"
-        android:layout_alignParentLeft="true"
-        android:layout_below="@+id/line_divider"
-        android:layout_marginLeft="14dp"
-        android:layout_marginTop="20dp"
-        android:text="Created:" />
-    
-    <TextView
-        android:id="@+id/tv_date_created"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignBaseline="@+id/created"
-        android:layout_alignParentRight="true"
-        android:layout_below="@+id/line_divider"
-        android:ems="10"
-        android:hint="Cteated At" />
-    
+        android:paddingBottom="5dp"
+        android:paddingLeft="5dp"
+        android:paddingRight="10dp"
+        android:paddingTop="5dp" >
+
+        <TableLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:shrinkColumns="1"
+            android:stretchColumns="1" >
+
+            <TableRow
+                android:id="@+id/tableRow1"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" >
+
                 <TextView
-        android:id="@+id/due"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentLeft="true"
-        android:layout_below="@+id/created"
-        android:layout_marginLeft="14dp"
-        android:layout_marginTop="20dp"
-        android:text="Due:" />
-    
-    <TextView
-        android:id="@+id/tv_date_due"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignBaseline="@+id/due"
-        android:layout_alignParentRight="true"
-        android:layout_below="@+id/date_created"
-        android:ems="10"
-        android:hint="Due At" />
-    
-        <TextView
-        android:id="@+id/text_only_1"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentLeft="true"
-        android:layout_below="@+id/due"
-        android:layout_marginLeft="14dp"
-        android:layout_marginTop="20dp"
-        android:text="Reminder:" />
-    
-    <View
-    android:id="@+id/line_divider_1"
-    android:layout_width="fill_parent"
-    android:layout_height="1dip"
-    android:background="#cecece"
-    android:layout_below="@+id/text_only_1" />
-    
-                    <TextView
-        android:id="@+id/interval"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentLeft="true"
-        android:layout_below="@+id/line_divider_1"
-        android:layout_marginLeft="14dp"
-        android:layout_marginTop="20dp"
-        android:text="Interval" />
-    
-    <TextView
-        android:id="@+id/tv_reminder_interval"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignBaseline="@+id/interval"
-        android:layout_alignParentRight="true"
-        android:layout_below="@+id/line_divider_1"
-        android:ems="10"
-        android:hint="Daily/Weekly/Monthly" />
- 
+                    android:id="@+id/title"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Title:"
+                    android:textSize="20sp" />
 
-</RelativeLayout>
+                <TextView
+                    android:id="@+id/tv_title"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textSize="20sp"
+                    android:text="Row 1 column 2 Row 1 column 2 Row 1 column 2 Row 1 column 2" />
+            </TableRow>
+
+            <TableRow
+                android:id="@+id/tableRow2"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" >
+
+                <TextView
+                    android:id="@+id/details"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Details:"
+                    android:textSize="20dp" />
+
+                <TextView
+                    android:id="@+id/tv_details"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textSize="20sp"
+                    android:text="Row 2 column 2 Row 2 column 2 Row 2 column 2 Row 2 column 2" />
+            </TableRow>
+
+            <TableRow
+                android:id="@+id/tableRow3"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" >
+
+                <TextView
+                    android:id="@+id/ntoes"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Notes:"
+                    android:textSize="20sp" />
+
+                <TextView
+                    android:id="@+id/tv_notes"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textSize="20sp"
+                    android:text="Row 3 column 2 Row 3 column 2 Row 3 column 2 Row 3 column 2" />
+            </TableRow>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Dates:" 
+                android:textSize="20sp"/>
+
+            <View
+                android:layout_width="fill_parent"
+                android:layout_height="1dip"
+                android:background="#cecece" />
+
+            <TableRow
+                android:id="@+id/tableRow4"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" >
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Date Created:"
+                    android:textSize="20sp"  
+                     />
+
+                <TextView
+                    android:id="@+id/tv_date_created"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textSize="20sp"
+                    android:text="Row 4 column 2 Row 4 column 2 Row 4 column 2 Row 4 column 2" />
+            </TableRow>
+
+            <TableRow
+                android:id="@+id/tableRow5"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" >
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Date Due:" 
+                    android:textSize="20sp"/>
+
+                <TextView
+                    android:id="@+id/tv_date_due"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textSize="20sp"
+                    android:text="Row 5 column 2 Row 5 column 2 Row 5 column 2 Row 5 column 2" />
+            </TableRow>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Reminder:" 
+                android:textSize="20sp"/>
+
+            <View
+                android:layout_width="fill_parent"
+                android:layout_height="1dip"
+                android:background="#cecece" />
+
+            <TableRow
+                android:id="@+id/tableRow5"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" >
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Interval:" 
+                    android:textSize="20sp"/>
+
+                <TextView
+                    android:id="@+id/tv_reminder_interval"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textSize="20sp"
+                    android:text="Row 6 column 2 Row 6 column 2 Row 6 column 2 Row 6 column 2" />
+            </TableRow>
+        </TableLayout>
+    </LinearLayout>
+
+</ScrollView>
+<!--
+<?xml version="1.0" encoding="utf-8"?>
+<TableLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="fill_parent"
+    android:layout_height="40dp"
+    android:shrinkColumns="1"
+    android:stretchColumns="1">     
+        <TableRow>
+            <View 
+                android:background="#f00"
+                android:layout_height="fill_parent"
+                android:layout_width="40dp" />
+
+            <TextView 
+                android:layout_width="fill_parent"
+                android:layout_height="fill_parent"
+                android:textSize="18sp"   
+                android:text="Example text that is very loooooooooooooooooooooooooooooooooooooooooooooong" />
+
+            <View 
+                android:background="#00f"
+                android:layout_height="fill_parent"
+                android:layout_width="40dp" />
+        </TableRow>
+
+</TableLayout>-->

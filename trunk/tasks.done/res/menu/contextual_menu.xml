@@ -15,5 +15,12 @@
         android:title="@string/edit"
         android:titleCondensed="Edit">
     </item>
+    <item
+        android:id="@+id/item_share"
+        android:icon="@android:drawable/ic_menu_share"
+        android:showAsAction="ifRoom|withText"
+        android:title="@string/share"
+        android:titleCondensed="Share">
+    </item>
 
 </menu>

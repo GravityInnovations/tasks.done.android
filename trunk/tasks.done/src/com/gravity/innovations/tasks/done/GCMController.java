@@ -109,12 +109,7 @@ public class GCMController {
             return msg;
         }
 
-        @Override
-        protected void onPostExecute(String msg) {
-           // mDisplay.append(msg + "\n");
-        	if(false)
-        	((Common.Callbacks.GCMCallback)mContext).displayMsg(msg);
-        }
+       
 		
 	}
 	public static void registerInBackground(final Context mContext, 
