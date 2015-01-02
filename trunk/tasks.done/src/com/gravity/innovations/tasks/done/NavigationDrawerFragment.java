@@ -845,7 +845,7 @@ public class NavigationDrawerFragment extends Fragment implements
 			tv_interval.setText(interval);
 		}
 
-		Common.CustomDialog.CustomDialog(mContext, view, dialogTitle);
+		Common.CustomDialog.CustomDialog(mContext, view);//, dialogTitle);
 	}
 	
 	// @SuppressLint("NewApi")
