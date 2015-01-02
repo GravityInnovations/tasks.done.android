@@ -36,14 +36,154 @@
 <!--         android:visibility="visible"  -->
 <!--         android:background="@color/selection_blue"> -->
 <!--     </GridView> -->
+<RelativeLayout 
+    android:id="@+id/header"
+    android:layout_width="match_parent"
+    android:layout_height="150dp"
+    android:background="#88B1C5"
+    android:clickable="true"
+    android:layout_alignParentTop="true"
+    >
+    <RelativeLayout
+        android:id="@+id/top_layout" android:layout_width="match_parent" 
+        android:layout_height="wrap_content"
+        android:layout_alignParentTop="true"
+            android:layout_alignParentLeft="true"
+            android:layout_marginLeft="10dp"
+            android:layout_marginRight="10dp"
+    android:layout_marginTop="35dp">
+         <ImageView 
+            android:id="@+id/tasklist_icon"
+            android:layout_alignParentTop="true"
+            android:layout_alignParentLeft="true"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+             
+    android:src="@android:drawable/ic_dialog_info"
+            />
+    <TextView
+            android:id="@+id/tasklist_name"
+            
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_toRightOf="@+id/tasklist_icon"
+            android:layout_alignBottom="@+id/tasklist_icon"
+            android:textColor="#ffffff"
+            android:shadowColor="#242424"
+            android:shadowDx="2"
+            android:shadowDy="2"
+            android:shadowRadius="2"
+            android:layout_marginLeft="10dp"
+            android:layout_marginBottom="0dp"
+            android:textSize="20sp"
+            android:text="Task List Title" />
+    <ImageView 
+            android:id="@+id/img_sync"
+            
+            android:layout_width="30dp"
+            android:layout_alignParentTop="true"
+ 	    android:layout_height="30dp"
+ 	    android:layout_alignParentRight="true"
+android:src="@drawable/ic_unsynced"
+android:layout_marginLeft="5dp"
 
+            />
+    <TextView
+        android:id="@+id/time_title_sync" 
+        android:layout_toLeftOf="@+id/img_sync"
+        android:textSize="11sp"
+        android:textColor="#ffffff"
+        android:text="Last Synced:"
+         android:layout_alignParentTop="true"
+       
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        />
+    <!--     android:src="@android:drawable/stat_sys_upload_done" -->
+<!--         <ImageButton -->
+<!--  	    android:id="@+id/btn_share" -->
+ 	    
+<!--  	    android:layout_width="wrap_content" -->
+<!--  	    android:layout_alignParentTop="true" -->
+<!--  	    android:layout_height="wrap_content" -->
+<!--  	    android:layout_alignParentRight="true" -->
+<!--  	    android:src="@android:drawable/stat_notify_sync" -->
+<!--  	    android:padding="0dp" -->
+<!--  	    android:clickable="true" -->
+<!--  	    android:background="@drawable/default_button_selector" /> -->
+
+   <TextView
+       android:id="@+id/time_sync"
+       android:layout_width="wrap_content"
+       android:layout_height="wrap_content"
+       android:layout_alignLeft="@+id/time_title_sync"
+       android:layout_below="@+id/time_title_sync"
+       android:text="29/12/1989"
+       android:textColor="#ffffff"
+       android:textSize="11sp" />
+        
+    </RelativeLayout>    
+<!--     <Button  -->
+<!--         android:layout_width="wrap_content" -->
+<!--         android:layout_height="wrap_content" -->
+<!--         android:padding="10dp" -->
+<!--         android:layout_margin="5dp" -->
+<!--         android:layout_marginTop="15dp" -->
+<!--         android:background="@drawable/ic_drawer" -->
+        
+<!--         android:layout_alignParentLeft="true" android:layout_alignParentTop="true"/> -->
+ <LinearLayout
+     android:layout_alignParentRight="true"
+      android:layout_alignParentBottom="true"
+      android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginRight="5dp"
+        android:layout_marginBottom="5dp"
+        android:orientation="horizontal"
+        >
+     <ImageButton
+ 	    android:id="@+id/btn_share"
+ 	    
+ 	    android:layout_width="wrap_content"
+ 	   
+ 	    android:layout_height="wrap_content"
+ 	    android:src="@android:drawable/ic_menu_share"
+ 	    android:clickable="true"
+ 	    android:background="@drawable/default_button_selector" />
+                <ImageButton
+ 	    android:id="@+id/btn_edit"
+ 	    
+ 	    android:layout_width="wrap_content"
+ 	    android:layout_height="wrap_content"
+ 	    android:src="@android:drawable/ic_menu_edit"
+ 	    android:padding="0dp"
+ 	    android:clickable="true"
+ 	    android:background="@drawable/default_button_selector" />
+           <ImageButton
+ 	    android:id="@+id/btn_delete"
+ 	    
+ 	    android:layout_width="wrap_content"
+ 	    android:layout_height="wrap_content"
+ 	    android:src="@android:drawable/ic_menu_delete"
+ 	    android:padding="0dp"
+ 	    android:clickable="true"
+ 	    android:background="@drawable/default_button_selector" />
+    </LinearLayout>
+
+     <View
+        android:id="@+id/search_line"
+        android:layout_width="fill_parent"
+        android:layout_height="1dp"
+        android:layout_alignParentBottom="true"
+        android:background="@color/line_divider" />
+</RelativeLayout>
     <ListView
         android:id="@+id/list"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content" 
         android:focusable="false"
         android:focusableInTouchMode="false"
-        android:layout_below="@+id/gridView1" />
+        android:layout_below="@+id/header" />
  
     <Button
         android:id="@+id/floating_button"
@@ -55,7 +195,7 @@
         android:layout_marginRight="20dp"
         android:background="@drawable/floating_button_selector"
         android:clickable="true"
-        android:drawableLeft="@drawable/ic_action_new"
+        android:drawableStart="@drawable/ic_action_new"
         android:gravity="center_vertical"
         android:onClick="floatButtonOnClick" />
  

@@ -116,6 +116,7 @@ public class Common {
 	}
 	public static class serviceActions{
 		public static final String START_APP = "startapplication";
+		public static final String USER_START_APP = "userstartedapplication";
 	}
 	public class EXCEPTIONS {
 		public static final int NoException = 0;

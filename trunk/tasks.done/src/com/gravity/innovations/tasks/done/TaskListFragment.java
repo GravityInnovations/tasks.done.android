@@ -1,9 +1,9 @@
 package com.gravity.innovations.tasks.done;
 
-import java.util.zip.Inflater;
 
 import android.annotation.SuppressLint;
 import android.app.Activity;
+import android.opengl.Visibility;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
@@ -152,16 +152,21 @@ public class TaskListFragment extends Fragment {
 				@Override
 				public boolean onCreateActionMode(android.view.ActionMode mode,
 						Menu menu) {
+					getActivity().getActionBar().show();
 					android.view.MenuInflater inflater = mode.getMenuInflater();
+					
 					inflater.inflate(R.menu.contextual_menu, menu);
+					
 					return true;
 				}
 
 				@Override
 				public void onDestroyActionMode(android.view.ActionMode mode) {
 					// TODO Auto-generated method stub
+					getActivity().getActionBar().hide();
 					selCount = 0;
 					mode.invalidate();
+					
 					mTaskAdapter.removeAllSelection();
 				}
 
@@ -196,7 +201,9 @@ public class TaskListFragment extends Fragment {
 						selCount--;
 						mTaskAdapter.removeSelection(position);
 					}
-					mode.setTitle(selCount + " selected");
+					mode.setSubtitle(selCount + " selected");
+					mode.setTitle(data.title);
+					
 					mode.invalidate();
 				}
 			});

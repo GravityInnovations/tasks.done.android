@@ -19,10 +19,9 @@
 
     <ImageView
         android:id="@+id/list_icon"
-        android:layout_width="25dp"
-        android:layout_height="25dp"
-        android:layout_centerVertical="true"
-        android:src="@drawable/ic_action_phone" />
+        android:layout_width="30dp"
+        android:layout_height="30dp"
+        android:layout_centerVertical="true" />
 
     <GridView
         android:layout_width="10dp"

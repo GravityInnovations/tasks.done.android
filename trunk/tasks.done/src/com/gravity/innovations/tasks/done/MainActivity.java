@@ -15,10 +15,13 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.DialogInterface.OnClickListener;
 import android.content.Intent;
+import android.graphics.Color;
+import android.graphics.drawable.ColorDrawable;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentTransaction;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBarActivity;
@@ -86,6 +89,9 @@ public class MainActivity extends ActionBarActivity implements
 		super.onCreate(savedInstanceState);
 		mContext = this;
 		getActionBar().hide();
+		//getActionBar().setSubtitle("sub");
+		//getActionBar().setNavigationMode(getActionBar().NAVIGATION_MODE_LIST);
+		getActionBar().setBackgroundDrawable(new ColorDrawable(android.R.color.transparent));
 		setContentView(R.layout.activity_main);
 //		if (Build.VERSION.SDK_INT < 16) {
 //            getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
@@ -114,11 +120,14 @@ public class MainActivity extends ActionBarActivity implements
 
 		// String x = getHash("Faik");
 		mContext = this;
-		mNavigationDrawerFragment = (NavigationDrawerFragment) getSupportFragmentManager()
+		FragmentManager mgr = getSupportFragmentManager();
+		
+		mNavigationDrawerFragment = (NavigationDrawerFragment) mgr
 				.findFragmentById(R.id.navigation_drawer);
+		
 		mTitle = getTitle();
 		// new userData();//
-		user_data = new userData();// (Common.userData)getIntent().getExtras().getSerializable("user");//
+		user_data =(Common.userData)getIntent().getExtras().getSerializable("user");//
 									// after latest commits commented
 		// init user_data from intent extras
 		// Set up the drawer.
@@ -245,6 +254,12 @@ public class MainActivity extends ActionBarActivity implements
 		// automatically handle clicks on the Home/Up button, so long
 		// as you specify a parent activity in AndroidManifest.xml.
 		int id = item.getItemId();
+		manuallySelectOptionMenuItem(id);
+		return super.onOptionsItemSelected(item);
+	}
+	public void manuallySelectOptionMenuItem(int id)
+	{
+		
 		if (id == R.id.action_settings) {
 			Intent i = new Intent(MainActivity.this, SettingsActivity.class);
 			startActivity(i);
@@ -266,10 +281,8 @@ public class MainActivity extends ActionBarActivity implements
 		} else if (id == R.id.action_share) {
 			listof_nameEmailPic(); // for calling list of users
 		} 
-
-		return super.onOptionsItemSelected(item);
+		
 	}
-
 	public void listof_nameEmailPic() {
 		DatabaseHelper h = new DatabaseHelper(mContext);
 		DialogInterface.OnClickListener negListener = new OnClickListener() {

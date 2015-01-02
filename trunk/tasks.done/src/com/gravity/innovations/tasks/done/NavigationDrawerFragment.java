@@ -15,6 +15,8 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.content.res.Configuration;
+import android.content.res.Resources;
+import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
@@ -33,6 +35,7 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
@@ -40,14 +43,17 @@ import android.widget.ArrayAdapter;
 import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.GridView;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.ListView;
+import android.widget.RelativeLayout;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.TimePicker;
 import android.widget.Toast;
 
 import com.gravity.innovations.tasks.done.Common.userData;
+import com.gravity.innovations.tasks.done.CustomIconListAdapter.OptionsModel;
 
 /**
  * Fragment used for managing interactions for and presentation of a navigation
@@ -106,6 +112,7 @@ public class NavigationDrawerFragment extends Fragment implements
 	private boolean mFromSavedInstanceState;
 	private boolean mUserLearnedDrawer;
 	private int mUserActionBarColor;
+	private OnItemClickListener TaskListItemListener;
 
 	public NavigationDrawerFragment() {
 	}
@@ -219,23 +226,24 @@ public class NavigationDrawerFragment extends Fragment implements
 		/*
 		 * We Dont need this anymore
 		 */
+		TaskListItemListener = new AdapterView.OnItemClickListener() {
+			@Override
+			public void onItemClick(AdapterView<?> parent, View view,
+					int position, long id) {
+				view.setSelected(true);
+				selectItem(position, -1);
+				// below section for showing ndf list item as selected
+				clearSelection();
+				oldSelection = view;
+				
+				
+				
+				view.setBackgroundColor(getResources().getColor(
+						R.color.selection_blue));
+			}
+		};
 		mDrawerListView
-				.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-					@Override
-					public void onItemClick(AdapterView<?> parent, View view,
-							int position, long id) {
-						view.setSelected(true);
-						selectItem(position, -1);
-						// below section for showing ndf list item as selected
-						clearSelection();
-						oldSelection = view;
-						
-						
-						
-						view.setBackgroundColor(getResources().getColor(
-								R.color.selection_blue));
-					}
-				});
+				.setOnItemClickListener(TaskListItemListener);
 
 		// start swipe
 		/*
@@ -314,8 +322,18 @@ public class NavigationDrawerFragment extends Fragment implements
 		mAdapter = new TaskListAdapter(getActivity(),
 				R.layout.tasklist_listview_row, data);
 		mDrawerListView.setAdapter(mAdapter);
+		Resources res = getResources();
 		
 		
+		ArrayList<CustomIconListAdapter.OptionsModel> options = new ArrayList<CustomIconListAdapter.OptionsModel>();
+		options.add(new OptionsModel(R.drawable.ic_action_new_dark, "New Catagory"));
+		options.add(new OptionsModel(R.drawable.ic_action_about, "Get More Apps"));
+		options.add(new OptionsModel(R.drawable.ic_action_group, "About Developers"));
+		options.add(new OptionsModel(R.drawable.ic_action_settings, "Settings"));
+		 final CustomIconListAdapter opt_adapter = new CustomIconListAdapter(getActivity(),R.layout.tasklist_listview_row, options);
+//				 new TaskListAdapter(getActivity(),
+//				R.layout.tasklist_listview_row, options);
+//		
 		//automating the selection on selected
 		if(tasklistid != -1 && taskid != -1)
 			selectItem(tasklistid, taskid);
@@ -339,13 +357,62 @@ public class NavigationDrawerFragment extends Fragment implements
 		// set a custom shadow that overlays the main content when the drawer
 		// opens
 		//getActionBar().show();
+//		user_data.name = "faik";
+//		user_data.email = "faik.malik89@gmail.com";
 		TextView name = (TextView) mDrawerLayout.findViewById(R.id.text_name);
+		
 		name.setText(user_data.name);
 		TextView email = (TextView) mDrawerLayout.findViewById(R.id.text_email);
 		email.setText(user_data.email);
 		ImageView profile = (ImageView) mDrawerLayout
-				.findViewById(R.id.profile_image);
-		profile.setImageBitmap(user_data.image);
+				.findViewById(R.id.profile_img);
+		
+		Bitmap b = ImageGridAdapter.getRoundedCornerBitmap(Bitmap.createScaledBitmap(user_data.image,
+				175, 175, true));
+		profile.setImageBitmap(b);
+		final ImageButton options_toggle = (ImageButton)mDrawerLayout.findViewById(R.id.options_toggle);
+		
+		options_toggle.setOnClickListener(new OnClickListener() {
+			int imageresource = R.drawable.ic_action_expand;
+			@Override
+			public void onClick(View v) {
+				RelativeLayout search_layout = (RelativeLayout) mDrawerLayout.findViewById(R.id.search_layout);
+				if(imageresource == R.drawable.ic_action_collapse){
+					mDrawerListView.setAdapter(mAdapter);
+					search_layout.setVisibility(View.VISIBLE);
+					mDrawerListView.setOnItemClickListener(TaskListItemListener);
+					imageresource = R.drawable.ic_action_expand;
+					
+					}
+				else{
+					mDrawerListView.setAdapter(opt_adapter);
+					search_layout.setVisibility(View.GONE);
+					mDrawerListView.setOnItemClickListener(new OnItemClickListener() {
+
+						@Override
+						public void onItemClick(AdapterView<?> parent,
+								View view, int position, long id) {
+							
+								switch(position)
+								{
+								case 1: ((MainActivity)mActivity).manuallySelectOptionMenuItem(R.id.action_add); break;
+								case 2: ((MainActivity)mActivity).manuallySelectOptionMenuItem(R.id.action_store); break;
+								case 3: ((MainActivity)mActivity).manuallySelectOptionMenuItem(R.id.action_developer); break;
+
+								case 4: ((MainActivity)mActivity).manuallySelectOptionMenuItem(R.id.action_settings); break;
+								
+								}
+						}
+					});
+					imageresource = R.drawable.ic_action_collapse;
+				}
+				options_toggle.setImageResource(imageresource);
+				//v.setBackgroundColor(Color.parseColor("#34343434"));
+				// TODO Auto-generated method stub
+				
+			}
+		});
+		//profile.setImageBitmap(user_data.image);
 		mDrawerLayout.setDrawerShadow(R.drawable.drawer_shadow,
 				GravityCompat.START);
 		// set up the drawer's list view with items and click listener
@@ -353,6 +420,7 @@ public class NavigationDrawerFragment extends Fragment implements
 		//actionBar.hide();
 		actionBar.setDisplayHomeAsUpEnabled(true);
 		actionBar.setHomeButtonEnabled(true);
+		
 		// ActionBarDrawerToggle ties together the the proper interactions
 		// between the navigation drawer and the action bar app icon.
 		
@@ -415,6 +483,7 @@ public class NavigationDrawerFragment extends Fragment implements
 			mDrawerLayout.openDrawer(mFragmentContainerView);
 		}
 		// Defer code dependent on restoration of previous instance state.
+		
 		mDrawerLayout.post(new Runnable() {
 			@Override
 			public void run() {
@@ -511,6 +580,7 @@ public class NavigationDrawerFragment extends Fragment implements
 		// See also
 		// showGlobalContextActionBar, which controls the top-left area of the
 		// action bar.
+		
 		if (mDrawerLayout != null && isDrawerOpen()) {
 			inflater.inflate(R.menu.global, menu);
 			showGlobalContextActionBar();
@@ -600,25 +670,25 @@ public class NavigationDrawerFragment extends Fragment implements
 						view.setBackgroundColor(getResources().getColor(
 								R.color.selection_blue));
 						// if a particular position is pressed show a toast
-						if (position == 0) {
-							Toast.makeText(mContext,
-									"Peoples Type Task Selected",
-									Toast.LENGTH_LONG).show();
-						} else if (position == 1) {
-							Toast.makeText(mContext,
-									"Computer Type Task Selected",
-									Toast.LENGTH_LONG).show();
-						} else if (position == 2) {
-							Toast.makeText(mContext,
-									"Travel Type Task Selected",
-									Toast.LENGTH_LONG).show();
-						} else if (position == 3) {
-							Toast.makeText(mContext, "Home Type Task Selected",
-									Toast.LENGTH_LONG).show();
-						} else if (position == 4) {
-							Toast.makeText(mContext, "Work Type Task Selected",
-									Toast.LENGTH_LONG).show();
-						}
+//						if (position == 0) {
+//							Toast.makeText(mContext,
+//									"Peoples Type Task Selected",
+//									Toast.LENGTH_LONG).show();
+//						} else if (position == 1) {
+//							Toast.makeText(mContext,
+//									"Computer Type Task Selected",
+//									Toast.LENGTH_LONG).show();
+//						} else if (position == 2) {
+//							Toast.makeText(mContext,
+//									"Travel Type Task Selected",
+//									Toast.LENGTH_LONG).show();
+//						} else if (position == 3) {
+//							Toast.makeText(mContext, "Home Type Task Selected",
+//									Toast.LENGTH_LONG).show();
+//						} else if (position == 4) {
+//							Toast.makeText(mContext, "Work Type Task Selected",
+//									Toast.LENGTH_LONG).show();
+//						}
 						list_type = position;
 					}
 				});
