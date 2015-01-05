@@ -1,14 +1,19 @@
 package com.gravity.innovations.tasks.done;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Set;
+
 import android.app.Activity;
 import android.content.Context;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
+import android.view.animation.ScaleAnimation;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
@@ -30,17 +35,21 @@ public class TaskAdapter extends ArrayAdapter<TaskModel> {
 	DatabaseHelper db;
 	Context mContext;
 	int HighlightTask;
+	TaskListModel mTaskListModel;
+	NavigationDrawerFragment mNavigationDrawerFragment;
 
 	public TaskAdapter(Activity act, int layoutResourceId,
+			TaskListModel parentTaskList, NavigationDrawerFragment NavDrawer,
 			ArrayList<TaskModel> data, int _selectedTaskId) {
 		super(act, layoutResourceId, data);
 		this.layoutResourceId = layoutResourceId;
 		this.activity = act;
 		this.task_data = data;
 		this.HighlightTask = _selectedTaskId;
+		mNavigationDrawerFragment = NavDrawer;
+		mTaskListModel = parentTaskList;
 		notifyDataSetChanged();
 		mContext = act.getApplication().getApplicationContext();
-
 	}
 
 	public long getItemId(int position) {
@@ -67,16 +76,16 @@ public class TaskAdapter extends ArrayAdapter<TaskModel> {
 	}
 
 	// unused method
-//	public void sellectThisThing(int position) {
-//		mSelection.put(position, null);
-//	}
+	// public void sellectThisThing(int position) {
+	// mSelection.put(position, null);
+	// }
 
 	public void setNewSelection(int position, boolean value) {
 		/*
-		 *for fixing gridView problems  
+		 * for fixing gridView problems
 		 */
 		--position;
-		mSelection.put(position, value); 
+		mSelection.put(position, value);
 		notifyDataSetChanged();
 	}
 
@@ -131,8 +140,7 @@ public class TaskAdapter extends ArrayAdapter<TaskModel> {
 					.findViewById(R.id.tasklist_gridview);
 
 			final int pos = position;
-			long currTime = System.currentTimeMillis();
-			final String currentDateTime = Long.toString(currTime);
+			final View row2 = row;
 
 			holder.toggle.setOnClickListener(new OnClickListener() {
 
@@ -140,30 +148,42 @@ public class TaskAdapter extends ArrayAdapter<TaskModel> {
 				public void onClick(View v) {
 					// if(((ImageView)v).getBackground()==activity.getResources().getDrawable(R.drawable.task_row_bg))
 					if ((Integer) v.getTag() == R.drawable.task_row_bg) {
-						((ImageView) v)
-								.setImageResource(R.drawable.task_row_done_bg);
-						v.setTag(R.drawable.task_row_done_bg);
-						// here send the done bit to db
+
 						TaskModel temp = task_data.get(pos);
+						temp.updateTimeNow();
 						temp.completed = 1;
-						temp.updated = currentDateTime;
-						// for removing alarm
-						temp.alarm_id = 0;
-						temp.remind_at = null;
-						temp.remind_interval = 0;
-						temp.alarm_status = 0;
-						temp.weekday = 0;
+						boolean flag = mNavigationDrawerFragment.MarkDoneTask(
+								mTaskListModel, temp);
+
+						if (flag) {
+							((ImageView) v)
+									.setImageResource(R.drawable.task_row_done_bg);
+							v.setTag(R.drawable.task_row_done_bg);
+							temp.title = temp.title;
+
+							notifyDataSetChanged();
+							rearrangeList(pos, row2);
+							// animatedSwapWithNextItem(pos);
+						}
+
 						// for removing alarms
-						db.Task_Edit(temp);
+
+						// swapListItem(pos, task_data, row2);// final modifier
+
 					} else {
-						((ImageView) v)
-								.setImageResource(R.drawable.task_row_bg);
 						TaskModel temp = task_data.get(pos);
 						temp.completed = 0;
-						temp.updated = currentDateTime;
-						db.Task_Edit(temp);
-						v.setTag(R.drawable.task_row_bg);
-						// db.Task_Completed(task_data.get(pos), flag);
+						temp.updateTimeNow();
+						boolean flag = mNavigationDrawerFragment.MarkDoneTask(
+								mTaskListModel, temp);
+						if (flag) {
+							((ImageView) v)
+									.setImageResource(R.drawable.task_row_bg);
+							v.setTag(R.drawable.task_row_bg);
+							notifyDataSetChanged();
+						}
+
+						// swapListItem(pos, task_data, row2);// final modifier
 					}
 
 					//
@@ -242,20 +262,21 @@ public class TaskAdapter extends ArrayAdapter<TaskModel> {
 		holder.title.setText(task.title);
 		holder.details.setText(task.details);
 		holder.notes.setText(task.notes);
-			
-		//this to show images at tasks
-		  Integer[] mThumbIds = {
-		   R.drawable.catag_home 
-		  };
-		  
-		  holder.gridView.setAdapter(new ImageGridAdapter( mThumbIds , mContext ));
-		 
-		  holder.gridView.setOnItemClickListener(new OnItemClickListener() {
-		  public void onItemClick(AdapterView<?> parent, View v, int position,
-		  long id) { Toast.makeText(mContext, "" + position,
-		  Toast.LENGTH_SHORT).show(); } });
-		//this to show images at tasks 
-		  
+
+		// this to show images at tasks
+		Integer[] mThumbIds = { R.drawable.catag_home };
+
+		holder.gridView.setAdapter(new ImageGridAdapter(mThumbIds, mContext));
+
+		holder.gridView.setOnItemClickListener(new OnItemClickListener() {
+			public void onItemClick(AdapterView<?> parent, View v,
+					int position, long id) {
+				Toast.makeText(mContext, "" + position, Toast.LENGTH_SHORT)
+						.show();
+			}
+		});
+		// this to show images at tasks
+
 		// holder.update.setText(task.updated);
 
 		// }catch(Exception e){
@@ -268,9 +289,51 @@ public class TaskAdapter extends ArrayAdapter<TaskModel> {
 		// .loadAnimation(this.mContext, R.anim.fade_in);
 		// row.startAnimation(animationFadeIn);
 		// }
+
 		return row;
 	}
 
+
+	private void rearrangeList(final int pos, final View row) {
+		int currentpos = pos;
+
+		for (int i = pos; i < task_data.size() - 1; i++) {
+			boolean flag = animatedSwapWithNextItem(currentpos, row);
+			if (flag) {
+				currentpos++;
+			} else {
+				break;
+			}
+		}
+		notifyDataSetChanged();
+
+	}
+
+	private boolean animatedSwapWithNextItem(int pos, View row) {
+		TaskModel temp1 = task_data.get(pos);
+		if (pos != task_data.size() - 1) {
+			TaskModel temp2 = task_data.get(pos + 1);
+			if (temp2.completed == 0) {
+				task_data.set(pos, temp2);
+				task_data.set(pos + 1, temp1);
+
+				// Animation animationFadeIn = AnimationUtils
+				// .loadAnimation(this.mContext, R.anim.abc_slide_in_bottom);
+				// row.startAnimation(animationFadeIn);
+				//
+			} else if (temp2.completed == 1) {
+				return false;
+				
+			}
+
+		}
+		return false;
+	}
+	@Override
+	public void notifyDataSetChanged() {
+		// TODO Auto-generated method stub
+		super.notifyDataSetChanged();
+	}
 	public void blinkTask(int id) {
 
 		// if (HighlightTask !=-1 & task._id == HizghlightTask){

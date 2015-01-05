@@ -1,5 +1,6 @@
 package com.gravity.innovations.tasks.done;
 
+import java.util.ArrayList;
 import java.util.zip.Inflater;
 
 import android.annotation.SuppressLint;
@@ -44,7 +45,7 @@ public class TaskListFragment extends Fragment {
 		// updateRelativeTime();
 		this.mNavigationDrawerFragment = mNavigationDrawerFragment;
 		this.selectedTaskID = _selectTaskId;
-		//this.mThumbIds= mThumbIds;
+		// this.mThumbIds= mThumbIds;
 	}
 
 	public void newInstance(TaskListModel temp,
@@ -80,30 +81,29 @@ public class TaskListFragment extends Fragment {
 		View rootView = inflater.inflate(R.layout.fragment_main, container,
 				false);
 		if (data.tasks != null && data.tasks.size() > 0) {
-			mListView = (ListView) rootView.findViewById(R.id.list);	
-			
-			//header on each fragment
-			View headerView = inflater.inflate(
-					R.layout.tasks_fragment_header, null);
-			
+			mListView = (ListView) rootView.findViewById(R.id.list);
+
+			// header on each fragment
+			View headerView = inflater.inflate(R.layout.tasks_fragment_header,
+					null);
+
 			mTextView = (TextView) headerView.findViewById(R.id.section_label);
 			String listTitle = data.title;
 			mTextView.setText(listTitle);
-			
-			mGridView = (GridView) headerView
-					.findViewById(R.id.gridView1);
-			mGridView.setAdapter(new ImageGridAdapter( mThumbIds , getActivity().getApplicationContext() ));
-			
-			mListView.addHeaderView(headerView); 
-			//header on each fragment
-			
+
+			mGridView = (GridView) headerView.findViewById(R.id.gridView1);
+			mGridView.setAdapter(new ImageGridAdapter(mThumbIds, getActivity()
+					.getApplicationContext()));
+
+			mListView.addHeaderView(headerView);
+			// header on each fragment
+
 			mTaskAdapter = new TaskAdapter(getActivity(),
-					R.layout.task_listview_row, data.tasks, selectedTaskID);
+					R.layout.task_listview_row, data, mNavigationDrawerFragment, data.tasks, selectedTaskID);
 			mListView.setAdapter(mTaskAdapter);
-			
-			
+
 			mTaskAdapter.notifyDataSetChanged();
-			
+
 			// Swipe to delete task
 			/*
 			 * SwipeDismissListViewTouchListener touchListener = new
@@ -219,23 +219,55 @@ public class TaskListFragment extends Fragment {
 						int pos, long arg3) {
 					// mListView.setItemChecked(pos, true); //this is THE line
 					mActivity = getActivity();
-					final Animation animationFadeIn = AnimationUtils
-							.loadAnimation(mActivity, R.anim.fade_in);
+					//final Animation animationFadeIn = AnimationUtils
+						//	.loadAnimation(mActivity, R.anim.fade_in);
+ 
 					// arg1.startAnimation(animationFadeIn);
 					/*
-					 *for fixing gridView problems  
+					 * for fixing gridView problems
 					 */
 					--pos;
-					mNavigationDrawerFragment
-							.openTaskDetailsDialog(mTaskAdapter.getItem(pos));
-					
-					
+//					mNavigationDrawerFragment
+//							.openTaskDetailsDialog(mTaskAdapter.getItem(pos));
+
 					// emId.getSingularSelectedTaskModel() );
 					// mTaskAdapter.sellectThisThing(pos);
+
+					 // swapListItem(pos, data.tasks, arg1);
+
+					
+				//	mListView.addView(arg1, 0);
+					// mListView.add(0, mTaskAdapter.getItem(pos));
 				}
 			});
 		}
 		return rootView;
 	}
+
+	public void swapListItem(int position, ArrayList<TaskModel> task_data, View view) {
+		
+		TaskModel taskAtZeroIndex = task_data.get(0);
+		String zeroIndex = taskAtZeroIndex.updated;
+		long zero_index = Long.valueOf(zeroIndex).longValue();
+
+		TaskModel taskAtCurrentIndex = mTaskAdapter.getItem(position);
+		String currentIndex = taskAtCurrentIndex.updated;
+		long current_index = Long.valueOf(currentIndex).longValue();
+		
+		Animation animation = AnimationUtils.loadAnimation(
+				getActivity(), R.anim.slide_top_to_bottom);
+		view.startAnimation(animation);
+ 		
+		mTaskAdapter.remove(taskAtCurrentIndex);
+		//mTaskAdapter.notifyDataSetChanged();
+		mTaskAdapter.insert(taskAtCurrentIndex, 0);
+		mTaskAdapter.notifyDataSetChanged();
 	
+		//	for (int i = 0; i<= task_data.size(); i++) {
+			//compare and get final result id
+			 
+			
+	//	}
+
+	}
 }

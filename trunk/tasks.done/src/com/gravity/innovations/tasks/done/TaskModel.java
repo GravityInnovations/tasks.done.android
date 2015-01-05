@@ -64,10 +64,12 @@ public class TaskModel {
 	}// db single task
 
 	// ********* Constructors *********//
-	private void updateTimeNow() {
+	public void updateTimeNow() {
 		long a = System.currentTimeMillis();
 		String currentDateTime = Long.toString(a);
 		this.updated = currentDateTime;
+		updateRelativeTime(a);
+		//return a;
 	}
 
 	public void set(TaskModel temp) {

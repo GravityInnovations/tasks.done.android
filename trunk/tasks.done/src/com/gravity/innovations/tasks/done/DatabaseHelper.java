@@ -331,7 +331,10 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
 			// Select All Query
 			String selectQuery = "SELECT  * FROM " + TABLE_TASKS + " WHERE "
-					+ KEY_FK_TASKLIST_ID + " = " + id;
+					+ KEY_FK_TASKLIST_ID + " = " + id + 
+					//" ORDER BY updated_date_time DESC" 
+					//" ORDER BY completed, "
+					 " ORDER BY completed, updated_date_time DESC";
 
 			SQLiteDatabase db = this.getWritableDatabase();
 
@@ -572,6 +575,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 	 * .getString(0)), cursor.getString(1));// return TaskListModel
 	 * cursor.close(); db.close(); return tasklist; }
 	 */
+	
 	public ArrayList<Common.CustomViewsData.MultiSelectRowData> Get_Users() {
 
 		ArrayList<Common.CustomViewsData.MultiSelectRowData> users = new ArrayList<Common.CustomViewsData.MultiSelectRowData>();
@@ -654,6 +658,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 	public int User_New(UserModel user) {
 		SQLiteDatabase db = this.getWritableDatabase();
 		ContentValues values = new ContentValues();
+		values.put(KEY_USER_NAME, user.name);//added later
 		values.put(KEY_DISPLAY_NAME, user.displayName);
 		values.put(KEY_USER_EMAIL, user.email);
 		values.put(KEY_USER_IMAGE, user.image);
@@ -663,6 +668,19 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 		return id;
 		// return true; //boolean to check if the user is added in db
 	}
+	
+	// Edit a UserModel
+		public int User_Edit(UserModel user) {
+			SQLiteDatabase db = this.getWritableDatabase();
+
+			ContentValues values = new ContentValues();
+			values.put(KEY_USER_NAME, user.name);
+			values.put(KEY_DISPLAY_NAME, user.displayName);
+			values.put(KEY_USER_EMAIL, user.email);
+			values.put(KEY_USER_IMAGE, user.image);
+			return db.update(TABLE_TASKS, values, KEY_PK + " = ?",
+					new String[] { String.valueOf(user._id) });// updating row
+		}
 
 	// Delete a user
 	public void User_Delete(int id) {
