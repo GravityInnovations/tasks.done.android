@@ -19,6 +19,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentTransaction;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBarActivity;
@@ -85,7 +86,7 @@ public class MainActivity extends ActionBarActivity implements
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		mContext = this;
-		//getActionBar().hide();
+		getActionBar().hide();
 		setContentView(R.layout.activity_main);
 //		if (Build.VERSION.SDK_INT < 16) {
 //            getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,

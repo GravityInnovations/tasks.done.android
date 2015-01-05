@@ -3,13 +3,87 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="fill_parent"
     android:layout_height="fill_parent" >
-    
+    <RelativeLayout 
+    android:id="@+id/nav_header"
+    android:layout_width="match_parent"
+    android:layout_height="150dp"
+    android:background="#ffff7e"
+    android:layout_alignParentTop="true"
+   
+   
+        android:layout_alignParentLeft="true"
+    >
+    <ImageView 
+            android:layout_alignParentTop="true"
+            android:layout_alignParentLeft="true"
+            android:layout_width="wrap_content"
+            android:background="@drawable/bg"
+            android:layout_height="match_parent"/>
+        <ImageView 
+            android:id="@+id/profile_img"
+            android:layout_alignParentTop="true"
+            android:layout_alignParentLeft="true"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+             android:layout_marginLeft="10dp"
+    android:layout_marginTop="35dp"
+            />
+        <TextView
+            android:id="@+id/text_name"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentLeft="true"
+            android:layout_above="@+id/text_email"
+            android:text="Name"
+            android:textColor="#ffffff"
+            android:shadowColor="#242424"
+            android:shadowDx="2"
+            android:shadowDy="2"
+            android:shadowRadius="2"
+            android:layout_marginLeft="10dp"
+            android:layout_marginBottom="0dp"
+            android:textSize="16sp" />
+
+        <TextView
+            android:id="@+id/text_email"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentBottom="true"
+            android:layout_alignParentLeft="true"
+            android:text="Email"
+            android:shadowColor="#343434"
+            android:shadowDx="2"
+            android:shadowDy="2"
+            android:shadowRadius="2"
+            android:textSize="13sp" 
+            android:layout_marginLeft="10dp"
+            android:layout_marginBottom="10dp"
+            android:textColor="#ffffff"/>
+
+ 	<ImageButton
+ 	    android:id="@+id/options_toggle"
+ 	    
+ 	    android:layout_width="wrap_content"
+ 	    android:layout_height="wrap_content"
+ 	    android:layout_alignParentBottom="true"
+ 	    android:layout_alignParentRight="true"
+ 	    android:src="@drawable/ic_action_expand"
+ 	    android:padding="5dp"
+ 	    android:clickable="true"
+ 	    android:background="@drawable/default_button_selector" />
+
+     <View
+        android:layout_width="fill_parent"
+        android:layout_height="1dp"
+        android:layout_alignParentBottom="true"
+        android:background="@color/line_divider" />
+</RelativeLayout>
     <RelativeLayout
         android:id="@+id/search_layout"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
         android:layout_alignParentLeft="true"
-        android:layout_alignParentTop="true"
+        android:layout_below="@+id/nav_header"
         android:background="#fff"
         android:padding="12dp" >
 

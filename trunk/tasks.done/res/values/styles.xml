@@ -1,4 +1,4 @@
-<resources>
+<resources xmlns:android="http://schemas.android.com/apk/res/android">
 
     <!--
         Base application theme, dependent on API level. This theme is replaced
@@ -15,11 +15,13 @@
     </style>
 
     <!-- Application theme. -->
+    
     <style name="AppTheme" parent="AppBaseTheme">
         <item name="android:windowBackground">@android:color/white</item>
-       
+         
         <!-- All customizations that are NOT specific to a particular API-level can go here. -->
     </style>
+  
 	 <!-- for Viewpager only -->
     	<style name="Theme" parent="android:Theme">
 		<item name="android:background">@null</item>

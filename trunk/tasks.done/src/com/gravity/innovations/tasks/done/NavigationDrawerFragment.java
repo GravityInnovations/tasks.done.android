@@ -4,8 +4,10 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.TimerTask;
+
 import org.json.JSONException;
 import org.json.JSONObject;
+
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
@@ -15,6 +17,7 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.content.res.Configuration;
+import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
@@ -33,6 +36,7 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
@@ -40,14 +44,17 @@ import android.widget.ArrayAdapter;
 import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.GridView;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.ListView;
+import android.widget.RelativeLayout;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.TimePicker;
 import android.widget.Toast;
 
 import com.gravity.innovations.tasks.done.Common.userData;
+import com.gravity.innovations.tasks.done.CustomIconListAdapter.OptionsModel;
 
 /**
  * Fragment used for managing interactions for and presentation of a navigation
@@ -67,8 +74,9 @@ public class NavigationDrawerFragment extends Fragment implements
 	private Common.userData user_data;
 	int list_type = 5; // 1-5 list type icons //5 default
 	private View oldSelection = null;// for list icon selection
-	// for storing update time in database
-	
+	//for storing update time in database
+	long currTime = System.currentTimeMillis();
+	final String currentDateTime = Long.toString(currTime);
 	// alaram service
 	AlarmBroadcastReciever mAlarmBroadcastReciever = new AlarmBroadcastReciever();
 	int weekday_int_value;
@@ -84,8 +92,9 @@ public class NavigationDrawerFragment extends Fragment implements
 	private static final String PREF_USER_LEARNED_DRAWER = "navigation_drawer_learned";
 
 	private static final String PREF_USER_ACTION_BAR_COLOR = "actionbar_color";
-
-	// orange else 1 for white
+ 
+	
+	 //orange else 1 for white
 	/**
 	 * A pointer to the current callbacks instance (the Activity).
 	 */
@@ -104,6 +113,7 @@ public class NavigationDrawerFragment extends Fragment implements
 	private boolean mFromSavedInstanceState;
 	private boolean mUserLearnedDrawer;
 	private int mUserActionBarColor;
+	private OnItemClickListener TaskListItemListener;
 
 	public NavigationDrawerFragment() {
 	}
@@ -113,7 +123,7 @@ public class NavigationDrawerFragment extends Fragment implements
 		super.onCreate(savedInstanceState);
 		mContext = getActivity();
 		mActivity = getActivity();
-		CustomActionBarColor();// customized action bar color
+		CustomActionBarColor();//customized action bar color
 		// Read in the flag indicating whether or not the user has demonstrated
 		// awareness of the
 		// drawer. See PREF_USER_LEARNED_DRAWER for details.
@@ -126,11 +136,11 @@ public class NavigationDrawerFragment extends Fragment implements
 			mFromSavedInstanceState = true;
 		}
 		// Select either the default item (0) or the last selected item.
-		selectItem(mCurrentSelectedPosition, -1);
-
+		 selectItem(mCurrentSelectedPosition, -1);
+	
 	}
 
-	public void CustomActionBarColor() {
+	public void CustomActionBarColor(){
 		SharedPreferences settings = mContext.getSharedPreferences(
 				"action_bar_color_settings", Context.MODE_PRIVATE);
 		mUserActionBarColor = settings.getInt(PREF_USER_ACTION_BAR_COLOR, 0);
@@ -155,9 +165,8 @@ public class NavigationDrawerFragment extends Fragment implements
 			mActionBar.setBackgroundDrawable(new ColorDrawable(Color
 					.parseColor("#cecece")));// cloud
 		}
-
+		
 	}
-
 	@Override
 	public void onActivityCreated(Bundle savedInstanceState) {
 		super.onActivityCreated(savedInstanceState);
@@ -202,20 +211,19 @@ public class NavigationDrawerFragment extends Fragment implements
 		/*
 		 * We Dont need this anymore
 		 */
-		// View footer = inflater.inflate(
-		// R.layout.fragment_navigation_drawer_footer, null);//
-		// navigation_drawer_header,
-		// // null);
-		// Button btn_add_tasklist = (Button) footer.findViewById(R.id.btn_add);
-		//
-		// // mDrawerListView.addFooterView(footer);
-		// btn_add_tasklist.setOnClickListener(new OnClickListener() {
-		//
-		// @Override
-		// public void onClick(View v) {
-		// addOrEditTaskList(new TaskListModel());
-		// }
-		// });
+//		View footer = inflater.inflate(
+//				R.layout.fragment_navigation_drawer_footer, null);// navigation_drawer_header,
+//																	// null);
+//		Button btn_add_tasklist = (Button) footer.findViewById(R.id.btn_add);
+//
+//		// mDrawerListView.addFooterView(footer);
+//		btn_add_tasklist.setOnClickListener(new OnClickListener() {
+//
+//			@Override
+//			public void onClick(View v) {
+//				addOrEditTaskList(new TaskListModel());
+//			}
+//		});
 		/*
 		 * We Dont need this anymore
 		 */
@@ -229,7 +237,9 @@ public class NavigationDrawerFragment extends Fragment implements
 						// below section for showing ndf list item as selected
 						clearSelection();
 						oldSelection = view;
-
+						
+						
+						
 						view.setBackgroundColor(getResources().getColor(
 								R.color.selection_blue));
 					}
@@ -282,7 +292,7 @@ public class NavigationDrawerFragment extends Fragment implements
 		this.data = db.TaskList_List();
 		mAdapter = new TaskListAdapter(getActivity(),
 				R.layout.tasklist_listview_row, data);
-		// mDrawerListView.setTextFilterEnabled(true);//
+		//mDrawerListView.setTextFilterEnabled(true);//
 		mDrawerListView.setAdapter(mAdapter);
 		mDrawerListView.setItemChecked(mCurrentSelectedPosition, true);
 
@@ -305,54 +315,116 @@ public class NavigationDrawerFragment extends Fragment implements
 	 * @param user_data
 	 */
 	public void setUp(int fragmentId, DrawerLayout drawerLayout,
-			Context mContext, userData user_data, int tasklistid, int taskid) {
+			Context mContext, userData user_data,int tasklistid, int taskid) {
 		db = new DatabaseHelper(mContext);
 		this.user_data = user_data;
 		this.data = db.TaskList_List();
 		mAdapter = new TaskListAdapter(getActivity(),
 				R.layout.tasklist_listview_row, data);
 		mDrawerListView.setAdapter(mAdapter);
+ 
 
 		// automating the selection on selected
 		if (tasklistid != -1 && taskid != -1)
+ 
+		Resources res = getResources();
+		
+		
+		ArrayList<CustomIconListAdapter.OptionsModel> options = new ArrayList<CustomIconListAdapter.OptionsModel>();
+		options.add(new OptionsModel(R.drawable.ic_action_new_dark, "New Catagory"));
+		options.add(new OptionsModel(R.drawable.ic_action_about, "Get More Apps"));
+		options.add(new OptionsModel(R.drawable.ic_action_group, "About Developers"));
+		options.add(new OptionsModel(R.drawable.ic_action_settings, "Settings"));
+		 final CustomIconListAdapter opt_adapter = new CustomIconListAdapter(getActivity(),R.layout.tasklist_listview_row, options);
+//				 new TaskListAdapter(getActivity(),
+//				R.layout.tasklist_listview_row, options);
+//		
+		//automating the selection on selected
+		if(tasklistid != -1 && taskid != -1)
 			selectItem(tasklistid, taskid);
 		else
 			selectItem(1, -1);
-		// SharedPreferences tasklistID = mContext.getSharedPreferences(
-		// PREF_TASKLIST_ID_LAST_CLICKED, Context.MODE_PRIVATE);
-		// mCurrentSelectedPosition =
-		// tasklistID.getInt(PREF_TASKLIST_ID_LAST_CLICKED, 0);
-		// if (mCurrentSelectedPosition != 0){
-		//
-		// selectItem(mCurrentSelectedPosition); //(1);
-		// Log.e("Hello", "Mister");
-		// }
-		//
-
-		// automating the selection on selected
-
+//		SharedPreferences tasklistID = mContext.getSharedPreferences(
+//				PREF_TASKLIST_ID_LAST_CLICKED, Context.MODE_PRIVATE);
+//		mCurrentSelectedPosition = tasklistID.getInt(PREF_TASKLIST_ID_LAST_CLICKED, 0);
+//		if (mCurrentSelectedPosition != 0){
+//			
+//			selectItem(mCurrentSelectedPosition); //(1);
+//			Log.e("Hello", "Mister");
+//		}
+//		
+		
+		//automating the selection on selected
+		
+		
 		mFragmentContainerView = getActivity().findViewById(fragmentId);
 		mDrawerLayout = drawerLayout;
 		// set a custom shadow that overlays the main content when the drawer
 		// opens
-		// getActionBar().show();
+		//getActionBar().show();
 		TextView name = (TextView) mDrawerLayout.findViewById(R.id.text_name);
 		name.setText(user_data.name);
 		TextView email = (TextView) mDrawerLayout.findViewById(R.id.text_email);
 		email.setText(user_data.email);
 		ImageView profile = (ImageView) mDrawerLayout
-				.findViewById(R.id.profile_image);
-		profile.setImageBitmap(user_data.image);
+				.findViewById(R.id.profile_img);
+		
+		Bitmap b = ImageGridAdapter.getRoundedCornerBitmap(Bitmap.createScaledBitmap(user_data.image,
+				175, 175, true));
+		profile.setImageBitmap(b);
+		final ImageButton options_toggle = (ImageButton)mDrawerLayout.findViewById(R.id.options_toggle);
+		
+		options_toggle.setOnClickListener(new OnClickListener() {
+			int imageresource = R.drawable.ic_action_expand;
+			@Override
+			public void onClick(View v) {
+				RelativeLayout search_layout = (RelativeLayout) mDrawerLayout.findViewById(R.id.search_layout);
+				if(imageresource == R.drawable.ic_action_collapse){
+					mDrawerListView.setAdapter(mAdapter);
+					search_layout.setVisibility(View.VISIBLE);
+					mDrawerListView.setOnItemClickListener(TaskListItemListener);
+					imageresource = R.drawable.ic_action_expand;
+					
+					}
+				else{
+					mDrawerListView.setAdapter(opt_adapter);
+					search_layout.setVisibility(View.GONE);
+					mDrawerListView.setOnItemClickListener(new OnItemClickListener() {
+
+						@Override
+						public void onItemClick(AdapterView<?> parent,
+								View view, int position, long id) {
+							
+								switch(position)
+								{
+								case 1: ((MainActivity)mActivity).manuallySelectOptionMenuItem(R.id.action_add); break;
+								case 2: ((MainActivity)mActivity).manuallySelectOptionMenuItem(R.id.action_store); break;
+								case 3: ((MainActivity)mActivity).manuallySelectOptionMenuItem(R.id.action_developer); break;
+
+								case 4: ((MainActivity)mActivity).manuallySelectOptionMenuItem(R.id.action_settings); break;
+								
+								}
+						}
+					});
+					imageresource = R.drawable.ic_action_collapse;
+				}
+				options_toggle.setImageResource(imageresource);
+				//v.setBackgroundColor(Color.parseColor("#34343434"));
+				// TODO Auto-generated method stub
+				
+			}
+		});
+		//profile.setImageBitmap(user_data.image);
 		mDrawerLayout.setDrawerShadow(R.drawable.drawer_shadow,
 				GravityCompat.START);
 		// set up the drawer's list view with items and click listener
 		ActionBar actionBar = getActionBar();
-		// actionBar.hide();
+		//actionBar.hide();
 		actionBar.setDisplayHomeAsUpEnabled(true);
 		actionBar.setHomeButtonEnabled(true);
 		// ActionBarDrawerToggle ties together the the proper interactions
 		// between the navigation drawer and the action bar app icon.
-
+		
 		mDrawerToggle = new ActionBarDrawerToggle(getActivity(), /* host Activity */
 		mDrawerLayout, /* DrawerLayout object */
 		R.drawable.ic_drawer, /* nav drawer image to replace 'Up' caret */
@@ -368,7 +440,7 @@ public class NavigationDrawerFragment extends Fragment implements
 			@Override
 			public void onDrawerClosed(View drawerView) {
 				super.onDrawerClosed(drawerView);
-				// getActionBar().show();
+				//getActionBar().show();
 				if (!isAdded()) {
 					return;
 				}
@@ -380,13 +452,13 @@ public class NavigationDrawerFragment extends Fragment implements
 			public void onDrawerSlide(View drawerView, float slideOffset) {
 				// TODO Auto-generated method stub
 				super.onDrawerSlide(drawerView, slideOffset);
-				// getActionBar()..hide();
+				//getActionBar()..hide();
 			}
 
 			@Override
 			public void onDrawerOpened(View drawerView) {
 				super.onDrawerOpened(drawerView);
-				// getActionBar().hide();
+				//getActionBar().hide();
 				if (!isAdded()) {
 					return;
 				}
@@ -400,7 +472,7 @@ public class NavigationDrawerFragment extends Fragment implements
 					sp.edit().putBoolean(PREF_USER_LEARNED_DRAWER, true)
 							.apply();
 				}
-
+				
 				getActivity().supportInvalidateOptionsMenu(); // calls
 				// onPrepareOptionsMenu()
 			}
@@ -443,7 +515,7 @@ public class NavigationDrawerFragment extends Fragment implements
 
 	public void onMinusOne(int id) {
 		if (id == -1) {
-			mDrawerLayout.openDrawer(mFragmentContainerView);
+			mDrawerLayout.openDrawer(mFragmentContainerView); 
 			// to keep the drawer open on every start up
 		}
 	}
@@ -453,7 +525,8 @@ public class NavigationDrawerFragment extends Fragment implements
 		if (position < 0)
 			position = 0;
 		mCurrentSelectedPosition = position;
-
+ 
+		
 		if (mDrawerListView != null) {
 			mDrawerListView.setItemChecked(position, true);
 		}
@@ -582,7 +655,7 @@ public class NavigationDrawerFragment extends Fragment implements
 		// new add//
 		final GridView list_image_grid = (GridView) view
 				.findViewById(R.id.gridview);
-
+		
 		list_image_grid.setAdapter(new IconGridAdapter(mActivity));
 		// list_image_grid.setVerticalScrollBarEnabled(false);
 		list_image_grid
@@ -596,25 +669,25 @@ public class NavigationDrawerFragment extends Fragment implements
 						view.setBackgroundColor(getResources().getColor(
 								R.color.selection_blue));
 						// if a particular position is pressed show a toast
-						if (position == 0) {
-							Toast.makeText(mContext,
-									"Peoples Type Task Selected",
-									Toast.LENGTH_LONG).show();
-						} else if (position == 1) {
-							Toast.makeText(mContext,
-									"Computer Type Task Selected",
-									Toast.LENGTH_LONG).show();
-						} else if (position == 2) {
-							Toast.makeText(mContext,
-									"Travel Type Task Selected",
-									Toast.LENGTH_LONG).show();
-						} else if (position == 3) {
-							Toast.makeText(mContext, "Home Type Task Selected",
-									Toast.LENGTH_LONG).show();
-						} else if (position == 4) {
-							Toast.makeText(mContext, "Work Type Task Selected",
-									Toast.LENGTH_LONG).show();
-						}
+//						if (position == 0) {
+//							Toast.makeText(mContext,
+//									"Peoples Type Task Selected",
+//									Toast.LENGTH_LONG).show();
+//						} else if (position == 1) {
+//							Toast.makeText(mContext,
+//									"Computer Type Task Selected",
+//									Toast.LENGTH_LONG).show();
+//						} else if (position == 2) {
+//							Toast.makeText(mContext,
+//									"Travel Type Task Selected",
+//									Toast.LENGTH_LONG).show();
+//						} else if (position == 3) {
+//							Toast.makeText(mContext, "Home Type Task Selected",
+//									Toast.LENGTH_LONG).show();
+//						} else if (position == 4) {
+//							Toast.makeText(mContext, "Work Type Task Selected",
+//									Toast.LENGTH_LONG).show();
+//						}
 						list_type = position;
 					}
 				});
@@ -773,7 +846,7 @@ public class NavigationDrawerFragment extends Fragment implements
 
 		Common.CustomDialog.CustomDialog(mContext, view, dialogTitle);
 	}
-
+	
 	// @SuppressLint("NewApi")
 	public void addOrEditTask(final TaskListModel tasklist, final TaskModel task) {
 		final View view = getActivity().getLayoutInflater().inflate(
@@ -893,40 +966,32 @@ public class NavigationDrawerFragment extends Fragment implements
 				|| temp.remind_interval == 5) {
 			if (temp.remind_interval == 1) {
 				String remindAt = temp.remind_at;
-				// helping class Common.FormateTimeStrings used to get formated
-				// dates
-				String newFormatedDate = Common.FormateTimeStrings
-						.getFormatedDateTimeString(remindAt);
+				//helping class Common.FormateTimeStrings used to get formated dates
+				String newFormatedDate = Common.FormateTimeStrings.getFormatedDateTimeString(remindAt);
 				list_item[0] = "Repeat once at " + newFormatedDate;
 			} else if (temp.remind_interval == 2) {
 				String remindAt = temp.remind_at;
-				String newFormatedDate = Common.FormateTimeStrings
-						.getFormatedTimeString(remindAt);
+				String newFormatedDate = Common.FormateTimeStrings.getFormatedTimeString(remindAt);
 				list_item[0] = "Repeat daily at " + newFormatedDate;
 				// + temp.remind_at + " "; //
 				// String.valueOf(temp.remind_interval);
 			} else if (temp.remind_interval == 3) {
 				String remindAt = temp.remind_at;
 				int weekday = temp.weekday;
-				String newFormatedDate = Common.FormateTimeStrings
-						.getFormatedWeeklyTimeString(weekday, remindAt);
+				String newFormatedDate = Common.FormateTimeStrings.getFormatedWeeklyTimeString(weekday,
+						remindAt);
 				list_item[0] = "Repeat weekly at: " + newFormatedDate;
-				// temp.remind_at + " "; //
-				// String.valueOf(temp.remind_interval);
+				// temp.remind_at + " "; // String.valueOf(temp.remind_interval);
 			} else if (temp.remind_interval == 4) {
 				String remindAt = temp.remind_at;
-				String newFormatedDate = Common.FormateTimeStrings
-						.getFormatedMonthlyDateTimeString(remindAt);
+				String newFormatedDate = Common.FormateTimeStrings.getFormatedMonthlyDateTimeString(remindAt);
 				list_item[0] = "Repeat monthly at " + newFormatedDate;
-				// + temp.remind_at + " "; //
-				// String.valueOf(temp.remind_interval);
+				// + temp.remind_at + " "; // String.valueOf(temp.remind_interval);
 			} else if (temp.remind_interval == 5) {
 				String remindAt = temp.remind_at;
-				String newFormatedDate = Common.FormateTimeStrings
-						.getFormatedYearlyDateTimeString(remindAt);
+				String newFormatedDate = Common.FormateTimeStrings.getFormatedYearlyDateTimeString(remindAt);
 				list_item[0] = "Repeat yearly at " + newFormatedDate;
-				// temp.remind_at + " "; //
-				// String.valueOf(temp.remind_interval);
+				// temp.remind_at + " "; // String.valueOf(temp.remind_interval);
 			}
 		}
 
@@ -959,7 +1024,7 @@ public class NavigationDrawerFragment extends Fragment implements
 						temp.updated = currentDateTime;
 						db.Task_Edit(temp);
 						editTask(tasklist, temp);
-						// mAdapter.notifyDataSetChanged();
+						//mAdapter.notifyDataSetChanged();
 					}
 				});
 
@@ -1040,15 +1105,13 @@ public class NavigationDrawerFragment extends Fragment implements
 	}
 
 	public void cancelAlarm(final TaskListModel tasklist, final TaskModel temp) {
-
+		
 		mAlarmBroadcastReciever.cancelAlarm(mContext, temp.alarm_id);
 		temp.alarm_id = 0;
 		temp.remind_at = null;
 		temp.remind_interval = 0;
 		temp.alarm_status = 0;
 		temp.weekday = 0;
-		long currTime = System.currentTimeMillis();
-		String currentDateTime = Long.toString(currTime);
 		temp.updated = currentDateTime;
 		db.Task_Edit(temp);
 		editTask(tasklist, temp);
@@ -1429,25 +1492,138 @@ public class NavigationDrawerFragment extends Fragment implements
 
 	public void reminderListDialogActionThree(final TaskListModel tasklist,
 			final TaskModel temp) {
-		/*
-		 * AlertDialog.Builder builder = new AlertDialog.Builder(mContext);
-		 * builder.setTitle("Location"); builder.setMessage("Go Premium");
-		 * builder.setPositiveButton(R.string.dialog_ok, new
-		 * DialogInterface.OnClickListener() { public void
-		 * onClick(DialogInterface dialog, int id) { dialog.cancel();
-		 * openReminderListDialog(tasklist, temp); } });
-		 * builder.setNegativeButton(R.string.dialog_back, new
-		 * DialogInterface.OnClickListener() { public void
-		 * onClick(DialogInterface dialog, int id) { dialog.cancel();
-		 * openReminderListDialog(tasklist, temp); } });
-		 * builder.setCancelable(false); final Dialog dialog = builder.create();
-		 * dialog.show();
-		 */
-		// ********************************************************************//
-		
-
+		/*AlertDialog.Builder builder = new AlertDialog.Builder(mContext);
+		builder.setTitle("Location");
+		builder.setMessage("Go Premium");
+		builder.setPositiveButton(R.string.dialog_ok,
+				new DialogInterface.OnClickListener() {
+					public void onClick(DialogInterface dialog, int id) {
+						dialog.cancel();
+						openReminderListDialog(tasklist, temp);
+					}
+				});
+		builder.setNegativeButton(R.string.dialog_back,
+				new DialogInterface.OnClickListener() {
+					public void onClick(DialogInterface dialog, int id) {
+						dialog.cancel();
+						openReminderListDialog(tasklist, temp);
+					}
+				});
+		builder.setCancelable(false);
+		final Dialog dialog = builder.create();
+		dialog.show();*/
+		//********************************************************************//
+		listof_nameEmailPic();
+			
 	}
 
+	public void listof_nameEmailPic() {
+	DatabaseHelper h = new DatabaseHelper(mContext);
+	/*		DialogInterface.OnClickListener negListener = new OnClickListener() {
+		 
+
+			@Override
+			public void onClick(View v) {
+				dialog.cancel();	
+			}
+		};
+		
+		DialogInterface.OnClickListener posListener = new OnClickListener( ) {
+			@Override
+			public void onClick(DialogInterface dialog, int which) {
+				dialog.cancel();
+				Toast.makeText(mContext, toString().valueOf(which), Toast.LENGTH_SHORT).show();
+				TaskModel tempModel= null;
+				String temp = tempModel.associated_usermodels;
+				temp = temp+", "+ which;
+				tempModel.associated_usermodels=temp;
+				db.Task_Edit(tempModel);
+			}
+		};
+
+	*/	ArrayList<UserModel> email_records = new ArrayList<UserModel>();
+		
+		ArrayList<Common.CustomViewsData.MultiSelectRowData> users = new ArrayList<Common.CustomViewsData.MultiSelectRowData>();
+
+		email_records = h.User_List();
+		
+		//ArrayList<UserModel> nonRedundentAndSortEmailRecords = new ArrayList<UserModel>();
+		
+		for ( UserModel temp : email_records) {
+			Common.CustomViewsData.MultiSelectRowData user = new Common.CustomViewsData.MultiSelectRowData();
+			user.text1 = temp.displayName;
+			user.text2 = temp.email;
+			// Bitmap bmp = BitmapFactory.decodeByteArray(temp.image, 0,
+			// temp.image.length);
+			// ImageView image = (ImageView) findViewById(R.id.imageView1);
+
+			// user.iconRes.setImageBitmap(bmp);
+			// byte[] byteArray = getBlob(temp.image);
+			// Bitmap bm = BitmapFactory.decodeByteArray(byteArray, 0
+			// ,byteArray.length);
+
+			user.iconRes = temp.image;
+			users.add(user);
+			
+		}
+/*
+		final MultiSelectListAdapter adapter = new MultiSelectListAdapter(mContext,
+				R.layout.multiselectlist_row, users);
+//		DialogInterface.OnClickListener itemClickListner = new OnClickListener() {
+//			@Override
+//			public void onClick(DialogInterface dialog, int which) {
+//				// dialog.cancel();
+//				adapter.setNewSelection(which, true);
+//			
+//			}
+//		};
+		OnItemClickListener onItemClickListener = new OnItemClickListener() {
+			@Override
+			public void onItemClick(AdapterView<?> parent, View view,
+					int position, long id) {
+				adapter.setOrRemoveSelection(position);
+				
+				view.setBackgroundColor(getResources().getColor(
+						R.color.selection_blue));
+			}
+		};
+		Common.CustomDialog.MultiChoiceDialog(mContext, adapter,
+				onItemClickListener, negListener, posListener,
+				R.string.dialog_ok, R.string.dialog_cancel, "Share");
+				
+		*/
+		
+		AlertDialog.Builder builder = new AlertDialog.Builder(mContext);
+		builder.setTitle("Reminder");
+		final ListView modeList = new ListView(mContext);
+
+		String[] list_item = { "Once", "Once a Day", "Once a Week",
+				"Once a Month", "Once a Year" };
+
+		ArrayAdapter<UserModel> itemsAdapter = new ArrayAdapter<UserModel>(mContext,
+				R.layout.multiselectlist_row, email_records);
+
+		modeList.setAdapter(itemsAdapter);
+		builder.setView(modeList);
+
+ 
+
+		builder.setCancelable(false);
+		final Dialog dialog = builder.create();
+		dialog.show();
+
+		modeList.setOnItemClickListener(new OnItemClickListener() {
+			public void onItemClick(AdapterView<?> myAdapter, View myView,
+					int myItemInt, long mylng) {
+				// String selectedFromList = (String) (modeList
+				// .getItemAtPosition(myItemInt));
+				//selectRepeatDialogItemId(tasklist, myItemInt, temp);// listitemid
+				dialog.dismiss();
+			}
+		});
+		
+		
+	}
 	
 	private void addTask(TaskListModel parent, TaskModel temp) {
 		parent.tasks.add(temp);
@@ -1463,9 +1639,8 @@ public class NavigationDrawerFragment extends Fragment implements
 		selectItem(++position, -1);
 	}
 
-
-
-	private void editTask(TaskListModel parent, TaskModel temp) {
+	private void editTask(TaskListModel parent, TaskModel temp)
+	{
 		int position = mAdapter.getPosition(parent);
 		this.mAdapter.getItem(position).GetTask(temp._id).set(temp);
 		this.mAdapter.notifyDataSetChanged();
@@ -1556,7 +1731,7 @@ public class NavigationDrawerFragment extends Fragment implements
 		/**
 		 * update data
 		 */
-		selectItem(position, -1);
+		selectItem(position,-1);
 	}
 
 	public void deleteTask(final TaskListModel parent,
@@ -1567,9 +1742,8 @@ public class NavigationDrawerFragment extends Fragment implements
 				try {
 					int position = mAdapter.getPosition(parent);
 					for (int temp : arrayList) {
-						// cancel every alarm associated with multiple task
-						// deletion
-						mAlarmBroadcastReciever.cancelAlarm(mContext, temp);
+						//cancel every alarm associated with multiple task deletion
+						mAlarmBroadcastReciever.cancelAlarm(mContext, temp); 
 						if (db.Task_Delete(temp) == true) {
 							// conditional handle true false
 							mAdapter.getItem(position).RemoveTask(temp);
@@ -1585,7 +1759,7 @@ public class NavigationDrawerFragment extends Fragment implements
 					/**
 					 * update data
 					 */
-					selectItem(++position, -1);
+					selectItem(++position,-1);
 				} catch (Exception E) {
 					Log.e("MainActivity", "Delete Task");
 				} finally {
@@ -1653,7 +1827,5 @@ public class NavigationDrawerFragment extends Fragment implements
 		// mAdapter.notifyDataSetChanged();
 
 	}
-
-
 
 }

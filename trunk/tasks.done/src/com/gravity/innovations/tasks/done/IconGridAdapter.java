@@ -13,8 +13,24 @@ import android.widget.TextView;
 
 public class IconGridAdapter extends BaseAdapter {
 
-	Integer[] imageId = { R.drawable.catag_social,
-			R.drawable.catag_personal, R.drawable.catag_others,
+	public static Integer[] imageId = {android.R.drawable.ic_menu_agenda,
+			android.R.drawable.ic_menu_call,
+			android.R.drawable.ic_menu_compass,
+			android.R.drawable.ic_menu_day,
+			android.R.drawable.ic_menu_directions,
+			android.R.drawable.ic_menu_edit,
+			android.R.drawable.ic_menu_gallery,
+			android.R.drawable.ic_menu_info_details,
+			android.R.drawable.ic_menu_manage,
+			android.R.drawable.ic_menu_mapmode,
+			android.R.drawable.ic_menu_mylocation,
+			android.R.drawable.ic_menu_preferences,
+			android.R.drawable.ic_menu_my_calendar,
+			android.R.drawable.ic_menu_search,
+			android.R.drawable.ic_menu_recent_history,
+			android.R.drawable.ic_menu_slideshow,
+			R.drawable.catag_social,
+			R.drawable.catag_personal, 
 			R.drawable.catag_home,R.drawable.catag_work};
     private Context mContext;
 

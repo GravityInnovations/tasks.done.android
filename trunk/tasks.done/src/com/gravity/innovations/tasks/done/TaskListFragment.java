@@ -1,10 +1,12 @@
 package com.gravity.innovations.tasks.done;
 
+ 
 import java.util.ArrayList;
 import java.util.zip.Inflater;
 
 import android.annotation.SuppressLint;
 import android.app.Activity;
+import android.opengl.Visibility;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
@@ -45,7 +47,7 @@ public class TaskListFragment extends Fragment {
 		// updateRelativeTime();
 		this.mNavigationDrawerFragment = mNavigationDrawerFragment;
 		this.selectedTaskID = _selectTaskId;
-		// this.mThumbIds= mThumbIds;
+		//this.mThumbIds= mThumbIds;
 	}
 
 	public void newInstance(TaskListModel temp,
@@ -81,29 +83,30 @@ public class TaskListFragment extends Fragment {
 		View rootView = inflater.inflate(R.layout.fragment_main, container,
 				false);
 		if (data.tasks != null && data.tasks.size() > 0) {
-			mListView = (ListView) rootView.findViewById(R.id.list);
-
-			// header on each fragment
-			View headerView = inflater.inflate(R.layout.tasks_fragment_header,
-					null);
-
+			mListView = (ListView) rootView.findViewById(R.id.list);	
+			
+			//header on each fragment
+			View headerView = inflater.inflate(
+					R.layout.tasks_fragment_header, null);
+			
 			mTextView = (TextView) headerView.findViewById(R.id.section_label);
 			String listTitle = data.title;
 			mTextView.setText(listTitle);
-
-			mGridView = (GridView) headerView.findViewById(R.id.gridView1);
-			mGridView.setAdapter(new ImageGridAdapter(mThumbIds, getActivity()
-					.getApplicationContext()));
-
-			mListView.addHeaderView(headerView);
-			// header on each fragment
-
+			
+			mGridView = (GridView) headerView
+					.findViewById(R.id.gridView1);
+			mGridView.setAdapter(new ImageGridAdapter( mThumbIds , getActivity().getApplicationContext() ));
+			
+			mListView.addHeaderView(headerView); 
+			//header on each fragment
+			
 			mTaskAdapter = new TaskAdapter(getActivity(),
 					R.layout.task_listview_row, data, mNavigationDrawerFragment, data.tasks, selectedTaskID);
 			mListView.setAdapter(mTaskAdapter);
-
+			
+			
 			mTaskAdapter.notifyDataSetChanged();
-
+			
 			// Swipe to delete task
 			/*
 			 * SwipeDismissListViewTouchListener touchListener = new
@@ -152,6 +155,7 @@ public class TaskListFragment extends Fragment {
 				@Override
 				public boolean onCreateActionMode(android.view.ActionMode mode,
 						Menu menu) {
+					getActivity().getActionBar().show();
 					android.view.MenuInflater inflater = mode.getMenuInflater();
 					inflater.inflate(R.menu.contextual_menu, menu);
 					return true;
@@ -160,6 +164,7 @@ public class TaskListFragment extends Fragment {
 				@Override
 				public void onDestroyActionMode(android.view.ActionMode mode) {
 					// TODO Auto-generated method stub
+					getActivity().getActionBar().hide();
 					selCount = 0;
 					mode.invalidate();
 					mTaskAdapter.removeAllSelection();
@@ -196,7 +201,9 @@ public class TaskListFragment extends Fragment {
 						selCount--;
 						mTaskAdapter.removeSelection(position);
 					}
-					mode.setTitle(selCount + " selected");
+					mode.setSubtitle(selCount + " selected");
+					mode.setTitle(data.title);
+					
 					mode.invalidate();
 				}
 			});

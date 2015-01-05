@@ -15,6 +15,7 @@ import org.json.JSONObject;
 import com.google.android.gms.common.AccountPicker;
 import com.google.android.gms.gcm.GoogleCloudMessaging;
 import com.google.android.gms.internal.ac;
+import com.google.android.gms.plus.model.people.Person;
 
 import android.accounts.AccountManager;
 import android.annotation.SuppressLint;
@@ -60,6 +61,7 @@ public class AppHandlerService extends Service implements
 	private NotificationManager mNotificationManager;
 	private Intent thisIntent;
 	private Intent AppStateIntent;
+	private String AppStateClassName;
 	private Activity FocusedActivity;
 
 	private SharedPreferences mSharedPreferences;
@@ -91,6 +93,7 @@ public class AppHandlerService extends Service implements
 			// AppContext = getApplicationContext();
 			progress_tasks = new ArrayList<String>();
 			AppStateIntent = new Intent(this, SplashActivity.class);
+			AppStateClassName = SplashActivity.class.getName();
 			user_data = new Common.userData();
 			// InitEvents();
 			sendNotification("task.done", "background service is running", 2);
@@ -117,11 +120,12 @@ public class AppHandlerService extends Service implements
 
 			if (flags == 0) {
 				thisIntent = intent;
-				
 				((TheApp) getApplicationContext()).setService(this);
 				
-				sendNotification("title", "msg",dddd);
-				dddd++;
+				
+				
+				//sendNotification("title", "msg",dddd);
+				//dddd++;
 				if (intent.getAction() == Common.serviceActions.START_APP) {
 
 					// Bundle b = new Bundle();
@@ -253,6 +257,24 @@ public class AppHandlerService extends Service implements
 	public void onActivityOpen(Activity activity, Context context) {
 		try {
 			FocusedActivity = activity;
+			if(FocusedActivity!= null)
+			{
+				if(AppStateClassName != SplashActivity.class.getName())
+				{
+					FocusedActivity.runOnUiThread(new Runnable() {
+						
+						@Override
+						public void run() {
+							// TODO Auto-generated method stub
+							AppStateIntent.putExtra("user", user_data);
+							FocusedActivity.startActivity(AppStateIntent);
+							FocusedActivity.finish();
+						}
+					});
+					//startActivity(AppStateIntent);
+					
+				}
+			}
 			// if(FocusedActivity!= null && FocusedActivity.getClass() ==
 			// SplashActivity.class)
 			// {
@@ -393,6 +415,7 @@ public class AppHandlerService extends Service implements
 					int x = todotasks;
 					if(donetasks == todotasks){
 						AppStateIntent = new Intent(FocusedActivity, MainActivity.class);
+						AppStateClassName = MainActivity.class.getName();
 						FocusedActivity.runOnUiThread(new Runnable() {
 							
 							@Override
@@ -601,8 +624,9 @@ public class AppHandlerService extends Service implements
 						e.printStackTrace();
 					}
 					// user_data.image = bitmapImage;
-					user_data.image = Bitmap.createScaledBitmap(bitmapImage,
-							75, 75, true);
+					user_data.image = bitmapImage;
+							//Bitmap.createScaledBitmap(bitmapImage,
+							//75, 75, true);
 					mSharedPreferencesEditor.putString(Common.USER_IMAGE,
 							mypath.getAbsolutePath());
 					mSharedPreferencesEditor.putBoolean(
