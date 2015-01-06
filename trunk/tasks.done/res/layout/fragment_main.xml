@@ -3,39 +3,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context="com.gravity.innovations.tasks.done.MainActivity$PlaceholderFragment" >
- 
-<!--     <TextView -->
-<!--         android:id="@+id/section_label" -->
-<!--         android:layout_width="wrap_content" -->
-<!--         android:layout_height="wrap_content" -->
-<!--         android:layout_alignParentTop="true" -->
-<!--         android:layout_centerInParent="true" -->
-<!--         android:layout_centerVertical="true" -->
-<!--         android:hint="List Title" -->
-<!--         android:textSize="30dp" -->
-<!--         android:textStyle="normal" -->
-<!--         android:paddingLeft="5dp" -->
-<!--         android:paddingTop="5dp" -->
-<!--         android:paddingRight="5dp" -->
-<!--         android:paddingBottom="5dp" -->
-<!--         android:visibility="visible" -->
-<!--         android:shadowColor="#cecece" -->
-<!--         android:shadowDx="5" -->
-<!--         android:shadowDy="10" -->
-<!--         android:shadowRadius="5"  -->
-<!--         android:background="@android:color/transparent" -->
-<!--          /> -->
 
-<!--     <GridView -->
-<!--         android:id="@+id/gridView1" -->
-<!--         android:layout_width="wrap_content" -->
-<!--         android:layout_height="wrap_content" -->
-<!--         android:layout_below="@+id/section_label" -->
-<!--         android:columnWidth="50dp" -->
-<!--         android:numColumns="auto_fit" -->
-<!--         android:visibility="visible"  -->
-<!--         android:background="@color/selection_blue"> -->
-<!--     </GridView> -->
 <RelativeLayout 
     android:id="@+id/header"
     android:layout_width="match_parent"
@@ -133,6 +101,7 @@ android:layout_marginLeft="5dp"
         
 <!--         android:layout_alignParentLeft="true" android:layout_alignParentTop="true"/> -->
  <LinearLayout
+     android:id="@+id/LL3"
      android:layout_alignParentRight="true"
       android:layout_alignParentBottom="true"
       android:layout_width="wrap_content"
@@ -141,6 +110,15 @@ android:layout_marginLeft="5dp"
         android:layout_marginBottom="5dp"
         android:orientation="horizontal"
         >
+    <ImageButton
+ 	    android:id="@+id/btn_showShared"
+ 	    
+ 	    android:layout_width="wrap_content"
+ 	    android:layout_height="wrap_content"
+ 	    android:src="@android:drawable/ic_menu_view"
+ 	    android:padding="0dp"
+ 	    android:clickable="true"
+ 	    android:background="@drawable/default_button_selector" />
      <ImageButton
  	    android:id="@+id/btn_share1"
  	    
@@ -169,7 +147,24 @@ android:layout_marginLeft="5dp"
  	    android:clickable="true"
  	    android:background="@drawable/default_button_selector" />
     </LinearLayout>
-
+ <GridView
+            android:id="@+id/gridView1"
+            android:layout_width="wrap_content"
+            android:layout_height="40dp"
+           android:layout_marginRight="30dp"
+        android:layout_marginBottom="5dp"
+        android:layout_marginLeft="5dp"
+            android:layout_alignParentLeft="true"
+            android:layout_alignParentBottom="true"
+            android:layout_toLeftOf="@id/LL3"
+            android:columnWidth="40dp"
+            
+            android:numColumns="auto_fit"
+            
+            
+            android:stackFromBottom="false"
+            android:visibility="visible" />
+ 
      <View
         android:id="@+id/search_line"
         android:layout_width="fill_parent"

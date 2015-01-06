@@ -4,14 +4,22 @@ package com.gravity.innovations.tasks.done;
 import java.util.ArrayList;
 import java.util.zip.Inflater;
 
+import com.google.android.gms.internal.ad;
+
 import android.annotation.SuppressLint;
 import android.app.Activity;
+import android.content.DialogInterface;
+import android.content.DialogInterface.OnClickListener;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.MotionEvent;
 import android.view.View;
+import android.view.View.OnTouchListener;
 import android.view.ViewGroup;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
@@ -23,6 +31,7 @@ import android.widget.GridView;
 import android.widget.ImageButton;
 import android.widget.ListView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 public class TaskListFragment extends Fragment {
 	private TaskListModel data;
@@ -34,7 +43,8 @@ public class TaskListFragment extends Fragment {
 	NavigationDrawerFragment mNavigationDrawerFragment;
 	Activity mActivity;
 	public int selectedTaskID;
-	Integer[] mThumbIds = { R.drawable.catag_home };
+	private BitmapAdapter mUsersAdapter;
+	private ImageButton btn_shared;
 
 	public TaskListFragment() {
 
@@ -44,6 +54,7 @@ public class TaskListFragment extends Fragment {
 			NavigationDrawerFragment mNavigationDrawerFragment) {
 		// TODO Auto-generated method stub
 		this.data = temp;
+		
 		// updateRelativeTime();
 		this.mNavigationDrawerFragment = mNavigationDrawerFragment;
 		this.selectedTaskID = _selectTaskId;
@@ -83,19 +94,31 @@ public class TaskListFragment extends Fragment {
 		View rootView = inflater.inflate(R.layout.fragment_main, container,
 				false);
 		ImageButton btn_share = ((ImageButton)rootView.findViewById(R.id.btn_share1));
+		btn_shared = ((ImageButton)rootView.findViewById(R.id.btn_showShared));
 		
 		btn_share.setOnClickListener(new View.OnClickListener() {
 			
 			@Override
 			public void onClick(View v) {
 				mActivity = getActivity();
-				((MainActivity)mActivity).listof_nameEmailPic();
+				openShareDialog();
 				// TODO Auto-generated method stub
 				//Toast.makeText(mActivity, "txt",Toast.LENGTH_LONG).show();
 				
 			}
 		});
-		if (data.tasks != null && data.tasks.size() > 0) {
+		if(this.data.users.size()<=0)
+			btn_shared.setVisibility(View.GONE);
+		btn_shared.setOnClickListener(new View.OnClickListener() {
+			
+			@Override
+			public void onClick(View v) {
+				mActivity = getActivity();
+				openSharedViewDialog();
+				
+			}
+		});
+		if (true){//(data.tasks != null && data.tasks.size() > 0) {
 			mListView = (ListView) rootView.findViewById(R.id.list);	
 			
 			//header on each fragment
@@ -106,9 +129,28 @@ public class TaskListFragment extends Fragment {
 			String listTitle = data.title;
 			mTextView.setText(listTitle);
 			
-			mGridView = (GridView) headerView
-					.findViewById(R.id.gridView1);
-			mGridView.setAdapter(new ImageGridAdapter( mThumbIds , getActivity().getApplicationContext() ));
+			mGridView = (GridView) rootView
+ 					.findViewById(R.id.gridView1);
+			mActivity= getActivity();
+		
+			ArrayList<Bitmap> users_images = getUsersImages(this.data.users);
+					
+					//new ArrayList<Bitmap>();// getUsersImages(((MainActivity)mActivity).getUsers());//new ArrayList<Bitmap>();//getUsersImages(this.data.users);
+			mUsersAdapter =new BitmapAdapter(mActivity, R.layout.grid_cell, users_images, mActivity);// new ImageGridAdapter(users_images, getActivity().getApplicationContext());
+			mGridView.setVerticalScrollBarEnabled(false);
+			mGridView.setHorizontalScrollBarEnabled(false);
+			mGridView.setOnTouchListener(new OnTouchListener(){
+
+			    @Override
+			    public boolean onTouch(View v, MotionEvent event) {
+			        if(event.getAction() == MotionEvent.ACTION_MOVE){
+			            return true;
+			        }
+			        return false;
+			    }
+
+			});
+			mGridView.setAdapter(mUsersAdapter);
 			
 			mListView.addHeaderView(headerView); 
 			//header on each fragment
@@ -289,5 +331,175 @@ public class TaskListFragment extends Fragment {
 			
 	//	}
 
+	}
+	
+	private void openShareDialog()
+	{
+		ArrayList<UserModel> temp_users = ((MainActivity)mActivity).getUsers();
+		
+		//boolean flag = false;//temp_users.removeAll(this.data.users);//false;
+//		for(UserModel m: temp_users)
+//		{
+//			if(this.data.users.)
+//		}
+//		for(UserModel m1: this.data.users)
+//		{
+//			for(UserModel m2: temp_users)
+//			{
+//				if(m1._id == m2._id){
+//					temp_users.remove(m2);
+//				break;	
+//				}
+//			}
+//			//flag = temp_users.contains(m);
+//			//temp_users.remove();
+//		}
+		final ArrayList<UserModel> users = temp_users;
+		ArrayList<Common.CustomViewsData.MultiSelectRowData> users_lv = new ArrayList<Common.CustomViewsData.MultiSelectRowData>();
+		ArrayList<Common.CustomViewsData.MultiSelectRowData> users_lv_selected = new ArrayList<Common.CustomViewsData.MultiSelectRowData>();
+		ArrayList<String> S = new ArrayList<String>();
+		for (UserModel temp : users) {
+			Common.CustomViewsData.MultiSelectRowData user = new Common.CustomViewsData.MultiSelectRowData();
+			user.text1 = temp.displayName;
+			user.text2 = temp.email;
+			
+			// Bitmap bmp = BitmapFactory.decodeByteArray(temp.image, 0,
+			// temp.image.length);
+			// ImageView image = (ImageView) findViewById(R.id.imageView1);
+
+			// user.iconRes.setImageBitmap(bmp);
+			// byte[] byteArray = getBlob(temp.image);
+			// Bitmap bm = BitmapFactory.decodeByteArray(byteArray, 0
+			// ,byteArray.length);
+			S.add(temp.displayName);
+			user.iconRes = temp.image;
+			users_lv.add(user);
+			for(UserModel m1: this.data.users)
+			{
+				if(m1._id == temp._id)
+					users_lv_selected.add(user);
+			}
+		}
+		
+//		CharSequence[] cs = S.toArray(new CharSequence[S.size()]);
+//		
+//		AlertDialog.Builder builder = new AlertDialog.Builder(mContext);
+//		builder.setIcon(android.R.drawable.ic_popup_reminder);
+//		builder.setTitle("share");
+//		builder.setItems(cs, null);
+//		builder.create().show();
+		final MultiSelectListAdapter adapter = new MultiSelectListAdapter(mActivity,
+				R.layout.multiselectlist_row, users_lv);
+		adapter.setNewSelection(users_lv_selected);
+		OnItemClickListener onItemClickListener = new OnItemClickListener() {
+			@Override
+			public void onItemClick(AdapterView<?> parent, View view,
+					int position, long id) {
+				adapter.setOrRemoveSelection(view,position);
+				
+				
+			}
+		};
+		DialogInterface.OnClickListener negListener = new OnClickListener() {
+			@Override
+			public void onClick(DialogInterface dialog, int which) {
+				dialog.cancel();
+			}
+		};
+
+		DialogInterface.OnClickListener posListener = new OnClickListener() {
+			
+
+			@Override
+			public void onClick(DialogInterface dialog, int which) {
+				dialog.cancel();
+				ArrayList<Integer> sel = adapter.getSelected();
+				ArrayList<UserModel> sel_users = new ArrayList<UserModel>();
+				for(Integer i:sel)
+				{
+					sel_users.add(users.get(i));
+				}
+				data.users.clear();
+				data.users.addAll(sel_users);
+				if(data.users.size()<=0)
+					btn_shared.setVisibility(View.GONE);
+				else
+					btn_shared.setVisibility(View.VISIBLE);
+				mUsersAdapter.clear();
+				mUsersAdapter.addAll(getUsersImages(sel_users));
+				mUsersAdapter.notifyDataSetChanged();// = new ImageGridAdapter(, mActivity);
+				
+				
+				
+				//add  sel_users in table_users_tasklist and update grid adapter in header
+				
+//				TaskModel tempModel = null;
+//				String temp = tempModel.associated_usermodels;
+//				temp = temp + ", " + which;
+//				tempModel.associated_usermodels = temp;
+//				db.Task_Edit(tempModel);
+				
+			}
+		};
+		Common.CustomDialog.MultiChoiceDialog(mActivity, adapter,
+				onItemClickListener, negListener, posListener,
+				R.string.dialog_ok, R.string.dialog_cancel, "Share");
+		
+	}
+	private void openSharedViewDialog()
+	{
+		ArrayList<UserModel> users = this.data.users;
+
+		ArrayList<Common.CustomViewsData.MultiSelectRowData> users_lv = new ArrayList<Common.CustomViewsData.MultiSelectRowData>();
+
+		ArrayList<String> S = new ArrayList<String>();
+		for (UserModel temp : users) {
+			Common.CustomViewsData.MultiSelectRowData user = new Common.CustomViewsData.MultiSelectRowData();
+			user.text1 = temp.displayName;
+			user.text2 = temp.email;
+			
+			
+			S.add(temp.displayName);
+			user.iconRes = temp.image;
+			users_lv.add(user);
+			
+		}
+
+		final MultiSelectListAdapter adapter = new MultiSelectListAdapter(mActivity,
+				R.layout.multiselectlist_row, users_lv);
+		OnItemClickListener onItemClickListener = new OnItemClickListener() {
+			@Override
+			public void onItemClick(AdapterView<?> parent, View view,
+					int position, long id) {
+				//adapter.setOrRemoveSelection(view,position);
+				
+				
+			}
+		};
+DialogInterface.OnClickListener posListener = new OnClickListener() {
+			
+
+			@Override
+			public void onClick(DialogInterface dialog, int which) {
+				dialog.cancel();
+				
+			}
+		};
+		Common.CustomDialog.MultiChoiceDialog(mActivity, adapter,
+				onItemClickListener,null, posListener,
+				R.string.dialog_ok, R.string.dialog_cancel, "Sharing With");
+		
+	}
+	public ArrayList<Bitmap> getUsersImages(ArrayList<UserModel> users)
+	{
+		ArrayList<Bitmap> bmps = new ArrayList<Bitmap>();
+		for(UserModel user: users)
+		{
+			if(user.image!= null)
+			bmps.add(BitmapFactory.decodeByteArray(user.image, 0, user.image.length));
+			else
+				bmps.add(BitmapFactory.decodeResource(mActivity.getResources(), R.drawable.catag_personal));
+		}
+		return bmps;
 	}
 }
