@@ -322,7 +322,6 @@ public class NavigationDrawerFragment extends Fragment implements
 		mAdapter = new TaskListAdapter(getActivity(),
 				R.layout.tasklist_listview_row, data);
 		mDrawerListView.setAdapter(mAdapter);
-		Resources res = getResources();
 		
 		
 		ArrayList<CustomIconListAdapter.OptionsModel> options = new ArrayList<CustomIconListAdapter.OptionsModel>();
@@ -366,10 +365,11 @@ public class NavigationDrawerFragment extends Fragment implements
 		email.setText(user_data.email);
 		ImageView profile = (ImageView) mDrawerLayout
 				.findViewById(R.id.profile_img);
-		
+		if(user_data.image != null){
 		Bitmap b = ImageGridAdapter.getRoundedCornerBitmap(Bitmap.createScaledBitmap(user_data.image,
 				175, 175, true));
 		profile.setImageBitmap(b);
+		}
 		final ImageButton options_toggle = (ImageButton)mDrawerLayout.findViewById(R.id.options_toggle);
 		
 		options_toggle.setOnClickListener(new OnClickListener() {

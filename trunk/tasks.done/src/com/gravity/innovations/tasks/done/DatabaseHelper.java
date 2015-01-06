@@ -654,21 +654,42 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 	public int User_New(UserModel user) {
 		SQLiteDatabase db = this.getWritableDatabase();
 		ContentValues values = new ContentValues();
+		values.put(KEY_USER_NAME, user.name);
 		values.put(KEY_DISPLAY_NAME, user.displayName);
 		values.put(KEY_USER_EMAIL, user.email);
 		values.put(KEY_USER_IMAGE, user.image);
+		values.put(KEY_CONTACT_ID, user.contact_id);
 
 		int id = (int) db.insert(TABLE_USERS, null, values);
 		db.close();
 		return id;
 		// return true; //boolean to check if the user is added in db
 	}
+	
+	// Edit a UserModel
+		public int User_Edit(UserModel user) {
+			SQLiteDatabase db = this.getWritableDatabase();
+
+			ContentValues values = new ContentValues();
+			values.put(KEY_USER_NAME, user.name);
+			values.put(KEY_DISPLAY_NAME, user.displayName);
+			values.put(KEY_USER_EMAIL, user.email);
+			values.put(KEY_USER_IMAGE, user.image);
+			values.put(KEY_USER_ID, user.server_id);
+			return db.update(TABLE_TASKS, values, KEY_PK + " = ?",
+					new String[] { String.valueOf(user._id) });// updating row
+		}
 
 	// Delete a user
 	public void User_Delete(int id) {
 		SQLiteDatabase db = this.getWritableDatabase();
 		db.delete(TABLE_USERS, KEY_PK + " = ?",
 				new String[] { String.valueOf(id) });
+		db.close();
+	}
+	public void User_Delete_All() {
+		SQLiteDatabase db = this.getWritableDatabase();
+		db.delete(TABLE_USERS, null,null);
 		db.close();
 	}
 
@@ -681,7 +702,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 			SQLiteDatabase db = this.getWritableDatabase();
 
 			Cursor cursor = db.rawQuery(selectQuery, null);
-
+			int contactIdCol = cursor.getColumnIndex(KEY_CONTACT_ID);
 			// looping through all rows and adding to list
 			if (cursor.moveToFirst()) {
 				do {
@@ -690,7 +711,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 					tasklist.displayName = (cursor.getString(6));
 					tasklist.email = (cursor.getString(2));
 					tasklist.image =(cursor.getBlob(4));
-
+					tasklist.contact_id = (cursor.getString(contactIdCol));
 					data.add(tasklist);
 				} while (cursor.moveToNext());
 			}

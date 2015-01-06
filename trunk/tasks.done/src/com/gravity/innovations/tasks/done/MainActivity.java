@@ -2,13 +2,19 @@ package com.gravity.innovations.tasks.done;
 
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Date;
+import java.util.List;
+
 import org.json.JSONException;
 import org.json.JSONObject;
 import android.accounts.Account;
 import android.accounts.AccountManager;
 import android.annotation.SuppressLint;
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.ComponentName;
 import android.content.Context;
@@ -25,6 +31,7 @@ import android.support.v4.app.FragmentTransaction;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBarActivity;
+import android.text.style.BulletSpan;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -36,9 +43,13 @@ import android.view.View.OnTouchListener;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
+import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageButton;
 import android.widget.ImageView;
+import android.widget.ListView;
 import android.widget.ProgressBar;
+import android.widget.TextView;
 import android.widget.TimePicker;
 import android.widget.Toast;
 
@@ -81,6 +92,7 @@ public class MainActivity extends ActionBarActivity implements
 	public TaskListFragment mTaskListFragment;
 
 	private int mUserActionBarColor;
+	private Button btn_share;
 	private static final String PREF_USER_ACTION_BAR_COLOR = "actionbar_color";
 
 	@SuppressLint("NewApi")
@@ -90,8 +102,8 @@ public class MainActivity extends ActionBarActivity implements
 		mContext = this;
 		getActionBar().hide();
 		//getActionBar().setSubtitle("sub");
-		//getActionBar().setNavigationMode(getActionBar().NAVIGATION_MODE_LIST);
-		getActionBar().setBackgroundDrawable(new ColorDrawable(android.R.color.transparent));
+		//getActionBar().setNavigationMode(getActionBar().NAVIGATION_MODE_STANDARD);
+		//getActionBar().setBackgroundDrawable(new ColorDrawable(android.R.color.transparent));
 		setContentView(R.layout.activity_main);
 //		if (Build.VERSION.SDK_INT < 16) {
 //            getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
@@ -157,18 +169,7 @@ public class MainActivity extends ActionBarActivity implements
 				return true;
 			}
 		});
-
-		/*
-		 * try{ Common.CustomDialog.CustomDialog(mContext, view, negListener,
-		 * posListener, R.string.dialog_ok, R.string.dialog_cancel, "Share");
-		 * //Put in listview adapter = new
-		 * MultiSelectListAdapter(MainActivity.thsis,
-		 * R.layout.multiselectlist_row, h.Get_Users()); String[] from = {
-		 * "php_key","c_key","android_key","hacking_key" };
-		 * //listview.setAdapter(new ArrayAdapter<String>(mContext,
-		 * R.layout.multiselectlist_row,R.id.textView1,from));
-		 * listview.setAdapter(adapter); } catch(Exception ex) { String x; }
-		 */
+		
 
 	}
 
@@ -219,7 +220,10 @@ public class MainActivity extends ActionBarActivity implements
 						.beginTransaction()
 						.replace(R.id.container,
 								mTaskListFragment.getFragment()).commit();
-				actionBar.setTitle(CurrentList.title);
+				//actionBar.setTitle(CurrentList.title);
+				actionBar.setTitle("");
+				
+				
 			}
 		} catch (Exception ex) {
 			String x = ex.getLocalizedMessage();
@@ -283,8 +287,54 @@ public class MainActivity extends ActionBarActivity implements
 		} 
 		
 	}
+	ArrayList<UserModel> users;
 	public void listof_nameEmailPic() {
 		DatabaseHelper h = new DatabaseHelper(mContext);
+		
+
+		users = new ArrayList<UserModel>();
+
+		ArrayList<Common.CustomViewsData.MultiSelectRowData> users_lv = new ArrayList<Common.CustomViewsData.MultiSelectRowData>();
+
+		users= h.User_List();
+		ArrayList<String> S = new ArrayList<String>();
+		for (UserModel temp : users) {
+			Common.CustomViewsData.MultiSelectRowData user = new Common.CustomViewsData.MultiSelectRowData();
+			user.text1 = temp.displayName;
+			user.text2 = temp.email;
+			
+			// Bitmap bmp = BitmapFactory.decodeByteArray(temp.image, 0,
+			// temp.image.length);
+			// ImageView image = (ImageView) findViewById(R.id.imageView1);
+
+			// user.iconRes.setImageBitmap(bmp);
+			// byte[] byteArray = getBlob(temp.image);
+			// Bitmap bm = BitmapFactory.decodeByteArray(byteArray, 0
+			// ,byteArray.length);
+			S.add(temp.displayName);
+			user.iconRes = temp.image;
+			users_lv.add(user);
+
+		}
+//		CharSequence[] cs = S.toArray(new CharSequence[S.size()]);
+//		
+//		AlertDialog.Builder builder = new AlertDialog.Builder(mContext);
+//		builder.setIcon(android.R.drawable.ic_popup_reminder);
+//		builder.setTitle("share");
+//		builder.setItems(cs, null);
+//		builder.create().show();
+		final MultiSelectListAdapter adapter = new MultiSelectListAdapter(this,
+				R.layout.multiselectlist_row, users_lv);
+		
+		OnItemClickListener onItemClickListener = new OnItemClickListener() {
+			@Override
+			public void onItemClick(AdapterView<?> parent, View view,
+					int position, long id) {
+				adapter.setOrRemoveSelection(view,position);
+				
+				
+			}
+		};
 		DialogInterface.OnClickListener negListener = new OnClickListener() {
 			@Override
 			public void onClick(DialogInterface dialog, int which) {
@@ -296,63 +346,38 @@ public class MainActivity extends ActionBarActivity implements
 			@Override
 			public void onClick(DialogInterface dialog, int which) {
 				dialog.cancel();
+				ArrayList<Integer> sel = adapter.getSelected();
+				ArrayList<UserModel> sel_users = new ArrayList<UserModel>();
+				for(Integer i:sel)
+				{
+					sel_users.add(users.get(i));
+				}
+				//add  sel_users in table_users_tasklist and update grid adapter in header
 				Toast.makeText(mContext, toString().valueOf(which),
 						Toast.LENGTH_SHORT).show();
-				TaskModel tempModel = null;
-				String temp = tempModel.associated_usermodels;
-				temp = temp + ", " + which;
-				tempModel.associated_usermodels = temp;
-				db.Task_Edit(tempModel);
-			}
-		};
-
-		ArrayList<UserModel> email_records = new ArrayList<UserModel>();
-
-		ArrayList<Common.CustomViewsData.MultiSelectRowData> users = new ArrayList<Common.CustomViewsData.MultiSelectRowData>();
-
-		email_records = h.User_List();
-
-		for (UserModel temp : email_records) {
-			Common.CustomViewsData.MultiSelectRowData user = new Common.CustomViewsData.MultiSelectRowData();
-			user.text1 = temp.displayName;
-			user.text2 = temp.email;
-			// Bitmap bmp = BitmapFactory.decodeByteArray(temp.image, 0,
-			// temp.image.length);
-			// ImageView image = (ImageView) findViewById(R.id.imageView1);
-
-			// user.iconRes.setImageBitmap(bmp);
-			// byte[] byteArray = getBlob(temp.image);
-			// Bitmap bm = BitmapFactory.decodeByteArray(byteArray, 0
-			// ,byteArray.length);
-
-			user.iconRes = temp.image;
-			users.add(user);
-
-		}
-
-		final MultiSelectListAdapter adapter = new MultiSelectListAdapter(this,
-				R.layout.multiselectlist_row, users);
-		DialogInterface.OnClickListener itemClickListner = new OnClickListener() {
-			@Override
-			public void onClick(DialogInterface dialog, int which) {
-				// dialog.cancel();
-				adapter.setNewSelection(which, true);
-
-			}
-		};
-		OnItemClickListener onItemClickListener = new OnItemClickListener() {
-			@Override
-			public void onItemClick(AdapterView<?> parent, View view,
-					int position, long id) {
-				adapter.setOrRemoveSelection(position);
-
-				view.setBackgroundColor(getResources().getColor(
-						R.color.selection_blue));
+				
+//				TaskModel tempModel = null;
+//				String temp = tempModel.associated_usermodels;
+//				temp = temp + ", " + which;
+//				tempModel.associated_usermodels = temp;
+//				db.Task_Edit(tempModel);
+				
 			}
 		};
 		Common.CustomDialog.MultiChoiceDialog(mContext, adapter,
 				onItemClickListener, negListener, posListener,
 				R.string.dialog_ok, R.string.dialog_cancel, "Share");
+		
+//		View view = getLayoutInflater().inflate(
+//				R.layout.multiselectlist_list, null);
+//
+//		ListView lst = (ListView) view.findViewById(R.id.listView1);
+//		lst.setAdapter(adapter);
+//
+//		
+//
+//		
+//		Common.CustomDialog.CustomDialog(mContext, view);
 
 	}
 

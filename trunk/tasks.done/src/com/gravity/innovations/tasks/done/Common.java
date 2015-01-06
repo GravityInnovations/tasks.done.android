@@ -171,7 +171,7 @@ public class Common {
 	public void ConfigureGCM();
 
 	public void SyncAppData();
-	public void SyncUsers();
+	public void SyncUsers(boolean isFirstTime);
 
 }
 		public interface SplashActivityCallback extends GoogleAuthCallback,
@@ -339,13 +339,14 @@ public class Common {
 
 			// builder.setMultiChoiceItems(items, "checked", "email",
 			// chooseItemListner);
-
+			
 			builder.getListView().setItemsCanFocus(false);
 			builder.getListView().setChoiceMode(ListView.CHOICE_MODE_MULTIPLE);
 			// builder.getListView().setOnItemSelectedListener(onItemSelectedListener);//.setOnItemClickListener(itemClickListener);
 			builder.getListView().setOnItemClickListener(onItemClickListener);
 			builder.show();
 		}
+
 		public static void CustomDialog(Context mContext, String title,
 				String message, String posText, String negText,
 				OnClickListener posListener, OnClickListener negListener) {
