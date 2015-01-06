@@ -6,21 +6,16 @@
 
     <ImageView
         android:id="@+id/grid_item_image"
-        android:layout_width="70dp"
-        android:layout_height="70dp"
-        android:layout_alignParentLeft="true"
-        android:layout_alignParentTop="true"
-        android:scaleType="fitXY"
-        android:src="@drawable/gravity_logo" />
+        android:layout_width="40dp"
+        android:layout_height="40dp"
+        android:layout_centerHorizontal="true"
+        android:layout_alignParentTop="true" />
 
     <TextView
         android:id="@+id/grid_item_name"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignBottom="@+id/grid_item_image"
-        android:layout_alignRight="@+id/grid_item_image"
-        android:layout_marginBottom="14dp"
-        android:layout_marginRight="14dp"
-        android:text="NAME" />
+        android:layout_below="@+id/grid_item_image"
+        android:layout_centerHorizontal="true" />
 
 </RelativeLayout>

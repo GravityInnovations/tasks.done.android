@@ -328,11 +328,24 @@ public class Common {
 				DialogInterface.OnClickListener negListener,
 				DialogInterface.OnClickListener posListener, int posText,
 				int negText, String dialogTitle) {
-			final AlertDialog builder = new AlertDialog.Builder(context)
+			AlertDialog builder= null;
+			if(posListener!=null && negListener!=null)
+			builder= new AlertDialog.Builder(context)
 					.setTitle(dialogTitle).setAdapter(adapter, null)
 					.setPositiveButton(posText, posListener)
 					.setNegativeButton(negText, negListener).create();
-
+			else if(posListener==null && negListener==null)
+				builder= new AlertDialog.Builder(context)
+			.setTitle(dialogTitle).setAdapter(adapter, null).create();
+			else if(posListener==null)
+				builder= new AlertDialog.Builder(context)
+			.setTitle(dialogTitle).setAdapter(adapter, null)
+			.setNegativeButton(negText, negListener).create();
+			else if(negListener == null)
+				builder= new AlertDialog.Builder(context)
+			.setTitle(dialogTitle).setAdapter(adapter, null)
+			.setPositiveButton(posText, posListener).create();
+			
 			// final AlertDialog dialog = new AlertDialog.Builder(context);
 			// final AlertDialog.Builder builder = new
 			// AlertDialog.Builder(context);
