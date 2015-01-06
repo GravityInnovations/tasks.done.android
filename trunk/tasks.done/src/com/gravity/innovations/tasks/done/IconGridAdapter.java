@@ -13,7 +13,8 @@ import android.widget.TextView;
 
 public class IconGridAdapter extends BaseAdapter {
 
-	public static Integer[] imageId = {android.R.drawable.ic_menu_agenda,
+	public static Integer[] imageId = {
+			android.R.drawable.ic_menu_agenda,
 			android.R.drawable.ic_menu_call,
 			android.R.drawable.ic_menu_compass,
 			android.R.drawable.ic_menu_day,

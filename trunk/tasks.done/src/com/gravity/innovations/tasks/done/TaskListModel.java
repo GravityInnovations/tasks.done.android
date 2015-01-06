@@ -13,8 +13,8 @@ public class TaskListModel {
 	public String self_link;
 	public String kind;
 	public int user_id;
-	public int isSyncSent;
-	public int synced;
+	public String syncStatus;// date time
+	public String syncStatusTimeStamp;// date time
 	public int icon_identifier;
 
 	public ArrayList<TaskModel> tasks = new ArrayList<TaskModel>(); // task_data;
@@ -45,7 +45,7 @@ public class TaskListModel {
 
 	public TaskListModel(int id, String _title, String _server_id,
 			String _etag, String _updated, String _self_link, String _kind,
-			int _user_id, int _isSyncSent, int _synced, int _list_type) {
+			int _user_id, String _syncStatus, String _syncStatusTimeStamp, int _list_type) {
 		this._id = id;
 		this.title = _title;
 		this.server_id = _server_id;
@@ -54,8 +54,8 @@ public class TaskListModel {
 		this.self_link = _self_link;
 		this.kind = _kind;
 		this.user_id = _user_id;
-		this.isSyncSent = _isSyncSent;
-		this.synced = _synced;
+		this.syncStatus = _syncStatus;
+		this.syncStatusTimeStamp = _syncStatusTimeStamp;
 		this.icon_identifier = _list_type;
 		this.tasks = new ArrayList<TaskModel>();
 	}// for onClickNotifiacation

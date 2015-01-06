@@ -3,28 +3,6 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context="com.gravity.innovations.tasks.done.MainActivity$PlaceholderFragment" >
- 
-<!--     <TextView -->
-<!--         android:id="@+id/section_label" -->
-<!--         android:layout_width="wrap_content" -->
-<!--         android:layout_height="wrap_content" -->
-<!--         android:layout_alignParentTop="true" -->
-<!--         android:layout_centerInParent="true" -->
-<!--         android:layout_centerVertical="true" -->
-<!--         android:hint="List Title" -->
-<!--         android:textSize="30dp" -->
-<!--         android:textStyle="normal" -->
-<!--         android:paddingLeft="5dp" -->
-<!--         android:paddingTop="5dp" -->
-<!--         android:paddingRight="5dp" -->
-<!--         android:paddingBottom="5dp" -->
-<!--         android:visibility="visible" -->
-<!--         android:shadowColor="#cecece" -->
-<!--         android:shadowDx="5" -->
-<!--         android:shadowDy="10" -->
-<!--         android:shadowRadius="5"  -->
-<!--         android:background="@android:color/transparent" -->
-<!--          /> -->
 
 <!--     <GridView -->
 <!--         android:id="@+id/gridView1" -->

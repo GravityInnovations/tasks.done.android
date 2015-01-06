@@ -164,19 +164,7 @@ public class TaskListAdapter extends ArrayAdapter<TaskListModel> {
  	 
 		try{
 			Resources resources = mActivity.getResources();
-			if (tasklist.icon_identifier == 0){	
-				holder.list_icon.setImageDrawable(resources.getDrawable(R.drawable.catag_social));
-				}else if (tasklist.icon_identifier == 1){
-					holder.list_icon.setImageDrawable(resources.getDrawable(R.drawable.catag_personal));
-					}else if (tasklist.icon_identifier == 2){
-						holder.list_icon.setImageDrawable(resources.getDrawable(R.drawable.catag_others));
-						}else if (tasklist.icon_identifier == 3){
-							holder.list_icon.setImageDrawable(resources.getDrawable(R.drawable.catag_home));
-							}else if (tasklist.icon_identifier == 4){
-								holder.list_icon.setImageDrawable(resources.getDrawable(R.drawable.catag_work));
-								}else{//default case when no image is selected
-									holder.list_icon.setImageDrawable(resources.getDrawable(R.drawable.ic_list_default));
-								}
+				holder.list_icon.setImageDrawable(resources.getDrawable(tasklist.icon_identifier));
 		}catch(Exception e){
 			 String tag = "TasklistAdapter";
 			 String msg = "listICON"; 
