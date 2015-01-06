@@ -102,8 +102,8 @@ public class MainActivity extends ActionBarActivity implements
 		mContext = this;
 		getActionBar().hide();
 		//getActionBar().setSubtitle("sub");
-		//getActionBar().setNavigationMode(getActionBar().NAVIGATION_MODE_LIST);
-		getActionBar().setBackgroundDrawable(new ColorDrawable(android.R.color.transparent));
+		//getActionBar().setNavigationMode(getActionBar().NAVIGATION_MODE_STANDARD);
+		//getActionBar().setBackgroundDrawable(new ColorDrawable(android.R.color.transparent));
 		setContentView(R.layout.activity_main);
 //		if (Build.VERSION.SDK_INT < 16) {
 //            getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
@@ -168,6 +168,7 @@ public class MainActivity extends ActionBarActivity implements
 				return true;
 			}
 		});
+
 	}
 
 	public void floatButtonOnClick(View v) {
@@ -219,6 +220,7 @@ public class MainActivity extends ActionBarActivity implements
 								mTaskListFragment.getFragment()).commit();
 				//actionBar.setTitle(CurrentList.title);
 				actionBar.setTitle("");
+
 			}
 		} catch (Exception ex) {
 			String x = ex.getLocalizedMessage();
@@ -282,95 +284,9 @@ public class MainActivity extends ActionBarActivity implements
 		} 
 		
 	}
-
+	ArrayList<UserModel> users;
 	public void listof_nameEmailPic() {
-		DatabaseHelper h = new DatabaseHelper(mContext);
-		DialogInterface.OnClickListener negListener = new OnClickListener() {
-			@Override
-			public void onClick(DialogInterface dialog, int which) {
-				dialog.cancel();
-			}
-		};
-
-		DialogInterface.OnClickListener posListener = new OnClickListener() {
-			@Override
-			public void onClick(DialogInterface dialog, int which) {
-				dialog.cancel();
-				Toast.makeText(mContext, toString().valueOf(which),
-						Toast.LENGTH_SHORT).show();
-				TaskModel tempModel = null;
-				String temp = tempModel.associated_usermodels;
-				temp = temp + ", " + which;
-				tempModel.associated_usermodels = temp;
-				db.Task_Edit(tempModel);
-			}
-		};
-
-		ArrayList<UserModel> email_records = new ArrayList<UserModel>();
-
-		ArrayList<Common.CustomViewsData.MultiSelectRowData> users = new ArrayList<Common.CustomViewsData.MultiSelectRowData>();
-
-		email_records = h.User_List();
-		ArrayList<String> S = new ArrayList<String>();
-		for (UserModel temp : email_records) {
-			Common.CustomViewsData.MultiSelectRowData user = new Common.CustomViewsData.MultiSelectRowData();
-			user.text1 = temp.displayName;
-			user.text2 = temp.email;
-			
-			// Bitmap bmp = BitmapFactory.decodeByteArray(temp.image, 0,
-			// temp.image.length);
-			// ImageView image = (ImageView) findViewById(R.id.imageView1);
-
-			// user.iconRes.setImageBitmap(bmp);
-			// byte[] byteArray = getBlob(temp.image);
-			// Bitmap bm = BitmapFactory.decodeByteArray(byteArray, 0
-			// ,byteArray.length);
-			S.add(temp.displayName);
-			user.iconRes = temp.image;
-			users.add(user);
-
-		}
-//		CharSequence[] cs = S.toArray(new CharSequence[S.size()]);
-//		
-//		AlertDialog.Builder builder = new AlertDialog.Builder(mContext);
-//		builder.setIcon(android.R.drawable.ic_popup_reminder);
-//		builder.setTitle("share");
-//		builder.setItems(cs, null);
-//		builder.create().show();
-		final MultiSelectListAdapter adapter = new MultiSelectListAdapter(this,
-				R.layout.multiselectlist_row, users);
-		DialogInterface.OnClickListener itemClickListner = new OnClickListener() {
-			@Override
-			public void onClick(DialogInterface dialog, int which) {
-				// dialog.cancel();
-				adapter.setNewSelection(which, true);
-
-			}
-		};
-		OnItemClickListener onItemClickListener = new OnItemClickListener() {
-			@Override
-			public void onItemClick(AdapterView<?> parent, View view,
-					int position, long id) {
-				adapter.setOrRemoveSelection(position);
-
-				view.setBackgroundColor(getResources().getColor(
-						R.color.selection_blue));
-			}
-		};
-		Common.CustomDialog.MultiChoiceDialog(mContext, adapter,
-				onItemClickListener, negListener, posListener,
-				R.string.dialog_ok, R.string.dialog_cancel, "Share");
 		
-//		View view = getLayoutInflater().inflate(
-//				R.layout.multiselectlist_list, null);
-//
-//		ListView lst = (ListView) view.findViewById(R.id.listView1);
-//		lst.setAdapter(adapter);
-//
-//		
-//
-//		
-//		Common.CustomDialog.CustomDialog(mContext, view);
 
 	}
 

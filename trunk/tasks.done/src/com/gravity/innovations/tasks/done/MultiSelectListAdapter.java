@@ -6,13 +6,16 @@ import java.util.Set;
 
 import android.app.Activity;
 import android.content.Context;
+import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Color;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 public class MultiSelectListAdapter extends
@@ -52,17 +55,18 @@ public class MultiSelectListAdapter extends
 		}
 		return temp;
 	}
-
-	public void setNewSelection(int position, boolean value) {
+	
+	public void setNewSelection(View v, int position, boolean value) {
 		mSelection.put(position, value);
+		v.setBackgroundColor(Color.parseColor("#efefef"));
 		notifyDataSetChanged();
 	}
 
-	public void setOrRemoveSelection(int position) {
+	public void setOrRemoveSelection(View v,int position) {
 		if (!isPositionChecked(position)) {
-			setNewSelection(position, true);
+			setNewSelection(v,position, true);
 		} else
-			removeSelection(position);
+			removeSelection(v,position);
 	}
 
 	public boolean isPositionChecked(int position) {
@@ -74,8 +78,9 @@ public class MultiSelectListAdapter extends
 		return mSelection.keySet();
 	}
 
-	public void removeSelection(int position) {
+	public void removeSelection(View v, int position) {
 		mSelection.remove(position);
+		v.setBackgroundColor(Color.parseColor("#ffffff"));
 		notifyDataSetChanged();
 	}
 
@@ -85,21 +90,57 @@ public class MultiSelectListAdapter extends
 	}
 
 	@Override
+	public int getCount() {
+		// TODO Auto-generated method stub
+		
+		return data.size();//super.getCount();
+	}
+
+	@Override
 	public View getView(int position, View convertView, ViewGroup parent) {
 		View row = convertView;
-		ViewHolder holder = new ViewHolder();
+		ViewHolder holder = null;
 		if (row == null) {
 			LayoutInflater inflater = LayoutInflater.from(mActivity);
-			row = inflater.inflate(R.layout.multiselectlist_row, parent, false);
-			holder.text1 = (TextView) row.findViewById(R.id.textView1);
-			holder.text2 = (TextView) row.findViewById(R.id.textView2);
+			row = inflater.inflate(R.layout.multiselectlist_row,parent, false);
+			holder = new ViewHolder();
+			LinearLayout l = (LinearLayout)row.findViewById(R.id.LL);
+			holder.text1 = (TextView) l.findViewById(R.id.textView1);
+			holder.text2 = (TextView) l.findViewById(R.id.textView2);
 			holder.icon = (ImageView) row.findViewById(R.id.imageView1);
-
-			// row.setTag(holder);
+			
+			 row.setTag(holder);
 		} else {
 			holder = (ViewHolder) row.getTag();
 		}
-
+		Common.CustomViewsData.MultiSelectRowData current = data.get(position);
+		if (isPositionChecked(position)) {
+			setNewSelection(row,position, true);
+		} else
+			removeSelection(row,position);
+		try {
+			//holder.icon.setPadding(5, 5, 5, 5);
+			
+			holder.text1.setText(current.text1);
+			holder.text2.setText(current.text2);
+			Resources r = mActivity.getResources();
+			if(current.iconRes != null){
+				
+				Bitmap b = ImageGridAdapter.getRoundedCornerBitmap(Bitmap.createScaledBitmap(converttoimage(current.iconRes),
+						150, 150, true));
+				holder.icon.setImageBitmap(b);
+			}else{
+				
+			//holder.icon.setImageResource(R.drawable.catag_personal);
+				
+			Bitmap b = ImageGridAdapter.getRoundedCornerBitmap(Bitmap.createScaledBitmap((BitmapFactory.decodeResource(r, R.drawable.catag_personal)),
+					150, 150, true));
+			holder.icon.setImageBitmap(b);
+			
+			}// there was nothing here
+		} catch (Exception ex) {
+			String x = ex.toString();
+		}
 		// row.setBackgroundColor(mContext.getResources().getColor(android.R.color.background_light));
 		// // default color
 		//
@@ -107,16 +148,8 @@ public class MultiSelectListAdapter extends
 		// row.setBackgroundColor(mContext.getResources().getColor(android.R.color.holo_blue_light));//
 		// makes a selected position colored
 		// }
-		Common.CustomViewsData.MultiSelectRowData current = data.get(position);
-		try {
-			holder.text1.setText(current.text1);
-			holder.text2.setText(current.text2);
-			holder.icon.setImageBitmap(converttoimage(current.iconRes));
-			// there was nothing here
-		} catch (Exception ex) {
-			String x = ex.toString();
-		}
-
+		
+		//row.setTag(current);
 		  //holder.icon.setImageResource(current.iconRes);
 		return row;
 

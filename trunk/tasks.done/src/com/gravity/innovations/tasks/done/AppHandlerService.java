@@ -69,6 +69,7 @@ public class AppHandlerService extends Service implements
 	private Boolean isFirstTime = true;
 	private Context mContext = this;
 	public DatabaseHelper db = null;
+
 	public AppHandlerService() {
 		super();
 		// setIntentRedelivery(true);
@@ -112,6 +113,7 @@ public class AppHandlerService extends Service implements
 	// //while(true);
 	// }
 	int dddd = 0;
+
 	@SuppressLint("NewApi")
 	@Override
 	public int onStartCommand(Intent intent, int flags, int startId) {
@@ -121,11 +123,9 @@ public class AppHandlerService extends Service implements
 			if (flags == 0) {
 				thisIntent = intent;
 				((TheApp) getApplicationContext()).setService(this);
-				
-				
-				
-				//sendNotification("title", "msg",dddd);
-				//dddd++;
+
+				// sendNotification("title", "msg",dddd);
+				// dddd++;
 				if (intent.getAction() == Common.serviceActions.START_APP) {
 
 					// Bundle b = new Bundle();
@@ -145,8 +145,9 @@ public class AppHandlerService extends Service implements
 				}
 			}
 		} catch (Exception ex) {
-//			Toast.makeText(getApplicationContext(), "Error: " + ex.toString(),
-//					Toast.LENGTH_LONG).show();
+			// Toast.makeText(getApplicationContext(), "Error: " +
+			// ex.toString(),
+			// Toast.LENGTH_LONG).show();
 		}
 		// sendNotification("App started", "my message"+x, 1111);
 		return super.onStartCommand(intent, flags, startId);
@@ -240,7 +241,8 @@ public class AppHandlerService extends Service implements
 						}
 						SplashActivity a = ((SplashActivity) FocusedActivity);//
 
-						a.addProgressTask(s,temp);//+"\ndone: "+donetasks+" todo: "+todotasks, temp);
+						a.addProgressTask(s, temp);// +"\ndone: "+donetasks+" todo: "+todotasks,
+													// temp);
 					} catch (Exception ex) {
 						progress_tasks.add(0, ex.getLocalizedMessage());
 					}
@@ -257,12 +259,10 @@ public class AppHandlerService extends Service implements
 	public void onActivityOpen(Activity activity, Context context) {
 		try {
 			FocusedActivity = activity;
-			if(FocusedActivity!= null)
-			{
-				if(AppStateClassName != SplashActivity.class.getName())
-				{
+			if (FocusedActivity != null) {
+				if (AppStateClassName != SplashActivity.class.getName()) {
 					FocusedActivity.runOnUiThread(new Runnable() {
-						
+
 						@Override
 						public void run() {
 							// TODO Auto-generated method stub
@@ -271,8 +271,8 @@ public class AppHandlerService extends Service implements
 							FocusedActivity.finish();
 						}
 					});
-					//startActivity(AppStateIntent);
-					
+					// startActivity(AppStateIntent);
+
 				}
 			}
 			// if(FocusedActivity!= null && FocusedActivity.getClass() ==
@@ -292,7 +292,7 @@ public class AppHandlerService extends Service implements
 		// TODO Auto-generated method stub
 		sendNotification("App Service killed", "my message", 2);
 		super.onDestroy();
-		
+
 	}
 
 	private GoogleCloudMessaging gcm;
@@ -302,7 +302,7 @@ public class AppHandlerService extends Service implements
 
 	public void TriggerEvent(final int eventId) {
 		AsyncTask<Void, Void, Void> t = new AsyncTask<Void, Void, Void>() {
-			
+
 			@Override
 			protected void onPreExecute() {
 				// TODO Auto-generated method stub
@@ -313,7 +313,7 @@ public class AppHandlerService extends Service implements
 			@Override
 			protected Void doInBackground(Void... params) {
 				// TODO Auto-generated method stub
-				
+
 				try {
 					Thread.sleep(0);
 				} catch (InterruptedException e) {
@@ -334,23 +334,23 @@ public class AppHandlerService extends Service implements
 					TriggerEvent(Common.LOAD_LOCAL_DB);
 
 					if (user_data.is_sync_type) {
-						if (user_data.email == "" || user_data.email == null) 
-							TriggerEvent(Common.GET_ACCOUNT);//GetAccount();
-							
-						else if(user_data.email != "" && user_data.email != null){
-								addProgressTask(getString(R.string.check_internet));
-								TriggerEvent(Common.CHECK_INTERNET);
-							}
-							                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              
-						
+						if (user_data.email == "" || user_data.email == null)
+							TriggerEvent(Common.GET_ACCOUNT);// GetAccount();
+
+						else if (user_data.email != ""
+								&& user_data.email != null) {
+							addProgressTask(getString(R.string.check_internet));
+							TriggerEvent(Common.CHECK_INTERNET);
+						}
+
 						// TriggerWaitEvent(Common.CHECK_INTERNET);
 						donetasks++;
 					} else {
-						
+
 						TriggerEvent(Common.GO_TO_MAIN);
 						donetasks++;
 					}
-					
+
 					break;
 				case Common.CHECK_INTERNET:
 					CheckInternet();
@@ -360,27 +360,30 @@ public class AppHandlerService extends Service implements
 					ConfigureGCM();
 					break;
 				case Common.GET_ACCOUNT:
-					
-							GetAccount();
-						
+
+					GetAccount();
+
 					break;
 				case Common.GOT_ACCOUNT:
-					
-					 if (user_data.is_sync_type && user_data.email != null) {
-						
+
+					if (user_data.is_sync_type && user_data.email != null) {
+
 						if (!user_data.gravity_is_registered) {
 							TriggerEvent(Common.GRAVITY_REGISTER);
 						}
 
 						TriggerEvent(Common.GOOGLE_AUTH);
 					}
-					 donetasks++;
+					donetasks++;
 					break;
 				case Common.USERS_SYNC:
-					if (user_data.is_sync_type && !user_data.all_users_synced) {//>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>needs review
+					if (user_data.is_sync_type) {// >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>needs
+																				// review
 						addProgressTask(getString(R.string.users_sync));
-						
-						SyncUsers();
+						if(!user_data.all_users_synced)
+						SyncUsers(true);
+						else
+							SyncUsers(false);
 						//
 						// SyncUsers();
 					}
@@ -405,19 +408,20 @@ public class AppHandlerService extends Service implements
 					if (user_data.gravity_is_registered) {
 						addProgressTask(getString(R.string.gravity_sync));
 						SyncAppData();
-						
+
 					}
 					break;
 				case Common.GO_TO_MAIN:
-					//donetasks++;
+					// donetasks++;
 					todotasks--;
 					int d = donetasks;
 					int x = todotasks;
-					if(donetasks == todotasks){
-						AppStateIntent = new Intent(FocusedActivity, MainActivity.class);
+					if (donetasks == todotasks) {
+						AppStateIntent = new Intent(FocusedActivity,
+								MainActivity.class);
 						AppStateClassName = MainActivity.class.getName();
 						FocusedActivity.runOnUiThread(new Runnable() {
-							
+
 							@Override
 							public void run() {
 								// TODO Auto-generated method stub
@@ -427,20 +431,19 @@ public class AppHandlerService extends Service implements
 							}
 						});
 						//
-						//FocusedActivity.finish();
-						
-						//addProgressTask(">>>>>>>>>>>>>>>>>>main launched<<<<<<<<<<<<<<<<<<<");
-					}
-						else
+						// FocusedActivity.finish();
+
+						// addProgressTask(">>>>>>>>>>>>>>>>>>main launched<<<<<<<<<<<<<<<<<<<");
+					} else
 						try {
 							Thread.sleep(2000);
-							//this.execute();
+							// this.execute();
 							TriggerEvent(Common.GO_TO_MAIN);
 						} catch (InterruptedException e) {
 							// TODO Auto-generated catch block
 							e.printStackTrace();
 						}
-					
+
 					break;
 				default:
 					addProgressTask("No such option exists yet");
@@ -481,7 +484,8 @@ public class AppHandlerService extends Service implements
 
 				} else {
 					AuthResult(i);
-					//sendNotification("task.done", "you need to open activity",2);
+					// sendNotification("task.done",
+					// "you need to open activity",2);
 					// show notification to open splash
 				}
 				//
@@ -564,7 +568,7 @@ public class AppHandlerService extends Service implements
 			}
 			// TriggerEvent(Common.USERS_SYNC);
 			donetasks++;
-			
+
 			break;
 		case Common.RequestCodes.GOOGLE_GET_USER_INFO:
 			// save user info
@@ -625,14 +629,14 @@ public class AppHandlerService extends Service implements
 					}
 					// user_data.image = bitmapImage;
 					user_data.image = bitmapImage;
-							//Bitmap.createScaledBitmap(bitmapImage,
-							//75, 75, true);
+					// Bitmap.createScaledBitmap(bitmapImage,
+					// 75, 75, true);
 					mSharedPreferencesEditor.putString(Common.USER_IMAGE,
 							mypath.getAbsolutePath());
 					mSharedPreferencesEditor.putBoolean(
 							Common.GOOGLE_IS_USER_SYNCED, true);
 					mSharedPreferencesEditor.commit();
-					//donetasks++;
+					// donetasks++;
 					// reg to gravity
 					// if(!user_data.gravity_is_registered)
 					// {
@@ -680,8 +684,7 @@ public class AppHandlerService extends Service implements
 			TriggerEvent(Common.CONFIG_GCM);
 			TriggerEvent(Common.GOT_ACCOUNT);
 			TriggerEvent(Common.USERS_SYNC);
-			
-			
+
 			// TriggerNextEvent();
 			// TriggerNextEvent();
 			// TriggerWaitEvent(Common.CONFIG_GCM);
@@ -689,16 +692,18 @@ public class AppHandlerService extends Service implements
 		} else {
 			addProgressTask(getString(R.string.no_internet));
 			addProgressTask(getString(R.string.require_internet));
-			showTextDialog("Internet Requires", "This application requires internet to use sync and share features",
+			showTextDialog(
+					"Internet Requires",
+					"This application requires internet to use sync and share features",
 					"Retry!", "Use offline", new OnClickListener() {
-						
+
 						@Override
 						public void onClick(DialogInterface dialog, int which) {
 							// TODO Auto-generated method stub
 							TriggerEvent(Common.CHECK_INTERNET);
 						}
 					}, new OnClickListener() {
-						
+
 						@Override
 						public void onClick(DialogInterface dialog, int which) {
 							// TODO Auto-generated method stub
@@ -721,32 +726,34 @@ public class AppHandlerService extends Service implements
 	}
 
 	private void showTextDialog(final String Title, final String message,
-			final String posText, final String negText, 
+			final String posText, final String negText,
 			final DialogInterface.OnClickListener posListener,
-			final DialogInterface.OnClickListener negListener )
-	{
-		if(FocusedActivity!=null){
-			
+			final DialogInterface.OnClickListener negListener) {
+		if (FocusedActivity != null) {
+
 			FocusedActivity.runOnUiThread(new Runnable() {
-				
+
 				@Override
 				public void run() {
 					// TODO Auto-generated method stub
-					Common.CustomDialog.CustomDialog((Context)FocusedActivity,Title,message,posText,negText,posListener,negListener);
+					Common.CustomDialog.CustomDialog((Context) FocusedActivity,
+							Title, message, posText, negText, posListener,
+							negListener);
 				}
 			});
-		}
-		else{
+		} else {
 			try {
 				Thread.sleep(1000);
-				showTextDialog(Title, message, posText, negText, posListener, negListener);
+				showTextDialog(Title, message, posText, negText, posListener,
+						negListener);
 			} catch (InterruptedException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
-			
+
 		}
 	}
+
 	@Override
 	public void LoadPreferences() {
 		mSharedPreferences = getSharedPreferences(Common.SHARED_PREF_KEY,
@@ -801,9 +808,9 @@ public class AppHandlerService extends Service implements
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
-			
-			//GetAccount();
-			//sendNotification("task.done", "you need to open activity", 2);
+
+			// GetAccount();
+			// sendNotification("task.done", "you need to open activity", 2);
 			// show notification to open splash
 		}
 		//
@@ -842,7 +849,7 @@ public class AppHandlerService extends Service implements
 		// TODO Auto-generated method stub
 
 	}
-	
+
 	@Override
 	public void ConfigureGCM() {
 		boolean flag = false;
@@ -856,9 +863,8 @@ public class AppHandlerService extends Service implements
 						getApplicationContext(), user_data);
 				if (tempReg == "") {
 					GCMController.registerInBackground(mContext, gcm);
-					
-				}
-				else{
+
+				} else {
 					donetasks++;
 					int d = donetasks;
 					int x = todotasks;
@@ -870,11 +876,11 @@ public class AppHandlerService extends Service implements
 				// addProgressTask(getString(R.string.load_db));
 
 			} else {
-				
+
 				addProgressTask(getString(R.string.gcm_invalid_device));
-				
+
 			}
-		} else{
+		} else {
 			try {
 				Thread.sleep(1000);
 			} catch (InterruptedException e) {
@@ -882,35 +888,34 @@ public class AppHandlerService extends Service implements
 				e.printStackTrace();
 			}
 			TriggerEvent(Common.CONFIG_GCM);// check this
-			
+
 		}
-		if(!flag)
+		if (!flag)
 			todotasks--;
 		// TODO Auto-generated method stub
 
 	}
+
 	@Override
 	public void storeGCMRegisterationId(String regid, int appVersion) {
-		try{
-		mSharedPreferencesEditor
-				.putString(Common.GOOGLE_PROPERTY_REG_ID, regid);
-		mSharedPreferencesEditor.putInt(Common.GOOGLE_PROPERTY_APP_VERSION,
-				appVersion);
-		mSharedPreferencesEditor.commit();
-		user_data.google_reg_id = regid;
-		user_data.google_regVer = appVersion;
-		mSharedPreferencesEditor
-				.putString(Common.GOOGLE_PROPERTY_REG_ID, regid);
-		mSharedPreferencesEditor.putInt(Common.GOOGLE_PROPERTY_APP_VERSION,
-				appVersion);
+		try {
+			mSharedPreferencesEditor.putString(Common.GOOGLE_PROPERTY_REG_ID,
+					regid);
+			mSharedPreferencesEditor.putInt(Common.GOOGLE_PROPERTY_APP_VERSION,
+					appVersion);
+			mSharedPreferencesEditor.commit();
+			user_data.google_reg_id = regid;
+			user_data.google_regVer = appVersion;
+			mSharedPreferencesEditor.putString(Common.GOOGLE_PROPERTY_REG_ID,
+					regid);
+			mSharedPreferencesEditor.putInt(Common.GOOGLE_PROPERTY_APP_VERSION,
+					appVersion);
 
-		mSharedPreferencesEditor.commit();
-		addProgressTask("Saved GCM reg, app ver ");
-		donetasks++;
-		TriggerEvent(Common.GO_TO_MAIN);
-		}
-		catch(Exception e)
-		{
+			mSharedPreferencesEditor.commit();
+			addProgressTask("Saved GCM reg, app ver ");
+			donetasks++;
+			TriggerEvent(Common.GO_TO_MAIN);
+		} catch (Exception e) {
 			addProgressTask(e.getLocalizedMessage());
 		}
 	}
@@ -918,7 +923,7 @@ public class AppHandlerService extends Service implements
 	@Override
 	public void SyncAppData() {
 		// TODO Auto-generated method stub
-		donetasks++;//temp
+		donetasks++;// temp
 	}
 
 	public byte[] loadContactPhoto(long photoId) {
@@ -938,13 +943,9 @@ public class AppHandlerService extends Service implements
 
 	}
 
-	@SuppressLint("InlinedApi")
-	@Override
-	public void SyncUsers() {
-		// TODO Auto-generated method stub
+	private ArrayList<UserModel> getUsers() {
+		ArrayList<UserModel> users = new ArrayList<UserModel>();
 		try {
-			int d = donetasks;
-			int x = todotasks;
 			
 			ContentResolver cr = mContext.getContentResolver();
 			final String[] projection = new String[] {
@@ -961,6 +962,7 @@ public class AppHandlerService extends Service implements
 					ContactsContract.Contacts.DISPLAY_NAME + " ASC");// ,null);//ContactsLoader.SELECTION,
 																		// ContactsLoader.mSelectionArgs,
 																		// null);
+			s = new ArrayList<String>();
 
 			// ImageView img = (ImageView) findViewById(R.id.logo);
 			if (rawContacts.moveToFirst()) {
@@ -968,9 +970,7 @@ public class AppHandlerService extends Service implements
 				do {
 					UserModel user = new UserModel();
 					try {
-						user.displayName = rawContacts
-								.getString(rawContacts
-										.getColumnIndex(ContactsContract.Contacts.DISPLAY_NAME));
+						
 						user.email = rawContacts
 								.getString(rawContacts
 										.getColumnIndex(ContactsContract.CommonDataKinds.Email.DATA));
@@ -980,9 +980,17 @@ public class AppHandlerService extends Service implements
 						user.contact_id = rawContacts.getLong(rawContacts
 								.getColumnIndex(ContactsContract.Contacts._ID))
 								+ "";
+						user.displayName =rawContacts
+								.getString(rawContacts
+										.getColumnIndex(ContactsContract.Contacts.DISPLAY_NAME));
 						user.image = loadContactPhoto(photoid);
+						//users.add(user);
 						db.User_New(user);
-						// users.add(user);
+						 
+						 s.add(rawContacts
+								.getString(rawContacts
+										.getColumnIndex(ContactsContract.Contacts.DISPLAY_NAME)));
+						 users.add(user);
 					} catch (Exception e) {
 						// addProgressTask(e.getLocalizedMessage());
 						// Toast.makeText(mContext,"Error: "+e.toString(),
@@ -991,15 +999,72 @@ public class AppHandlerService extends Service implements
 
 				} while (rawContacts.moveToNext());
 				rawContacts.close();
+				
 			}
-
-			addProgressTask("user sync complete");
-			
 
 		} catch (Exception e) {
 			addProgressTask(e.getLocalizedMessage());
 		}
-		
+		return users;
+	}
+	ArrayList<String> s;
+	@SuppressLint("InlinedApi")
+	@Override
+	public void SyncUsers(boolean isFirstTime) {
+		//db.User_Delete_All();
+		if (isFirstTime) {
+			// TODO Auto-generated method stub
+			try {
+				db.User_Delete_All();
+				ArrayList<UserModel> users = getUsers();
+				for (UserModel user : users) {
+					//db.User_New(user);
+				}
+
+				
+//				 mSharedPreferencesEditor.putBoolean(Common.ALL_USERS_SYNCED,
+//				 true);
+//				 mSharedPreferencesEditor.commit();
+
+			} catch (Exception e) {
+				addProgressTask(e.getLocalizedMessage());
+			}
+		} else {
+			ArrayList<UserModel> db_data = db.User_List();
+			ArrayList<UserModel> contacts_data = getUsers();
+			for(UserModel c_user: contacts_data)
+			{
+				boolean found = false;
+				for(UserModel db_user:db_data)
+				{
+					try{
+						String c1 = db_user.contact_id;
+						String c2 = c_user.contact_id;
+						if(db_user.contact_id == c_user.contact_id || db_user.contact_id.equals(c_user.contact_id))
+						{
+							found = true;
+							db_user.displayName = c_user.displayName;
+							db_user.image = c_user.image;
+							db_user.email = c_user.email;
+							db.User_Edit(db_user);
+							db_data.remove(db_user);
+							contacts_data.remove(c_user);
+							break;
+						}
+					
+					}
+					catch(Exception e)
+					{
+						
+					}
+				}
+				if(!found)
+				{
+					db.User_New(c_user);
+				}
+			}
+		}
+		addProgressTask("user sync complete");
 
 	}
 
@@ -1007,7 +1072,7 @@ public class AppHandlerService extends Service implements
 	public void onAccountProvided(String email, int ResultCode) {
 		// TODO Auto-generated method stub
 		if (email != "" && ResultCode == Activity.RESULT_OK) {
-			
+
 			addProgressTask(getString(R.string.google_result_ok));
 			mSharedPreferencesEditor.putBoolean(Common.USER_IS_SYNC_TYPE, true);
 			mSharedPreferencesEditor.putString(Common.USER_EMAIL, email);
@@ -1029,19 +1094,17 @@ public class AppHandlerService extends Service implements
 			// goto main
 		}
 		donetasks++;
-		
+
 	}
 
 	public void onActivityResult(int requestCode, int resultCode, Intent data) {
 		switch (requestCode) {
 		case Common.RequestCodes.SPLASH_ACC:
-			String Email ="";
-			try{
-			Email = data.getStringExtra(AccountManager.KEY_ACCOUNT_NAME);// data.getStringExtra(Common.USER_EMAIL);
-			}
-			catch(Exception e)
-			{
-				
+			String Email = "";
+			try {
+				Email = data.getStringExtra(AccountManager.KEY_ACCOUNT_NAME);// data.getStringExtra(Common.USER_EMAIL);
+			} catch (Exception e) {
+
 			}
 			onAccountProvided(Email, resultCode);
 

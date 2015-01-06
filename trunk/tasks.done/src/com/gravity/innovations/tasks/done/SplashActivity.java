@@ -463,7 +463,7 @@ public class SplashActivity extends Activity implements
 						{
 						addProgressTask(getString(R.string.users_sync));
 						
-						SyncUsers();
+						SyncUsers(true);
 						}
 						else {avoidTasks++; doneTasks++;}
 						//addProgressTask(getString(R.string.users_sync));
@@ -954,7 +954,7 @@ public class SplashActivity extends Activity implements
 
 	@SuppressLint("NewApi")
 	@Override
-	public void SyncUsers() {
+	public void SyncUsers(boolean isFirstTime) {
 		try{
 			ArrayList<HashMap<String, Object>> contacts = getContacts();
 			DatabaseHelper db = new DatabaseHelper(mContext);
