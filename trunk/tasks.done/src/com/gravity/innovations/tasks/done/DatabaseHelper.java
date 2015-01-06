@@ -16,7 +16,7 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.text.format.Time;
 import android.util.Log;
-//FAIK
+//FAIK malik
 public class DatabaseHelper extends SQLiteOpenHelper {
 
 	// Database Version
