@@ -6,7 +6,6 @@ import java.util.zip.Inflater;
 
 import android.annotation.SuppressLint;
 import android.app.Activity;
-import android.opengl.Visibility;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
@@ -21,6 +20,7 @@ import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.AdapterView.OnItemLongClickListener;
 import android.widget.GridView;
+import android.widget.ImageButton;
 import android.widget.ListView;
 import android.widget.TextView;
 
@@ -82,6 +82,19 @@ public class TaskListFragment extends Fragment {
 		super.onCreateView(inflater, container, savedInstanceState);
 		View rootView = inflater.inflate(R.layout.fragment_main, container,
 				false);
+		ImageButton btn_share = ((ImageButton)rootView.findViewById(R.id.btn_share1));
+		
+		btn_share.setOnClickListener(new View.OnClickListener() {
+			
+			@Override
+			public void onClick(View v) {
+				mActivity = getActivity();
+				((MainActivity)mActivity).listof_nameEmailPic();
+				// TODO Auto-generated method stub
+				//Toast.makeText(mActivity, "txt",Toast.LENGTH_LONG).show();
+				
+			}
+		});
 		if (data.tasks != null && data.tasks.size() > 0) {
 			mListView = (ListView) rootView.findViewById(R.id.list);	
 			

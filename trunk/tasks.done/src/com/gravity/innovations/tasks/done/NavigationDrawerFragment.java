@@ -323,7 +323,6 @@ public class NavigationDrawerFragment extends Fragment implements
 		mAdapter = new TaskListAdapter(getActivity(),
 				R.layout.tasklist_listview_row, data);
 		mDrawerListView.setAdapter(mAdapter);
-		//if (tasklistid != -1 && taskid != -1){
 
 		Resources res = getResources();
 		
