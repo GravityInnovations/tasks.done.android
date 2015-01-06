@@ -18,7 +18,7 @@ public class TaskListModel {
 	public int icon_identifier;
 
 	public ArrayList<TaskModel> tasks = new ArrayList<TaskModel>(); // task_data;
-
+	public ArrayList<UserModel> users = new ArrayList<UserModel>(); // task_data;
 	// ********* Constructors *********//
 	public TaskListModel() {
 		_id = -1;

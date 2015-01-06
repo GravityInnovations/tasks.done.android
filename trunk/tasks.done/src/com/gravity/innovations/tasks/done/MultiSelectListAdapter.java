@@ -61,7 +61,13 @@ public class MultiSelectListAdapter extends
 		v.setBackgroundColor(Color.parseColor("#efefef"));
 		notifyDataSetChanged();
 	}
-
+	public void setNewSelection(ArrayList<Common.CustomViewsData.MultiSelectRowData> data) {
+		for(Common.CustomViewsData.MultiSelectRowData item:data)
+		mSelection.put(this.getPosition(item),true);
+		
+		//v.setBackgroundColor(Color.parseColor("#efefef"));
+		notifyDataSetChanged();
+	}
 	public void setOrRemoveSelection(View v,int position) {
 		if (!isPositionChecked(position)) {
 			setNewSelection(v,position, true);

@@ -1,5 +1,7 @@
 package com.gravity.innovations.tasks.done;
 
+import java.util.ArrayList;
+
 import android.content.Context;
 import android.graphics.PorterDuff.Mode;
 import android.graphics.Bitmap;
@@ -24,19 +26,23 @@ import android.widget.ImageView;
 
 public class ImageGridAdapter extends BaseAdapter {
 	private Context mContext;
-	Integer[] mThumbIds;
-
+	Integer[] mThumbIds = null;
+	ArrayList<Bitmap> mThumbsBitmap = null;
 	public ImageGridAdapter(Integer[] _mThumbIds, Context c) {
 		mContext = c;
 		mThumbIds = _mThumbIds;
 	}
-
+	public ImageGridAdapter(ArrayList<Bitmap> _mThumbBmp, Context c) {
+		mContext = c;
+		mThumbsBitmap = _mThumbBmp;
+	}
 	public int getCount() {
 		return mThumbIds.length;
 	}
 
 	public Object getItem(int position) {
 		return null;
+		
 	}
 
 	public long getItemId(int position) {
@@ -60,8 +66,15 @@ public class ImageGridAdapter extends BaseAdapter {
 			imageView = (ImageView) convertView;
 		}
 		Bitmap flatIcon, roundIcon;
+		if(mThumbIds!=null){
 		flatIcon = BitmapFactory.decodeResource(mContext.getResources(),
 				mThumbIds[position]);
+		
+		}
+		else
+		{
+			flatIcon = mThumbsBitmap.get(position);
+		}
 		roundIcon = getRoundedCornerBitmap(flatIcon);
 		// Drawable imageThumb = new
 		// BitmapDrawable(mContext.getResources(),roundIcon);
