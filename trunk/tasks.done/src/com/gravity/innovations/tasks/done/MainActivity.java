@@ -2,19 +2,27 @@ package com.gravity.innovations.tasks.done;
 
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Date;
+import java.util.List;
+
 import org.json.JSONException;
 import org.json.JSONObject;
 import android.accounts.Account;
 import android.accounts.AccountManager;
 import android.annotation.SuppressLint;
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.DialogInterface.OnClickListener;
 import android.content.Intent;
+import android.graphics.Color;
+import android.graphics.drawable.ColorDrawable;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -23,6 +31,7 @@ import android.support.v4.app.FragmentTransaction;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBarActivity;
+import android.text.style.BulletSpan;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -34,9 +43,13 @@ import android.view.View.OnTouchListener;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
+import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageButton;
 import android.widget.ImageView;
+import android.widget.ListView;
 import android.widget.ProgressBar;
+import android.widget.TextView;
 import android.widget.TimePicker;
 import android.widget.Toast;
 
@@ -79,6 +92,7 @@ public class MainActivity extends ActionBarActivity implements
 	public TaskListFragment mTaskListFragment;
 
 	private int mUserActionBarColor;
+	private Button btn_share;
 	private static final String PREF_USER_ACTION_BAR_COLOR = "actionbar_color";
 
 	@SuppressLint("NewApi")
@@ -87,6 +101,9 @@ public class MainActivity extends ActionBarActivity implements
 		super.onCreate(savedInstanceState);
 		mContext = this;
 		getActionBar().hide();
+		//getActionBar().setSubtitle("sub");
+		//getActionBar().setNavigationMode(getActionBar().NAVIGATION_MODE_LIST);
+		getActionBar().setBackgroundDrawable(new ColorDrawable(android.R.color.transparent));
 		setContentView(R.layout.activity_main);
 //		if (Build.VERSION.SDK_INT < 16) {
 //            getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
@@ -115,12 +132,14 @@ public class MainActivity extends ActionBarActivity implements
 
 		// String x = getHash("Faik");
 		mContext = this;
-		mNavigationDrawerFragment = (NavigationDrawerFragment) getSupportFragmentManager()
+		FragmentManager mgr = getSupportFragmentManager();
+		
+		mNavigationDrawerFragment = (NavigationDrawerFragment) mgr
 				.findFragmentById(R.id.navigation_drawer);
 		mTitle = getTitle();
 		// new userData();//
-		user_data = new userData();// (Common.userData)getIntent().getExtras().getSerializable("user");//
-									// after latest commits commented
+		user_data =(Common.userData)getIntent().getExtras().getSerializable("user");//
+									// after latest commits commented		
 		// init user_data from intent extras
 		// Set up the drawer.
 		//user_data.image = null;
@@ -149,19 +168,6 @@ public class MainActivity extends ActionBarActivity implements
 				return true;
 			}
 		});
-
-		/*
-		 * try{ Common.CustomDialog.CustomDialog(mContext, view, negListener,
-		 * posListener, R.string.dialog_ok, R.string.dialog_cancel, "Share");
-		 * //Put in listview adapter = new
-		 * MultiSelectListAdapter(MainActivity.thsis,
-		 * R.layout.multiselectlist_row, h.Get_Users()); String[] from = {
-		 * "php_key","c_key","android_key","hacking_key" };
-		 * //listview.setAdapter(new ArrayAdapter<String>(mContext,
-		 * R.layout.multiselectlist_row,R.id.textView1,from));
-		 * listview.setAdapter(adapter); } catch(Exception ex) { String x; }
-		 */
-
 	}
 
 	public void floatButtonOnClick(View v) {
@@ -211,7 +217,8 @@ public class MainActivity extends ActionBarActivity implements
 						.beginTransaction()
 						.replace(R.id.container,
 								mTaskListFragment.getFragment()).commit();
-				actionBar.setTitle(CurrentList.title);
+				//actionBar.setTitle(CurrentList.title);
+				actionBar.setTitle("");
 			}
 		} catch (Exception ex) {
 			String x = ex.getLocalizedMessage();
@@ -246,6 +253,12 @@ public class MainActivity extends ActionBarActivity implements
 		// automatically handle clicks on the Home/Up button, so long
 		// as you specify a parent activity in AndroidManifest.xml.
 		int id = item.getItemId();
+		manuallySelectOptionMenuItem(id);
+		return super.onOptionsItemSelected(item);
+	}
+	public void manuallySelectOptionMenuItem(int id)
+	{
+		
 		if (id == R.id.action_settings) {
 			Intent i = new Intent(MainActivity.this, SettingsActivity.class);
 			startActivity(i);
@@ -267,8 +280,7 @@ public class MainActivity extends ActionBarActivity implements
 		} else if (id == R.id.action_share) {
 			listof_nameEmailPic(); // for calling list of users
 		} 
-
-		return super.onOptionsItemSelected(item);
+		
 	}
 
 	public void listof_nameEmailPic() {
@@ -299,11 +311,12 @@ public class MainActivity extends ActionBarActivity implements
 		ArrayList<Common.CustomViewsData.MultiSelectRowData> users = new ArrayList<Common.CustomViewsData.MultiSelectRowData>();
 
 		email_records = h.User_List();
-
+		ArrayList<String> S = new ArrayList<String>();
 		for (UserModel temp : email_records) {
 			Common.CustomViewsData.MultiSelectRowData user = new Common.CustomViewsData.MultiSelectRowData();
 			user.text1 = temp.displayName;
 			user.text2 = temp.email;
+			
 			// Bitmap bmp = BitmapFactory.decodeByteArray(temp.image, 0,
 			// temp.image.length);
 			// ImageView image = (ImageView) findViewById(R.id.imageView1);
@@ -312,12 +325,18 @@ public class MainActivity extends ActionBarActivity implements
 			// byte[] byteArray = getBlob(temp.image);
 			// Bitmap bm = BitmapFactory.decodeByteArray(byteArray, 0
 			// ,byteArray.length);
-
+			S.add(temp.displayName);
 			user.iconRes = temp.image;
 			users.add(user);
 
 		}
-
+//		CharSequence[] cs = S.toArray(new CharSequence[S.size()]);
+//		
+//		AlertDialog.Builder builder = new AlertDialog.Builder(mContext);
+//		builder.setIcon(android.R.drawable.ic_popup_reminder);
+//		builder.setTitle("share");
+//		builder.setItems(cs, null);
+//		builder.create().show();
 		final MultiSelectListAdapter adapter = new MultiSelectListAdapter(this,
 				R.layout.multiselectlist_row, users);
 		DialogInterface.OnClickListener itemClickListner = new OnClickListener() {
@@ -341,6 +360,17 @@ public class MainActivity extends ActionBarActivity implements
 		Common.CustomDialog.MultiChoiceDialog(mContext, adapter,
 				onItemClickListener, negListener, posListener,
 				R.string.dialog_ok, R.string.dialog_cancel, "Share");
+		
+//		View view = getLayoutInflater().inflate(
+//				R.layout.multiselectlist_list, null);
+//
+//		ListView lst = (ListView) view.findViewById(R.id.listView1);
+//		lst.setAdapter(adapter);
+//
+//		
+//
+//		
+//		Common.CustomDialog.CustomDialog(mContext, view);
 
 	}
 
@@ -436,9 +466,5 @@ public class MainActivity extends ActionBarActivity implements
 	public void onTimeReceive(Context mContext, Intent intent) {
 		// mNavigationDrawerFragment.onTimeReceive(mContext, intent);
 		mTaskListFragment.updateRelativeTime();// .mTaskAdapter.notifyDataSetChanged();
-	}
-
-	
-
-	
+	}	
 }

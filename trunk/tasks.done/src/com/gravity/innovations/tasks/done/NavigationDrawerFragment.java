@@ -7,7 +7,6 @@ import java.util.TimerTask;
 
 import org.json.JSONException;
 import org.json.JSONObject;
-
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
@@ -17,6 +16,7 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.content.res.Configuration;
+import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
@@ -227,23 +227,24 @@ public class NavigationDrawerFragment extends Fragment implements
 		/*
 		 * We Dont need this anymore
 		 */
+		TaskListItemListener = new AdapterView.OnItemClickListener() {
+			@Override
+			public void onItemClick(AdapterView<?> parent, View view,
+					int position, long id) {
+				view.setSelected(true);
+				selectItem(position, -1);
+				// below section for showing ndf list item as selected
+				clearSelection();
+				oldSelection = view;
+				
+				
+				
+				view.setBackgroundColor(getResources().getColor(
+						R.color.selection_blue));
+			}
+		};
 		mDrawerListView
-				.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-					@Override
-					public void onItemClick(AdapterView<?> parent, View view,
-							int position, long id) {
-						view.setSelected(true);
-						selectItem(position, -1);
-						// below section for showing ndf list item as selected
-						clearSelection();
-						oldSelection = view;
-						
-						
-						
-						view.setBackgroundColor(getResources().getColor(
-								R.color.selection_blue));
-					}
-				});
+				.setOnItemClickListener(TaskListItemListener);
 
 		// start swipe
 		/*
@@ -322,11 +323,8 @@ public class NavigationDrawerFragment extends Fragment implements
 		mAdapter = new TaskListAdapter(getActivity(),
 				R.layout.tasklist_listview_row, data);
 		mDrawerListView.setAdapter(mAdapter);
- 
+		//if (tasklistid != -1 && taskid != -1){
 
-		// automating the selection on selected
-		if (tasklistid != -1 && taskid != -1)
- 
 		Resources res = getResources();
 		
 		
@@ -362,16 +360,19 @@ public class NavigationDrawerFragment extends Fragment implements
 		// set a custom shadow that overlays the main content when the drawer
 		// opens
 		//getActionBar().show();
+//		user_data.name = "faik";
+//		user_data.email = "faik.malik89@gmail.com";
 		TextView name = (TextView) mDrawerLayout.findViewById(R.id.text_name);
 		name.setText(user_data.name);
 		TextView email = (TextView) mDrawerLayout.findViewById(R.id.text_email);
 		email.setText(user_data.email);
 		ImageView profile = (ImageView) mDrawerLayout
 				.findViewById(R.id.profile_img);
-		
+		if(user_data.image != null){
 		Bitmap b = ImageGridAdapter.getRoundedCornerBitmap(Bitmap.createScaledBitmap(user_data.image,
 				175, 175, true));
 		profile.setImageBitmap(b);
+		}
 		final ImageButton options_toggle = (ImageButton)mDrawerLayout.findViewById(R.id.options_toggle);
 		
 		options_toggle.setOnClickListener(new OnClickListener() {
@@ -498,8 +499,8 @@ public class NavigationDrawerFragment extends Fragment implements
 			Log.e("ERROR(FIX ME)", "Address:TIME_TICK, setUp, NDF");
 		}
 		mDrawerLayout.setDrawerListener(mDrawerToggle);
+		//}
 	}
-
 	@Override
 	public void onPause() {
 		super.onPause();
@@ -844,7 +845,7 @@ public class NavigationDrawerFragment extends Fragment implements
 			tv_interval.setText(interval);
 		}
 
-		Common.CustomDialog.CustomDialog(mContext, view, dialogTitle);
+		Common.CustomDialog.CustomDialog(mContext, view);//, dialogTitle);
 	}
 	
 	// @SuppressLint("NewApi")
