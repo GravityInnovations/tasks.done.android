@@ -84,7 +84,7 @@ public class TaskAdapter extends ArrayAdapter<TaskModel> {
 		/*
 		 * for fixing gridView problems
 		 */
-		--position;
+		//--position;
 		mSelection.put(position, value);
 		notifyDataSetChanged();
 	}

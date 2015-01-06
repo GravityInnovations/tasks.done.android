@@ -19,8 +19,8 @@ public class TaskModel {
 	public int completed;// yes(1) or no(0)
 	public int deleted;
 	public int hidden;
-	public int isSyncSent;
-	public int synced;
+	public String syncStatus;// date time
+	public String syncStatusTimeStamp;// date time
 	public String links;
 
 	public int alarm_id;

@@ -56,8 +56,8 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 	private static final String KEY_DELETED = "deleted";
 	private static final String KEY_HIDDEN = "hidden";
 	private static final String KEY_LINKS = "links";
-	private static final String KEY_IS_SYNC_SENT = "is_sync_sent";
-	private static final String KEY_SYNCED = "synced";
+	private static final String KEY_SYNC_STATUS = "sync_status";
+	private static final String KEY_SYNC_STATUS_TIMESTAMP = "sync_status_timestamp";
 	private static final String KEY_SELF_LINK = "self_link";
 	private static final String KEY_USER_IMAGE = "user_image";
 
@@ -105,8 +105,8 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 			+ KEY_COMPLETED + " INTEGER,"
 			+ KEY_DELETED + " INTEGER," 
 			+ KEY_HIDDEN + " INTEGER,"
-			+ KEY_IS_SYNC_SENT + " INTEGER," 
-			+ KEY_SYNCED + " INTEGER,"//15
+			+ KEY_SYNC_STATUS + " TEXT," 
+			+ KEY_SYNC_STATUS_TIMESTAMP + " DATETIME,"//15
 			+ KEY_LINKS + " TEXT,"
 
 			+ KEY_ALARM_ID + " INTEGER," 
@@ -130,8 +130,8 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 			+ KEY_SELF_LINK + " TEXT," 
 			+ KEY_KIND + " TEXT,"
 			+ KEY_USER_ID + " INTEGER," 
-			+ KEY_IS_SYNC_SENT + " INTEGER,"
-			+ KEY_SYNCED + " INTEGER," 
+			+ KEY_SYNC_STATUS + " TEXT,"
+			+ KEY_SYNC_STATUS_TIMESTAMP + " DATETIME," 
 			+ KEY_LIST_TYPE + " INTEGER" //values 1-5 icons
 			+ ")";
 
@@ -152,8 +152,8 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 			+ "(" + KEY_PK
 			+ " INTEGER PRIMARY KEY AUTOINCREMENT," 
 			+ KEY_SERVER_ID + " TEXT,"
-			+ KEY_IS_SYNC_SENT + " INTEGER," 
-			+ KEY_SYNCED + " INTEGER,"
+			+ KEY_SYNC_STATUS + " TEXT," 
+			+ KEY_SYNC_STATUS_TIMESTAMP + " DATETIME,"
 			+ KEY_USER_ID + " INTEGER," 
 			+ KEY_FK_TASKLIST_ID + " INTEGER" 
 			+ ")";
@@ -231,8 +231,8 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 		values.put(KEY_COMPLETED, task.completed);
 		values.put(KEY_DELETED, task.deleted);
 		values.put(KEY_HIDDEN, task.hidden);
-		values.put(KEY_IS_SYNC_SENT, task.isSyncSent);
-		values.put(KEY_SYNCED, task.synced);//15
+		values.put(KEY_SYNC_STATUS, task.syncStatus);
+		values.put(KEY_SYNC_STATUS_TIMESTAMP, task.syncStatusTimeStamp);//15
 		values.put(KEY_LINKS, task.links);
 
 		values.put(KEY_ALARM_ID, task.alarm_id);
@@ -278,8 +278,8 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 		values.put(KEY_COMPLETED, task.completed);
 		values.put(KEY_DELETED, task.deleted);
 		values.put(KEY_HIDDEN, task.hidden);
-		values.put(KEY_IS_SYNC_SENT, task.isSyncSent);
-		values.put(KEY_SYNCED, task.synced);//15
+		values.put(KEY_SYNC_STATUS, task.syncStatus);
+		values.put(KEY_SYNC_STATUS_TIMESTAMP, task.syncStatusTimeStamp);//15
 		values.put(KEY_LINKS, task.links);
 
 		values.put(KEY_ALARM_ID, task.alarm_id);
@@ -359,8 +359,8 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 					task.completed = (Integer.parseInt(cursor.getString(11)));
 					task.deleted = (Integer.parseInt(cursor.getString(12)));
 					task.hidden = (Integer.parseInt(cursor.getString(13)));
-					task.isSyncSent = (Integer.parseInt(cursor.getString(14)));
-					task.synced = (Integer.parseInt(cursor.getString(15)));
+					task.syncStatus = cursor.getString(14);
+					task.syncStatusTimeStamp = cursor.getString(15);
 					task.links = (cursor.getString(16));
 
 					task.alarm_id = (Integer.parseInt(cursor.getString(17)));
@@ -419,8 +419,8 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 					task.completed = (Integer.parseInt(cursor.getString(11)));
 					task.deleted = (Integer.parseInt(cursor.getString(12)));
 					task.hidden = (Integer.parseInt(cursor.getString(13)));
-					task.isSyncSent = (Integer.parseInt(cursor.getString(14)));
-					task.synced = (Integer.parseInt(cursor.getString(15)));
+					task.syncStatus = cursor.getString(14);
+					task.syncStatusTimeStamp = cursor.getString(15);
 					task.links = (cursor.getString(16));
 
 					task.alarm_id = (Integer.parseInt(cursor.getString(17)));
@@ -460,8 +460,8 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 		values.put(KEY_SELF_LINK, tasklist.self_link);
 		values.put(KEY_KIND, tasklist.kind);
 		values.put(KEY_USER_ID, tasklist.user_id);
-		values.put(KEY_IS_SYNC_SENT, tasklist.isSyncSent);
-		values.put(KEY_SYNCED, tasklist.synced);
+		values.put(KEY_SYNC_STATUS, tasklist.syncStatus);
+		values.put(KEY_SYNC_STATUS_TIMESTAMP, tasklist.syncStatusTimeStamp);
 		values.put(KEY_LIST_TYPE, tasklist.icon_identifier);
 
 		int id = (int) db.insert(TABLE_TASK_LIST, null, values);
@@ -517,9 +517,8 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 					tasklist.self_link = (cursor.getString(5));
 					tasklist.kind = (cursor.getString(6));
 					tasklist.user_id = (Integer.parseInt(cursor.getString(7)));
-					tasklist.isSyncSent = (Integer
-							.parseInt(cursor.getString(8)));
-					tasklist.synced = (Integer.parseInt(cursor.getString(9)));
+					tasklist.syncStatus =  (cursor.getString(8)) ;
+					tasklist.syncStatusTimeStamp = (cursor.getString(9));
 					tasklist.icon_identifier = (Integer.parseInt(cursor
 							.getString(10)));
 					// Adding TaskModel to list
@@ -545,7 +544,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 					
 					 KEY_PK, KEY_TITLE, KEY_SERVER_ID, KEY_ETAG, 
 					 KEY_UPDATED_AT, KEY_SELF_LINK, KEY_KIND, 
-					 KEY_USER_ID, KEY_IS_SYNC_SENT, KEY_SYNCED, KEY_LIST_TYPE
+					 KEY_USER_ID, KEY_SYNC_STATUS, KEY_SYNC_STATUS_TIMESTAMP, KEY_LIST_TYPE
 					
 				}, KEY_PK + "=?",
 					new String[] { String.valueOf(id) }, null, null, null, null);
@@ -556,8 +555,8 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 					
 					cursor.getString(1), cursor.getString(2), cursor.getString(3), cursor.getString(4), cursor.getString(5),cursor.getString(6), 
 					
-					Integer.parseInt(cursor.getString(7)), Integer.parseInt(cursor.getString(8)),
-					Integer.parseInt(cursor.getString(9)), Integer.parseInt(cursor.getString(10)));
+					Integer.parseInt(cursor.getString(7)),  (cursor.getString(8)),
+					 (cursor.getString(9)) , Integer.parseInt(cursor.getString(10)));
 			// return TaskModel
 			cursor.close();
 			db.close();
@@ -767,6 +766,24 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 		}
 		return data;
 
+	}
+	
+	public int UserList_New(TaskListModel tasklist, UserModel user) {
+		// error, wrong foreign key
+		SQLiteDatabase db = this.getWritableDatabase();
+		ContentValues values = new ContentValues();
+		values.put(KEY_USER_ID, user._id);
+		values.put(KEY_FK_TASKLIST_ID, tasklist._id);
+		int id = (int) db.insert(TABLE_TASKS, null, values);
+		db.close();
+		return id;
+	}
+	// Delete a user
+	public void UserList_Delete(int id) {
+		SQLiteDatabase db = this.getWritableDatabase();
+		db.delete(TABLE_USERS, KEY_PK + " = ?",
+				new String[] { String.valueOf(id) });
+		db.close();
 	}
 	
 }
