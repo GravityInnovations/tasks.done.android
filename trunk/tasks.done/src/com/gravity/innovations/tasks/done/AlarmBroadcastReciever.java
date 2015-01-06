@@ -14,6 +14,7 @@ import android.support.v4.content.WakefulBroadcastReceiver;
 public class AlarmBroadcastReciever extends WakefulBroadcastReceiver {
 	// The app's AlarmManager, which provides access to the system alarm
 	// services.
+	//isNothing
 	private AlarmManager alarmMgr;
 	// The pending intent that is triggered when the alarm fires.
 	private PendingIntent alarmIntent;
