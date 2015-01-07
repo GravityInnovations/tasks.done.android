@@ -236,7 +236,7 @@ public class NavigationDrawerFragment extends Fragment implements
 			public void onItemClick(AdapterView<?> parent, View view,
 					int position, long id) {
 				view.setSelected(true);
-				mAdapter.selected = position;
+				mAdapter.selected = position-1;
 				selectItem(position, -1);
 				// below section for showing ndf list item as selected
 				//clearSelection();
@@ -1866,6 +1866,7 @@ public class NavigationDrawerFragment extends Fragment implements
 		// TODO Auto-generated method stub
 		ArrayList<UserModel> db_users = db.UserList_List(mTaskList._id);
 		ArrayList<UserModel> final_users = new ArrayList<UserModel>();
+		ArrayList<UserModel> del_users = new ArrayList<UserModel>();
 		for(UserModel m1:sel_users)
 		{
 			boolean flag = true;
@@ -1881,9 +1882,25 @@ public class NavigationDrawerFragment extends Fragment implements
 				final_users.add(m1);
 			}
 		}
-		
+		for(UserModel m1:db_users)
+		{
+			boolean flag = false;
+			for(UserModel m2:sel_users)
+			{
+				if(m1._id == m2._id)
+				{
+					flag = true;
+					break;
+				}
+			}
+			if(!flag){
+				del_users.add(m1);
+			}
+		}
 		for(UserModel user:final_users)
-		db.UserList_New(mTaskList, user);
+			db.UserList_New(mTaskList, user);
+		for(UserModel user:del_users)
+			db.UserList_Delete(mTaskList._id, user._id);//del
 	}
 
 }

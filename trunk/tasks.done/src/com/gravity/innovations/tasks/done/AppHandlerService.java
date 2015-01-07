@@ -1026,9 +1026,9 @@ public class AppHandlerService extends Service implements
 					// db.User_New(user);
 				}
 
-				// mSharedPreferencesEditor.putBoolean(Common.ALL_USERS_SYNCED,
-				// true);
-				// mSharedPreferencesEditor.commit();
+				 mSharedPreferencesEditor.putBoolean(Common.ALL_USERS_SYNCED,
+				 true);
+				 mSharedPreferencesEditor.commit();
 
 			} catch (Exception e) {
 				addProgressTask(e.getLocalizedMessage());

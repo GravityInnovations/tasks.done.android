@@ -519,6 +519,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 					tasklist.icon_identifier = (Integer.parseInt(cursor
 							.getString(10)));
 					// Adding TaskModel to list
+					tasklist.users = this.UserList_List(tasklist._id);
 					tasklist.tasks = this.Task_List(tasklist._id);
 					data.add(tasklist);
 				} while (cursor.moveToNext());
@@ -731,6 +732,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 				+ " = " + taskListID + " ";
 		db.execSQL(selectQuery);
 		db.close();
+		
 	}
 
 	public int UserList_New(TaskListModel tasklist, UserModel user) {
@@ -745,32 +747,32 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 	}
 
 	public ArrayList<UserModel> UserList_List(int tasklistID) {
-		ArrayList<String> users_ids = new ArrayList<String>();
+		ArrayList<Integer> users_ids = new ArrayList<Integer>();
 		SQLiteDatabase db = this.getReadableDatabase();
 		String selectQuery = "SELECT  * FROM " + TABLE_USERS_LISTS + " WHERE "
-				+ KEY_PK + " = " + tasklistID;
+				+ KEY_FK_TASKLIST_ID + " = " + tasklistID;
 
 		Cursor cursor = db.rawQuery(selectQuery, null);
-
+		int col_userid = cursor.getColumnIndex(KEY_USER_ID);
 		// looping through all rows and adding to list
 		if (cursor.moveToFirst()) {
 			do {
 				// Adding TaskModel to list
-				users_ids.add(cursor.getString(0));
+				users_ids.add(cursor.getInt(col_userid));
 			} while (cursor.moveToNext());
 		}
 		cursor.close();
 		db.close();
 		if (users_ids.size() > 0) {
-			String[] ids = users_ids.toArray(new String[users_ids.size()]);
-			return User_List(ids); // call to a function for returning
+			//String[] ids = users_ids.toArray(new String[users_ids.size()]);
+			return Users_List(users_ids); // call to a function for returning
 									// userModelss
 		} else {
 			return new ArrayList<UserModel>();
 		}
 	}
 
-	private ArrayList<UserModel> User_List(String[] ids) {
+	private ArrayList<UserModel> Users_List(ArrayList<Integer> ids) {
 		ArrayList<UserModel> data = new ArrayList<UserModel>();
 
 		SQLiteDatabase db = this.getReadableDatabase();
@@ -778,7 +780,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 				KEY_DISPLAY_NAME, KEY_USER_NAME, KEY_USER_EMAIL,
 				KEY_USER_IMAGE, KEY_CONTACT_ID
 
-		}, KEY_PK + "=?", ids, null, null, null, null);
+		}, null, null, null, null, KEY_PK+ " ASC ", null);
 		int col_pk = cursor.getColumnIndex(KEY_PK);
 		int col_displayName = cursor.getColumnIndex(KEY_DISPLAY_NAME);
 		int col_name = cursor.getColumnIndex(KEY_USER_NAME);
@@ -788,6 +790,10 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 		// get all
 		if (cursor.moveToFirst()) {
 			do {
+				for(Integer i:ids){
+					int tempid = cursor.getInt(col_pk);//Integer.parseInt(cursor.getString(col_pk));
+					if(i ==  tempid || i.equals(tempid)){
+						
 				UserModel temp = new UserModel();
 				temp._id = cursor.getInt(col_pk);
 				temp.displayName = cursor.getString(col_displayName);
@@ -799,6 +805,9 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 				// other attributes
 
 				data.add(temp);
+				break;
+					}
+				}
 				// Adding TaskModel to list
 				// data.add((Integer.parseInt(cursor.getString(0))));
 			} while (cursor.moveToNext());
