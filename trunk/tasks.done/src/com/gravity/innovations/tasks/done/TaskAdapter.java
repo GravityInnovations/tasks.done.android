@@ -134,8 +134,8 @@ public class TaskAdapter extends ArrayAdapter<TaskModel> {
 			holder.alarm_toggle = (ImageView) row
 					.findViewById(R.id.alarm_toggle);
 
-			holder.gridView = (GridView) row
-					.findViewById(R.id.tasklist_gridview);
+//			holder.gridView = (GridView) row
+//					.findViewById(R.id.tasklist_gridview);
 
 			final int pos = position;
 			final View row2 = row;
@@ -261,7 +261,8 @@ public class TaskAdapter extends ArrayAdapter<TaskModel> {
 		holder.details.setText(task.details);
 		holder.notes.setText(task.notes);
 
-		// this to show images at tasks
+		/* 
+		this to show images at tasks
 		Integer[] mThumbIds = { R.drawable.catag_home };
 
 		holder.gridView.setAdapter(new ImageGridAdapter(mThumbIds, mContext));
@@ -273,7 +274,8 @@ public class TaskAdapter extends ArrayAdapter<TaskModel> {
 						.show();
 			}
 		});
-		// this to show images at tasks
+		this to show images at tasks
+		*/ 
 
 		// holder.update.setText(task.updated);
 
@@ -313,20 +315,22 @@ public class TaskAdapter extends ArrayAdapter<TaskModel> {
 			TaskModel temp2 = task_data.get(pos + 1);
 			if (temp2.completed == 0) {
 				task_data.set(pos, temp2);
-				task_data.set(pos + 1, temp1);
-
+				task_data.set(pos + 1, temp1); 
 				// Animation animationFadeIn = AnimationUtils
 				// .loadAnimation(this.mContext, R.anim.abc_slide_in_bottom);
 				// row.startAnimation(animationFadeIn);
-				//
+			 
 			} else if (temp2.completed == 1) {
-				return false;
+				//task_data.set(0, temp2);
+				//task_data.set(pos, temp1);
+				//return false;
 				
 			}
 
 		}
 		return false;
 	}
+	
 	@Override
 	public void notifyDataSetChanged() {
 		// TODO Auto-generated method stub
@@ -350,7 +354,7 @@ public class TaskAdapter extends ArrayAdapter<TaskModel> {
 		TextView update;
 		ImageView alarm_toggle;
 
-		GridView gridView; // 20 november 2014
+		//GridView gridView;
 	}
 
 }
