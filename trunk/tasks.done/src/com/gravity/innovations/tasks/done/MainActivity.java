@@ -192,7 +192,7 @@ public class MainActivity extends ActionBarActivity implements
 		//user_data.image = null;
 		mNavigationDrawerFragment.setUp(R.id.navigation_drawer,
 				(DrawerLayout) findViewById(R.id.drawer_layout), mContext,
-				user_data, listID, taskID);
+				user_data, listID, taskID, service);
 		mEditText = (EditText) findViewById(R.id.search);
 		/*
 		 * code below opens soft keyboard on imageClick

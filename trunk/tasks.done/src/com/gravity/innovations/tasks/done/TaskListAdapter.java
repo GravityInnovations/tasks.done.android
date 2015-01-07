@@ -3,6 +3,7 @@ package com.gravity.innovations.tasks.done;
 import java.util.ArrayList;
 import android.app.Activity;
 import android.content.res.Resources;
+import android.graphics.Color;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -16,10 +17,10 @@ public class TaskListAdapter extends ArrayAdapter<TaskListModel> {
 	TaskListModel tasklist;
 	Activity mActivity;
 	int layoutResourceId;
-	int MAX_CHARS = 10;
+	int MAX_CHARS = 25;
 	ArrayList<TaskListModel> data = new ArrayList<TaskListModel>();
 	ArrayList<TaskListModel> data_backup = new ArrayList<TaskListModel>();
-
+	int selected = 0;
 	public TaskListAdapter(Activity activity, int layoutResourceId,
 			ArrayList<TaskListModel> data) {
 		super(activity, layoutResourceId, data);
@@ -30,7 +31,12 @@ public class TaskListAdapter extends ArrayAdapter<TaskListModel> {
 		this.data_backup = data;
 		notifyDataSetChanged();
 	}
-
+	public void setSelection(int position)
+	{
+		selected = position;
+		notifyDataSetChanged();
+	}
+	
 	public void updateData(ArrayList<TaskListModel> data1) {
 		data_backup = data1;
 	}
@@ -146,6 +152,10 @@ public class TaskListAdapter extends ArrayAdapter<TaskListModel> {
 		tasklist = data.get(position);
 		//holder.title.setText(tasklist.title);
 		try{
+			if(selected == position)
+				row.setBackgroundColor(Color.parseColor("#efefef"));
+			else
+				row.setBackgroundColor(Color.parseColor("#ffffffff"));
 		if (tasklist.title.length() > MAX_CHARS) {
 
 		//	String temp= tasklist.title.toString();

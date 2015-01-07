@@ -491,7 +491,7 @@ public class TaskListFragment extends Fragment {
 				mUsersAdapter.clear();
 				mUsersAdapter.addAll(getUsersImages(sel_users));
 				mUsersAdapter.notifyDataSetChanged();// = new ImageGridAdapter(, mActivity);
-				
+				mNavigationDrawerFragment.addUserToTaskList(data,sel_users);
 				
 				
 				//add  sel_users in table_users_tasklist and update grid adapter in header
