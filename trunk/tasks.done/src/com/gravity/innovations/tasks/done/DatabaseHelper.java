@@ -724,16 +724,14 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 	}
 
 	// Delete a user
-//	public void UserList_Delete(int taskListID, int userID) {
-//		SQLiteDatabase db = this.getWritableDatabase();
-//		String selectQuery = "SELECT  * FROM " + TABLE_USERS_LISTS + " WHERE " + KEY_USER_ID + " = " + userID
-//		+ " AND " + KEY_FK_TASKLIST_ID +" = " taskListID +" ";
-//
-//		
-//		db.delete(TABLE_USERS_LISTS, KEY_PK + " = ?",
-//				new String[] { String.valueOf(id) });
-//		db.close();
-//	}
+	public void UserList_Delete(int taskListID, int userID) {
+		SQLiteDatabase db = this.getWritableDatabase();
+		String selectQuery = "DELETE FROM " + TABLE_USERS_LISTS + " WHERE "
+				+ KEY_USER_ID + " = " + userID + " AND " + KEY_FK_TASKLIST_ID
+				+ " = " + taskListID + " ";
+		db.execSQL(selectQuery);
+		db.close();
+	}
 
 	public int UserList_New(TaskListModel tasklist, UserModel user) {
 		// error, wrong foreign key
