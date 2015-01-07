@@ -723,30 +723,34 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
 	}
 
+	// Delete a user
+//	public void UserList_Delete(int taskListID, int userID) {
+//		SQLiteDatabase db = this.getWritableDatabase();
+//		String selectQuery = "SELECT  * FROM " + TABLE_USERS_LISTS + " WHERE " + KEY_USER_ID + " = " + userID
+//		+ " AND " + KEY_FK_TASKLIST_ID +" = " taskListID +" ";
+//
+//		
+//		db.delete(TABLE_USERS_LISTS, KEY_PK + " = ?",
+//				new String[] { String.valueOf(id) });
+//		db.close();
+//	}
+
 	public int UserList_New(TaskListModel tasklist, UserModel user) {
 		// error, wrong foreign key
 		SQLiteDatabase db = this.getWritableDatabase();
 		ContentValues values = new ContentValues();
 		values.put(KEY_USER_ID, user._id);
 		values.put(KEY_FK_TASKLIST_ID, tasklist._id);
-		int id = (int) db.insert(TABLE_TASKS, null, values);
+		int id = (int) db.insert(TABLE_USERS_LISTS, null, values);
 		db.close();
 		return id;
-	}
-
-	// Delete a user
-	public void UserList_Delete(int id) {
-		SQLiteDatabase db = this.getWritableDatabase();
-		db.delete(TABLE_USERS, KEY_PK + " = ?",
-				new String[] { String.valueOf(id) });
-		db.close();
 	}
 
 	public ArrayList<UserModel> UserList_List(int tasklistID) {
 		ArrayList<String> users_ids = new ArrayList<String>();
 		SQLiteDatabase db = this.getReadableDatabase();
-		String selectQuery = "SELECT  * FROM " + TABLE_USERS_LISTS + " WHERE "+KEY_PK
-				+ " = " + tasklistID;
+		String selectQuery = "SELECT  * FROM " + TABLE_USERS_LISTS + " WHERE "
+				+ KEY_PK + " = " + tasklistID;
 
 		Cursor cursor = db.rawQuery(selectQuery, null);
 
@@ -759,11 +763,11 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 		}
 		cursor.close();
 		db.close();
-		if(users_ids.size()>0){
-		String[] ids = users_ids.toArray(new String[users_ids.size()]);
-		return User_List(ids); // call to a function for returning userModelss
-		}
-		else{
+		if (users_ids.size() > 0) {
+			String[] ids = users_ids.toArray(new String[users_ids.size()]);
+			return User_List(ids); // call to a function for returning
+									// userModelss
+		} else {
 			return new ArrayList<UserModel>();
 		}
 	}
