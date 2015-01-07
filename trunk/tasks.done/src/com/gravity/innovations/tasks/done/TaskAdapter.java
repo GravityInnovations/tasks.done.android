@@ -32,7 +32,6 @@ public class TaskAdapter extends ArrayAdapter<TaskModel> {
 	final long currentTimeMills = System.currentTimeMillis();
 	private HashMap<Integer, Boolean> mSelection = new HashMap<Integer, Boolean>();
 	int flag = 0;
-	DatabaseHelper db;
 	Context mContext;
 	int HighlightTask;
 	TaskListModel mTaskListModel;
@@ -127,7 +126,6 @@ public class TaskAdapter extends ArrayAdapter<TaskModel> {
 			holder.details = (TextView) row
 					.findViewById(R.id.user_task_details);
 			holder.notes = (TextView) row.findViewById(R.id.user_task_notes);
-			db = new DatabaseHelper(mContext);
 
 			holder.toggle = (ImageView) row.findViewById(R.id.done_toggle);
 

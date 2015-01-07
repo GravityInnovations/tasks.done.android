@@ -29,7 +29,7 @@ public class TheApp extends Application {
 		Intent i = new Intent(this, AppHandlerService.class);
 		i.setAction(Common.serviceActions.START_APP);
 		
-		ComponentName x = getApplicationContext().startService(i);
+		//ComponentName x = getApplicationContext().startService(i);
 		getApplicationContext().bindService(i, new ServiceConnection() {
 			
 			@Override

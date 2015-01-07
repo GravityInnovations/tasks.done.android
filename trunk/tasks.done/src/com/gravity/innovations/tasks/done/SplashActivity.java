@@ -114,7 +114,7 @@ public class SplashActivity extends Activity implements
 	}
 
 	@Override
-	protected void onResume() {
+	protected void onStart() {
 		// TODO Auto-generated method stub
 		super.onStart();
 		AsyncTask<Void,Void,Void> t = new AsyncTask<Void, Void, Void>(){

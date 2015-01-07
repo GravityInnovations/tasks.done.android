@@ -23,6 +23,7 @@ import android.content.DialogInterface.OnClickListener;
 import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
+import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -53,11 +54,12 @@ import android.widget.TextView;
 import android.widget.TimePicker;
 import android.widget.Toast;
 
+import com.gravity.innovations.tasks.done.Common.Callbacks.ServiceCallback;
 import com.gravity.innovations.tasks.done.Common.userData;
 
 public class MainActivity extends ActionBarActivity implements
 		NavigationDrawerFragment.NavigationDrawerCallbacks,
-		Common.Callbacks.HttpCallback, Common.Callbacks.TimeCallBack
+		Common.Callbacks.HttpCallback, Common.Callbacks.TimeCallBack,ServiceCallback
 /* , Common.Callbacks.SplashActivityCallback */{
 
 	/**
@@ -86,40 +88,85 @@ public class MainActivity extends ActionBarActivity implements
 	 * Used to store the last screen title. For use in
 	 * {@link #restoreActionBar()}.
 	 */
-
+	private AppHandlerService service;
 	private ActionBar actionBar;
 	private CharSequence mTitle;
 	public TaskListFragment mTaskListFragment;
-
 	private int mUserActionBarColor;
 	private Button btn_share;
 	private static final String PREF_USER_ACTION_BAR_COLOR = "actionbar_color";
-
-	@SuppressLint("NewApi")
 	@Override
-	protected void onCreate(Bundle savedInstanceState) {
-		super.onCreate(savedInstanceState);
-		mContext = this;
-		getActionBar().hide();
-		//getActionBar().setSubtitle("sub");
-		//getActionBar().setNavigationMode(getActionBar().NAVIGATION_MODE_STANDARD);
-		//getActionBar().setBackgroundDrawable(new ColorDrawable(android.R.color.transparent));
-		setContentView(R.layout.activity_main);
-//		if (Build.VERSION.SDK_INT < 16) {
-//            getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
-//                    WindowManager.LayoutParams.FLAG_FULLSCREEN);
-//        }
-//	 else{
-//		 View decorView = getWindow().getDecorView();
-//		// Hide the status bar.
-//		int uiOptions = View.SYSTEM_UI_FLAG_FULLSCREEN | View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY |
-//				View.SYSTEM_UI_FLAG_LAYOUT_STABLE
-//	            | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
-//	            | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
-//	            | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION;
-//		decorView.setSystemUiVisibility(uiOptions);
-	// }
-		//getActionBar().show();
+	public void onBackPressed() {
+		// TODO Auto-generated method stub
+		finish();
+		super.onBackPressed();
+	}
+
+	@Override
+	protected void onStop() {
+		// TODO Auto-generated method stub
+		
+		super.onStop();
+	}
+	@Override
+	protected void onDestroy() {
+		// TODO Auto-generated method stub
+		super.onStart();
+		if(service!=null)
+		service.onActivityOpen(null,null);
+		
+	}
+//	protected void onStart() {
+//		// TODO Auto-generated method stub
+//		super.onStart();
+//		AsyncTask<Void,Void,Void> t = new AsyncTask<Void, Void, Void>(){
+//
+//			@Override
+//			protected Void doInBackground(Void... params) {
+//				// TODO Auto-generated method stub
+//				try {
+//				
+//					((TheApp) getApplicationContext()).startService((Common.Callbacks.ServiceCallback)mContext);
+//					
+//					
+//				} catch (Exception e) {
+//					// TODO Auto-generated catch block
+//					e.printStackTrace();
+//				}
+//				return null;
+//			}
+//		};
+//		//t.execute();
+//		
+//
+//		
+//	}
+//	
+	public void onServiceBound(AppHandlerService handleService) {
+		// TODO Auto-generated method stub
+		try{
+			
+//			Intent i = getIntent();
+//			Bundle b = i.getBundleExtra("AppServiceExtra");
+//			
+//			mBinder= (AppHandlerService.AppHandlerBinder)b.getBinder("binder");
+//			
+			
+			service =((TheApp) getApplicationContext()).getService();// mBinder.getService();
+			service.onActivityOpen(this, this);
+			service.addProgressTask("Main Application opened");
+			
+			
+			
+			}
+			catch(Exception ex)
+			{
+				Toast.makeText(getApplicationContext(),"Problem Starting Service, Please Restart for Proper Experience", 
+						Toast.LENGTH_LONG).show();
+			}
+	}
+	private void startActions()
+	{
 		Intent i = getIntent();
 		int listID = -1, taskID = -1;
 		Bundle extra = i.getExtras();
@@ -129,16 +176,16 @@ public class MainActivity extends ActionBarActivity implements
 			taskID = i.getIntExtra("_task_id", 1);
 
 		}
-
+		
 		// String x = getHash("Faik");
 		mContext = this;
 		FragmentManager mgr = getSupportFragmentManager();
 		
 		mNavigationDrawerFragment = (NavigationDrawerFragment) mgr
 				.findFragmentById(R.id.navigation_drawer);
-		mTitle = getTitle();
+		mTitle = "";//getTitle();
 		// new userData();//
-		user_data =(Common.userData)getIntent().getExtras().getSerializable("user");//
+		user_data =service.user_data;//(Common.userData)getIntent().getExtras().getSerializable("user");//
 									// after latest commits commented		
 		// init user_data from intent extras
 		// Set up the drawer.
@@ -168,6 +215,41 @@ public class MainActivity extends ActionBarActivity implements
 				return true;
 			}
 		});
+	}
+	@SuppressLint("NewApi")
+	@Override
+	protected void onCreate(Bundle savedInstanceState) {
+		super.onCreate(savedInstanceState);
+		mContext = this;
+		getActionBar().hide();
+		setContentView(R.layout.activity_main);
+		service =((TheApp) getApplicationContext()).getService();// mBinder.getService();
+		if(service!=null){
+		service.onActivityOpen(this, this);
+		service.addProgressTask("Main Application opened");
+		startActions();
+		}
+		else
+		{
+			AsyncTask<Void,Void,Void> t = new AsyncTask<Void, Void, Void>(){
+
+				@Override
+				protected Void doInBackground(Void... params) {
+					// TODO Auto-generated method stub
+					try {
+					
+						((TheApp) getApplicationContext()).startService((Common.Callbacks.ServiceCallback)mContext);
+						
+						
+					} catch (Exception e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+					return null;
+				}
+			};
+			t.execute();
+		}
 
 	}
 
@@ -175,16 +257,7 @@ public class MainActivity extends ActionBarActivity implements
 		mNavigationDrawerFragment.addOrEditTask(CurrentList, new TaskModel());
 	}// creates a dialog for new task
 
-	@Override
-	public void onPause() {
-		super.onPause();
-	}
-
-	@Override
-	protected void onDestroy() {
-		super.onDestroy();
-
-	}
+	
 
 	// @SuppressLint("NewApi")
 	public void showSoftKeyboard(View view) {
@@ -475,8 +548,15 @@ public class MainActivity extends ActionBarActivity implements
 
 	public ArrayList<UserModel> getUsers() {
 		// TODO Auto-generated method stub
-DatabaseHelper h = new DatabaseHelper(mContext);
+		if(service!=null)
+		return service.db.User_List();
+	
+		return new ArrayList<UserModel>();
+	}
 
-		return h.User_List();
+	@Override
+	public void startResultActivity(Intent intent, int RequestCode) {
+		// TODO Auto-generated method stub
+		
 	}	
 }

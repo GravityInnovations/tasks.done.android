@@ -55,7 +55,7 @@ import android.widget.Toast;
 
 public class AppHandlerService extends Service implements
 		Common.Callbacks.SplashServiceCallback {
-	private Common.userData user_data;
+	public Common.userData user_data;
 	private ArrayList<String> progress_tasks;
 
 	private NotificationManager mNotificationManager;
@@ -227,12 +227,12 @@ public class AppHandlerService extends Service implements
 	// }
 
 	public void addProgressTask(final String s) {
-		TimerTask t = new TimerTask() {
-			@Override
-			public void run() {
-
-				if (FocusedActivity != null
-						&& FocusedActivity.getClass() == SplashActivity.class) {
+		
+			TimerTask t = new TimerTask() {
+				@Override
+				public void run() {
+					if (FocusedActivity != null
+							&& FocusedActivity.getClass() == SplashActivity.class) {
 					try {
 						String temp = "";
 						for (int i = 0; i < progress_tasks.size(); i++) {
@@ -246,20 +246,23 @@ public class AppHandlerService extends Service implements
 					} catch (Exception ex) {
 						progress_tasks.add(0, ex.getLocalizedMessage());
 					}
+					}
+					if (s != "")
+						progress_tasks.add(0, s);
 				}
-				if (s != "")
-					progress_tasks.add(0, s);
-			}
 
-		};
-		t.run();
-
-	}
+			};
+			t.run();
+		}
+	
 
 	public void onActivityOpen(Activity activity, Context context) {
 		try {
 			FocusedActivity = activity;
-			if (FocusedActivity != null) {
+
+			if (FocusedActivity != null
+					&& !FocusedActivity.toString().toLowerCase()
+							.contains(AppStateClassName.toLowerCase())) {
 				if (AppStateClassName != SplashActivity.class.getName()) {
 					FocusedActivity.runOnUiThread(new Runnable() {
 
@@ -290,7 +293,8 @@ public class AppHandlerService extends Service implements
 	@Override
 	public void onDestroy() {
 		// TODO Auto-generated method stub
-		sendNotification("App Service killed", "my message", 2);
+		sendNotification("task.done", "Background service stoped", 2);
+		((TheApp) getApplicationContext()).setService(null);
 		super.onDestroy();
 
 	}
@@ -378,10 +382,10 @@ public class AppHandlerService extends Service implements
 					break;
 				case Common.USERS_SYNC:
 					if (user_data.is_sync_type) {// >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>needs
-																				// review
+													// review
 						addProgressTask(getString(R.string.users_sync));
-						if(!user_data.all_users_synced)
-						SyncUsers(true);
+						if (!user_data.all_users_synced)
+							SyncUsers(true);
 						else
 							SyncUsers(false);
 						//
@@ -946,7 +950,7 @@ public class AppHandlerService extends Service implements
 	private ArrayList<UserModel> getUsers() {
 		ArrayList<UserModel> users = new ArrayList<UserModel>();
 		try {
-			
+
 			ContentResolver cr = mContext.getContentResolver();
 			final String[] projection = new String[] {
 					ContactsContract.Contacts._ID,
@@ -970,7 +974,7 @@ public class AppHandlerService extends Service implements
 				do {
 					UserModel user = new UserModel();
 					try {
-						
+
 						user.email = rawContacts
 								.getString(rawContacts
 										.getColumnIndex(ContactsContract.CommonDataKinds.Email.DATA));
@@ -980,17 +984,16 @@ public class AppHandlerService extends Service implements
 						user.contact_id = rawContacts.getLong(rawContacts
 								.getColumnIndex(ContactsContract.Contacts._ID))
 								+ "";
-						user.displayName =rawContacts
+						user.displayName = rawContacts
 								.getString(rawContacts
 										.getColumnIndex(ContactsContract.Contacts.DISPLAY_NAME));
 						user.image = loadContactPhoto(photoid);
-						//users.add(user);
+						// users.add(user);
 						db.User_New(user);
-						 
-						 s.add(rawContacts
-								.getString(rawContacts
-										.getColumnIndex(ContactsContract.Contacts.DISPLAY_NAME)));
-						 users.add(user);
+
+						s.add(rawContacts.getString(rawContacts
+								.getColumnIndex(ContactsContract.Contacts.DISPLAY_NAME)));
+						users.add(user);
 					} catch (Exception e) {
 						// addProgressTask(e.getLocalizedMessage());
 						// Toast.makeText(mContext,"Error: "+e.toString(),
@@ -999,7 +1002,7 @@ public class AppHandlerService extends Service implements
 
 				} while (rawContacts.moveToNext());
 				rawContacts.close();
-				
+
 			}
 
 		} catch (Exception e) {
@@ -1007,24 +1010,25 @@ public class AppHandlerService extends Service implements
 		}
 		return users;
 	}
+
 	ArrayList<String> s;
+
 	@SuppressLint("InlinedApi")
 	@Override
 	public void SyncUsers(boolean isFirstTime) {
-		//db.User_Delete_All();
+		// db.User_Delete_All();
 		if (isFirstTime) {
 			// TODO Auto-generated method stub
 			try {
 				db.User_Delete_All();
 				ArrayList<UserModel> users = getUsers();
 				for (UserModel user : users) {
-					//db.User_New(user);
+					// db.User_New(user);
 				}
 
-				
-//				 mSharedPreferencesEditor.putBoolean(Common.ALL_USERS_SYNCED,
-//				 true);
-//				 mSharedPreferencesEditor.commit();
+				// mSharedPreferencesEditor.putBoolean(Common.ALL_USERS_SYNCED,
+				// true);
+				// mSharedPreferencesEditor.commit();
 
 			} catch (Exception e) {
 				addProgressTask(e.getLocalizedMessage());
@@ -1032,16 +1036,14 @@ public class AppHandlerService extends Service implements
 		} else {
 			ArrayList<UserModel> db_data = db.User_List();
 			ArrayList<UserModel> contacts_data = getUsers();
-			for(UserModel c_user: contacts_data)
-			{
+			for (UserModel c_user : contacts_data) {
 				boolean found = false;
-				for(UserModel db_user:db_data)
-				{
-					try{
+				for (UserModel db_user : db_data) {
+					try {
 						String c1 = db_user.contact_id;
 						String c2 = c_user.contact_id;
-						if(db_user.contact_id == c_user.contact_id || db_user.contact_id.equals(c_user.contact_id))
-						{
+						if (db_user.contact_id == c_user.contact_id
+								|| db_user.contact_id.equals(c_user.contact_id)) {
 							found = true;
 							db_user.displayName = c_user.displayName;
 							db_user.image = c_user.image;
@@ -1051,15 +1053,12 @@ public class AppHandlerService extends Service implements
 							contacts_data.remove(c_user);
 							break;
 						}
-					
-					}
-					catch(Exception e)
-					{
-						
+
+					} catch (Exception e) {
+
 					}
 				}
-				if(!found)
-				{
+				if (!found) {
 					db.User_New(c_user);
 				}
 			}
