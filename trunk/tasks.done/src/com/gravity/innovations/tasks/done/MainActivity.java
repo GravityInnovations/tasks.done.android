@@ -26,6 +26,7 @@ import android.graphics.drawable.ColorDrawable;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Parcelable;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
@@ -216,6 +217,7 @@ public class MainActivity extends ActionBarActivity implements
 			}
 		});
 	}
+	
 	@SuppressLint("NewApi")
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -223,6 +225,8 @@ public class MainActivity extends ActionBarActivity implements
 		mContext = this;
 		getActionBar().hide();
 		setContentView(R.layout.activity_main);
+		
+		
 		service =((TheApp) getApplicationContext()).getService();// mBinder.getService();
 		if(service!=null){
 		service.onActivityOpen(this, this);

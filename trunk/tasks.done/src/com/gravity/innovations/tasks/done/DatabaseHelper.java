@@ -745,7 +745,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 	public ArrayList<UserModel> UserList_List(int tasklistID) {
 		ArrayList<String> users_ids = new ArrayList<String>();
 		SQLiteDatabase db = this.getReadableDatabase();
-		String selectQuery = "SELECT  * FROM " + TABLE_USERS_LISTS + KEY_PK
+		String selectQuery = "SELECT  * FROM " + TABLE_USERS_LISTS + " WHERE "+KEY_PK
 				+ " = " + tasklistID;
 
 		Cursor cursor = db.rawQuery(selectQuery, null);
@@ -759,8 +759,13 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 		}
 		cursor.close();
 		db.close();
+		if(users_ids.size()>0){
 		String[] ids = users_ids.toArray(new String[users_ids.size()]);
 		return User_List(ids); // call to a function for returning userModelss
+		}
+		else{
+			return new ArrayList<UserModel>();
+		}
 	}
 
 	private ArrayList<UserModel> User_List(String[] ids) {

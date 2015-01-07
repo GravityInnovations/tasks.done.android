@@ -1864,7 +1864,7 @@ public class NavigationDrawerFragment extends Fragment implements
 
 	public void addUserToTaskList(TaskListModel mTaskList, ArrayList<UserModel> sel_users) {
 		// TODO Auto-generated method stub
-		ArrayList<UserModel> db_users = db.User_List();
+		ArrayList<UserModel> db_users = db.UserList_List(mTaskList._id);
 		ArrayList<UserModel> final_users = new ArrayList<UserModel>();
 		for(UserModel m1:sel_users)
 		{
@@ -1881,6 +1881,7 @@ public class NavigationDrawerFragment extends Fragment implements
 				final_users.add(m1);
 			}
 		}
+		
 		for(UserModel user:final_users)
 		db.UserList_New(mTaskList, user);
 	}
