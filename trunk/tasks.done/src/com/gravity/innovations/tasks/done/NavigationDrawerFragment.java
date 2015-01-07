@@ -7,6 +7,7 @@ import java.util.TimerTask;
 
 import org.json.JSONException;
 import org.json.JSONObject;
+
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
@@ -72,7 +73,7 @@ public class NavigationDrawerFragment extends Fragment implements
 	private ArrayList<TaskListModel> data = new ArrayList<TaskListModel>();
 	private DatabaseHelper db;
 	private Common.userData user_data;
-	int list_type = android.R.drawable.ic_menu_agenda; //default
+	int list_type = android.R.drawable.ic_menu_agenda; // default
 	private View oldSelection = null;// for list icon selection
 	// for storing update time in database
 	long currTime = System.currentTimeMillis();
@@ -684,26 +685,6 @@ public class NavigationDrawerFragment extends Fragment implements
 
 						view.setBackgroundColor(getResources().getColor(
 								R.color.selection_blue));
-						// if a particular position is pressed show a toast
-						// if (position == 0) {
-						// Toast.makeText(mContext,
-						// "Peoples Type Task Selected",
-						// Toast.LENGTH_LONG).show();
-						// } else if (position == 1) {
-						// Toast.makeText(mContext,
-						// "Computer Type Task Selected",
-						// Toast.LENGTH_LONG).show();
-						// } else if (position == 2) {
-						// Toast.makeText(mContext,
-						// "Travel Type Task Selected",
-						// Toast.LENGTH_LONG).show();
-						// } else if (position == 3) {
-						// Toast.makeText(mContext, "Home Type Task Selected",
-						// Toast.LENGTH_LONG).show();
-						// } else if (position == 4) {
-						// Toast.makeText(mContext, "Work Type Task Selected",
-						// Toast.LENGTH_LONG).show();
-						// }
 						if (position == 0) {
 							list_type = android.R.drawable.ic_menu_agenda;
 						} else if (position == 1) {
@@ -840,67 +821,79 @@ public class NavigationDrawerFragment extends Fragment implements
 
 		View view = getActivity().getLayoutInflater().inflate(
 				R.layout.dialog_task_full_details, null);
-		String dialogTitle = "Task Details";
 
-		TextView tv_title = (TextView) view.findViewById(R.id.tv_title);
-		TextView tv_details = (TextView) view.findViewById(R.id.tv_details);
+		TextView tv_title, tv_details, tv_notes, tv_updated, tv_sync_time;
 
-		TextView tv_notes = (TextView) view.findViewById(R.id.tv_notes);
-		TextView tv_created = (TextView) view
-				.findViewById(R.id.tv_date_created);
-		TextView tv_due = (TextView) view.findViewById(R.id.tv_date_due);
-		TextView tv_interval = (TextView) view
-				.findViewById(R.id.tv_reminder_interval);
+		tv_title = (TextView) view.findViewById(R.id.txt_task_name);
+		tv_details = (TextView) view.findViewById(R.id.txt_details);
+		tv_notes = (TextView) view.findViewById(R.id.txt_notes);
+		tv_updated = (TextView) view.findViewById(R.id.txt_time_updated);
+		// TextView tv_due = (TextView) view.findViewById(R.id.);
+		tv_sync_time = (TextView) view.findViewById(R.id.txt_time_synced);
 
-		String title = current.title.toString();
-		tv_title.setText(title);
-
+		// assigning title
+		tv_title.setText(current.title.toString());
+		// assigning details
 		String details = current.details.toString();
-
 		if (details.isEmpty()) {
-			details = "no details yet";// current.details.toString();
+			details = "no details yet";
 			tv_details.setText(details);
 		} else {
 			tv_details.setText(details);
 		}
-
+		// assigning notes
 		String notes = current.notes.toString();
-		tv_notes.setText(notes);
-
-		long date = Long.parseLong(current.updated.toString());
+		if (notes.isEmpty()) {
+			notes = "no details yet";
+			tv_notes.setText(notes);
+		} else {
+			tv_notes.setText(notes);
+		}
+		// long to string time formatting
 		SimpleDateFormat formatter = new SimpleDateFormat("yyyy/MM/dd " + " "
 				+ "hh:MM:ss");
-		String dateString = formatter.format(new Date(date));
-		tv_created.setText(dateString);
+		// assigning updated time
+		if (current.updated == null) {
+			tv_updated.setText("Last Updated: not updated yet");
+		} else {
+			long update = Long.parseLong(current.updated.toString());
+			String dateString = formatter.format(new Date(update));
+			tv_updated.setText("Last Updated: " + dateString);
+		}
+		// assigning sync time
+		try {
+			if (current.syncStatusTimeStamp == null) {
+				tv_sync_time.setText("Last Synced: not synced yet");
+			} else {
+				String lastSyced = (current.syncStatusTimeStamp).toString();
+				long lastSyncTime = Long.parseLong(lastSyced);
+				String syncString = formatter.format(new Date(lastSyncTime));
+				tv_sync_time.setText("Last Synced: " + syncString);
+			}
+		} catch (Exception e) {
+			Log.e("AssigningSycedTimeStamp", "NDF openTaskDetailsDialog");
+		}
+
+		// tv_created.setText(dateString);
 
 		// String dueDate = current.due_at;
 		// String dueDateString = formatter.format(dueDate );
-		String due = current.remind_at;// "well this needs to be fixed";//
-										// current.due_at.toString();
-		tv_due.setText(due);
-
-		String interval = null;
-		if (current.remind_interval == 1) {
-			interval = "once";
-			tv_interval.setText(interval);
-		} else if (current.remind_interval == 2) {
-			interval = "Daily";
-			tv_interval.setText(interval);
-		} else if (current.remind_interval == 3) {
-			interval = "Weekly";
-			tv_interval.setText(interval);
-		} else if (current.remind_interval == 4) {
-			interval = "Monthly";
-			tv_interval.setText(interval);
-		} else if (current.remind_interval == 5) {
-			interval = "Yearly";
-			tv_interval.setText(interval);
-		} else {
-			interval = "none";
-			tv_interval.setText(interval);
-		}
-
-		Common.CustomDialog.CustomDialog(mContext, view);// , dialogTitle);
+		// String due = current.remind_at;// "well this needs to be fixed";//
+		// current.due_at.toString();
+		/*
+		 * tv_due.setText(due);
+		 * 
+		 * String interval = null; if (current.remind_interval == 1) { interval
+		 * = "once"; tv_interval.setText(interval); } else if
+		 * (current.remind_interval == 2) { interval = "Daily";
+		 * tv_interval.setText(interval); } else if (current.remind_interval ==
+		 * 3) { interval = "Weekly"; tv_interval.setText(interval); } else if
+		 * (current.remind_interval == 4) { interval = "Monthly";
+		 * tv_interval.setText(interval); } else if (current.remind_interval ==
+		 * 5) { interval = "Yearly"; tv_interval.setText(interval); } else {
+		 * interval = "none"; tv_interval.setText(interval); }
+		 */
+		Common.CustomDialog.CustomDialog(mContext, view);
 	}
 
 	// @SuppressLint("NewApi")
