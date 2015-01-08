@@ -145,13 +145,12 @@
     </LinearLayout>
 
     <ImageView
-        android:id="@+id/done_toggle"
+        android:id="@+id/detail_done_toggle"
         android:layout_width="150dp"
         android:layout_height="110dp"
         android:layout_alignParentBottom="true"
         android:layout_alignParentRight="true"
         android:layout_alignRight="@+id/LL2"
-        android:background="@drawable/task_row_done_bg"
         android:focusable="false" />
 
 </RelativeLayout>

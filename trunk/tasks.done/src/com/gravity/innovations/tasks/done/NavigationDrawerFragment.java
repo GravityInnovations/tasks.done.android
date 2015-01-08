@@ -236,14 +236,14 @@ public class NavigationDrawerFragment extends Fragment implements
 			public void onItemClick(AdapterView<?> parent, View view,
 					int position, long id) {
 				view.setSelected(true);
-				mAdapter.selected = position-1;
+				mAdapter.selected = position - 1;
 				selectItem(position, -1);
 				// below section for showing ndf list item as selected
-				//clearSelection();
-				//oldSelection = view;
-				
-//				view.setBackgroundColor(getResources().getColor(
-//						R.color.selection_blue));
+				// clearSelection();
+				// oldSelection = view;
+
+				// view.setBackgroundColor(getResources().getColor(
+				// R.color.selection_blue));
 			}
 		};
 		mDrawerListView.setOnItemClickListener(TaskListItemListener);
@@ -291,12 +291,12 @@ public class NavigationDrawerFragment extends Fragment implements
 			}
 		});
 
-		//db = new DatabaseHelper(mContext);
-		//this.data = db.TaskList_List();
-//		mAdapter = new TaskListAdapter(getActivity(),
-//				R.layout.tasklist_listview_row, data);
-//		// mDrawerListView.setTextFilterEnabled(true);//
-//		mDrawerListView.setAdapter(mAdapter);
+		// db = new DatabaseHelper(mContext);
+		// this.data = db.TaskList_List();
+		// mAdapter = new TaskListAdapter(getActivity(),
+		// R.layout.tasklist_listview_row, data);
+		// // mDrawerListView.setTextFilterEnabled(true);//
+		// mDrawerListView.setAdapter(mAdapter);
 		mDrawerListView.setItemChecked(mCurrentSelectedPosition, true);
 
 		return p;// mDrawerListView;
@@ -318,9 +318,10 @@ public class NavigationDrawerFragment extends Fragment implements
 	 * @param user_data
 	 */
 	public void setUp(int fragmentId, DrawerLayout drawerLayout,
-			Context mContext, userData user_data, int tasklistid, int taskid,AppHandlerService service) {
-		this.mService =  service;
-		db = this.mService.db;//new DatabaseHelper(mContext);
+			Context mContext, userData user_data, int tasklistid, int taskid,
+			AppHandlerService service) {
+		this.mService = service;
+		db = this.mService.db;// new DatabaseHelper(mContext);
 		this.user_data = user_data;
 		this.data = db.TaskList_List();
 		mAdapter = new TaskListAdapter(getActivity(),
@@ -663,10 +664,10 @@ public class NavigationDrawerFragment extends Fragment implements
 	 * implement.
 	 */
 	public void clearSelection() {
-//		if (oldSelection != null) {
-//			oldSelection.setBackgroundColor(getResources().getColor(
-//					android.R.color.transparent));
-//		}
+		// if (oldSelection != null) {
+		// oldSelection.setBackgroundColor(getResources().getColor(
+		// android.R.color.transparent));
+		// }
 	}
 
 	public void addOrEditTaskList(final TaskListModel tasklist) {
@@ -821,12 +822,15 @@ public class NavigationDrawerFragment extends Fragment implements
 	}
 
 	// full details of the tasks
-	public void openTaskDetailsDialog(TaskModel current) {
+	public void openTaskDetailsDialog(final TaskListModel parent , final TaskModel current) {
 
 		View view = getActivity().getLayoutInflater().inflate(
 				R.layout.dialog_task_full_details, null);
 
 		TextView tv_title, tv_details, tv_notes, tv_updated, tv_sync_time;
+
+		final ImageView doneToggle = (ImageView) view
+				.findViewById(R.id.detail_done_toggle);
 
 		tv_title = (TextView) view.findViewById(R.id.txt_task_name);
 		tv_details = (TextView) view.findViewById(R.id.txt_details);
@@ -897,6 +901,27 @@ public class NavigationDrawerFragment extends Fragment implements
 		 * 5) { interval = "Yearly"; tv_interval.setText(interval); } else {
 		 * interval = "none"; tv_interval.setText(interval); }
 		 */
+		if (current.completed == 1) {
+			doneToggle.setBackgroundResource(R.drawable.task_row_done_bg);
+		} else if (current.completed == 0) {
+			doneToggle.setBackgroundResource(R.drawable.task_row_bg);
+		}
+
+		doneToggle.setOnClickListener(new OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				if (current.completed == 1) {
+					doneToggle.setBackgroundResource(R.drawable.task_row_bg);
+					current.completed = 0;
+					MarkDoneTask(parent, current);
+				} else if (current.completed == 0) {
+					current.completed = 1;
+					MarkDoneTask(parent, current);
+					doneToggle
+							.setBackgroundResource(R.drawable.task_row_done_bg);
+				}
+			}
+		});
 		Common.CustomDialog.CustomDialog(mContext, view);
 	}
 
@@ -1548,113 +1573,27 @@ public class NavigationDrawerFragment extends Fragment implements
 
 	public void reminderListDialogActionThree(final TaskListModel tasklist,
 			final TaskModel temp) {
-		/*
-		 * AlertDialog.Builder builder = new AlertDialog.Builder(mContext);
-		 * builder.setTitle("Location"); builder.setMessage("Go Premium");
-		 * builder.setPositiveButton(R.string.dialog_ok, new
-		 * DialogInterface.OnClickListener() { public void
-		 * onClick(DialogInterface dialog, int id) { dialog.cancel();
-		 * openReminderListDialog(tasklist, temp); } });
-		 * builder.setNegativeButton(R.string.dialog_back, new
-		 * DialogInterface.OnClickListener() { public void
-		 * onClick(DialogInterface dialog, int id) { dialog.cancel();
-		 * openReminderListDialog(tasklist, temp); } });
-		 * builder.setCancelable(false); final Dialog dialog = builder.create();
-		 * dialog.show();
-		 */
-		// ********************************************************************//
-		listof_nameEmailPic();
 
-	}
-
-	public void listof_nameEmailPic() {
-//		DatabaseHelper h = new DatabaseHelper(mContext);
-//		/*
-//		 * DialogInterface.OnClickListener negListener = new OnClickListener() {
-//		 * 
-//		 * 
-//		 * @Override public void onClick(View v) { dialog.cancel(); } };
-//		 * 
-//		 * DialogInterface.OnClickListener posListener = new OnClickListener( )
-//		 * {
-//		 * 
-//		 * @Override public void onClick(DialogInterface dialog, int which) {
-//		 * dialog.cancel(); Toast.makeText(mContext, toString().valueOf(which),
-//		 * Toast.LENGTH_SHORT).show(); TaskModel tempModel= null; String temp =
-//		 * tempModel.associated_usermodels; temp = temp+", "+ which;
-//		 * tempModel.associated_usermodels=temp; db.Task_Edit(tempModel); } };
-//		 */ArrayList<UserModel> email_records = new ArrayList<UserModel>();
-//
-//		ArrayList<Common.CustomViewsData.MultiSelectRowData> users = new ArrayList<Common.CustomViewsData.MultiSelectRowData>();
-//
-//		email_records = h.User_List();
-//
-//		// ArrayList<UserModel> nonRedundentAndSortEmailRecords = new
-//		// ArrayList<UserModel>();
-//
-//		for (UserModel temp : email_records) {
-//			Common.CustomViewsData.MultiSelectRowData user = new Common.CustomViewsData.MultiSelectRowData();
-//			user.text1 = temp.displayName;
-//			user.text2 = temp.email;
-//			// Bitmap bmp = BitmapFactory.decodeByteArray(temp.image, 0,
-//			// temp.image.length);
-//			// ImageView image = (ImageView) findViewById(R.id.imageView1);
-//
-//			// user.iconRes.setImageBitmap(bmp);
-//			// byte[] byteArray = getBlob(temp.image);
-//			// Bitmap bm = BitmapFactory.decodeByteArray(byteArray, 0
-//			// ,byteArray.length);
-//
-//			user.iconRes = temp.image;
-//			users.add(user);
-//
-//		}
-//		/*
-//		 * final MultiSelectListAdapter adapter = new
-//		 * MultiSelectListAdapter(mContext, R.layout.multiselectlist_row,
-//		 * users); // DialogInterface.OnClickListener itemClickListner = new
-//		 * OnClickListener() { // @Override // public void
-//		 * onClick(DialogInterface dialog, int which) { // // dialog.cancel();
-//		 * // adapter.setNewSelection(which, true); // // } // };
-//		 * OnItemClickListener onItemClickListener = new OnItemClickListener() {
-//		 * 
-//		 * @Override public void onItemClick(AdapterView<?> parent, View view,
-//		 * int position, long id) { adapter.setOrRemoveSelection(position);
-//		 * 
-//		 * view.setBackgroundColor(getResources().getColor(
-//		 * R.color.selection_blue)); } };
-//		 * Common.CustomDialog.MultiChoiceDialog(mContext, adapter,
-//		 * onItemClickListener, negListener, posListener, R.string.dialog_ok,
-//		 * R.string.dialog_cancel, "Share");
-//		 */
-//
-//		AlertDialog.Builder builder = new AlertDialog.Builder(mContext);
-//		builder.setTitle("Reminder");
-//		final ListView modeList = new ListView(mContext);
-//
-//		String[] list_item = { "Once", "Once a Day", "Once a Week",
-//				"Once a Month", "Once a Year" };
-//
-//		ArrayAdapter<UserModel> itemsAdapter = new ArrayAdapter<UserModel>(
-//				mContext, R.layout.multiselectlist_row, email_records);
-//
-//		modeList.setAdapter(itemsAdapter);
-//		builder.setView(modeList);
-//
-//		builder.setCancelable(false);
-//		final Dialog dialog = builder.create();
-//		dialog.show();
-//
-//		modeList.setOnItemClickListener(new OnItemClickListener() {
-//			public void onItemClick(AdapterView<?> myAdapter, View myView,
-//					int myItemInt, long mylng) {
-//				// String selectedFromList = (String) (modeList
-//				// .getItemAtPosition(myItemInt));
-//				// selectRepeatDialogItemId(tasklist, myItemInt, temp);//
-//				// listitemid
-//				dialog.dismiss();
-//			}
-//		});
+		AlertDialog.Builder builder = new AlertDialog.Builder(mContext);
+		builder.setTitle("Location");
+		builder.setMessage("Go Premium");
+		builder.setPositiveButton(R.string.dialog_ok,
+				new DialogInterface.OnClickListener() {
+					public void onClick(DialogInterface dialog, int id) {
+						dialog.cancel();
+						openReminderListDialog(tasklist, temp);
+					}
+				});
+		builder.setNegativeButton(R.string.dialog_back,
+				new DialogInterface.OnClickListener() {
+					public void onClick(DialogInterface dialog, int id) {
+						dialog.cancel();
+						openReminderListDialog(tasklist, temp);
+					}
+				});
+		builder.setCancelable(false);
+		final Dialog dialog = builder.create();
+		dialog.show();
 
 	}
 
@@ -1862,45 +1801,40 @@ public class NavigationDrawerFragment extends Fragment implements
 
 	}
 
-	public void addUserToTaskList(TaskListModel mTaskList, ArrayList<UserModel> sel_users) {
+	public void addUserToTaskList(TaskListModel mTaskList,
+			ArrayList<UserModel> sel_users) {
 		// TODO Auto-generated method stub
 		ArrayList<UserModel> db_users = db.UserList_List(mTaskList._id);
 		ArrayList<UserModel> final_users = new ArrayList<UserModel>();
 		ArrayList<UserModel> del_users = new ArrayList<UserModel>();
-		for(UserModel m1:sel_users)
-		{
+		for (UserModel m1 : sel_users) {
 			boolean flag = true;
-			for(UserModel m2:db_users)
-			{
-				if(m1._id == m2._id)
-				{
+			for (UserModel m2 : db_users) {
+				if (m1._id == m2._id) {
 					flag = false;
 					break;
 				}
 			}
-			if(flag){
+			if (flag) {
 				final_users.add(m1);
 			}
 		}
-		for(UserModel m1:db_users)
-		{
+		for (UserModel m1 : db_users) {
 			boolean flag = false;
-			for(UserModel m2:sel_users)
-			{
-				if(m1._id == m2._id)
-				{
+			for (UserModel m2 : sel_users) {
+				if (m1._id == m2._id) {
 					flag = true;
 					break;
 				}
 			}
-			if(!flag){
+			if (!flag) {
 				del_users.add(m1);
 			}
 		}
-		for(UserModel user:final_users)
+		for (UserModel user : final_users)
 			db.UserList_New(mTaskList, user);
-		for(UserModel user:del_users)
-			db.UserList_Delete(mTaskList._id, user._id);//del
+		for (UserModel user : del_users)
+			db.UserList_Delete(mTaskList._id, user._id);// del
 	}
 
 }

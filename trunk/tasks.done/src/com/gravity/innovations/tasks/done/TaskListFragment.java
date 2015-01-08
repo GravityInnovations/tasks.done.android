@@ -378,7 +378,7 @@ public class TaskListFragment extends Fragment {
 					 */
 					//--pos;
 					 mNavigationDrawerFragment
-					 .openTaskDetailsDialog(mTaskAdapter.getItem(pos));
+					 .openTaskDetailsDialog(data, mTaskAdapter.getItem(pos));
 
 					// emId.getSingularSelectedTaskModel() );
 					// mTaskAdapter.sellectThisThing(pos);
