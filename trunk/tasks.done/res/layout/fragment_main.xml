@@ -13,24 +13,23 @@
         android:background="#88B1C5"
         android:clickable="true" >
 
-        
-        
         <RelativeLayout
             android:id="@+id/top_layout"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_alignParentLeft="true"
             android:layout_alignParentTop="true"
+            android:layout_marginBottom="10dp"
             android:layout_marginLeft="10dp"
             android:layout_marginRight="10dp"
-            android:layout_marginBottom="10dp"
             android:layout_marginTop="35dp" >
- <ImageView
+
+            <ImageView
                 android:id="@+id/tasklist_icon"
                 android:layout_width="35dp"
                 android:layout_height="35dp"
-                android:layout_alignParentLeft="true"
                 android:layout_alignParentBottom="true"
+                android:layout_alignParentLeft="true"
                 android:src="@android:drawable/ic_dialog_info" />
 
             <TextView
@@ -38,7 +37,6 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_alignBottom="@+id/tasklist_icon"
-                
                 android:layout_marginLeft="10dp"
                 android:layout_toRightOf="@+id/tasklist_icon"
                 android:shadowColor="#242424"
@@ -48,7 +46,7 @@
                 android:text="Task List Title"
                 android:textColor="#ffffff"
                 android:textSize="22sp" />
-           
+
             <ImageView
                 android:id="@+id/img_sync"
                 android:layout_width="30dp"
@@ -57,8 +55,6 @@
                 android:layout_alignParentTop="true"
                 android:layout_marginLeft="5dp"
                 android:src="@drawable/ic_unsynced" />
-
-           
         </RelativeLayout>
         <!-- <Button -->
         <!-- android:layout_width="wrap_content" -->
@@ -117,8 +113,6 @@
                 android:src="@android:drawable/ic_menu_delete" />
         </LinearLayout>
 
-        
-
         <View
             android:id="@+id/search_line"
             android:layout_width="fill_parent"
@@ -126,36 +120,32 @@
             android:layout_alignParentBottom="true"
             android:background="@color/line_divider" />
     </RelativeLayout>
-   
-        <ListView
-               android:dividerHeight="3px"
-               android:scrollingCache="true"
-               android:divider="#bbb"
-    
-    android:id="@+id/list"
-    android:background="@android:color/transparent"
-    android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    
-        android:layout_below="@+id/header"
-    android:focusable="false"
-    android:clipChildren="false"
-    android:focusableInTouchMode="false" />
-         
-  
 
-<Button
-    android:id="@+id/floating_button"
-    android:layout_width="60dp"
-    android:layout_height="60dp"
-    android:layout_alignParentBottom="true"
-    android:layout_alignParentRight="true"
-    android:layout_marginBottom="20dp"
-    android:layout_marginRight="20dp"
-    android:background="@drawable/floating_button_selector"
-    android:clickable="true"
-    android:drawableStart="@drawable/ic_action_new"
-    android:gravity="center_vertical"
-    android:onClick="floatButtonOnClick" />
+    <ListView
+        android:id="@+id/list"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/header"
+        android:background="@android:color/transparent"
+        android:clipChildren="false"
+        android:divider="#bbb"
+        android:dividerHeight="3px"
+        android:focusable="false"
+        android:focusableInTouchMode="false"
+        android:scrollingCache="true" />
+
+    <Button
+        android:id="@+id/floating_button"
+        android:layout_width="60dp"
+        android:layout_height="60dp"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentRight="true"
+        android:layout_marginBottom="20dp"
+        android:layout_marginRight="20dp"
+        android:background="@drawable/floating_button_selector"
+        android:clickable="true"
+        android:drawableStart="@drawable/ic_action_new"
+        android:gravity="center_vertical"
+        android:onClick="floatButtonOnClick" />
 
 </RelativeLayout>
