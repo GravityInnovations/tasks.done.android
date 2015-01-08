@@ -280,6 +280,7 @@ public class Common {
 			AlertDialog.Builder builder = new AlertDialog.Builder(context);			
 			builder.setView(view);
 			builder.create().show();
+			builder.setCancelable(true);
 			return builder;
 		}
 		

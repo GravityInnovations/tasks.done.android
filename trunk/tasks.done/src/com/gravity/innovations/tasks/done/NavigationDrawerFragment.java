@@ -118,6 +118,7 @@ public class NavigationDrawerFragment extends Fragment implements
 	private int mUserActionBarColor;
 	private OnItemClickListener TaskListItemListener;
 	private AppHandlerService mService;
+	private Builder mDialogBuilder;
 
 	public NavigationDrawerFragment() {
 	}
@@ -960,8 +961,7 @@ public class NavigationDrawerFragment extends Fragment implements
 				deleteTask(parent, arrayList);
 			}
 		});
-
-		Common.CustomDialog.CustomDialog(mContext, view);
+		mDialogBuilder = Common.CustomDialog.CustomDialog(mContext, view);
 	}
 
 	// @SuppressLint("NewApi")
@@ -1156,7 +1156,6 @@ public class NavigationDrawerFragment extends Fragment implements
 		builder.setCancelable(false);
 		final Dialog dialog = builder.create();
 		dialog.show();
-
 		modeList.setOnItemClickListener(new OnItemClickListener() {
 			public void onItemClick(AdapterView<?> myAdapter, View myView,
 					int myItemInt, long mylng) {
