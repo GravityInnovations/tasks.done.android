@@ -24,16 +24,20 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.View.OnTouchListener;
 import android.view.ViewGroup;
+import android.view.ViewGroup.LayoutParams;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.widget.AbsListView.MultiChoiceModeListener;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.AdapterView.OnItemLongClickListener;
+import android.widget.EditText;
 import android.widget.GridView;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.ListView;
+import android.widget.RelativeLayout;
+import android.widget.ScrollView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -172,9 +176,12 @@ public class TaskListFragment extends Fragment {
 
 		if (true){//(data.tasks != null && data.tasks.size() > 0) {
 			mListView = (ListView) rootView.findViewById(R.id.list);	
-
-			//header on each fragment
 			
+			//header on each fragment
+			RelativeLayout header = (RelativeLayout)rootView.findViewById(R.id.header);
+			mTextView_listName = (TextView) rootView.findViewById(R.id.tasklist_name);
+			mTextView_listName.setText(data.title);
+
 			mImageView = (ImageView) rootView.findViewById(R.id.tasklist_icon);
 			try {
 				mActivity = getActivity();
@@ -186,44 +193,61 @@ public class TaskListFragment extends Fragment {
 				String msg = "listIconSetResource";
 				Log.e(tag, msg);
 			}
-			mTextView_listName = (TextView) rootView.findViewById(R.id.tasklist_name);
-			mTextView_listName.setText(data.title);
-
-			mTextView_syncedTime = (TextView) rootView.findViewById(R.id.time_sync);
+			
+			
+		
+			mTaskAdapter = new TaskAdapter(getActivity(),
+					R.layout.task_listview_row, data,
+					mNavigationDrawerFragment, data.tasks, selectedTaskID);
+			View lv_footer = inflater.inflate(
+					R.layout.fragment_main_footer, null);// navigation_drawer_header,
+																		// null);
+			
+			mTextView_syncedTime = (TextView) lv_footer.findViewById(R.id.time_sync);
 
 			if(data.syncStatusTimeStamp!=null){
 			mTextView_syncedTime.setText(data.syncStatusTimeStamp);
 			}else{
-				mTextView_syncedTime.setText("Not Synced Yet");
+				mTextView_syncedTime.setText("Never");
 			}
-			mGridView = (GridView) rootView
+			mGridView = (GridView) lv_footer
  					.findViewById(R.id.gridView1);
 			mActivity= getActivity();
 		
 			ArrayList<Bitmap> users_images = getUsersImages(this.data.users);
 					
 					//new ArrayList<Bitmap>();// getUsersImages(((MainActivity)mActivity).getUsers());//new ArrayList<Bitmap>();//getUsersImages(this.data.users);
-			mUsersAdapter =new BitmapAdapter(mActivity, R.layout.grid_cell, users_images, mActivity);// new ImageGridAdapter(users_images, getActivity().getApplicationContext());
-			mGridView.setVerticalScrollBarEnabled(false);
-			mGridView.setHorizontalScrollBarEnabled(false);
-			mGridView.setOnTouchListener(new OnTouchListener(){
-
-			    @Override
-			    public boolean onTouch(View v, MotionEvent event) {
-			        if(event.getAction() == MotionEvent.ACTION_MOVE){
-			            return true;
-			        }
-			        return false;
-			    }
-
-			});
+			mUsersAdapter =new BitmapAdapter(mActivity,mGridView, R.layout.grid_cell, users_images, mActivity);// new ImageGridAdapter(users_images, getActivity().getApplicationContext());
+	
+//			mGridView.setOnTouchListener(new OnTouchListener(){
+//
+//			    @Override
+//			    public boolean onTouch(View v, MotionEvent event) {
+//			        if(event.getAction() == MotionEvent.ACTION_MOVE){
+//			            return true;
+//			        }
+//			        return false;
+//			    }
+//
+//			});
 			mGridView.setAdapter(mUsersAdapter);
-		
-			mTaskAdapter = new TaskAdapter(getActivity(),
-					R.layout.task_listview_row, data,
-					mNavigationDrawerFragment, data.tasks, selectedTaskID);
-			mListView.setAdapter(mTaskAdapter);
+//			mGridView.setLayoutParams(new LayoutParams(mActivityLayoutParams.WRAP_CONTENT));
+//			RelativeLayout.LayoutParams params = (RelativeLayout.LayoutParams)
+//					mGridView.getLayoutParams();
+//					params.height = 130;
+//					mGridView.setLayoutParams(params);
+			// ImageView image = (ImageView) header.findViewById(R.id.image);
 
+			
+			// EditText name = (EditText) header.findViewById(R.id.text_name);
+			// EditText email = (EditText) header.findViewById(R.id.text_email);
+			
+			mListView.addFooterView(lv_footer);
+			boolean b = mListView.addStatesFromChildren();
+//			ScrollView v = (ScrollView) rootView.findViewById(R.id.sv);
+//			v.requestDisallowInterceptTouchEvent(disallowIntercept);
+			mListView.setAdapter(mTaskAdapter);
+		mGridView.requestDisallowInterceptTouchEvent(true);
 			mTaskAdapter.notifyDataSetChanged();
 
 			// Swipe to delete task
