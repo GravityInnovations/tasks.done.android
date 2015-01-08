@@ -2,6 +2,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="#efefef"
     tools:context="com.gravity.innovations.tasks.done.MainActivity$PlaceholderFragment" >
 
     <RelativeLayout
@@ -12,6 +13,8 @@
         android:background="#88B1C5"
         android:clickable="true" >
 
+        
+        
         <RelativeLayout
             android:id="@+id/top_layout"
             android:layout_width="match_parent"
@@ -20,14 +23,14 @@
             android:layout_alignParentTop="true"
             android:layout_marginLeft="10dp"
             android:layout_marginRight="10dp"
+            android:layout_marginBottom="10dp"
             android:layout_marginTop="35dp" >
-
-            <ImageView
+ <ImageView
                 android:id="@+id/tasklist_icon"
                 android:layout_width="35dp"
                 android:layout_height="35dp"
                 android:layout_alignParentLeft="true"
-                android:layout_alignParentTop="true"
+                android:layout_alignParentBottom="true"
                 android:src="@android:drawable/ic_dialog_info" />
 
             <TextView
@@ -35,7 +38,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_alignBottom="@+id/tasklist_icon"
-                android:layout_marginBottom="0dp"
+                
                 android:layout_marginLeft="10dp"
                 android:layout_toRightOf="@+id/tasklist_icon"
                 android:shadowColor="#242424"
@@ -44,8 +47,8 @@
                 android:shadowRadius="2"
                 android:text="Task List Title"
                 android:textColor="#ffffff"
-                android:textSize="20sp" />
-
+                android:textSize="22sp" />
+           
             <ImageView
                 android:id="@+id/img_sync"
                 android:layout_width="30dp"
@@ -55,38 +58,7 @@
                 android:layout_marginLeft="5dp"
                 android:src="@drawable/ic_unsynced" />
 
-            <TextView
-                android:id="@+id/time_title_sync"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_alignParentTop="true"
-                android:layout_toLeftOf="@+id/img_sync"
-                android:text="Last Synced:"
-                android:textColor="#ffffff"
-                android:textSize="11sp" />
-            <!-- android:src="@android:drawable/stat_sys_upload_done" -->
-            <!-- <ImageButton -->
-            <!-- android:id="@+id/btn_share" -->
-
-
-            <!-- android:layout_width="wrap_content" -->
-            <!-- android:layout_alignParentTop="true" -->
-            <!-- android:layout_height="wrap_content" -->
-            <!-- android:layout_alignParentRight="true" -->
-            <!-- android:src="@android:drawable/stat_notify_sync" -->
-            <!-- android:padding="0dp" -->
-            <!-- android:clickable="true" -->
-            <!-- android:background="@drawable/default_button_selector" /> -->
-
-            <TextView
-                android:id="@+id/time_sync"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_alignLeft="@+id/time_title_sync"
-                android:layout_below="@+id/time_title_sync"
-                android:text="29/12/1989"
-                android:textColor="#ffffff"
-                android:textSize="11sp" />
+           
         </RelativeLayout>
         <!-- <Button -->
         <!-- android:layout_width="wrap_content" -->
@@ -145,20 +117,7 @@
                 android:src="@android:drawable/ic_menu_delete" />
         </LinearLayout>
 
-        <GridView
-            android:id="@+id/gridView1"
-            android:layout_width="wrap_content"
-            android:layout_height="40dp"
-            android:layout_alignParentBottom="true"
-            android:layout_alignParentLeft="true"
-            android:layout_marginBottom="5dp"
-            android:layout_marginLeft="5dp"
-            android:layout_marginRight="30dp"
-            android:layout_toLeftOf="@id/LL3"
-            android:columnWidth="40dp"
-            android:numColumns="auto_fit"
-            android:stackFromBottom="false"
-            android:visibility="visible" />
+        
 
         <View
             android:id="@+id/search_line"
@@ -167,16 +126,24 @@
             android:layout_alignParentBottom="true"
             android:background="@color/line_divider" />
     </RelativeLayout>
-
    
-
-<ListView
+        <ListView
+               android:dividerHeight="3px"
+               android:scrollingCache="true"
+               android:divider="#bbb"
+    
     android:id="@+id/list"
-    android:layout_width="fill_parent"
+    android:background="@android:color/transparent"
+    android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:layout_below="@+id/header"
+    
+        android:layout_below="@+id/header"
     android:focusable="false"
+    android:clipChildren="false"
     android:focusableInTouchMode="false" />
+         
+  
+
 <Button
     android:id="@+id/floating_button"
     android:layout_width="60dp"

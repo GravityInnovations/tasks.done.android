@@ -20,13 +20,31 @@ public class BitmapAdapter extends
 		ArrayAdapter<Bitmap> {
 	private Context mContext;
 	private Activity mActivity;
+	private GridView mGridView;
 	
-	public BitmapAdapter(Context context, int resource, ArrayList<Bitmap> objects, Activity mActivity) {
+	public BitmapAdapter(Context context, GridView mGridView, int resource, ArrayList<Bitmap> objects, Activity mActivity) {
 		super(context, resource, objects);
 		this.mContext = mContext;
 		this.mActivity = mActivity;
+		this.mGridView = mGridView;
 		// TODO Auto-generated constructor stub
 	}
+	
+	
+	@Override
+	public void notifyDataSetChanged() {
+		// TODO Auto-generated method stub
+		super.notifyDataSetChanged();
+		//mGridView.setLayoutParams(new LayoutParams(mActivityLayoutParams.WRAP_CONTENT));
+//		GridView.LayoutParams params = (GridView.LayoutParams)
+//				mGridView.getLayoutParams();
+//			
+//				params.height = 300;
+//				mGridView.setLayoutParams(params);
+//				mGridView
+	}
+
+
 	@Override
 	// create a new ImageView for each item referenced by the Adapter
 	public View getView(int position, View convertView, ViewGroup parent) {

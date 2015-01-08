@@ -20,6 +20,7 @@ import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ArrayAdapter;
 import android.widget.GridView;
 import android.widget.ImageView;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -195,13 +196,13 @@ public class TaskAdapter extends ArrayAdapter<TaskModel> {
 		} else {
 			holder = (TaskModelHolder) row.getTag();
 		}
-
-		row.setBackgroundColor(activity.getResources().getColor(
+		RelativeLayout rl = (RelativeLayout) row.findViewById(R.id.one);
+		rl.setBackgroundColor(activity.getResources().getColor(
 				android.R.color.background_light)); // default color
 		// ((LinearLayout)row.findViewById(R.id.submenu)).setVisibility(View.GONE);
 		if (mSelection.get(position) != null) {
 			// ((LinearLayout)row.findViewById(R.id.submenu)).setVisibility(View.VISIBLE);
-			row.setBackgroundColor(activity.getResources().getColor(
+			rl.setBackgroundColor(activity.getResources().getColor(
 					R.color.selection_blue));
 			// getResources().getColor(android.R.color.holo_blue_light));
 		}
