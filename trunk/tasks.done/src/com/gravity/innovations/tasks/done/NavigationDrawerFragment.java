@@ -10,7 +10,9 @@ import org.json.JSONObject;
 
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.app.AlertDialog.Builder;
 import android.app.Dialog;
+import android.app.TimePickerDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -822,15 +824,26 @@ public class NavigationDrawerFragment extends Fragment implements
 	}
 
 	// full details of the tasks
-	public void openTaskDetailsDialog(final TaskListModel parent , final TaskModel current) {
+	public void openTaskDetailsDialog(final TaskListModel parent,
+			final TaskModel current) {
 
-		View view = getActivity().getLayoutInflater().inflate(
+		final View view = getActivity().getLayoutInflater().inflate(
 				R.layout.dialog_task_full_details, null);
 
 		TextView tv_title, tv_details, tv_notes, tv_updated, tv_sync_time;
 
-		final ImageView doneToggle = (ImageView) view
-				.findViewById(R.id.detail_done_toggle);
+		final ImageView doneToggle, taskEdit, taskShare, taskDelete;
+
+		doneToggle = (ImageView) view.findViewById(R.id.detail_done_toggle);
+
+		taskEdit = (ImageView) view
+				.findViewById(R.id.btn_edit_task_detail_dialog);
+
+		taskShare = (ImageView) view
+				.findViewById(R.id.btn_share_task_detail_dialog);
+
+		taskDelete = (ImageView) view
+				.findViewById(R.id.btn_delete_task_detail_dialog);
 
 		tv_title = (TextView) view.findViewById(R.id.txt_task_name);
 		tv_details = (TextView) view.findViewById(R.id.txt_details);
@@ -922,6 +935,32 @@ public class NavigationDrawerFragment extends Fragment implements
 				}
 			}
 		});
+
+		taskEdit.setOnClickListener(new OnClickListener() {
+
+			@Override
+			public void onClick(View v) {
+				addOrEditTask(parent, current);
+			}
+		});
+		taskShare.setOnClickListener(new OnClickListener() {
+
+			@Override
+			public void onClick(View v) {
+				// code here for share
+			}
+		});
+
+		taskDelete.setOnClickListener(new OnClickListener() {
+
+			@Override
+			public void onClick(View v) {
+				ArrayList<Integer> arrayList = new ArrayList<Integer>();
+				arrayList.add(current._id);
+				deleteTask(parent, arrayList);
+			}
+		});
+
 		Common.CustomDialog.CustomDialog(mContext, view);
 	}
 

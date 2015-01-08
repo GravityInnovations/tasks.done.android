@@ -5,6 +5,8 @@ import java.util.ArrayList;
 import java.util.StringTokenizer;
 
 import org.json.JSONObject;
+
+import android.animation.AnimatorSet.Builder;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.ContentResolver;
@@ -273,14 +275,12 @@ public class Common {
 			builder.setView(view);
 			builder.create().show();
 		}
-		public static final void CustomDialog(final Context context, View view) {
+		public static final AlertDialog.Builder CustomDialog(final Context context, View view) {
 
-			AlertDialog.Builder builder = new AlertDialog.Builder(context);
-		//	builder.setIcon(android.R.drawable.ic_dialog_alert);
-			//builder.setTitle(dialogTitle);
-			
+			AlertDialog.Builder builder = new AlertDialog.Builder(context);			
 			builder.setView(view);
 			builder.create().show();
+			return builder;
 		}
 		
 		

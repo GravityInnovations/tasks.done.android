@@ -117,7 +117,7 @@
         android:orientation="horizontal" >
 
         <ImageButton
-            android:id="@+id/btn_edit"
+            android:id="@+id/btn_edit_task_detail_dialog"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:background="@drawable/default_button_selector"
@@ -126,7 +126,7 @@
             android:src="@android:drawable/ic_menu_edit" />
 
         <ImageButton
-            android:id="@+id/btn_delete"
+            android:id="@+id/btn_delete_task_detail_dialog"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:background="@drawable/default_button_selector"
@@ -135,7 +135,7 @@
             android:src="@android:drawable/ic_menu_delete" />
 
         <ImageButton
-            android:id="@+id/btn_share"
+            android:id="@+id/btn_share_task_detail_dialog"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:background="@drawable/default_button_selector"
