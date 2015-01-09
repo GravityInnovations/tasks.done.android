@@ -2,17 +2,20 @@ package com.gravity.innovations.tasks.done;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.TimerTask;
 
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.AlertDialog.Builder;
 import android.app.Dialog;
 import android.app.TimePickerDialog;
+import android.content.ContentUris;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -23,9 +26,13 @@ import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
+import android.net.Uri;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
+import android.provider.CalendarContract;
+import android.provider.CalendarContract.Events;
 import android.support.v4.app.ActionBarDrawerToggle;
+import android.support.v4.app.DialogFragment;
 import android.support.v4.app.Fragment;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
@@ -827,141 +834,14 @@ public class NavigationDrawerFragment extends Fragment implements
 	// full details of the tasks
 	public void openTaskDetailsDialog(final TaskListModel parent,
 			final TaskModel current) {
-
-		final View view = getActivity().getLayoutInflater().inflate(
-				R.layout.dialog_task_full_details, null);
-
-		TextView tv_title, tv_details, tv_notes, tv_updated, tv_sync_time;
-
-		final ImageView doneToggle, taskEdit, taskShare, taskDelete;
-
-		doneToggle = (ImageView) view.findViewById(R.id.detail_done_toggle);
-
-		taskEdit = (ImageView) view
-				.findViewById(R.id.btn_edit_task_detail_dialog);
-
-		taskShare = (ImageView) view
-				.findViewById(R.id.btn_share_task_detail_dialog);
-
-		taskDelete = (ImageView) view
-				.findViewById(R.id.btn_delete_task_detail_dialog);
-
-		tv_title = (TextView) view.findViewById(R.id.txt_task_name);
-		tv_details = (TextView) view.findViewById(R.id.txt_details);
-		tv_notes = (TextView) view.findViewById(R.id.txt_notes);
-		tv_updated = (TextView) view.findViewById(R.id.txt_time_updated);
-		// TextView tv_due = (TextView) view.findViewById(R.id.);
-		tv_sync_time = (TextView) view.findViewById(R.id.txt_time_synced);
-
-		// assigning title
-		tv_title.setText(current.title.toString());
-		// assigning details
-		String details = current.details.toString();
-		if (details.isEmpty()) {
-			details = "no details yet";
-			tv_details.setText(details);
-		} else {
-			tv_details.setText(details);
-		}
-		// assigning notes
-		String notes = current.notes.toString();
-		if (notes.isEmpty()) {
-			notes = "no details yet";
-			tv_notes.setText(notes);
-		} else {
-			tv_notes.setText(notes);
-		}
-		// long to string time formatting
-		SimpleDateFormat formatter = new SimpleDateFormat("yyyy/MM/dd " + " "
-				+ "hh:MM:ss");
-		// assigning updated time
-		if (current.updated == null) {
-			tv_updated.setText("Last Updated: not updated yet");
-		} else {
-			long update = Long.parseLong(current.updated.toString());
-			String dateString = formatter.format(new Date(update));
-			tv_updated.setText("Last Updated: " + dateString);
-		}
-		// assigning sync time
 		try {
-			if (current.syncStatusTimeStamp == null) {
-				tv_sync_time.setText("Last Synced: not synced yet");
-			} else {
-				String lastSyced = (current.syncStatusTimeStamp).toString();
-				long lastSyncTime = Long.parseLong(lastSyced);
-				String syncString = formatter.format(new Date(lastSyncTime));
-				tv_sync_time.setText("Last Synced: " + syncString);
-			}
+			DialogViewFragment dialog = new DialogViewFragment(parent, current, this);
+			dialog.setStyle(DialogFragment.STYLE_NO_TITLE, 0);
+			dialog.show(getChildFragmentManager(), "asdf");
+
 		} catch (Exception e) {
-			Log.e("AssigningSycedTimeStamp", "NDF openTaskDetailsDialog");
+			e.printStackTrace();
 		}
-
-		// tv_created.setText(dateString);
-
-		// String dueDate = current.due_at;
-		// String dueDateString = formatter.format(dueDate );
-		// String due = current.remind_at;// "well this needs to be fixed";//
-		// current.due_at.toString();
-		/*
-		 * tv_due.setText(due);
-		 * 
-		 * String interval = null; if (current.remind_interval == 1) { interval
-		 * = "once"; tv_interval.setText(interval); } else if
-		 * (current.remind_interval == 2) { interval = "Daily";
-		 * tv_interval.setText(interval); } else if (current.remind_interval ==
-		 * 3) { interval = "Weekly"; tv_interval.setText(interval); } else if
-		 * (current.remind_interval == 4) { interval = "Monthly";
-		 * tv_interval.setText(interval); } else if (current.remind_interval ==
-		 * 5) { interval = "Yearly"; tv_interval.setText(interval); } else {
-		 * interval = "none"; tv_interval.setText(interval); }
-		 */
-		if (current.completed == 1) {
-			doneToggle.setBackgroundResource(R.drawable.task_row_done_bg);
-		} else if (current.completed == 0) {
-			doneToggle.setBackgroundResource(R.drawable.task_row_bg);
-		}
-
-		doneToggle.setOnClickListener(new OnClickListener() {
-			@Override
-			public void onClick(View v) {
-				if (current.completed == 1) {
-					doneToggle.setBackgroundResource(R.drawable.task_row_bg);
-					current.completed = 0;
-					MarkDoneTask(parent, current);
-				} else if (current.completed == 0) {
-					current.completed = 1;
-					MarkDoneTask(parent, current);
-					doneToggle
-							.setBackgroundResource(R.drawable.task_row_done_bg);
-				}
-			}
-		});
-
-		taskEdit.setOnClickListener(new OnClickListener() {
-
-			@Override
-			public void onClick(View v) {
-				addOrEditTask(parent, current);
-			}
-		});
-		taskShare.setOnClickListener(new OnClickListener() {
-
-			@Override
-			public void onClick(View v) {
-				// code here for share
-			}
-		});
-
-		taskDelete.setOnClickListener(new OnClickListener() {
-
-			@Override
-			public void onClick(View v) {
-				ArrayList<Integer> arrayList = new ArrayList<Integer>();
-				arrayList.add(current._id);
-				deleteTask(parent, arrayList);
-			}
-		});
-		mDialogBuilder = Common.CustomDialog.CustomDialog(mContext, view);
 	}
 
 	// @SuppressLint("NewApi")
@@ -1609,29 +1489,42 @@ public class NavigationDrawerFragment extends Fragment implements
 				dialogTitle);
 	}
 
+	@SuppressLint("NewApi")
 	public void reminderListDialogActionThree(final TaskListModel tasklist,
 			final TaskModel temp) {
+		/*
+		 * AlertDialog.Builder builder = new AlertDialog.Builder(mContext);
+		 * builder.setTitle("Location"); builder.setMessage("Go Premium");
+		 * builder.setPositiveButton(R.string.dialog_ok, new
+		 * DialogInterface.OnClickListener() { public void
+		 * onClick(DialogInterface dialog, int id) { dialog.cancel();
+		 * openReminderListDialog(tasklist, temp); } });
+		 * builder.setNegativeButton(R.string.dialog_back, new
+		 * DialogInterface.OnClickListener() { public void
+		 * onClick(DialogInterface dialog, int id) { dialog.cancel();
+		 * openReminderListDialog(tasklist, temp); } });
+		 * builder.setCancelable(false); final Dialog dialog = builder.create();
+		 * dialog.show();
+		 */
 
-		AlertDialog.Builder builder = new AlertDialog.Builder(mContext);
-		builder.setTitle("Location");
-		builder.setMessage("Go Premium");
-		builder.setPositiveButton(R.string.dialog_ok,
-				new DialogInterface.OnClickListener() {
-					public void onClick(DialogInterface dialog, int id) {
-						dialog.cancel();
-						openReminderListDialog(tasklist, temp);
-					}
-				});
-		builder.setNegativeButton(R.string.dialog_back,
-				new DialogInterface.OnClickListener() {
-					public void onClick(DialogInterface dialog, int id) {
-						dialog.cancel();
-						openReminderListDialog(tasklist, temp);
-					}
-				});
-		builder.setCancelable(false);
-		final Dialog dialog = builder.create();
-		dialog.show();
+		Calendar beginTime = Calendar.getInstance();
+		beginTime.set(2015, 1, 8, 3, 48);
+		Calendar endTime = Calendar.getInstance();
+		endTime.set(2015, 1, 8, 3, 50);
+		Intent intent = new Intent(Intent.ACTION_INSERT)
+				.setData(Events.CONTENT_URI)
+				.putExtra(CalendarContract.EXTRA_EVENT_BEGIN_TIME,
+						beginTime.getTimeInMillis())
+				.putExtra(CalendarContract.EXTRA_EVENT_END_TIME,
+						endTime.getTimeInMillis())
+				.putExtra(Events.TITLE, "task.done> TASK.DONE")
+				.putExtra(Events.DESCRIPTION, "App Complition")
+				.putExtra(Events.EVENT_LOCATION, "Gravity Innovation")
+				.putExtra(Events.AVAILABILITY, Events.AVAILABILITY_BUSY)
+				.putExtra(Intent.EXTRA_EMAIL,
+						"mushahidhassan110@example.com,trevor@example.com");
+		// startActivity(intent);
+		startActivityForResult(intent, 2525);
 
 	}
 
