@@ -9,6 +9,7 @@ import com.google.android.gms.internal.ey;
 
 import android.content.ContentValues;
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
@@ -156,8 +157,23 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
 	// ********* SQLite Table Structure Queries *********//
 
-	public DatabaseHelper(Context cContext) {
-		super(cContext, DATABASE_NAME, null, DATABASE_VERSION);
+	private SharedPreferences mSharedPreferences;
+	private SharedPreferences.Editor mSharedPreferencesEditor;
+	private AppHandlerService service = null;
+	public DatabaseHelper(Context mContext) {
+		
+		super(mContext, DATABASE_NAME, null, DATABASE_VERSION);
+		try{
+		service = (AppHandlerService)mContext;
+		
+			
+		}catch(Exception e)
+		{
+			service = null;
+		}
+		//mSharedPreferences = mContext.getSharedPreferences(Common.SHARED_PREF_KEY,
+//				Context.MODE_MULTI_PROCESS);
+//		mSharedPreferencesEditor = mSharedPreferences.edit();
 	}
 
 	// ********* Creating Tables *********//
@@ -462,8 +478,12 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 		values.put(KEY_LIST_TYPE, tasklist.icon_identifier);
 
 		int id = (int) db.insert(TABLE_TASK_LIST, null, values);
-
+		tasklist._id = id;
 		db.close();
+		if(id!=-1 && tasklist.server_id == "" && service.hasInternet)
+		{
+			GravityController.post_tasklist(service, service.user_data, tasklist, -1);
+		}
 		return id;
 		// return true; //boolean to check if the tasklist is added in db
 
@@ -485,10 +505,18 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 		ContentValues values = new ContentValues();
 		values.put(KEY_TITLE, tasklist.title);
 		values.put(KEY_LIST_TYPE, tasklist.icon_identifier);
+		values.put(KEY_SERVER_ID, tasklist.server_id);
+		values.put(KEY_ETAG, tasklist.etag);
+		values.put(KEY_UPDATED_AT, tasklist.updated);
+		values.put(KEY_SELF_LINK, tasklist.self_link);
+		values.put(KEY_KIND, tasklist.kind);
+		values.put(KEY_USER_ID, tasklist.user_id);
+		values.put(KEY_SYNC_STATUS, tasklist.syncStatus);
+		values.put(KEY_SYNC_STATUS_TIMESTAMP, tasklist.syncStatusTimeStamp);
 		return db.update(TABLE_TASK_LIST, values, KEY_PK + " = ?",
 				new String[] { String.valueOf(tasklist._id) });
 	}
-
+	
 	// Getting All TasksLists
 
 	public ArrayList<TaskListModel> TaskList_List() {
@@ -594,7 +622,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 					user.text1 = (cursor.getString(1));
 					user.text2 = (cursor.getString(2));
 					user.iconRes = (cursor.getBlob(4));
-
+					
 					// Adding Task to list
 					users.add(user);
 				} while (cursor.moveToNext());
@@ -651,18 +679,47 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 		ContentValues values = new ContentValues();
 
 		values.put(KEY_USER_NAME, user.name);// added later
-
+		
 		values.put(KEY_DISPLAY_NAME, user.displayName);
 		values.put(KEY_USER_EMAIL, user.email);
+		
 		values.put(KEY_USER_IMAGE, user.image);
 		values.put(KEY_CONTACT_ID, user.contact_id);
 
 		int id = (int) db.insert(TABLE_USERS, null, values);
 		db.close();
+//		if(service!=null)
+//		{
+//			GravityController.
+//		}
+//		if(id!=-1){
+//			String PendingServerUsers = mSharedPreferences.getString(SharedPreferencesHelper.Pending_Sync_Users, "");
+//			
+//			if(PendingServerUsers!="")
+//			PendingServerUsers+=","+id;
+//			else if(PendingServerUsers == "")
+//				PendingServerUsers=id+"";
+//			
+//			mSharedPreferencesEditor.putString(SharedPreferencesHelper.Pending_Sync_Users, PendingServerUsers);
+//		}
+		
 		return id;
 		// return true; //boolean to check if the user is added in db
 	}
+	public int User_validate(UserModel user)
+	{
+		SQLiteDatabase db = this.getWritableDatabase();
 
+		ContentValues values = new ContentValues();
+		values.put(KEY_USER_NAME, user.name);
+		values.put(KEY_SERVER_ID, user.server_id);
+		//values.put(KEY_USER_EMAIL, user.email);
+
+		
+				int i = db.update(TABLE_USERS, values, KEY_PK  + " = ?",
+				new String[] { String.valueOf(user._id) });// updating row
+				return i;
+	}
 	// Edit a UserModel
 	public int User_Edit(UserModel user) {
 		SQLiteDatabase db = this.getWritableDatabase();
@@ -670,11 +727,11 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 		ContentValues values = new ContentValues();
 		values.put(KEY_USER_NAME, user.name);
 		values.put(KEY_DISPLAY_NAME, user.displayName);
-		values.put(KEY_USER_EMAIL, user.email);
+		//values.put(KEY_USER_EMAIL, user.email);
 		values.put(KEY_USER_IMAGE, user.image);
 
 		values.put(KEY_USER_ID, user.server_id);
-		return db.update(TABLE_TASKS, values, KEY_PK + " = ?",
+		return db.update(TABLE_USERS, values, KEY_PK + " = ?",
 				new String[] { String.valueOf(user._id) });// updating row
 	}
 
@@ -702,13 +759,17 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
 			Cursor cursor = db.rawQuery(selectQuery, null);
 			int contactIdCol = cursor.getColumnIndex(KEY_CONTACT_ID);
+			int NameCol = cursor.getColumnIndex(KEY_USER_NAME);
+			int ServerIdCol = cursor.getColumnIndex(KEY_SERVER_ID);
 			// looping through all rows and adding to list
 			if (cursor.moveToFirst()) {
 				do {
 					UserModel userModel = new UserModel();
 					userModel._id = (Integer.parseInt(cursor.getString(0)));
+					userModel.name = (cursor.getString(NameCol));
 					userModel.displayName = (cursor.getString(6));
 					userModel.email = (cursor.getString(2));
+					userModel.server_id = (cursor.getString(ServerIdCol));
 					userModel.image = (cursor.getBlob(4));
 					userModel.contact_id = (cursor.getString(contactIdCol));
 					data.add(userModel);

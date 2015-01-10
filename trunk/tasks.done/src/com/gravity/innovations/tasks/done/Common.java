@@ -97,10 +97,11 @@ public class Common {
 	public static final String AUTH_ACTIVITY = "AuthenticationActivity";
 	public static final String SPLASH_ACTIVITY = "SplashActivity";
 	//gravity urls
-	public static final String GRAVITY_BASE_URL = "http://192.168.1.4/";
+	public static final String GRAVITY_BASE_URL = "http://192.168.1.5/";
 	public static final String GRAVITY_ACCOUNT_URL = GRAVITY_BASE_URL+"Account/";
 	public static final String GRAVITY_GCM_URL = GRAVITY_BASE_URL+"GCM/";
 	public static final String GRAVITY_TASKLIST_URL = GRAVITY_BASE_URL+"TaskList/";
+	public static final String GRAVITY_TASK_URL = GRAVITY_BASE_URL+"Task/";
 	
 	//google urls
 	public static final String USER_INFO_URL = "https://www.googleapis.com/oauth2/v1/userinfo?alt=json&access_token=";//require token
@@ -113,9 +114,12 @@ public class Common {
 		public static final int GRAVITY_SEND_TASKLIST = 995;
 		public static final int GRAVITY_GET_TASKLISTS = 994;
 		public static final int GOOGLE_GET_USER_INFO = 993;
+		public static final int GRAVITY_VALIDATE_USERS = 992;
+		public static final int GRAVITY_GET_TASKS = 991;
 	}
 	public static class serviceActions{
 		public static final String START_APP = "startapplication";
+		public static final String RESTART_SERVICE = "restartservice";
 		public static final String USER_START_APP = "userstartedapplication";
 	}
 	public class EXCEPTIONS {
@@ -259,6 +263,7 @@ public class Common {
 		public static class MultiSelectRowData {
 			public String text1, text2;
 			public byte[] iconRes;
+			public int iconResId;
 			// public int iconRes;
 		}
 	}

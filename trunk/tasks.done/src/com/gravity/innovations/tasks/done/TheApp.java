@@ -21,16 +21,22 @@ public class TheApp extends Application {
 		
 		// TODO Auto-generated method stub
 		super.onCreate();
+		i = new Intent(this, AppHandlerService.class);
+		i.setAction(Common.serviceActions.START_APP);
+		getApplicationContext().startService(i);
 		//showNotification(1000, "App created", new Intent());
 		
 	}
-	public void startService(final Common.Callbacks.ServiceCallback caller)
+	private Intent i;
+	private Common.Callbacks.ServiceCallback last_caller = null;
+	public void startService(Common.Callbacks.ServiceCallback caller)
 	{
-		Intent i = new Intent(this, AppHandlerService.class);
+		last_caller = caller;
+		i = new Intent(this, AppHandlerService.class);
 		i.setAction(Common.serviceActions.START_APP);
 		
-		//ComponentName x = getApplicationContext().startService(i);
-		getApplicationContext().bindService(i, new ServiceConnection() {
+		//ComponentName a = getApplicationContext().startService(i);
+		 getApplicationContext().bindService(i, new ServiceConnection() {
 			
 			@Override
 			public void onServiceDisconnected(ComponentName name) {
@@ -43,15 +49,61 @@ public class TheApp extends Application {
 				// TODO Auto-generated method stub
 				
 				HandleService = ((AppHandlerService.AppHandlerBinder)service).getService();
-				caller.onServiceBound(HandleService);
+				last_caller.onServiceBound(HandleService);
 				
 			}
 
 		}, Context.BIND_AUTO_CREATE);
+		
+	}
+	public void restartService(Common.Callbacks.ServiceCallback caller)
+	{
+		last_caller = caller;
+		i = new Intent(this, AppHandlerService.class);
+		i.setAction(Common.serviceActions.RESTART_SERVICE);
+		
+		ComponentName a = getApplicationContext().startService(i);
+		 getApplicationContext().bindService(i, new ServiceConnection() {
+			
+			@Override
+			public void onServiceDisconnected(ComponentName name) {
+				// TODO Auto-generated method stub
+				HandleService = null;
+			}
+			
+			@Override
+			public void onServiceConnected(ComponentName name, IBinder service) {
+				// TODO Auto-generated method stub
+				
+				HandleService = ((AppHandlerService.AppHandlerBinder)service).getService();
+				last_caller.onServiceBound(HandleService);
+				
+			}
+
+		}, Context.BIND_AUTO_CREATE);
+		
 	}
 	public void setService(AppHandlerService service)
 	{
 		this.HandleService = service;
+	}
+	public boolean stopService()
+	{
+		
+		if(HandleService!=null && this.stopService(i)){
+			//HandleService.commandLock = true;
+			
+			
+			if(!HandleService.commandLock)
+			{
+				//setService(null);
+				HandleService.commandLock = true;
+				HandleService.onDestroy();
+				restartService(last_caller);
+			}
+			return true;
+		}
+		else return false;
 	}
 	public AppHandlerService getService()
 	{

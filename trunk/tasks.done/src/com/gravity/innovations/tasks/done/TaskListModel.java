@@ -7,7 +7,7 @@ public class TaskListModel {
 	public String title;
 	public String gravity_id = "";
 
-	public String server_id;
+	public String server_id="";
 	public String etag;
 	public String updated;
 	public String self_link;

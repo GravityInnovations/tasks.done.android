@@ -113,8 +113,8 @@ public class MultiSelectListAdapter extends
 			LinearLayout l = (LinearLayout)row.findViewById(R.id.LL);
 			holder.text1 = (TextView) l.findViewById(R.id.textView1);
 			holder.text2 = (TextView) l.findViewById(R.id.textView2);
-			holder.icon = (ImageView) row.findViewById(R.id.imageView1);
-			
+			holder.icon1 = (ImageView) row.findViewById(R.id.imageView1);
+			holder.icon2 = (ImageView) row.findViewById(R.id.imageView2);
 			 row.setTag(holder);
 		} else {
 			holder = (ViewHolder) row.getTag();
@@ -134,16 +134,23 @@ public class MultiSelectListAdapter extends
 				
 				Bitmap b = ImageGridAdapter.getRoundedCornerBitmap(Bitmap.createScaledBitmap(converttoimage(current.iconRes),
 						150, 150, true));
-				holder.icon.setImageBitmap(b);
+				holder.icon1.setImageBitmap(b);
 			}else{
 				
 			//holder.icon.setImageResource(R.drawable.catag_personal);
 				
 			Bitmap b = ImageGridAdapter.getRoundedCornerBitmap(Bitmap.createScaledBitmap((BitmapFactory.decodeResource(r, R.drawable.catag_personal)),
 					150, 150, true));
-			holder.icon.setImageBitmap(b);
+			holder.icon1.setImageBitmap(b);
 			
-			}// there was nothing here
+			}
+			if(current.iconResId!=-1){
+				holder.icon2.setBackgroundResource(current.iconResId);
+				holder.icon2.setVisibility(View.VISIBLE);
+			}
+			else
+				holder.icon2.setVisibility(View.GONE);
+			// there was nothing here
 		} catch (Exception ex) {
 			String x = ex.toString();
 		}
@@ -168,7 +175,7 @@ public class MultiSelectListAdapter extends
 
 	class ViewHolder {
 		TextView text1, text2;
-		ImageView icon;
+		ImageView icon1, icon2;
 	}
 
 }

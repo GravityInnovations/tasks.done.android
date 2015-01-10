@@ -171,7 +171,7 @@ public class SplashActivity extends Activity implements
 //			mBinder= (AppHandlerService.AppHandlerBinder)b.getBinder("binder");
 //			
 			
-			service =((TheApp) getApplicationContext()).getService();// mBinder.getService();
+			service =handleService;//((TheApp) getApplicationContext()).getService();// mBinder.getService();
 			service.onActivityOpen(this, this);
 			service.addProgressTask("User Started Application");
 			//Toast.makeText(getApplicationContext(),x.flattenToString(), 
@@ -576,12 +576,7 @@ public class SplashActivity extends Activity implements
 //			TriggerWaitEvent(Common.CONFIG_GCM);
 //			addProgressTask(getString(R.string.checking_other_settings));
 //			addProgressTask(getString(R.string.config_gcm));
-			if(Common.hasInternet(mActivity))
-			{
-				addProgressTask(getString(R.string.google_get_user_info));
-				
-				TriggerEvent(Common.GOOGLE_USER_INFO);
-			}
+			
 			
 			
 			//runWorker
@@ -764,25 +759,7 @@ public class SplashActivity extends Activity implements
 
 	@Override
 	public void CheckInternet() {
-		if (Common.hasInternet(mActivity)) {
-			addProgressTask(getString(R.string.internet_stable));
-			addProgressTask(getString(R.string.checking_other_settings));
-			addProgressTask(getString(R.string.config_gcm));
-			TriggerEvent(Common.CONFIG_GCM);
-			TriggerEvent(Common.GET_ACCOUNT);
-			TriggerEvent(Common.USERS_SYNC);
-			//TriggerNextEvent();
-			//TriggerNextEvent();
-			//TriggerWaitEvent(Common.CONFIG_GCM);
-			
-
-		} else {
-			addProgressTask(getString(R.string.no_internet));
-			addProgressTask(getString(R.string.require_internet));
-			//TriggerWaitEvent(Common.GO_TO_MAIN);
-			addProgressTask(getString(R.string.complete));
-			avoidTasks = splash_actions.size()-doneTasks;
-		}
+		
 	}
 
 	@Override

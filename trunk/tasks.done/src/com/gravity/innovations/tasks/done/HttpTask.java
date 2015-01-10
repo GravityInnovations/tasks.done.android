@@ -114,13 +114,13 @@ public class HttpTask extends AsyncTask<Void, Void, JSONObject> {
 		try {
 			HttpClient httpclient = new DefaultHttpClient();
 			HttpGet get = new HttpGet(this.Url);
-
+			
 			response = httpclient.execute(get);
 			HttpEntity entity = response.getEntity();
 			resultString = EntityUtils.toString(entity);
 			jsonObject = JsonHelper.toJsonObject(resultString);
 			String status = jsonObject.getString("status");
-			if(status.equals("Success"))
+			if(status.toLowerCase().equals("success"))
 			this.ResponseCode = Common.HTTP_RESPONSE_OK;
 			else 
 				this.ResponseCode = Common.HTTP_RESPONSE_ERROR;
@@ -209,7 +209,7 @@ public class HttpTask extends AsyncTask<Void, Void, JSONObject> {
 			HttpEntity entity = response.getEntity();
 			resultString = EntityUtils.toString(entity);
 			if (this.postData != null
-					&& (resultString.contains("Success") || resultString
+					&& (resultString.toLowerCase().equals("success") || resultString
 							.contains("User already exists"))) {
 				// post
 				this.ResponseCode = Common.HTTP_RESPONSE_OK;

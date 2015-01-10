@@ -447,8 +447,14 @@ public class TaskListFragment extends Fragment {
 		ArrayList<String> S = new ArrayList<String>();
 		for (UserModel temp : users) {
 			Common.CustomViewsData.MultiSelectRowData user = new Common.CustomViewsData.MultiSelectRowData();
+			
+			if(temp.name== null || temp.name=="" || temp.name.isEmpty() )
+				
 			user.text1 = temp.displayName;
-			user.text2 = temp.email;
+			else
+				user.text1 = temp.name;
+			
+				user.text2 = temp.email;
 			
 			// Bitmap bmp = BitmapFactory.decodeByteArray(temp.image, 0,
 			// temp.image.length);
@@ -460,6 +466,9 @@ public class TaskListFragment extends Fragment {
 			// ,byteArray.length);
 			S.add(temp.displayName);
 			user.iconRes = temp.image;
+			if(temp.server_id!="" && temp.server_id!=null)
+				user.iconResId = R.drawable.ic_launcher;
+			else user.iconResId = -1;
 			users_lv.add(user);
 			for(UserModel m1: this.data.users)
 			{
@@ -542,9 +551,14 @@ public class TaskListFragment extends Fragment {
 		ArrayList<String> S = new ArrayList<String>();
 		for (UserModel temp : users) {
 			Common.CustomViewsData.MultiSelectRowData user = new Common.CustomViewsData.MultiSelectRowData();
-			user.text1 = temp.displayName;
+			if(temp.name== null || temp.name=="" || temp.name.isEmpty() )
+					user.text1 = temp.displayName;
+				else
+					user.text1 = temp.name;
 			user.text2 = temp.email;
-			
+			if(temp.server_id!="" && temp.server_id!=null)
+				user.iconResId = R.drawable.ic_launcher;
+			else user.iconResId = -1;
 			
 			S.add(temp.displayName);
 			user.iconRes = temp.image;

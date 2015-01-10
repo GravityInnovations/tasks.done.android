@@ -33,35 +33,50 @@ public class GravityController {
 				Common.HttpMethod.HttpPost,RequestCode);
 		Temp.execute();
 	}
-	public static void get_gravity_accounts(int RequestCode, int deletethis)
+	public static void validate_gravity_accounts(Context context, String Emails,int RequestCode)
 	{
-		
-		HttpTask Temp = new HttpTask(Common.GRAVITY_ACCOUNT_URL, RequestCode);
-		Temp.execute();
-	}
-	public static void get_tasklists(Activity activity, Common.userData user_data,int RequestCode)
-	{
-		String params = "?id="+user_data.gravity_user_id;
-		//HttpTask Temp = new HttpTask(Common.GRAVITY_TASKLIST_URL+params, RequestCode);
-		HttpTask Temp = new HttpTask(activity, Common.GRAVITY_TASKLIST_URL+params, null,
+		String params = "?Emails="+Emails;
+		HttpTask Temp = new HttpTask(context,Common.GRAVITY_ACCOUNT_URL+params, null,
 				Common.HttpMethod.HttpGet,
 				RequestCode);
 		Temp.execute();
 	}
-	public static void post_tasklist(Activity activity,Common.userData user_data, TaskListModel tasklist, int RequestCode)
+	
+	public static void get_tasklists(Context context, Common.userData user_data,int RequestCode)
+	{
+		
+		String params = "?id="+user_data.gravity_user_id;
+		//HttpTask Temp = new HttpTask(Common.GRAVITY_TASKLIST_URL+params, RequestCode);
+		HttpTask Temp = new HttpTask(context, Common.GRAVITY_TASKLIST_URL+params, null,
+				Common.HttpMethod.HttpGet,
+				RequestCode);
+		Temp.execute();
+	}
+	public static void get_tasks(Context context, Common.userData user_data,int RequestCode)
+	{
+		
+		String params = "?id="+user_data.gravity_user_id;
+		//HttpTask Temp = new HttpTask(Common.GRAVITY_TASKLIST_URL+params, RequestCode);
+		HttpTask Temp = new HttpTask(context, Common.GRAVITY_TASK_URL+params, null,
+				Common.HttpMethod.HttpGet,
+				RequestCode);
+		Temp.execute();
+	}
+	public static void post_tasklist(Context context,Common.userData user_data, TaskListModel tasklist, int RequestCode)
 	{
 		List<NameValuePair> postData = new ArrayList<NameValuePair>();
 		postData.add(new BasicNameValuePair("deviceid", user_data.google_reg_id));
 		postData.add(new BasicNameValuePair("userid", user_data.gravity_user_id));
+		postData.add(new BasicNameValuePair("dataid",tasklist._id+""));
 		//add or edit
-		if(tasklist.gravity_id != ""){
+		if(tasklist.server_id!= ""){
 			postData.add(new BasicNameValuePair("_id", tasklist.gravity_id));
 			postData.add(new BasicNameValuePair("action", "edit"));
 		}
 		else
 			postData.add(new BasicNameValuePair("action", "add"));
 		postData.add(new BasicNameValuePair("title", tasklist.title));
-		HttpTask Temp = new HttpTask(activity, Common.GRAVITY_TASKLIST_URL, postData,Common.HttpMethod.HttpPost,
+		HttpTask Temp = new HttpTask(context, Common.GRAVITY_TASKLIST_URL, postData,Common.HttpMethod.HttpPost,
 				RequestCode);
 		Temp.execute();
 	}

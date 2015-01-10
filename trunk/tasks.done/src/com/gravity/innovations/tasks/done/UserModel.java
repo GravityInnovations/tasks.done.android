@@ -1,5 +1,8 @@
 package com.gravity.innovations.tasks.done;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
 public class UserModel {
 
 	// private variables
@@ -10,14 +13,23 @@ public class UserModel {
 	public byte[] image;
 	public String phone;
 
-	// variables for email functions
 	public String displayName;
 	// string email
 	public String contact_id;
 
 	public UserModel() {
 	}
-
+	public JSONObject toJsonObj()
+	{
+		 JSONObject obj = new JSONObject();
+	        try {
+	            obj.put("Email", email);
+	        } catch (JSONException e) {
+	           // trace("DefaultListItem.toString JSONException: "+e.getMessage());
+	        }
+	        return obj;
+	}
+	
 //	public UserModel(int id, String _name, String _email, String _server_id,
 //			byte[] _image) {
 //		this._id = id;

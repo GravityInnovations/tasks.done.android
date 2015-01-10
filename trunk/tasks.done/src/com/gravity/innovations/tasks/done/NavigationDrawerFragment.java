@@ -639,10 +639,10 @@ public class NavigationDrawerFragment extends Fragment implements
 		int position = this.mAdapter.getPosition(temp);
 		selectItem(++position, -1);
 
-		if (user_data.is_sync_type && Common.hasInternet(mActivity)) {
-			GravityController.post_tasklist(mActivity, user_data, temp,
-					Common.RequestCodes.GRAVITY_SEND_TASKLIST);
-		}
+//		if (user_data.is_sync_type && Common.hasInternet(mActivity)) {
+//			GravityController.post_tasklist(mActivity, user_data, temp,
+//					Common.RequestCodes.GRAVITY_SEND_TASKLIST);
+//		}
 	}
 
 	/*

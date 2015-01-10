@@ -2,10 +2,10 @@ package com.gravity.innovations.tasks.done;
 
 import java.io.File;
 import java.io.FileOutputStream;
-import java.io.IOException;
 import java.io.InputStream;
 import java.lang.Thread.UncaughtExceptionHandler;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.TimerTask;
 
 import org.json.JSONArray;
@@ -14,13 +14,9 @@ import org.json.JSONObject;
 
 import com.google.android.gms.common.AccountPicker;
 import com.google.android.gms.gcm.GoogleCloudMessaging;
-import com.google.android.gms.internal.ac;
-import com.google.android.gms.plus.model.people.Person;
-
 import android.accounts.AccountManager;
 import android.annotation.SuppressLint;
 import android.app.Activity;
-import android.app.IntentService;
 import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
@@ -28,7 +24,6 @@ import android.app.Service;
 import android.content.Context;
 import android.content.DialogInterface.OnClickListener;
 import android.content.ContentResolver;
-import android.content.ContentUris;
 import android.content.ContextWrapper;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -38,19 +33,13 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
-import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Binder;
-import android.os.Bundle;
-import android.os.Handler;
 import android.os.IBinder;
 import android.provider.ContactsContract;
 import android.provider.ContactsContract.Data;
 import android.provider.ContactsContract.Contacts.Photo;
-import android.support.v4.app.LoaderManager;
 import android.support.v4.app.NotificationCompat;
-import android.view.View;
-import android.widget.ImageView;
 import android.widget.Toast;
 
 public class AppHandlerService extends Service implements
@@ -61,7 +50,7 @@ public class AppHandlerService extends Service implements
 	private NotificationManager mNotificationManager;
 	private Intent thisIntent;
 	private Intent AppStateIntent;
-	private String AppStateClassName;
+	public String AppStateClassName;
 	private Activity FocusedActivity;
 
 	private SharedPreferences mSharedPreferences;
@@ -69,7 +58,8 @@ public class AppHandlerService extends Service implements
 	private Boolean isFirstTime = true;
 	private Context mContext = this;
 	public DatabaseHelper db = null;
-
+	public boolean hasInternet = false;
+	private NotificationHandler nH= null;
 	public AppHandlerService() {
 		super();
 		// setIntentRedelivery(true);
@@ -96,9 +86,15 @@ public class AppHandlerService extends Service implements
 			AppStateIntent = new Intent(this, SplashActivity.class);
 			AppStateClassName = SplashActivity.class.getName();
 			user_data = new Common.userData();
+			nH = new NotificationHandler(this);
+			
 			// InitEvents();
+			
 			sendNotification("task.done", "background service is running", 2);
 			//
+//			 LoadLocalDB() ;
+//			SyncUsers(true);
+			//TriggerEvent(Common.USERS_SYNC);
 			TriggerEvent(Common.LOAD_PREFS);
 		} catch (Exception ex) {
 			progress_tasks.add(0, ex.getLocalizedMessage());
@@ -114,12 +110,15 @@ public class AppHandlerService extends Service implements
 	// }
 	int dddd = 0;
 
+
+	boolean commandLock = false;
 	@SuppressLint("NewApi")
 	@Override
 	public int onStartCommand(Intent intent, int flags, int startId) {
 		// TODO Auto-generated method stub
+		//sendNotification("title", "onstart"+dddd,dddd++);
 		try {
-
+			
 			if (flags == 0) {
 				thisIntent = intent;
 				((TheApp) getApplicationContext()).setService(this);
@@ -138,6 +137,12 @@ public class AppHandlerService extends Service implements
 					// sendNotification("App Service Started", "my message"+x,
 					// 1);
 				}
+				else if(intent.getAction() == Common.serviceActions.RESTART_SERVICE)
+				{
+					sendNotification("task.done", "background service is running", 2);
+
+					TriggerEvent(Common.LOAD_PREFS);
+				}
 
 				if (isFirstTime) {
 					isFirstTime = false;
@@ -155,48 +160,49 @@ public class AppHandlerService extends Service implements
 
 	@SuppressLint("NewApi")
 	public void sendNotification(String Title, String Message, int RequestCode) {
-		thisIntent = new Intent(this, testActivity.class);
-		// Bundle b = new Bundle();
-		// b.putBinder("mybinder",new AppHandlerBinder());
-		// thisIntent.putExtra("service", b);
-		// Intent intent = new Intent(this, MainActivity.class);
-		mNotificationManager = (NotificationManager) this
-				.getSystemService(Context.NOTIFICATION_SERVICE);
-
-		PendingIntent contentIntent = // PendingIntent.getService(this,
-		// RequestCode, thisIntent, 0);
-
-		PendingIntent.getActivity(this, RequestCode, thisIntent, /*
-																 * PendingIntent.
-																 * FLAG_UPDATE_CURRENT
-																 * |
-																 */
-				Intent.FILL_IN_DATA | Intent.FLAG_ACTIVITY_NEW_TASK);
-		// | Intent.FLAG_ACTIVITY_SINGLE_TOP);
-
-		// use the right class it should be called from the where alarms are set
-		NotificationCompat.Builder mBuilder = new NotificationCompat.Builder(
-				this)
-				.setSmallIcon(R.drawable.ic_launcher)
-				.setContentTitle(Title)
-				.setStyle(
-						new NotificationCompat.BigTextStyle().bigText(Message))
-				.setDefaults(
-						Notification.FLAG_NO_CLEAR
-								| Notification.FLAG_ONGOING_EVENT
-								| Notification.DEFAULT_SOUND
-								| Notification.DEFAULT_LIGHTS
-								| Notification.DEFAULT_VIBRATE
-								| Notification.DEFAULT_ALL)
-				.setContentText(Message);
-		// mBuilder.addAction(R.drawable.ic_action_cancel, "Dismiss",
-		// contentIntent);
-		// mBuilder.addAction(R.drawable.ic_action_accept, "Done",
-		// contentIntent);
-		// x++;
-
-		mBuilder.setContentIntent(contentIntent);
-		mNotificationManager.notify(RequestCode, mBuilder.build());
+		nH.showNotification(RequestCode, Message, new Intent(this, AppHandlerService.class));
+//		thisIntent = new Intent(this, testActivity.class);
+//		// Bundle b = new Bundle();
+//		// b.putBinder("mybinder",new AppHandlerBinder());
+//		// thisIntent.putExtra("service", b);
+//		// Intent intent = new Intent(this, MainActivity.class);
+//		mNotificationManager = (NotificationManager) this
+//				.getSystemService(Context.NOTIFICATION_SERVICE);
+//
+//		PendingIntent contentIntent = // PendingIntent.getService(this,
+//		// RequestCode, thisIntent, 0);
+//
+//		PendingIntent.getActivity(this, RequestCode, thisIntent, /*
+//																 * PendingIntent.
+//																 * FLAG_UPDATE_CURRENT
+//																 * |
+//																 */
+//				Intent.FILL_IN_DATA | Intent.FLAG_ACTIVITY_NEW_TASK);
+//		// | Intent.FLAG_ACTIVITY_SINGLE_TOP);
+//
+//		// use the right class it should be called from the where alarms are set
+//		NotificationCompat.Builder mBuilder = new NotificationCompat.Builder(
+//				this)
+//				.setSmallIcon(R.drawable.ic_launcher)
+//				.setContentTitle(Title)
+//				.setStyle(
+//						new NotificationCompat.BigTextStyle().bigText(Message))
+//				.setDefaults(
+//						Notification.FLAG_NO_CLEAR
+//								| Notification.FLAG_ONGOING_EVENT
+//								| Notification.DEFAULT_SOUND
+//								| Notification.DEFAULT_LIGHTS
+//								| Notification.DEFAULT_VIBRATE
+//								| Notification.DEFAULT_ALL)
+//				.setContentText(Message);
+//		// mBuilder.addAction(R.drawable.ic_action_cancel, "Dismiss",
+//		// contentIntent);
+//		// mBuilder.addAction(R.drawable.ic_action_accept, "Done",
+//		// contentIntent);
+//		// x++;
+//
+//		mBuilder.setContentIntent(contentIntent);
+//		mNotificationManager.notify(RequestCode, mBuilder.build());
 
 	}
 
@@ -423,7 +429,7 @@ public class AppHandlerService extends Service implements
 					if (donetasks == todotasks) {
 						AppStateIntent = new Intent(FocusedActivity,
 								MainActivity.class);
-						AppStateClassName = MainActivity.class.getName();
+						//AppStateClassName = MainActivity.class.getName();
 						FocusedActivity.runOnUiThread(new Runnable() {
 
 							@Override
@@ -467,7 +473,7 @@ public class AppHandlerService extends Service implements
 	@Override
 	public void LoadLocalDB() {
 		db = new DatabaseHelper(this);
-
+		db.User_New(new UserModel("sp","sp"));
 	}
 
 	@Override
@@ -506,7 +512,7 @@ public class AppHandlerService extends Service implements
 			// addProgressTask(getString(R.string.checking_other_settings));
 			// addProgressTask(getString(R.string.config_gcm));
 			addProgressTask("Google Authentication complete");
-			if (Common.hasInternet(mContext)) {
+			if (hasInternet) {
 				addProgressTask(getString(R.string.google_get_user_info));
 
 				TriggerEvent(Common.GOOGLE_USER_INFO);
@@ -525,6 +531,8 @@ public class AppHandlerService extends Service implements
 			if (ResultCode == Common.HTTP_RESPONSE_OK) {
 				data = data.optJSONObject("data");
 				user_data.gravity_user_id = data.optString("UserId");
+				user_data.gravity_is_registered = true;
+				
 				addProgressTask(getString(R.string.gravity_registration_complete));
 				mSharedPreferencesEditor.putBoolean(Common.USER_IS_REGISTERED,
 						true);
@@ -574,6 +582,30 @@ public class AppHandlerService extends Service implements
 			donetasks++;
 
 			break;
+		case Common.RequestCodes.GRAVITY_GET_TASKS:
+			if (ResultCode == Common.HTTP_RESPONSE_OK) {
+				JSONArray arr_data = data.optJSONArray("data");
+				DatabaseHelper db = new DatabaseHelper(this);
+				for (int i = 0; i < arr_data.length(); i++) {
+					try {
+						JSONObject temp = arr_data.getJSONObject(i);
+						TaskListModel model = new TaskListModel(
+								temp.getString("Title"));
+						db.TaskList_New(model);
+					} catch (JSONException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+
+				}
+				addProgressTask(getString(R.string.gravity_fetch_data_success));
+			} else {
+				addProgressTask(getString(R.string.gravity_fetch_data_failed));
+			}
+			// TriggerEvent(Common.USERS_SYNC);
+			donetasks++;
+
+			break;
 		case Common.RequestCodes.GOOGLE_GET_USER_INFO:
 			// save user info
 			try {
@@ -593,6 +625,41 @@ public class AppHandlerService extends Service implements
 				e.printStackTrace();
 			}
 
+			break;
+		case Common.RequestCodes.GRAVITY_VALIDATE_USERS:
+			if (ResultCode == Common.HTTP_RESPONSE_OK) {
+				JSONArray jdata= data.optJSONArray("data");//data.optJSONObject("data");
+				//user_data.gravity_user_id = data.optString("UserId");
+				for(int i=0;i<jdata.length();i++)
+				{
+					JSONObject juser = null;
+					try {
+						juser = jdata.getJSONObject(i);
+						String Email = juser.optString("Email");
+						if(Email!=null && Email!="")
+						for(UserModel user:AppUsers)
+						{
+							if(user.email.toLowerCase().equals(Email.toLowerCase())||user.email == Email){
+								user.name = juser.optString("Name");
+								user.server_id = juser.optString("UserId");
+								db.User_validate(user);
+								break;
+							}
+							//user.email = juser.optString("Email");
+							
+						}
+						
+						
+						
+						
+					} catch (JSONException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+				}
+				
+			}
+			//TriggerEvent(Common.GO_TO_MAIN);
 			break;
 		}
 	}
@@ -682,6 +749,7 @@ public class AppHandlerService extends Service implements
 			flag = false;
 
 		if (flag) {
+			hasInternet = true;
 			addProgressTask(getString(R.string.internet_stable));
 			addProgressTask(getString(R.string.checking_other_settings));
 			addProgressTask(getString(R.string.config_gcm));
@@ -770,10 +838,11 @@ public class AppHandlerService extends Service implements
 				Common.AUTH_TOKEN, null);
 		user_data.gravity_is_registered = mSharedPreferences.getBoolean(
 				Common.USER_IS_REGISTERED, false);
-		user_data.google_reg_id = mSharedPreferences.getString(
-				Common.GOOGLE_PROPERTY_REG_ID, "");
+		user_data.gravity_user_id = mSharedPreferences.getString(
+				Common.USER_ID_GRAVITY, "");
 		user_data.google_regVer = mSharedPreferences.getInt(
 				Common.GOOGLE_PROPERTY_APP_VERSION, Integer.MIN_VALUE);
+		
 		user_data.google_reg_id = mSharedPreferences.getString(
 				Common.GOOGLE_PROPERTY_REG_ID, "");
 		user_data.name = mSharedPreferences.getString(Common.USER_NAME, "");
@@ -843,9 +912,33 @@ public class AppHandlerService extends Service implements
 	@Override
 	public void GravityRegister() {
 		// TODO Auto-generated method stub
+		if(user_data.name != null && user_data.google_reg_id != null && user_data.email!=null &&
+				user_data.name != "" && user_data.google_reg_id != "" && user_data.email!="")
+			
+			
 		GravityController.register_gravity_account(mContext, user_data.email,
 				user_data.google_reg_id, "",
 				Common.RequestCodes.GRAVITY_REGISTER);
+		else{
+			
+				AsyncTask<Void,Void,Void> t = new AsyncTask<Void, Void, Void>(){
+
+					@Override
+					protected Void doInBackground(Void... params) {
+						// TODO Auto-generated method stub
+						try {
+							Thread.sleep(1000);
+							GravityRegister();
+						} catch (InterruptedException e) {
+							// TODO Auto-generated catch block
+							e.printStackTrace();
+						}
+						
+						return null;
+					}};
+				t.execute();
+			
+		}
 	}
 
 	@Override
@@ -918,7 +1011,7 @@ public class AppHandlerService extends Service implements
 			mSharedPreferencesEditor.commit();
 			addProgressTask("Saved GCM reg, app ver ");
 			donetasks++;
-			TriggerEvent(Common.GO_TO_MAIN);
+			//TriggerEvent(Common.GRAVITY_REGISTER);
 		} catch (Exception e) {
 			addProgressTask(e.getLocalizedMessage());
 		}
@@ -927,7 +1020,11 @@ public class AppHandlerService extends Service implements
 	@Override
 	public void SyncAppData() {
 		// TODO Auto-generated method stub
-		donetasks++;// temp
+		GravityController.get_tasklists(mContext, user_data,
+				Common.RequestCodes.GRAVITY_GET_TASKLISTS);
+//		GravityController.get_tasks(mContext, user_data,
+//				Common.RequestCodes.GRAVITY_GET_TASKS);
+		//donetasks++;// temp
 	}
 
 	public byte[] loadContactPhoto(long photoId) {
@@ -966,7 +1063,7 @@ public class AppHandlerService extends Service implements
 					ContactsContract.Contacts.DISPLAY_NAME + " ASC");// ,null);//ContactsLoader.SELECTION,
 																		// ContactsLoader.mSelectionArgs,
 																		// null);
-			s = new ArrayList<String>();
+			//s = new ArrayList<String>();
 
 			// ImageView img = (ImageView) findViewById(R.id.logo);
 			if (rawContacts.moveToFirst()) {
@@ -978,6 +1075,12 @@ public class AppHandlerService extends Service implements
 						user.email = rawContacts
 								.getString(rawContacts
 										.getColumnIndex(ContactsContract.CommonDataKinds.Email.DATA));
+						if(user.email.toLowerCase().equals(user_data.email.toLowerCase()) ||
+								user.email.toLowerCase() == user_data.email){
+							
+						}
+						else{
+							
 						long photoid = rawContacts
 								.getLong(rawContacts
 										.getColumnIndex(ContactsContract.Contacts.PHOTO_ID));
@@ -990,10 +1093,11 @@ public class AppHandlerService extends Service implements
 						user.image = loadContactPhoto(photoid);
 						// users.add(user);
 						db.User_New(user);
-
-						s.add(rawContacts.getString(rawContacts
-								.getColumnIndex(ContactsContract.Contacts.DISPLAY_NAME)));
+//
+//						s.add(rawContacts.getString(rawContacts
+//								.getColumnIndex(ContactsContract.Contacts.DISPLAY_NAME)));
 						users.add(user);
+						}
 					} catch (Exception e) {
 						// addProgressTask(e.getLocalizedMessage());
 						// Toast.makeText(mContext,"Error: "+e.toString(),
@@ -1012,7 +1116,7 @@ public class AppHandlerService extends Service implements
 	}
 
 	ArrayList<String> s;
-
+	ArrayList<UserModel> AppUsers = new ArrayList<UserModel>();
 	@SuppressLint("InlinedApi")
 	@Override
 	public void SyncUsers(boolean isFirstTime) {
@@ -1022,14 +1126,37 @@ public class AppHandlerService extends Service implements
 			try {
 				db.User_Delete_All();
 				ArrayList<UserModel> users = getUsers();
-				for (UserModel user : users) {
-					// db.User_New(user);
+//				for (UserModel user : users) {
+//					 //db.User_New(user);
+//				}
+				//GravityController.validate_gravity_accounts(mContext, "faik.malik89@gmail.com", Common.RequestCodes.GRAVITY_VALIDATE_USERS);
+				int limit = 50;
+				for(int i=0; i<users.size();i+=limit)
+				{
+					int end = i+limit;
+					if(end>users.size())end = users.size()-1;
+					
+					List<UserModel> subList = users.subList(i, end);
+					String emails = "";
+					for(UserModel m:subList)
+					{
+						if(emails == "")
+							emails = m.email;
+						else
+						emails+=","+m.email;
+					}
+					if(emails!="" && hasInternet)
+					{
+						AppUsers = db.User_List();
+						GravityController.validate_gravity_accounts(mContext, emails, Common.RequestCodes.GRAVITY_VALIDATE_USERS);
+					}
+					
 				}
-
+				//
 				 mSharedPreferencesEditor.putBoolean(Common.ALL_USERS_SYNCED,
 				 true);
 				 mSharedPreferencesEditor.commit();
-
+				 
 			} catch (Exception e) {
 				addProgressTask(e.getLocalizedMessage());
 			}
@@ -1116,6 +1243,18 @@ public class AppHandlerService extends Service implements
 		}
 		// updateLog();
 
+	}
+	public void response_new_tasklist(TaskListModel temp)
+	{
+		if(db.TaskList_Edit(temp)>0)
+		{
+			if (FocusedActivity != null
+					&& FocusedActivity.getClass() == MainActivity.class) {
+				
+				//navigation drawer update tasklist
+				
+			}
+		}
 	}
 
 }

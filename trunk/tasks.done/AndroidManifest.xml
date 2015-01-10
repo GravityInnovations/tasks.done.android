@@ -56,7 +56,11 @@
                 <category android:name="com.gravity.innovations.tasks.done" />
             </intent-filter>
         </receiver>
-
+		<receiver android:name=".InternetReciever" >
+            <intent-filter>
+                <action android:name="android.net.conn.CONNECTIVITY_CHANGE" />
+            </intent-filter>
+        </receiver>
         <service android:name=".GcmIntentService" />
         <service android:name=".AppHandlerService" />
 
