@@ -156,7 +156,7 @@ public class SplashActivity extends Activity implements
 	protected void onDestroy() {
 		// TODO Auto-generated method stub
 		super.onStart();
-		service.onActivityOpen(null,null);
+		//service.onActivityOpen(null,null);
 		
 	}
 

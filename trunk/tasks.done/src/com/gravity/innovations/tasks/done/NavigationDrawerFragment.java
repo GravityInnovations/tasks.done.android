@@ -749,6 +749,7 @@ public class NavigationDrawerFragment extends Fragment implements
 							try {
 								TaskListModel temp = new TaskListModel(title,
 										list_type);
+								temp.user_id = user_data._id;
 								// should retun a bool on true
 								temp._id = db.TaskList_New(temp);
 								if (temp._id != -1) {
@@ -817,7 +818,33 @@ public class NavigationDrawerFragment extends Fragment implements
 		int position = this.mAdapter.getPosition(Old);
 		selectItem(++position, -1);
 	}
-
+	public void editTaskListInAdapter(TaskListModel m)
+	{
+		for(int i =0; i<mAdapter.getCount();i++)//TaskListModel temp:this.data)
+		{
+			TaskListModel temp = mAdapter.getItem(i);
+			if(temp._id == m._id)
+			{
+				temp.etag = m.etag;
+				temp.gravity_id = m.gravity_id;
+				temp.icon_identifier = m.icon_identifier;
+				temp.kind = m.kind;
+				temp.self_link = m.self_link;
+				temp.server_id = m.server_id;
+				temp.syncStatus = m.syncStatus;
+				temp.syncStatusTimeStamp = "";
+				temp.title = temp.title;
+				temp.updated = temp.updated;
+				temp.user_id = temp.user_id;
+				this.mAdapter.notifyDataSetChanged();
+				//((MainActivity)mActivity).mTaskListFragment.
+				int position = this.mAdapter.getPosition(temp);
+				selectItem(++position, -1);
+				break;
+			}
+		}
+		
+	}
 	// full details of the tasks
 	public void openTaskDetailsDialog(final TaskListModel parent,
 			final TaskModel current) {

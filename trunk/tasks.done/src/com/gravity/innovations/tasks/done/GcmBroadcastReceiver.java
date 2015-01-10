@@ -77,15 +77,16 @@ public class GcmBroadcastReceiver extends WakefulBroadcastReceiver {
 			String dataid = bundle.optString("dataid");
 			JSONObject sender = bundle.optJSONObject("sender");
 			JSONObject data = bundle.optJSONObject("data");
-			if(status == TASKLIST_ADD)
+			if(status == TASKLIST_ADD || status.equals(TASKLIST_ADD))
 			{
 				//if self or not logic
+				if(mService.user_data.gravity_user_id!=null && sender.optString("UserId") !=null)
 				if(mService.user_data.gravity_user_id == sender.optString("UserId") 
 					|| mService.user_data.gravity_user_id.equals(sender.optString("UserId"))){
 					//for self
 					TaskListModel temp = mService.db.TaskList_Single(Integer.parseInt(dataid));//new TaskListModel();
-					
-					temp.server_id = data.optString("TaskListId");
+					temp.syncStatus = "Synced";
+					temp.gravity_id = data.optString("TaskListId");
 					temp.updated = data.optString("updated");
 					mService.response_new_tasklist(temp);
 				}

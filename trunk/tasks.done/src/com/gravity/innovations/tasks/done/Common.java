@@ -49,6 +49,7 @@ public class Common {
 	public static final String USER_IS_REGISTERED = prefix + "UserRegistered";
 	public static final String USER_ID_GRAVITY = prefix + "gUserId";
 	public static final String ALL_USERS_SYNCED = prefix + "allUsersSynced";
+	public static final String USER_LOCAL_ID = prefix + "_id";
 	public static final String SHARED_PREF_KEY = prefix;
 	public static final int SPLASH_TIME_OUT = 3000;
 	public static final int SPLASH_TIME_OUT_SMALL = 1000;
@@ -99,7 +100,7 @@ public class Common {
 	public static final String AUTH_ACTIVITY = "AuthenticationActivity";
 	public static final String SPLASH_ACTIVITY = "SplashActivity";
 	//gravity urls
-	public static final String GRAVITY_BASE_URL = "http://192.168.1.5/";
+	public static final String GRAVITY_BASE_URL = "http://192.168.0.103/";
 	public static final String GRAVITY_ACCOUNT_URL = GRAVITY_BASE_URL+"Account/";
 	public static final String GRAVITY_GCM_URL = GRAVITY_BASE_URL+"GCM/";
 	public static final String GRAVITY_TASKLIST_URL = GRAVITY_BASE_URL+"TaskList/";
@@ -215,6 +216,7 @@ public class Common {
 
 	public static class userData implements Serializable {
 		public String email;
+		public int _id;
 		public String name;
 		public Boolean is_sync_type;
 		public Boolean gravity_is_registered;
