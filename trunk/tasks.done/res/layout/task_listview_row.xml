@@ -2,42 +2,39 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="fill_parent"
     android:layout_height="wrap_content"
+    android:background="#efefef"
     android:orientation="horizontal"
     android:paddingLeft="0dp"
-    android:paddingRight="0dp"
-   
-    android:background="#efefef" >
- 
-      <TextView
-            android:id="@+id/updated1"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_alignParentRight="true"
-            android:layout_alignParentTop="true"
-            
-            android:layout_marginTop="20dp" 
-            android:paddingRight="2dp"
-            android:paddingBottom="2dp"
-            android:text="Now"
-            android:layout_marginRight="5dp"
-            android:textSize="10sp"
-            android:textAppearance="?android:attr/textAppearanceSmall"
-            android:textColor="#999999" />
-      <View
-            android:id="@+id/search_line"
-            android:layout_width="fill_parent"
-            android:layout_height="1px"
-            android:layout_below="@+id/updated1"
-            android:background="#bbb"
-            />
+    android:paddingRight="0dp" >
+
+    <TextView
+        android:id="@+id/updated1"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentTop="true"
+        android:layout_marginRight="5dp"
+        android:layout_marginTop="20dp"
+        android:paddingBottom="2dp"
+        android:paddingRight="2dp"
+        android:text="Now"
+        android:textAppearance="?android:attr/textAppearanceSmall"
+        android:textColor="#999999"
+        android:textSize="10sp" />
+
+    <View
+        android:id="@+id/search_line"
+        android:layout_width="fill_parent"
+        android:layout_height="1px"
+        android:layout_below="@+id/updated1"
+        android:background="#bbb" />
+
     <RelativeLayout
         android:id="@+id/one"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="#ffffff"
         android:layout_below="@+id/search_line"
-         
-        >
+        android:background="#ffffff" >
 
         <TextView
             android:id="@+id/user_task_title"
@@ -45,10 +42,9 @@
             android:layout_height="wrap_content"
             android:layout_alignParentLeft="true"
             android:layout_alignParentTop="true"
-            android:layout_toLeftOf="@+id/updated"
+            android:layout_toLeftOf="@+id/alarm_toggle"
             android:ellipsize="end"
             android:singleLine="true"
-            
             android:text=""
             android:textAppearance="?android:attr/textAppearanceLarge" />
 
@@ -97,34 +93,23 @@
         <!-- > -->
         <!-- </GridView> -->
 
-        <include 
+        <include
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
             android:layout_alignParentLeft="true"
             android:layout_below="@+id/user_task_details"
             android:layout_toLeftOf="@+id/done_toggle"
-            layout="@layout/gridview_in_listview"
-            android:layout_height="wrap_content"
-            android:layout_width="wrap_content" />
+            layout="@layout/gridview_in_listview" />
 
         <ImageView
             android:id="@+id/alarm_toggle"
             android:layout_width="20dp"
             android:layout_height="20dp"
-            android:layout_alignParentTop="true"
-            android:layout_toLeftOf="@+id/updated"
-            android:focusable="false"
-            android:onClick="onClick_Tick"
-            android:src="@drawable/alarm_taskrow_visible" />
-
-        <TextView
-            android:id="@+id/updated"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
             android:layout_alignParentRight="true"
             android:layout_alignParentTop="true"
+            android:focusable="false"
             android:paddingRight="2dp"
-            android:text=""
-            android:textAppearance="?android:attr/textAppearanceSmall"
-            android:textColor="@color/updatedtimecolor" />
+            android:src="@drawable/alarm_taskrow_visible" />
 
         <ImageView
             android:id="@+id/done_toggle"
@@ -132,27 +117,9 @@
             android:layout_height="wrap_content"
             android:layout_alignParentBottom="false"
             android:layout_alignParentRight="true"
-            android:layout_below="@+id/updated"
+            android:layout_below="@+id/alarm_toggle"
             android:focusable="false"
-            android:onClick="onClick_Tick"
             android:src="@drawable/task_row_bg" />
-
-        <LinearLayout
-            android:id="@+id/submenu"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_alignParentBottom="true"
-            android:layout_below="@+id/done_toggle"
-            android:visibility="gone" >
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="title" />
-        </LinearLayout>
-
-      
-
     </RelativeLayout>
 
 </RelativeLayout>

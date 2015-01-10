@@ -24,6 +24,8 @@
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
+    <uses-permission android:name="android.permission.READ_CALENDAR" />
+    <uses-permission android:name="android.permission.WRITE_CALENDAR" />
 
     <meta-data
         android:name="com.google.android.gms.version"
@@ -112,7 +114,7 @@
         <receiver android:name=".AlarmBroadcastReciever" />
 
         <service android:name=".AlarmSchedulingService" />
- <!-- require merge -->
+        <!-- require merge -->
         <receiver
             android:name=".BootBroadcastReceiver"
             android:enabled="false" >
@@ -121,7 +123,7 @@
                 </action>
             </intent-filter>
         </receiver>
- <!-- require upgrade for AppHandlerService -->
+        <!-- require upgrade for AppHandlerService -->
     </application>
 
 </manifest>

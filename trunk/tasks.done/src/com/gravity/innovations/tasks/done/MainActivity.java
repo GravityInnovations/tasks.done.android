@@ -254,14 +254,17 @@ public class MainActivity extends ActionBarActivity implements
 			};
 			t.execute();
 		}
-
 	}
 
+	@Override
+	protected void onActivityResult(int arg0, int arg1, Intent intent) {
+		// created for Calendar API
+		super.onActivityResult(arg0, arg1, intent);
+	}
+	
 	public void floatButtonOnClick(View v) {
 		mNavigationDrawerFragment.addOrEditTask(CurrentList, new TaskModel());
 	}// creates a dialog for new task
-
-	
 
 	// @SuppressLint("NewApi")
 	public void showSoftKeyboard(View view) {
