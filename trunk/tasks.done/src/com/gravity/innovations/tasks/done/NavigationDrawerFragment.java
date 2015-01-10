@@ -1,21 +1,14 @@
 package com.gravity.innovations.tasks.done;
 
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Date;
 import java.util.TimerTask;
-
 import org.json.JSONException;
 import org.json.JSONObject;
-
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.AlertDialog.Builder;
 import android.app.Dialog;
-import android.app.TimePickerDialog;
-import android.content.ContentUris;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -26,11 +19,8 @@ import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
-import android.net.Uri;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
-import android.provider.CalendarContract;
-import android.provider.CalendarContract.Events;
 import android.support.v4.app.ActionBarDrawerToggle;
 import android.support.v4.app.DialogFragment;
 import android.support.v4.app.Fragment;
@@ -61,9 +51,7 @@ import android.widget.RelativeLayout;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.TimePicker;
-import android.widget.Toast;
 
-import com.gravity.innovations.tasks.done.Common.User;
 import com.gravity.innovations.tasks.done.Common.userData;
 import com.gravity.innovations.tasks.done.CustomIconListAdapter.OptionsModel;
 
@@ -308,7 +296,6 @@ public class NavigationDrawerFragment extends Fragment implements
 		// // mDrawerListView.setTextFilterEnabled(true);//
 		// mDrawerListView.setAdapter(mAdapter);
 		mDrawerListView.setItemChecked(mCurrentSelectedPosition, true);
-
 		return p;// mDrawerListView;
 	}
 
@@ -835,7 +822,8 @@ public class NavigationDrawerFragment extends Fragment implements
 	public void openTaskDetailsDialog(final TaskListModel parent,
 			final TaskModel current) {
 		try {
-			DialogViewFragment dialog = new DialogViewFragment(parent, current, this);
+			DialogViewFragment dialog = new DialogViewFragment(parent, current,
+					this);
 			dialog.setStyle(DialogFragment.STYLE_NO_TITLE, 0);
 			dialog.show(getChildFragmentManager(), "asdf");
 
@@ -1507,24 +1495,24 @@ public class NavigationDrawerFragment extends Fragment implements
 		 * dialog.show();
 		 */
 
-		Calendar beginTime = Calendar.getInstance();
-		beginTime.set(2015, 1, 8, 3, 48);
-		Calendar endTime = Calendar.getInstance();
-		endTime.set(2015, 1, 8, 3, 50);
-		Intent intent = new Intent(Intent.ACTION_INSERT)
-				.setData(Events.CONTENT_URI)
-				.putExtra(CalendarContract.EXTRA_EVENT_BEGIN_TIME,
-						beginTime.getTimeInMillis())
-				.putExtra(CalendarContract.EXTRA_EVENT_END_TIME,
-						endTime.getTimeInMillis())
-				.putExtra(Events.TITLE, "task.done> TASK.DONE")
-				.putExtra(Events.DESCRIPTION, "App Complition")
-				.putExtra(Events.EVENT_LOCATION, "Gravity Innovation")
-				.putExtra(Events.AVAILABILITY, Events.AVAILABILITY_BUSY)
-				.putExtra(Intent.EXTRA_EMAIL,
-						"mushahidhassan110@example.com,trevor@example.com");
-		// startActivity(intent);
-		startActivityForResult(intent, 2525);
+		// Calendar beginTime = Calendar.getInstance();
+		// beginTime.set(2015, 1, 8, 3, 48);
+		// Calendar endTime = Calendar.getInstance();
+		// endTime.set(2015, 1, 8, 3, 50);
+		// Intent intent = new Intent(Intent.ACTION_INSERT)
+		// .setData(Events.CONTENT_URI)
+		// .putExtra(CalendarContract.EXTRA_EVENT_BEGIN_TIME,
+		// beginTime.getTimeInMillis())
+		// .putExtra(CalendarContract.EXTRA_EVENT_END_TIME,
+		// endTime.getTimeInMillis())
+		// .putExtra(Events.TITLE, "task.done> TASK.DONE")
+		// .putExtra(Events.DESCRIPTION, "App Complition")
+		// .putExtra(Events.EVENT_LOCATION, "Gravity Innovation")
+		// .putExtra(Events.AVAILABILITY, Events.AVAILABILITY_BUSY)
+		// .putExtra(Intent.EXTRA_EMAIL,
+		// "mushahidhassan110@example.com,trevor@example.com");
+		// // startActivity(intent);
+		// startActivityForResult(intent, 2525);
 
 	}
 
