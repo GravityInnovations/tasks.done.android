@@ -473,7 +473,7 @@ public class AppHandlerService extends Service implements
 	@Override
 	public void LoadLocalDB() {
 		db = new DatabaseHelper(this);
-		db.User_New(new UserModel("sp","sp"));
+		
 	}
 
 	@Override
@@ -561,12 +561,15 @@ public class AppHandlerService extends Service implements
 		case Common.RequestCodes.GRAVITY_GET_TASKLISTS:
 			if (ResultCode == Common.HTTP_RESPONSE_OK) {
 				JSONArray arr_data = data.optJSONArray("data");
-				DatabaseHelper db = new DatabaseHelper(this);
+				//DatabaseHelper db = new DatabaseHelper(this);
 				for (int i = 0; i < arr_data.length(); i++) {
 					try {
 						JSONObject temp = arr_data.getJSONObject(i);
 						TaskListModel model = new TaskListModel(
 								temp.getString("Title"));
+						model.syncStatus = "Synced";
+						model.gravity_id = temp.optString("TaskListId");
+						model.updated = temp.optString("updated");
 						db.TaskList_New(model);
 					} catch (JSONException e) {
 						// TODO Auto-generated catch block
@@ -851,6 +854,10 @@ public class AppHandlerService extends Service implements
 
 		user_data.google_is_data_synced = mSharedPreferences.getBoolean(
 				Common.GOOGLE_IS_USER_SYNCED, false);
+		user_data._id = mSharedPreferences.getInt(
+				Common.USER_LOCAL_ID, -1);
+		
+		
 		// user_data.image = BitmapFactory.decodeFile(
 		// mSharedPreferences.getString(Common.USER_IMAGE, ""));
 		try {
@@ -858,7 +865,7 @@ public class AppHandlerService extends Service implements
 					.decodeFile(mSharedPreferences.getString(Common.USER_IMAGE,
 							"")), 75, 75, true);
 		} catch (Exception ex) {
-			addProgressTask(ex.getLocalizedMessage());
+			//addProgressTask(ex.getLocalizedMessage());
 
 		}
 	}
@@ -1044,10 +1051,15 @@ public class AppHandlerService extends Service implements
 
 	}
 
-	private ArrayList<UserModel> getUsers() {
+	private ArrayList<UserModel> getUserContacts(boolean add) {
 		ArrayList<UserModel> users = new ArrayList<UserModel>();
 		try {
-
+			if(user_data._id == -1){
+				
+				user_data._id = db.User_New(new UserModel("Me",user_data.email));
+				mSharedPreferencesEditor.putInt(Common.USER_LOCAL_ID, user_data._id);
+				mSharedPreferencesEditor.commit();
+				}
 			ContentResolver cr = mContext.getContentResolver();
 			final String[] projection = new String[] {
 					ContactsContract.Contacts._ID,
@@ -1106,7 +1118,7 @@ public class AppHandlerService extends Service implements
 
 				} while (rawContacts.moveToNext());
 				rawContacts.close();
-
+				
 			}
 
 		} catch (Exception e) {
@@ -1125,7 +1137,7 @@ public class AppHandlerService extends Service implements
 			// TODO Auto-generated method stub
 			try {
 				db.User_Delete_All();
-				ArrayList<UserModel> users = getUsers();
+				ArrayList<UserModel> users = getUserContacts(true);
 //				for (UserModel user : users) {
 //					 //db.User_New(user);
 //				}
@@ -1162,7 +1174,7 @@ public class AppHandlerService extends Service implements
 			}
 		} else {
 			ArrayList<UserModel> db_data = db.User_List();
-			ArrayList<UserModel> contacts_data = getUsers();
+			ArrayList<UserModel> contacts_data = getUserContacts(false);
 			for (UserModel c_user : contacts_data) {
 				boolean found = false;
 				for (UserModel db_user : db_data) {
@@ -1244,16 +1256,27 @@ public class AppHandlerService extends Service implements
 		// updateLog();
 
 	}
+	public void runOnUiThread(Runnable runnable)
+	{
+		if (FocusedActivity != null)
+			FocusedActivity.runOnUiThread(runnable);
+	}
 	public void response_new_tasklist(TaskListModel temp)
 	{
+		
 		if(db.TaskList_Edit(temp)>0)
 		{
 			if (FocusedActivity != null
 					&& FocusedActivity.getClass() == MainActivity.class) {
 				
+						// TODO Auto-generated method stub
+						((MainActivity)FocusedActivity).mNavigationDrawerFragment.editTaskListInAdapter(temp);
+					}
+				
+				
 				//navigation drawer update tasklist
 				
-			}
+			
 		}
 	}
 

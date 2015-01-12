@@ -163,10 +163,11 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 	public DatabaseHelper(Context mContext) {
 		
 		super(mContext, DATABASE_NAME, null, DATABASE_VERSION);
+		
 		try{
 		service = (AppHandlerService)mContext;
 		
-			
+		
 		}catch(Exception e)
 		{
 			service = null;
@@ -479,10 +480,21 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
 		int id = (int) db.insert(TABLE_TASK_LIST, null, values);
 		tasklist._id = id;
+		
 		db.close();
-		if(id!=-1 && tasklist.server_id == "" && service.hasInternet)
+		if(id!=-1 && tasklist.gravity_id == "" && service.hasInternet && service.user_data.is_sync_type)
 		{
+			//final TaskListModel tl = tasklist;
 			GravityController.post_tasklist(service, service.user_data, tasklist, -1);
+//			service.runOnUiThread(new Runnable() {
+//				
+//				@Override
+//				public void run() {
+//					// TODO Auto-generated method stub
+//					
+//				}
+//			});
+			
 		}
 		return id;
 		// return true; //boolean to check if the tasklist is added in db

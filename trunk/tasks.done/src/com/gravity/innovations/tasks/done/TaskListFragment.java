@@ -56,6 +56,7 @@ public class TaskListFragment extends Fragment {
 	private ImageButton btn_shared;
 
 	private GridView mGridView;
+	private ImageView mImageView2;
 
 	public TaskListFragment() {
 
@@ -185,6 +186,7 @@ public class TaskListFragment extends Fragment {
 			mTextView_listName.setText(data.title);
 
 			mImageView = (ImageView) rootView.findViewById(R.id.tasklist_icon);
+			mImageView2 = (ImageView) rootView.findViewById(R.id.img_sync);
 			try {
 				mActivity = getActivity();
 				Resources resources = mActivity.getResources();
@@ -202,7 +204,11 @@ public class TaskListFragment extends Fragment {
 			View lv_footer = inflater.inflate(R.layout.fragment_main_footer,
 					null);// navigation_drawer_header,
 							// null);
-
+			if(this.data.syncStatus!= null &&( this.data.syncStatus == "Synced" || this.data.syncStatus.equals("Synced")))
+			mImageView2.setImageResource(R.drawable.ic_launcher);
+			else
+				mImageView2.setImageResource(R.drawable.ic_unsynced);
+				
 			mTextView_syncedTime = (TextView) lv_footer
 					.findViewById(R.id.time_sync);
 			try {

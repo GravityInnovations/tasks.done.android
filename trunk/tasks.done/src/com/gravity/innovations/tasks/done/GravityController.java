@@ -8,6 +8,7 @@ import org.apache.http.message.BasicNameValuePair;
 
 import android.app.Activity;
 import android.content.Context;
+import android.os.AsyncTask;
 
 public class GravityController {
 
@@ -62,7 +63,7 @@ public class GravityController {
 				RequestCode);
 		Temp.execute();
 	}
-	public static void post_tasklist(Context context,Common.userData user_data, TaskListModel tasklist, int RequestCode)
+	public static void post_tasklist( Context context, Common.userData user_data,  TaskListModel tasklist,  int RequestCode)
 	{
 		List<NameValuePair> postData = new ArrayList<NameValuePair>();
 		postData.add(new BasicNameValuePair("deviceid", user_data.google_reg_id));
@@ -79,6 +80,7 @@ public class GravityController {
 		HttpTask Temp = new HttpTask(context, Common.GRAVITY_TASKLIST_URL, postData,Common.HttpMethod.HttpPost,
 				RequestCode);
 		Temp.execute();
+		
 	}
 	/*public static void send_gcm_req_code(Activity activity,int RequestCode,String Code)
 	{
