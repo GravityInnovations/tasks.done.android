@@ -4,6 +4,7 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.Random;
 import java.util.StringTokenizer;
 import java.util.TimeZone;
 import java.util.TimerTask;
@@ -757,8 +758,13 @@ public class NavigationDrawerFragment extends Fragment implements
 						String title = et_title.getText().toString();
 						if (title.length() != 0) {
 							try {
+					        	Random rand = new Random();
+					        	int  fragment_color = rand.nextInt(999998) + 1;
+					        	//999999 is the maximum and the 1 is our minimum 
+					        	String fragColor = String.valueOf(fragment_color);
+					        	
 								TaskListModel temp = new TaskListModel(title,
-										list_type);
+										list_type, fragColor);
 								temp.user_id = user_data._id;
 								// should retun a bool on true
 								temp._id = db.TaskList_New(temp);
@@ -790,8 +796,13 @@ public class NavigationDrawerFragment extends Fragment implements
 						// update tasklist
 						String title = et_title.getText().toString();
 						if (title.length() != 0) {
-							int nRows = db.TaskList_Edit(new TaskListModel(
-									tasklist._id, title, list_type));
+							
+							tasklist.title = title;
+							tasklist.icon_identifier = list_type;
+							
+							int nRows = db.TaskList_Edit(tasklist);
+									//(new TaskListModel(tasklist._id, title, list_type));
+							
 							if (nRows > 0) {
 								tasklist.title = title;
 								tasklist.icon_identifier = list_type;
@@ -828,6 +839,7 @@ public class NavigationDrawerFragment extends Fragment implements
 		int position = this.mAdapter.getPosition(Old);
 		selectItem(++position, -1);
 	}
+	
 	public void editTaskListInAdapter(TaskListModel m)
 	{
 		for(int i =0; i<mAdapter.getCount();i++)//TaskListModel temp:this.data)
@@ -855,6 +867,7 @@ public class NavigationDrawerFragment extends Fragment implements
 		}
 		
 	}
+	
 	// full details of the tasks
 	public void openTaskDetailsDialog(final TaskListModel parent,
 			final TaskModel current) {

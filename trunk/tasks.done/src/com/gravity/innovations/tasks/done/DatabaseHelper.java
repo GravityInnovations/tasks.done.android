@@ -84,6 +84,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 	private static final String KEY_ALARM_WEEKDAY = "alarm_weekday";
 
 	private static final String KEY_ASSOCIATED_USERMODELS = "associated_usermodel";
+	private static final String KEY_TASKLIST_FRAGMENT_COLOR = "fragment_color";
 	// ******** Columns Entries *********//
 
 	// ********* SQLite Table Structure Queries *********//
@@ -129,37 +130,58 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
 			+ KEY_FK_TASKLIST_ID + " INTEGER," + " FOREIGN KEY ("
 			+ KEY_FK_TASKLIST_ID + ")" + "REFERENCES " + TABLE_TASK_LIST + "("
-			+ KEY_PK + ")" + ")";
+			+ KEY_PK + ")" 
+			+ ")";
 
 	private static final String CREATE_TASK_LIST_TABLE = "CREATE TABLE "
-			+ TABLE_TASK_LIST + "(" + KEY_PK
-			+ " INTEGER PRIMARY KEY AUTOINCREMENT," + KEY_TITLE + " TEXT,"
-			+ KEY_SERVER_ID + " TEXT," + KEY_ETAG + " TEXT," + KEY_UPDATED_AT
-			+ " DATETIME," + KEY_SELF_LINK + " TEXT," + KEY_KIND + " TEXT,"
-			+ KEY_USER_ID + " INTEGER," + KEY_SYNC_STATUS + " TEXT,"
-			+ KEY_SYNC_STATUS_TIMESTAMP + " DATETIME," + KEY_LIST_TYPE
-			+ " INTEGER" // values 1-5 icons
+			+ TABLE_TASK_LIST 
+			+ "(" 
+			+ KEY_PK
+			+ " INTEGER PRIMARY KEY AUTOINCREMENT," 
+			+ KEY_TITLE + " TEXT,"
+			+ KEY_SERVER_ID + " TEXT," 
+			+ KEY_ETAG + " TEXT," 
+			+ KEY_UPDATED_AT + " DATETIME," 
+			+ KEY_SELF_LINK + " TEXT," 
+			+ KEY_KIND + " TEXT,"
+			+ KEY_USER_ID + " INTEGER," 
+			+ KEY_SYNC_STATUS + " TEXT,"
+			+ KEY_SYNC_STATUS_TIMESTAMP + " DATETIME,"
+			
+			+ KEY_TASKLIST_FRAGMENT_COLOR + " TEXT,"
+			
+			+ KEY_LIST_TYPE	+ " INTEGER" // values 1-5 icons
 			+ ")";
 
 	private static final String CREATE_USERS_TABLE = "CREATE TABLE "
-			+ TABLE_USERS + "(" + KEY_PK
-			+ " INTEGER PRIMARY KEY AUTOINCREMENT," + KEY_USER_NAME + " TEXT,"
-			+ KEY_USER_EMAIL + " TEXT," + KEY_SERVER_ID + " TEXT,"
-			+ KEY_USER_IMAGE + " BLOB," + KEY_CONTACT_ID + " TEXT,"
-			+ KEY_DISPLAY_NAME + " TEXT" + ")";
+			+ TABLE_USERS 
+			+ "(" 
+			+ KEY_PK + " INTEGER PRIMARY KEY AUTOINCREMENT," 
+			+ KEY_USER_NAME + " TEXT,"
+			+ KEY_USER_EMAIL + " TEXT," 
+			+ KEY_SERVER_ID + " TEXT,"
+			+ KEY_USER_IMAGE + " BLOB," 
+			+ KEY_CONTACT_ID + " TEXT,"
+			+ KEY_DISPLAY_NAME + " TEXT" 
+			+ ")";
 
 	private static final String CREATE_USERS_LISTS_TABLE = "CREATE TABLE "
-			+ TABLE_USERS_LISTS + "(" + KEY_PK
-			+ " INTEGER PRIMARY KEY AUTOINCREMENT," + KEY_SERVER_ID + " TEXT,"
-			+ KEY_SYNC_STATUS + " TEXT," + KEY_SYNC_STATUS_TIMESTAMP
-			+ " DATETIME," + KEY_USER_ID + " INTEGER," + KEY_FK_TASKLIST_ID
-			+ " INTEGER" + ")";
+			+ TABLE_USERS_LISTS 
+			+ "(" 
+			+ KEY_PK + " INTEGER PRIMARY KEY AUTOINCREMENT," 
+			+ KEY_SERVER_ID + " TEXT,"
+			+ KEY_SYNC_STATUS + " TEXT," 
+			+ KEY_SYNC_STATUS_TIMESTAMP
+			+ " DATETIME," + KEY_USER_ID + " INTEGER," 
+			+ KEY_FK_TASKLIST_ID + " INTEGER" 
+			+ ")";
 
 	// ********* SQLite Table Structure Queries *********//
 
 	private SharedPreferences mSharedPreferences;
 	private SharedPreferences.Editor mSharedPreferencesEditor;
 	private AppHandlerService service = null;
+	
 	public DatabaseHelper(Context mContext) {
 		
 		super(mContext, DATABASE_NAME, null, DATABASE_VERSION);
@@ -477,7 +499,8 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 		values.put(KEY_SYNC_STATUS, tasklist.syncStatus);
 		values.put(KEY_SYNC_STATUS_TIMESTAMP, tasklist.syncStatusTimeStamp);
 		values.put(KEY_LIST_TYPE, tasklist.icon_identifier);
-
+		values.put(KEY_TASKLIST_FRAGMENT_COLOR, tasklist.fragmentColor);
+		
 		int id = (int) db.insert(TABLE_TASK_LIST, null, values);
 		tasklist._id = id;
 		
@@ -540,24 +563,51 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 			SQLiteDatabase db = this.getWritableDatabase();
 
 			Cursor cursor = db.rawQuery(selectQuery, null);
-
+			int col_pk = cursor.getColumnIndex(KEY_PK);
+			int col_title = cursor.getColumnIndex(KEY_TITLE);
+			int col_server_id = cursor.getColumnIndex(KEY_SERVER_ID);
+			int col_etag = cursor.getColumnIndex(KEY_ETAG);
+			int col_updated = cursor.getColumnIndex(KEY_UPDATED_AT);
+			int col_selflink = cursor.getColumnIndex(KEY_SELF_LINK);
+			int col_kind = cursor.getColumnIndex(KEY_KIND);
+			int col_userid = cursor.getColumnIndex(KEY_USER_ID);
+			int col_syncStatus = cursor.getColumnIndex(KEY_SYNC_STATUS);
+			int col_syncStatusTimeStamp = cursor.getColumnIndex(KEY_SYNC_STATUS_TIMESTAMP);
+			int col_listIcon = cursor.getColumnIndex(KEY_LIST_TYPE);
+			int col_fragmentColor = cursor.getColumnIndex(KEY_TASKLIST_FRAGMENT_COLOR);
 			// looping through all rows and adding to list
 			if (cursor.moveToFirst()) {
 				do {
 					TaskListModel tasklist = new TaskListModel();
-					tasklist._id = (Integer.parseInt(cursor.getString(0)));
-					tasklist.title = (cursor.getString(1));
+//					tasklist._id = (Integer.parseInt(cursor.getString(0)));
+//					tasklist.title = (cursor.getString(1));
+//
+//					tasklist.server_id = (cursor.getString(2));
+//					tasklist.etag = (cursor.getString(3));
+//					tasklist.updated = (cursor.getString(4));
+//					tasklist.self_link = (cursor.getString(5));
+//					tasklist.kind = (cursor.getString(6));
+//					tasklist.user_id = (Integer.parseInt(cursor.getString(7)));
+//					tasklist.syncStatus = (cursor.getString(8));
+//					tasklist.syncStatusTimeStamp = (cursor.getString(9));
+//					tasklist.icon_identifier = (Integer.parseInt(cursor
+//							.getString(11)));
+//					tasklist.fragmentColor = (cursor.getString(10));
+					
+					tasklist._id = cursor.getInt(col_pk);
+					tasklist.title = cursor.getString(col_title);
 
-					tasklist.server_id = (cursor.getString(2));
-					tasklist.etag = (cursor.getString(3));
-					tasklist.updated = (cursor.getString(4));
-					tasklist.self_link = (cursor.getString(5));
-					tasklist.kind = (cursor.getString(6));
-					tasklist.user_id = (Integer.parseInt(cursor.getString(7)));
-					tasklist.syncStatus = (cursor.getString(8));
-					tasklist.syncStatusTimeStamp = (cursor.getString(9));
-					tasklist.icon_identifier = (Integer.parseInt(cursor
-							.getString(10)));
+					tasklist.server_id = cursor.getString(col_server_id);
+					tasklist.etag = (cursor.getString(col_etag));
+					tasklist.updated = (cursor.getString(col_updated));
+					tasklist.self_link = (cursor.getString(col_selflink));
+					tasklist.kind = (cursor.getString(col_kind));
+					tasklist.user_id = (cursor.getInt(col_userid));
+					tasklist.syncStatus = (cursor.getString(col_syncStatus));
+					tasklist.syncStatusTimeStamp = (cursor.getString(col_syncStatusTimeStamp));
+					tasklist.icon_identifier = (cursor
+							.getInt(col_listIcon));
+					tasklist.fragmentColor = (cursor.getString(col_fragmentColor));
 					// Adding TaskModel to list
 					tasklist.users = this.UserList_List(tasklist._id);
 					tasklist.tasks = this.Task_List(tasklist._id);

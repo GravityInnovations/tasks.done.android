@@ -3,6 +3,7 @@ package com.gravity.innovations.tasks.done;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.Random;
 import java.util.zip.Inflater;
 
 import com.google.android.gms.internal.ad;
@@ -14,6 +15,7 @@ import android.content.DialogInterface;
 import android.content.DialogInterface.OnClickListener;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.util.Log;
@@ -104,16 +106,28 @@ public class TaskListFragment extends Fragment {
 		// TODO Auto-generated method stub
 		super.onCreateView(inflater, container, savedInstanceState);
 		View rootView = inflater.inflate(R.layout.fragment_main, container,
-
 				false);
-		btn_share = ((ImageButton) rootView
-				.findViewById(R.id.btn_share_list));
-		btn_edit = ((ImageButton) rootView
-				.findViewById(R.id.btn_edit_list));
-		btn_delete = ((ImageButton) rootView
-				.findViewById(R.id.btn_delete_list));
+		try {
+			RelativeLayout headerLayout = (RelativeLayout) rootView
+					.findViewById(R.id.header);
+			if (data._id == 1) {
+				headerLayout.setBackgroundColor(Color.parseColor("#88B1C5"));
+			} else {
+				int colorHEx = Integer.parseInt(data.fragmentColor);
+				String hex = data.fragmentColor;
+				//headerLayout.setBackgroundColor(Color.parseColor("#"+colorHEx ));
+				headerLayout.setBackgroundColor(Color.parseColor("#"+hex ));
+				
+			}
+		} catch (Exception e) {
+			Log.e("TaskListFragment", "HeaderColor");
+		}
 
-		btn_shared = ((ImageButton)rootView.findViewById(R.id.btn_showShared));
+		btn_share = ((ImageButton) rootView.findViewById(R.id.btn_share_list));
+		btn_edit = ((ImageButton) rootView.findViewById(R.id.btn_edit_list));
+		btn_delete = ((ImageButton) rootView.findViewById(R.id.btn_delete_list));
+
+		btn_shared = ((ImageButton) rootView.findViewById(R.id.btn_showShared));
 
 		btn_share.setOnClickListener(new View.OnClickListener() {
 
@@ -204,11 +218,13 @@ public class TaskListFragment extends Fragment {
 			View lv_footer = inflater.inflate(R.layout.fragment_main_footer,
 					null);// navigation_drawer_header,
 							// null);
-			if(this.data.syncStatus!= null &&( this.data.syncStatus == "Synced" || this.data.syncStatus.equals("Synced")))
-			mImageView2.setImageResource(R.drawable.ic_launcher);
+			if (this.data.syncStatus != null
+					&& (this.data.syncStatus == "Synced" || this.data.syncStatus
+							.equals("Synced")))
+				mImageView2.setImageResource(R.drawable.ic_launcher);
 			else
 				mImageView2.setImageResource(R.drawable.ic_unsynced);
-				
+
 			mTextView_syncedTime = (TextView) lv_footer
 					.findViewById(R.id.time_sync);
 			try {
@@ -466,16 +482,16 @@ public class TaskListFragment extends Fragment {
 		ArrayList<String> S = new ArrayList<String>();
 		for (UserModel temp : users) {
 			Common.CustomViewsData.MultiSelectRowData user = new Common.CustomViewsData.MultiSelectRowData();
-			
-			if(temp.name== null || temp.name=="" || temp.name.isEmpty() )
-				
-			user.text1 = temp.displayName;
+
+			if (temp.name == null || temp.name == "" || temp.name.isEmpty())
+
+				user.text1 = temp.displayName;
 			else
 				user.text1 = temp.name;
-			
-				user.text2 = temp.email;
-			
-				// Bitmap bmp = BitmapFactory.decodeByteArray(temp.image, 0,
+
+			user.text2 = temp.email;
+
+			// Bitmap bmp = BitmapFactory.decodeByteArray(temp.image, 0,
 			// temp.image.length);
 			// ImageView image = (ImageView) findViewById(R.id.imageView1);
 
@@ -485,9 +501,10 @@ public class TaskListFragment extends Fragment {
 			// ,byteArray.length);
 			S.add(temp.displayName);
 			user.iconRes = temp.image;
-			if(temp.server_id!="" && temp.server_id!=null)
+			if (temp.server_id != "" && temp.server_id != null)
 				user.iconResId = R.drawable.ic_launcher;
-			else user.iconResId = -1;
+			else
+				user.iconResId = -1;
 			users_lv.add(user);
 			for (UserModel m1 : this.data.users) {
 				if (m1._id == temp._id)
@@ -567,16 +584,16 @@ public class TaskListFragment extends Fragment {
 		ArrayList<String> S = new ArrayList<String>();
 		for (UserModel temp : users) {
 			Common.CustomViewsData.MultiSelectRowData user = new Common.CustomViewsData.MultiSelectRowData();
-			if(temp.name== null || temp.name=="" || temp.name.isEmpty() )
-					user.text1 = temp.displayName;
-				else
-					user.text1 = temp.name;
+			if (temp.name == null || temp.name == "" || temp.name.isEmpty())
+				user.text1 = temp.displayName;
+			else
+				user.text1 = temp.name;
 			user.text2 = temp.email;
 
-			if(temp.server_id!="" && temp.server_id!=null)
+			if (temp.server_id != "" && temp.server_id != null)
 				user.iconResId = R.drawable.ic_launcher;
-			else user.iconResId = -1;
-			
+			else
+				user.iconResId = -1;
 
 			S.add(temp.displayName);
 			user.iconRes = temp.image;

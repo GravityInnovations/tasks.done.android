@@ -19,6 +19,7 @@ public class TaskListModel {
 
 	public ArrayList<TaskModel> tasks = new ArrayList<TaskModel>(); // task_data;
 	public ArrayList<UserModel> users = new ArrayList<UserModel>(); // task_data;
+	public String fragmentColor;
 	// ********* Constructors *********//
 	public TaskListModel() {
 		_id = -1;
@@ -37,9 +38,10 @@ public class TaskListModel {
 		this.tasks = new ArrayList<TaskModel>();
 	}
 
-	public TaskListModel(String title, int _icon_identifier) {
+	public TaskListModel(String title, int _icon_identifier, String fragement_color) {
 		this.title = title;
 		this.icon_identifier = _icon_identifier;
+		this.fragmentColor = fragement_color;
 		this.tasks = new ArrayList<TaskModel>();
 	}
 
