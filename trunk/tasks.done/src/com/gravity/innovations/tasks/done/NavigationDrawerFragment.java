@@ -672,10 +672,10 @@ public class NavigationDrawerFragment extends Fragment implements
 	 * implement.
 	 */
 	public void clearSelection() {
-		// if (oldSelection != null) {
-		// oldSelection.setBackgroundColor(getResources().getColor(
-		// android.R.color.transparent));
-		// }
+		 if (oldSelection != null) {
+		 oldSelection.setBackgroundColor(getResources().getColor(
+		 android.R.color.transparent));
+		 }
 	}
 
 	public void addOrEditTaskList(final TaskListModel tasklist) {
