@@ -1,9 +1,16 @@
 package com.gravity.innovations.tasks.done;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
+import java.util.StringTokenizer;
+import java.util.TimeZone;
 import java.util.TimerTask;
+
 import org.json.JSONException;
 import org.json.JSONObject;
+
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -137,6 +144,9 @@ public class NavigationDrawerFragment extends Fragment implements
 		}
 		// Select either the default item (0) or the last selected item.
 		selectItem(mCurrentSelectedPosition, -1);
+
+		GetUTC g = new GetUTC();
+		g.GetUTCdatetimeAsDate();
 
 	}
 
@@ -636,10 +646,10 @@ public class NavigationDrawerFragment extends Fragment implements
 		int position = this.mAdapter.getPosition(temp);
 		selectItem(++position, -1);
 
-//		if (user_data.is_sync_type && Common.hasInternet(mActivity)) {
-//			GravityController.post_tasklist(mActivity, user_data, temp,
-//					Common.RequestCodes.GRAVITY_SEND_TASKLIST);
-//		}
+		// if (user_data.is_sync_type && Common.hasInternet(mActivity)) {
+		// GravityController.post_tasklist(mActivity, user_data, temp,
+		// Common.RequestCodes.GRAVITY_SEND_TASKLIST);
+		// }
 	}
 
 	/*
@@ -1754,6 +1764,63 @@ public class NavigationDrawerFragment extends Fragment implements
 			db.UserList_New(mTaskList, user);
 		for (UserModel user : del_users)
 			db.UserList_Delete(mTaskList._id, user._id);// del
+	}
+
+	public class GetUTC {
+
+		static final String DATEFORMAT = "yyyy-MM-dd HH:mm:ss.SSS";
+
+		// "yyyy-MM-dd HH:mm:ss z";
+
+		public Date GetUTCdatetimeAsDate() {
+			// note: doesn't check for null
+			return StringDateToDate(GetUTCdatetimeAsString());
+		}
+
+		public String GetUTCdatetimeAsString() {
+			final SimpleDateFormat sdf = new SimpleDateFormat(DATEFORMAT);
+			sdf.setTimeZone(TimeZone.getTimeZone("UTC"));
+			final String utcTime = sdf.format(new Date());
+
+			return utcTime;
+		}
+
+		public Date StringDateToDate(String StrDate) {
+			Date dateToReturn = null;
+			SimpleDateFormat dateFormat = new SimpleDateFormat(DATEFORMAT);
+
+			try {
+				dateToReturn = (Date) dateFormat.parse(StrDate);
+
+
+				SimpleDateFormat formatter = new SimpleDateFormat(
+						"dd.MM.yyyy HH:mm:ss");
+				String reportDate = formatter.format(dateToReturn);
+
+				StringTokenizer timeTokens = new StringTokenizer(reportDate,
+						" : ");
+				String date_string_full = timeTokens.nextToken();// date
+				String hours_string = timeTokens.nextToken();// hours
+				String minute_string = timeTokens.nextToken();// minute
+				String seconds_string = timeTokens.nextToken();// seconds
+
+				StringTokenizer dateTokens = new StringTokenizer(date_string_full,
+						".");
+				String date_string = dateTokens.nextToken();// date
+				String month_string = dateTokens.nextToken();// month
+				String year_string = dateTokens.nextToken();// year
+
+				// yy-mm-ddThh:mm:ss.{6Digit}{sp/+}
+				String serverString = year_string + "-" + month_string + "-"
+						+ date_string + "T" + hours_string + ":"
+						+ minute_string + ":" + seconds_string + ".";
+
+				serverString = serverString + " ";
+			} catch (ParseException e) {
+				e.printStackTrace();
+			}
+			return dateToReturn;
+		}
 	}
 
 }
