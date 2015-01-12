@@ -672,10 +672,10 @@ public class NavigationDrawerFragment extends Fragment implements
 	 * implement.
 	 */
 	public void clearSelection() {
-		 if (oldSelection != null) {
-		 oldSelection.setBackgroundColor(getResources().getColor(
-		 android.R.color.transparent));
-		 }
+		if (oldSelection != null) {
+			oldSelection.setBackgroundColor(getResources().getColor(
+					android.R.color.transparent));
+		}
 	}
 
 	public void addOrEditTaskList(final TaskListModel tasklist) {
@@ -758,11 +758,13 @@ public class NavigationDrawerFragment extends Fragment implements
 						String title = et_title.getText().toString();
 						if (title.length() != 0) {
 							try {
-					        	Random rand = new Random();
-					        	int  fragment_color = rand.nextInt(999998) + 1;
-					        	//999999 is the maximum and the 1 is our minimum 
-					        	String fragColor = String.valueOf(fragment_color);
-					        	
+								Random rand = new Random();
+								int fragment_color = rand.nextInt(999998) + 1;
+								// 999999 is the maximum and the 1 is our
+								// minimum
+								String fragColor = String
+										.valueOf(fragment_color);
+
 								TaskListModel temp = new TaskListModel(title,
 										list_type, fragColor);
 								temp.user_id = user_data._id;
@@ -796,13 +798,14 @@ public class NavigationDrawerFragment extends Fragment implements
 						// update tasklist
 						String title = et_title.getText().toString();
 						if (title.length() != 0) {
-							
+
 							tasklist.title = title;
 							tasklist.icon_identifier = list_type;
-							
+
 							int nRows = db.TaskList_Edit(tasklist);
-									//(new TaskListModel(tasklist._id, title, list_type));
-							
+							// (new TaskListModel(tasklist._id, title,
+							// list_type));
+
 							if (nRows > 0) {
 								tasklist.title = title;
 								tasklist.icon_identifier = list_type;
@@ -839,14 +842,13 @@ public class NavigationDrawerFragment extends Fragment implements
 		int position = this.mAdapter.getPosition(Old);
 		selectItem(++position, -1);
 	}
-	
-	public void editTaskListInAdapter(TaskListModel m)
-	{
-		for(int i =0; i<mAdapter.getCount();i++)//TaskListModel temp:this.data)
+
+	public void editTaskListInAdapter(TaskListModel m) {
+		for (int i = 0; i < mAdapter.getCount(); i++)// TaskListModel
+														// temp:this.data)
 		{
 			TaskListModel temp = mAdapter.getItem(i);
-			if(temp._id == m._id)
-			{
+			if (temp._id == m._id) {
 				temp.etag = m.etag;
 				temp.gravity_id = m.gravity_id;
 				temp.icon_identifier = m.icon_identifier;
@@ -859,15 +861,15 @@ public class NavigationDrawerFragment extends Fragment implements
 				temp.updated = temp.updated;
 				temp.user_id = temp.user_id;
 				this.mAdapter.notifyDataSetChanged();
-				//((MainActivity)mActivity).mTaskListFragment.
+				// ((MainActivity)mActivity).mTaskListFragment.
 				int position = this.mAdapter.getPosition(temp);
 				selectItem(++position, -1);
 				break;
 			}
 		}
-		
+
 	}
-	
+
 	// full details of the tasks
 	public void openTaskDetailsDialog(final TaskListModel parent,
 			final TaskModel current) {
@@ -1832,7 +1834,6 @@ public class NavigationDrawerFragment extends Fragment implements
 			try {
 				dateToReturn = (Date) dateFormat.parse(StrDate);
 
-
 				SimpleDateFormat formatter = new SimpleDateFormat(
 						"dd.MM.yyyy HH:mm:ss");
 				String reportDate = formatter.format(dateToReturn);
@@ -1844,8 +1845,8 @@ public class NavigationDrawerFragment extends Fragment implements
 				String minute_string = timeTokens.nextToken();// minute
 				String seconds_string = timeTokens.nextToken();// seconds
 
-				StringTokenizer dateTokens = new StringTokenizer(date_string_full,
-						".");
+				StringTokenizer dateTokens = new StringTokenizer(
+						date_string_full, ".");
 				String date_string = dateTokens.nextToken();// date
 				String month_string = dateTokens.nextToken();// month
 				String year_string = dateTokens.nextToken();// year

@@ -21,6 +21,7 @@ public class TaskListAdapter extends ArrayAdapter<TaskListModel> {
 	ArrayList<TaskListModel> data = new ArrayList<TaskListModel>();
 	ArrayList<TaskListModel> data_backup = new ArrayList<TaskListModel>();
 	int selected = 0;
+
 	public TaskListAdapter(Activity activity, int layoutResourceId,
 			ArrayList<TaskListModel> data) {
 		super(activity, layoutResourceId, data);
@@ -31,12 +32,12 @@ public class TaskListAdapter extends ArrayAdapter<TaskListModel> {
 		this.data_backup = data;
 		notifyDataSetChanged();
 	}
-	public void setSelection(int position)
-	{
+
+	public void setSelection(int position) {
 		selected = position;
 		notifyDataSetChanged();
 	}
-	
+
 	public void updateData(ArrayList<TaskListModel> data1) {
 		data_backup = data1;
 	}
@@ -133,54 +134,55 @@ public class TaskListAdapter extends ArrayAdapter<TaskListModel> {
 	public View getView(int position, View convertView, ViewGroup parent) {
 		View row = convertView;
 		TaskListHolder holder = null;
-		
+
 		if (row == null) {
 			LayoutInflater inflater = LayoutInflater.from(mActivity);
 			row = inflater.inflate(layoutResourceId, parent, false);
 			holder = new TaskListHolder();
 			holder.title = (TextView) row.findViewById(R.id.txt_title);
-			
+
 			holder.list_icon = (ImageView) row.findViewById(R.id.list_icon);
-			
+
 			row.setTag(holder);
 		} else {
 			holder = (TaskListHolder) row.getTag();
 		}
 		// row.setBackgroundColor(mActivity.getResources().getColor(
 		// android.R.color.background_light)); // default color
-		
+
 		tasklist = data.get(position);
-		//holder.title.setText(tasklist.title);
-		try{
-			if(selected == position)
+		// holder.title.setText(tasklist.title);
+		try {
+			if (selected == position)
 				row.setBackgroundColor(Color.parseColor("#efefef"));
 			else
 				row.setBackgroundColor(Color.parseColor("#ffffffff"));
-		if (tasklist.title.length() > MAX_CHARS) {
+			if (tasklist.title.length() > MAX_CHARS) {
 
-		//	String temp= tasklist.title.toString();
-			//holder.title.setText( temp.substring(0,MAX_CHARS) + "...");
-	    	 String temp = tasklist.title.toString().substring(0,MAX_CHARS) + "...";
-			 holder.title.setText( temp);
-		 } 
-		else  {
-	   	  	holder.title.setText(tasklist.title);
-	    }
-	 }catch(Exception e){
-		 String tag = "TasklistAdapter";
-		 String msg = "truncation Error"; 
-		 Log.e(tag, msg);
-	 }
- 	 
-		try{
+				// String temp= tasklist.title.toString();
+				// holder.title.setText( temp.substring(0,MAX_CHARS) + "...");
+				String temp = tasklist.title.toString().substring(0, MAX_CHARS)
+						+ "...";
+				holder.title.setText(temp);
+			} else {
+				holder.title.setText(tasklist.title);
+			}
+		} catch (Exception e) {
+			String tag = "TasklistAdapter";
+			String msg = "truncation Error";
+			Log.e(tag, msg);
+		}
+
+		try {
 			Resources resources = mActivity.getResources();
-				holder.list_icon.setImageDrawable(resources.getDrawable(tasklist.icon_identifier));
-		}catch(Exception e){
-			 String tag = "TasklistAdapter";
-			 String msg = "listICON"; 
-			 Log.e(tag, msg);
-		 }
-		
+			holder.list_icon.setImageDrawable(resources
+					.getDrawable(tasklist.icon_identifier));
+		} catch (Exception e) {
+			String tag = "TasklistAdapter";
+			String msg = "listICON";
+			Log.e(tag, msg);
+		}
+
 		// row.setOnTouchListener(new OnTouchListener() {
 		//
 		// @Override
@@ -196,10 +198,9 @@ public class TaskListAdapter extends ArrayAdapter<TaskListModel> {
 		// return false;
 		// }
 		// });
- 
-		
+
 		return row;
-		
+
 	}
 
 	class TaskListHolder {

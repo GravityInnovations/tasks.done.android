@@ -130,73 +130,55 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
 			+ KEY_FK_TASKLIST_ID + " INTEGER," + " FOREIGN KEY ("
 			+ KEY_FK_TASKLIST_ID + ")" + "REFERENCES " + TABLE_TASK_LIST + "("
-			+ KEY_PK + ")" 
-			+ ")";
+			+ KEY_PK + ")" + ")";
 
 	private static final String CREATE_TASK_LIST_TABLE = "CREATE TABLE "
-			+ TABLE_TASK_LIST 
-			+ "(" 
-			+ KEY_PK
-			+ " INTEGER PRIMARY KEY AUTOINCREMENT," 
-			+ KEY_TITLE + " TEXT,"
-			+ KEY_SERVER_ID + " TEXT," 
-			+ KEY_ETAG + " TEXT," 
-			+ KEY_UPDATED_AT + " DATETIME," 
-			+ KEY_SELF_LINK + " TEXT," 
-			+ KEY_KIND + " TEXT,"
-			+ KEY_USER_ID + " INTEGER," 
-			+ KEY_SYNC_STATUS + " TEXT,"
+			+ TABLE_TASK_LIST + "(" + KEY_PK
+			+ " INTEGER PRIMARY KEY AUTOINCREMENT," + KEY_TITLE + " TEXT,"
+			+ KEY_SERVER_ID + " TEXT," + KEY_ETAG + " TEXT," + KEY_UPDATED_AT
+			+ " DATETIME," + KEY_SELF_LINK + " TEXT," + KEY_KIND + " TEXT,"
+			+ KEY_USER_ID + " INTEGER," + KEY_SYNC_STATUS + " TEXT,"
 			+ KEY_SYNC_STATUS_TIMESTAMP + " DATETIME,"
-			
+
 			+ KEY_TASKLIST_FRAGMENT_COLOR + " TEXT,"
-			
-			+ KEY_LIST_TYPE	+ " INTEGER" // values 1-5 icons
+
+			+ KEY_LIST_TYPE + " INTEGER" // values 1-5 icons
 			+ ")";
 
 	private static final String CREATE_USERS_TABLE = "CREATE TABLE "
-			+ TABLE_USERS 
-			+ "(" 
-			+ KEY_PK + " INTEGER PRIMARY KEY AUTOINCREMENT," 
-			+ KEY_USER_NAME + " TEXT,"
-			+ KEY_USER_EMAIL + " TEXT," 
-			+ KEY_SERVER_ID + " TEXT,"
-			+ KEY_USER_IMAGE + " BLOB," 
-			+ KEY_CONTACT_ID + " TEXT,"
-			+ KEY_DISPLAY_NAME + " TEXT" 
-			+ ")";
+			+ TABLE_USERS + "(" + KEY_PK
+			+ " INTEGER PRIMARY KEY AUTOINCREMENT," + KEY_USER_NAME + " TEXT,"
+			+ KEY_USER_EMAIL + " TEXT," + KEY_SERVER_ID + " TEXT,"
+			+ KEY_USER_IMAGE + " BLOB," + KEY_CONTACT_ID + " TEXT,"
+			+ KEY_DISPLAY_NAME + " TEXT" + ")";
 
 	private static final String CREATE_USERS_LISTS_TABLE = "CREATE TABLE "
-			+ TABLE_USERS_LISTS 
-			+ "(" 
-			+ KEY_PK + " INTEGER PRIMARY KEY AUTOINCREMENT," 
-			+ KEY_SERVER_ID + " TEXT,"
-			+ KEY_SYNC_STATUS + " TEXT," 
-			+ KEY_SYNC_STATUS_TIMESTAMP
-			+ " DATETIME," + KEY_USER_ID + " INTEGER," 
-			+ KEY_FK_TASKLIST_ID + " INTEGER" 
-			+ ")";
+			+ TABLE_USERS_LISTS + "(" + KEY_PK
+			+ " INTEGER PRIMARY KEY AUTOINCREMENT," + KEY_SERVER_ID + " TEXT,"
+			+ KEY_SYNC_STATUS + " TEXT," + KEY_SYNC_STATUS_TIMESTAMP
+			+ " DATETIME," + KEY_USER_ID + " INTEGER," + KEY_FK_TASKLIST_ID
+			+ " INTEGER" + ")";
 
 	// ********* SQLite Table Structure Queries *********//
 
 	private SharedPreferences mSharedPreferences;
 	private SharedPreferences.Editor mSharedPreferencesEditor;
 	private AppHandlerService service = null;
-	
+
 	public DatabaseHelper(Context mContext) {
-		
+
 		super(mContext, DATABASE_NAME, null, DATABASE_VERSION);
-		
-		try{
-		service = (AppHandlerService)mContext;
-		
-		
-		}catch(Exception e)
-		{
+
+		try {
+			service = (AppHandlerService) mContext;
+
+		} catch (Exception e) {
 			service = null;
 		}
-		//mSharedPreferences = mContext.getSharedPreferences(Common.SHARED_PREF_KEY,
-//				Context.MODE_MULTI_PROCESS);
-//		mSharedPreferencesEditor = mSharedPreferences.edit();
+		// mSharedPreferences =
+		// mContext.getSharedPreferences(Common.SHARED_PREF_KEY,
+		// Context.MODE_MULTI_PROCESS);
+		// mSharedPreferencesEditor = mSharedPreferences.edit();
 	}
 
 	// ********* Creating Tables *********//
@@ -500,24 +482,25 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 		values.put(KEY_SYNC_STATUS_TIMESTAMP, tasklist.syncStatusTimeStamp);
 		values.put(KEY_LIST_TYPE, tasklist.icon_identifier);
 		values.put(KEY_TASKLIST_FRAGMENT_COLOR, tasklist.fragmentColor);
-		
+
 		int id = (int) db.insert(TABLE_TASK_LIST, null, values);
 		tasklist._id = id;
-		
+
 		db.close();
-		if(id!=-1 && tasklist.gravity_id == "" && service.hasInternet && service.user_data.is_sync_type)
-		{
-			//final TaskListModel tl = tasklist;
-			GravityController.post_tasklist(service, service.user_data, tasklist, -1);
-//			service.runOnUiThread(new Runnable() {
-//				
-//				@Override
-//				public void run() {
-//					// TODO Auto-generated method stub
-//					
-//				}
-//			});
-			
+		if (id != -1 && tasklist.gravity_id == "" && service.hasInternet
+				&& service.user_data.is_sync_type) {
+			// final TaskListModel tl = tasklist;
+			GravityController.post_tasklist(service, service.user_data,
+					tasklist, -1);
+			// service.runOnUiThread(new Runnable() {
+			//
+			// @Override
+			// public void run() {
+			// // TODO Auto-generated method stub
+			//
+			// }
+			// });
+
 		}
 		return id;
 		// return true; //boolean to check if the tasklist is added in db
@@ -551,7 +534,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 		return db.update(TABLE_TASK_LIST, values, KEY_PK + " = ?",
 				new String[] { String.valueOf(tasklist._id) });
 	}
-	
+
 	// Getting All TasksLists
 
 	public ArrayList<TaskListModel> TaskList_List() {
@@ -572,31 +555,17 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 			int col_kind = cursor.getColumnIndex(KEY_KIND);
 			int col_userid = cursor.getColumnIndex(KEY_USER_ID);
 			int col_syncStatus = cursor.getColumnIndex(KEY_SYNC_STATUS);
-			int col_syncStatusTimeStamp = cursor.getColumnIndex(KEY_SYNC_STATUS_TIMESTAMP);
+			int col_syncStatusTimeStamp = cursor
+					.getColumnIndex(KEY_SYNC_STATUS_TIMESTAMP);
 			int col_listIcon = cursor.getColumnIndex(KEY_LIST_TYPE);
-			int col_fragmentColor = cursor.getColumnIndex(KEY_TASKLIST_FRAGMENT_COLOR);
+			int col_fragmentColor = cursor
+					.getColumnIndex(KEY_TASKLIST_FRAGMENT_COLOR);
 			// looping through all rows and adding to list
 			if (cursor.moveToFirst()) {
 				do {
 					TaskListModel tasklist = new TaskListModel();
-//					tasklist._id = (Integer.parseInt(cursor.getString(0)));
-//					tasklist.title = (cursor.getString(1));
-//
-//					tasklist.server_id = (cursor.getString(2));
-//					tasklist.etag = (cursor.getString(3));
-//					tasklist.updated = (cursor.getString(4));
-//					tasklist.self_link = (cursor.getString(5));
-//					tasklist.kind = (cursor.getString(6));
-//					tasklist.user_id = (Integer.parseInt(cursor.getString(7)));
-//					tasklist.syncStatus = (cursor.getString(8));
-//					tasklist.syncStatusTimeStamp = (cursor.getString(9));
-//					tasklist.icon_identifier = (Integer.parseInt(cursor
-//							.getString(11)));
-//					tasklist.fragmentColor = (cursor.getString(10));
-					
 					tasklist._id = cursor.getInt(col_pk);
 					tasklist.title = cursor.getString(col_title);
-
 					tasklist.server_id = cursor.getString(col_server_id);
 					tasklist.etag = (cursor.getString(col_etag));
 					tasklist.updated = (cursor.getString(col_updated));
@@ -604,10 +573,11 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 					tasklist.kind = (cursor.getString(col_kind));
 					tasklist.user_id = (cursor.getInt(col_userid));
 					tasklist.syncStatus = (cursor.getString(col_syncStatus));
-					tasklist.syncStatusTimeStamp = (cursor.getString(col_syncStatusTimeStamp));
-					tasklist.icon_identifier = (cursor
-							.getInt(col_listIcon));
-					tasklist.fragmentColor = (cursor.getString(col_fragmentColor));
+					tasklist.syncStatusTimeStamp = (cursor
+							.getString(col_syncStatusTimeStamp));
+					tasklist.icon_identifier = (cursor.getInt(col_listIcon));
+					tasklist.fragmentColor = (cursor
+							.getString(col_fragmentColor));
 					// Adding TaskModel to list
 					tasklist.users = this.UserList_List(tasklist._id);
 					tasklist.tasks = this.Task_List(tasklist._id);
@@ -684,7 +654,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 					user.text1 = (cursor.getString(1));
 					user.text2 = (cursor.getString(2));
 					user.iconRes = (cursor.getBlob(4));
-					
+
 					// Adding Task to list
 					users.add(user);
 				} while (cursor.moveToNext());
@@ -741,47 +711,50 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 		ContentValues values = new ContentValues();
 
 		values.put(KEY_USER_NAME, user.name);// added later
-		
+
 		values.put(KEY_DISPLAY_NAME, user.displayName);
 		values.put(KEY_USER_EMAIL, user.email);
-		
+
 		values.put(KEY_USER_IMAGE, user.image);
 		values.put(KEY_CONTACT_ID, user.contact_id);
 
 		int id = (int) db.insert(TABLE_USERS, null, values);
 		db.close();
-//		if(service!=null)
-//		{
-//			GravityController.
-//		}
-//		if(id!=-1){
-//			String PendingServerUsers = mSharedPreferences.getString(SharedPreferencesHelper.Pending_Sync_Users, "");
-//			
-//			if(PendingServerUsers!="")
-//			PendingServerUsers+=","+id;
-//			else if(PendingServerUsers == "")
-//				PendingServerUsers=id+"";
-//			
-//			mSharedPreferencesEditor.putString(SharedPreferencesHelper.Pending_Sync_Users, PendingServerUsers);
-//		}
-		
+		// if(service!=null)
+		// {
+		// GravityController.
+		// }
+		// if(id!=-1){
+		// String PendingServerUsers =
+		// mSharedPreferences.getString(SharedPreferencesHelper.Pending_Sync_Users,
+		// "");
+		//
+		// if(PendingServerUsers!="")
+		// PendingServerUsers+=","+id;
+		// else if(PendingServerUsers == "")
+		// PendingServerUsers=id+"";
+		//
+		// mSharedPreferencesEditor.putString(SharedPreferencesHelper.Pending_Sync_Users,
+		// PendingServerUsers);
+		// }
+
 		return id;
 		// return true; //boolean to check if the user is added in db
 	}
-	public int User_validate(UserModel user)
-	{
+
+	public int User_validate(UserModel user) {
 		SQLiteDatabase db = this.getWritableDatabase();
 
 		ContentValues values = new ContentValues();
 		values.put(KEY_USER_NAME, user.name);
 		values.put(KEY_SERVER_ID, user.server_id);
-		//values.put(KEY_USER_EMAIL, user.email);
+		// values.put(KEY_USER_EMAIL, user.email);
 
-		
-				int i = db.update(TABLE_USERS, values, KEY_PK  + " = ?",
+		int i = db.update(TABLE_USERS, values, KEY_PK + " = ?",
 				new String[] { String.valueOf(user._id) });// updating row
-				return i;
+		return i;
 	}
+
 	// Edit a UserModel
 	public int User_Edit(UserModel user) {
 		SQLiteDatabase db = this.getWritableDatabase();
@@ -789,7 +762,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 		ContentValues values = new ContentValues();
 		values.put(KEY_USER_NAME, user.name);
 		values.put(KEY_DISPLAY_NAME, user.displayName);
-		//values.put(KEY_USER_EMAIL, user.email);
+		// values.put(KEY_USER_EMAIL, user.email);
 		values.put(KEY_USER_IMAGE, user.image);
 
 		values.put(KEY_USER_ID, user.server_id);
@@ -855,7 +828,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 				+ " = " + taskListID + " ";
 		db.execSQL(selectQuery);
 		db.close();
-		
+
 	}
 
 	public int UserList_New(TaskListModel tasklist, UserModel user) {
@@ -887,9 +860,9 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 		cursor.close();
 		db.close();
 		if (users_ids.size() > 0) {
-			//String[] ids = users_ids.toArray(new String[users_ids.size()]);
+			// String[] ids = users_ids.toArray(new String[users_ids.size()]);
 			return Users_List(users_ids); // call to a function for returning
-									// userModelss
+			// userModelss
 		} else {
 			return new ArrayList<UserModel>();
 		}
@@ -903,7 +876,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 				KEY_DISPLAY_NAME, KEY_USER_NAME, KEY_USER_EMAIL,
 				KEY_USER_IMAGE, KEY_CONTACT_ID
 
-		}, null, null, null, null, KEY_PK+ " ASC ", null);
+		}, null, null, null, null, KEY_PK + " ASC ", null);
 		int col_pk = cursor.getColumnIndex(KEY_PK);
 		int col_displayName = cursor.getColumnIndex(KEY_DISPLAY_NAME);
 		int col_name = cursor.getColumnIndex(KEY_USER_NAME);
@@ -913,22 +886,22 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 		// get all
 		if (cursor.moveToFirst()) {
 			do {
-				for(Integer i:ids){
-					int tempid = cursor.getInt(col_pk);//Integer.parseInt(cursor.getString(col_pk));
-					if(i ==  tempid || i.equals(tempid)){
-						
-				UserModel temp = new UserModel();
-				temp._id = cursor.getInt(col_pk);
-				temp.displayName = cursor.getString(col_displayName);
-				temp.name = cursor.getString(col_name);
-				temp.contact_id = cursor.getString(col_contactID);
-				temp.email = cursor.getString(col_email);
-				temp.image = cursor.getBlob(col_image);
+				for (Integer i : ids) {
+					int tempid = cursor.getInt(col_pk);// Integer.parseInt(cursor.getString(col_pk));
+					if (i == tempid || i.equals(tempid)) {
 
-				// other attributes
+						UserModel temp = new UserModel();
+						temp._id = cursor.getInt(col_pk);
+						temp.displayName = cursor.getString(col_displayName);
+						temp.name = cursor.getString(col_name);
+						temp.contact_id = cursor.getString(col_contactID);
+						temp.email = cursor.getString(col_email);
+						temp.image = cursor.getBlob(col_image);
 
-				data.add(temp);
-				break;
+						// other attributes
+
+						data.add(temp);
+						break;
 					}
 				}
 				// Adding TaskModel to list

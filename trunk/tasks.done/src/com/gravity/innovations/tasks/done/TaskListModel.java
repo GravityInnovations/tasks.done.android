@@ -7,7 +7,7 @@ public class TaskListModel {
 	public String title;
 	public String gravity_id = "";
 
-	public String server_id="";
+	public String server_id = "";
 	public String etag;
 	public String updated;
 	public String self_link;
@@ -20,6 +20,7 @@ public class TaskListModel {
 	public ArrayList<TaskModel> tasks = new ArrayList<TaskModel>(); // task_data;
 	public ArrayList<UserModel> users = new ArrayList<UserModel>(); // task_data;
 	public String fragmentColor;
+
 	// ********* Constructors *********//
 	public TaskListModel() {
 		_id = -1;
@@ -38,7 +39,8 @@ public class TaskListModel {
 		this.tasks = new ArrayList<TaskModel>();
 	}
 
-	public TaskListModel(String title, int _icon_identifier, String fragement_color) {
+	public TaskListModel(String title, int _icon_identifier,
+			String fragement_color) {
 		this.title = title;
 		this.icon_identifier = _icon_identifier;
 		this.fragmentColor = fragement_color;
@@ -47,7 +49,8 @@ public class TaskListModel {
 
 	public TaskListModel(int id, String _title, String _server_id,
 			String _etag, String _updated, String _self_link, String _kind,
-			int _user_id, String _syncStatus, String _syncStatusTimeStamp, int _list_type) {
+			int _user_id, String _syncStatus, String _syncStatusTimeStamp,
+			int _list_type) {
 		this._id = id;
 		this.title = _title;
 		this.server_id = _server_id;

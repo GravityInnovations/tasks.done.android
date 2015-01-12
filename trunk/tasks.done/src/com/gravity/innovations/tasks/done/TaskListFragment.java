@@ -115,9 +115,10 @@ public class TaskListFragment extends Fragment {
 			} else {
 				int colorHEx = Integer.parseInt(data.fragmentColor);
 				String hex = data.fragmentColor;
-				//headerLayout.setBackgroundColor(Color.parseColor("#"+colorHEx ));
-				headerLayout.setBackgroundColor(Color.parseColor("#"+hex ));
-				
+				// headerLayout.setBackgroundColor(Color.parseColor("#"+colorHEx
+				// ));
+				headerLayout.setBackgroundColor(Color.parseColor("#" + hex));
+
 			}
 		} catch (Exception e) {
 			Log.e("TaskListFragment", "HeaderColor");
