@@ -3,19 +3,17 @@ package com.gravity.innovations.tasks.done;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.Random;
-import java.util.zip.Inflater;
-
-import com.google.android.gms.internal.ad;
 
 import android.annotation.SuppressLint;
 import android.app.Activity;
-import android.content.res.Resources;
 import android.content.DialogInterface;
 import android.content.DialogInterface.OnClickListener;
+import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
+import android.graphics.drawable.ShapeDrawable;
+import android.graphics.drawable.shapes.OvalShape;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.util.Log;
@@ -24,22 +22,21 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
-import android.view.View.OnTouchListener;
 import android.view.ViewGroup;
-import android.view.ViewGroup.LayoutParams;
+import android.view.View.OnTouchListener;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
+import android.webkit.WebView.FindListener;
 import android.widget.AbsListView.MultiChoiceModeListener;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.AdapterView.OnItemLongClickListener;
-import android.widget.EditText;
+import android.widget.Button;
 import android.widget.GridView;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.RelativeLayout;
-import android.widget.ScrollView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -99,6 +96,15 @@ public class TaskListFragment extends Fragment {
 		super.onAttach(activity);
 	}
 
+	private ShapeDrawable returnButtonShape(String hex) {
+		ShapeDrawable circle;
+		circle = new ShapeDrawable(new OvalShape());
+		// circle.setBounds(10, 10, 20, 20);
+		// circle.setPadding(14, 15, 10, 10);// L,T,R,B
+		circle.getPaint().setColor(Color.parseColor(hex));
+		return circle;
+	}
+
 	@SuppressLint("NewApi")
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -107,21 +113,28 @@ public class TaskListFragment extends Fragment {
 		super.onCreateView(inflater, container, savedInstanceState);
 		View rootView = inflater.inflate(R.layout.fragment_main, container,
 				false);
+
 		try {
+			// Assign color to headerLayout
 			RelativeLayout headerLayout = (RelativeLayout) rootView
 					.findViewById(R.id.header);
-			if (data._id == 1) {
-				headerLayout.setBackgroundColor(Color.parseColor("#88B1C5"));
-			} else {
-				int colorHEx = Integer.parseInt(data.fragmentColor);
-				String hex = data.fragmentColor;
-				// headerLayout.setBackgroundColor(Color.parseColor("#"+colorHEx
-				// ));
-				headerLayout.setBackgroundColor(Color.parseColor("#" + hex));
+			String hex = data.fragmentColor;
+			headerLayout.setBackgroundColor(Color.parseColor(hex));
+			// floating button
+			final ImageButton floatingBtn = (ImageButton) rootView
+					.findViewById(R.id.floating_button);
+			floatingBtn.setBackground(returnButtonShape(hex));
+			floatingBtn.setOnClickListener(new View.OnClickListener() {
 
-			}
+				@Override
+				public void onClick(View v) {
+					mNavigationDrawerFragment.addOrEditTask(data,
+							new TaskModel());
+				}
+			});
+
 		} catch (Exception e) {
-			Log.e("TaskListFragment", "HeaderColor");
+			Log.e("TaskListFragment", "Header&FloatingBtnColor");
 		}
 
 		btn_share = ((ImageButton) rootView.findViewById(R.id.btn_share_list));

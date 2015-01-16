@@ -128,37 +128,53 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 			+ KEY_ASSOCIATED_USERMODELS
 			+ " TEXT,"// 20 associated users
 
-			+ KEY_FK_TASKLIST_ID + " INTEGER," + " FOREIGN KEY ("
+			+ KEY_FK_TASKLIST_ID + " INTEGER," 
+			
+			+ " FOREIGN KEY ("
 			+ KEY_FK_TASKLIST_ID + ")" + "REFERENCES " + TABLE_TASK_LIST + "("
 			+ KEY_PK + ")" + ")";
 
 	private static final String CREATE_TASK_LIST_TABLE = "CREATE TABLE "
 			+ TABLE_TASK_LIST + "(" + KEY_PK
-			+ " INTEGER PRIMARY KEY AUTOINCREMENT," + KEY_TITLE + " TEXT,"
-			+ KEY_SERVER_ID + " TEXT," + KEY_ETAG + " TEXT," + KEY_UPDATED_AT
-			+ " DATETIME," + KEY_SELF_LINK + " TEXT," + KEY_KIND + " TEXT,"
-			+ KEY_USER_ID + " INTEGER," + KEY_SYNC_STATUS + " TEXT,"
+			+ " INTEGER PRIMARY KEY AUTOINCREMENT," 
+			+ KEY_TITLE + " TEXT,"
+			+ KEY_SERVER_ID + " TEXT,"  
+			+ KEY_UPDATED_AT + " DATETIME,"    
+			+ KEY_SYNC_STATUS + " TEXT,"
 			+ KEY_SYNC_STATUS_TIMESTAMP + " DATETIME,"
 
 			+ KEY_TASKLIST_FRAGMENT_COLOR + " TEXT,"
 
 			+ KEY_LIST_TYPE + " INTEGER" // values 1-5 icons
 			+ ")";
+	
 
+
+	
 	private static final String CREATE_USERS_TABLE = "CREATE TABLE "
 			+ TABLE_USERS + "(" + KEY_PK
-			+ " INTEGER PRIMARY KEY AUTOINCREMENT," + KEY_USER_NAME + " TEXT,"
-			+ KEY_USER_EMAIL + " TEXT," + KEY_SERVER_ID + " TEXT,"
-			+ KEY_USER_IMAGE + " BLOB," + KEY_CONTACT_ID + " TEXT,"
+			+ " INTEGER PRIMARY KEY AUTOINCREMENT," 
+			+ KEY_USER_NAME + " TEXT,"
+			+ KEY_USER_EMAIL + " TEXT," 
+			+ KEY_SERVER_ID + " TEXT,"
+			+ KEY_USER_IMAGE + " BLOB," 
+			+ KEY_CONTACT_ID + " TEXT,"
 			+ KEY_DISPLAY_NAME + " TEXT" + ")";
+
+
 
 	private static final String CREATE_USERS_LISTS_TABLE = "CREATE TABLE "
 			+ TABLE_USERS_LISTS + "(" + KEY_PK
-			+ " INTEGER PRIMARY KEY AUTOINCREMENT," + KEY_SERVER_ID + " TEXT,"
-			+ KEY_SYNC_STATUS + " TEXT," + KEY_SYNC_STATUS_TIMESTAMP
-			+ " DATETIME," + KEY_USER_ID + " INTEGER," + KEY_FK_TASKLIST_ID
-			+ " INTEGER" + ")";
+			+ " INTEGER PRIMARY KEY AUTOINCREMENT," 
+			+ KEY_SERVER_ID + " TEXT,"
+			+ KEY_SYNC_STATUS + " TEXT," 
+			+ KEY_SYNC_STATUS_TIMESTAMP
+			+ " DATETIME," 
+			+ KEY_USER_ID + " INTEGER,"
+			+ KEY_FK_TASKLIST_ID + " INTEGER" + ")";
 
+
+	
 	// ********* SQLite Table Structure Queries *********//
 
 	private SharedPreferences mSharedPreferences;
@@ -463,7 +479,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 		}
 		return data;
 	}
-
+	
 	/**
 	 * All CRUD FOR TASK LIST(Create, Read, Update, Delete) Operations
 	 */
@@ -536,6 +552,8 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 	}
 
 	// Getting All TasksLists
+
+	
 
 	public ArrayList<TaskListModel> TaskList_List() {
 		ArrayList<TaskListModel> data = new ArrayList<TaskListModel>();
@@ -822,6 +840,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
 	// Delete a user
 	public void UserList_Delete(int taskListID, int userID) {
+
 		SQLiteDatabase db = this.getWritableDatabase();
 		String selectQuery = "DELETE FROM " + TABLE_USERS_LISTS + " WHERE "
 				+ KEY_USER_ID + " = " + userID + " AND " + KEY_FK_TASKLIST_ID

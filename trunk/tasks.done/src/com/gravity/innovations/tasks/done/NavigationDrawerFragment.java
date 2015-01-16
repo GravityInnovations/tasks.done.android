@@ -3,6 +3,7 @@ package com.gravity.innovations.tasks.done;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.Random;
 import java.util.StringTokenizer;
@@ -24,11 +25,17 @@ import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.content.res.Configuration;
 import android.content.res.Resources;
+import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
+import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
+import android.provider.CalendarContract;
+import android.provider.CalendarContract.Calendars;
+import android.provider.CalendarContract.Events;
 import android.support.v4.app.ActionBarDrawerToggle;
 import android.support.v4.app.DialogFragment;
 import android.support.v4.app.Fragment;
@@ -146,8 +153,9 @@ public class NavigationDrawerFragment extends Fragment implements
 		// Select either the default item (0) or the last selected item.
 		selectItem(mCurrentSelectedPosition, -1);
 
-		GetUTC g = new GetUTC();
-		g.GetUTCdatetimeAsDate();
+		 GetUTC g = new GetUTC();
+		 g.GetUTCdatetimeAsDate();
+		// getCalendars();
 
 	}
 
@@ -325,6 +333,7 @@ public class NavigationDrawerFragment extends Fragment implements
 	 *            The DrawerLayout containing this fragment's UI.
 	 * @param user_data
 	 */
+
 	public void setUp(int fragmentId, DrawerLayout drawerLayout,
 			Context mContext, userData user_data, int tasklistid, int taskid,
 			AppHandlerService service) {
@@ -758,15 +767,17 @@ public class NavigationDrawerFragment extends Fragment implements
 						String title = et_title.getText().toString();
 						if (title.length() != 0) {
 							try {
+								String[] colorsArray = { "#7FFFD4", "#B0B3B6",
+										"#F4D05E", "#F46C5E", "#34495e",
+										"#e67e22", "#95a5a6", "#00A5A6",
+										"#5AADAD", "#C1A79A", "#FF982F",
+										"#FFC182" };
 								Random rand = new Random();
-								int fragment_color = rand.nextInt(999998) + 1;
-								// 999999 is the maximum and the 1 is our
-								// minimum
-								String fragColor = String
-										.valueOf(fragment_color);
-
+								int fragment_color = rand
+										.nextInt(colorsArray.length) + 1;
+								String colorHEX = colorsArray[fragment_color];
 								TaskListModel temp = new TaskListModel(title,
-										list_type, fragColor);
+										list_type, colorHEX);
 								temp.user_id = user_data._id;
 								// should retun a bool on true
 								temp._id = db.TaskList_New(temp);
@@ -789,10 +800,12 @@ public class NavigationDrawerFragment extends Fragment implements
 								 */
 
 							} catch (Exception e) {
-								Log.e("MainActivity", "newOrEditTaskList");
+								Log.e("MainActivity", "addOrEditTaskList");
 							} finally {
-								Log.e("MainActivitynewOrEditTaskList", "np");
-							}// finally
+								int position = mAdapter.getCount();
+								mAdapter.setSelection(position - 1);
+								// for highlighting the selection
+							}
 						}
 					} else {
 						// update tasklist
@@ -819,10 +832,12 @@ public class NavigationDrawerFragment extends Fragment implements
 						/**
 						 * update data
 						 */
-
+						int position = mAdapter.getPosition(tasklist);
+						mAdapter.setSelection(position);
+						// setSelection for item
 					}
 				} catch (Exception e) {
-					Log.d("Exception on", "Positive Listener");
+					Log.d("MainActivity", "addOrEditTaskList");
 				}
 			}
 		};
@@ -1532,39 +1547,27 @@ public class NavigationDrawerFragment extends Fragment implements
 	@SuppressLint("NewApi")
 	public void reminderListDialogActionThree(final TaskListModel tasklist,
 			final TaskModel temp) {
-		/*
-		 * AlertDialog.Builder builder = new AlertDialog.Builder(mContext);
-		 * builder.setTitle("Location"); builder.setMessage("Go Premium");
-		 * builder.setPositiveButton(R.string.dialog_ok, new
-		 * DialogInterface.OnClickListener() { public void
-		 * onClick(DialogInterface dialog, int id) { dialog.cancel();
-		 * openReminderListDialog(tasklist, temp); } });
-		 * builder.setNegativeButton(R.string.dialog_back, new
-		 * DialogInterface.OnClickListener() { public void
-		 * onClick(DialogInterface dialog, int id) { dialog.cancel();
-		 * openReminderListDialog(tasklist, temp); } });
-		 * builder.setCancelable(false); final Dialog dialog = builder.create();
-		 * dialog.show();
-		 */
 
-		// Calendar beginTime = Calendar.getInstance();
-		// beginTime.set(2015, 1, 8, 3, 48);
-		// Calendar endTime = Calendar.getInstance();
-		// endTime.set(2015, 1, 8, 3, 50);
-		// Intent intent = new Intent(Intent.ACTION_INSERT)
-		// .setData(Events.CONTENT_URI)
-		// .putExtra(CalendarContract.EXTRA_EVENT_BEGIN_TIME,
-		// beginTime.getTimeInMillis())
-		// .putExtra(CalendarContract.EXTRA_EVENT_END_TIME,
-		// endTime.getTimeInMillis())
-		// .putExtra(Events.TITLE, "task.done> TASK.DONE")
-		// .putExtra(Events.DESCRIPTION, "App Complition")
-		// .putExtra(Events.EVENT_LOCATION, "Gravity Innovation")
-		// .putExtra(Events.AVAILABILITY, Events.AVAILABILITY_BUSY)
-		// .putExtra(Intent.EXTRA_EMAIL,
-		// "mushahidhassan110@example.com,trevor@example.com");
-		// // startActivity(intent);
-		// startActivityForResult(intent, 2525);
+		AlertDialog.Builder builder = new AlertDialog.Builder(mContext);
+		builder.setTitle("Location");
+		builder.setMessage("Go Premium");
+		builder.setPositiveButton(R.string.dialog_ok,
+				new DialogInterface.OnClickListener() {
+					public void onClick(DialogInterface dialog, int id) {
+						dialog.cancel();
+						openReminderListDialog(tasklist, temp);
+					}
+				});
+		builder.setNegativeButton(R.string.dialog_back,
+				new DialogInterface.OnClickListener() {
+					public void onClick(DialogInterface dialog, int id) {
+						dialog.cancel();
+						openReminderListDialog(tasklist, temp);
+					}
+				});
+		builder.setCancelable(false);
+		final Dialog dialog = builder.create();
+		dialog.show();
 
 	}
 
@@ -1855,12 +1858,66 @@ public class NavigationDrawerFragment extends Fragment implements
 				String serverString = year_string + "-" + month_string + "-"
 						+ date_string + "T" + hours_string + ":"
 						+ minute_string + ":" + seconds_string + ".";
-
+				//getTime();
+				//ServerAndDeviceTime();
 				serverString = serverString + " ";
+
 			} catch (ParseException e) {
 				e.printStackTrace();
 			}
 			return dateToReturn;
+		}
+	}
+
+	public long getTime() throws ParseException {
+		// SimpleDateFormat df = new SimpleDateFormat(
+		// "yyyy-MM-dd'T'HH:mm:ss.SSSSSSS'GMT'");
+		// Date date = (Date) df.parse("2015-01-10T15:09:16.5975889+5:00");
+		// long time0 = date.getTime();
+		// long d = df.parse ("2015-01-10T15:09:16.5975889+5:00").getTime();
+
+		/************************************************/
+		SimpleDateFormat dateFormat = new SimpleDateFormat(
+				"yyyy-M-dd'T'HH:mm:ss.SSSSSSS'Z'");
+		long time = dateFormat.parse("2015-01-10T15:09:16.5975889Z").getTime();
+		return time;// date.getTime();
+		/************************************************/
+
+	}
+
+	public void ServerAndDeviceTime() {
+		try {
+
+			// String ServerDate = data.optString("data");//
+			// 2015-01-13T12:00:28.3367416Z
+			// localtime on Desktop 5:02PM
+			String DATEFORMAT_SERVER = "yyyy-M-dd'T'HH:mm:ss.SSSSSSS'Z'";
+			SimpleDateFormat serverDateFormat = new SimpleDateFormat(
+					DATEFORMAT_SERVER);
+
+			String DATEFORMAT_DISPLAY = "yyyy-MM-dd HH:mm:ss.SSS";
+			SimpleDateFormat displayFormat = new SimpleDateFormat(
+					DATEFORMAT_DISPLAY);
+			displayFormat.setTimeZone(TimeZone.getTimeZone("UTC"));
+
+			// returns formatted serverDateTime
+			long serverTimeLong = serverDateFormat.parse(
+					"2015-01-13T12:00:28.3367416Z").getTime();
+			// 1421135795416;
+			String serverTime = displayFormat.format(new Date(serverTimeLong));
+			Log.e("ServerTime", serverTime);
+			// returns formatted serverDateTime
+
+			// takes cuurent devive time and convert it to display Format
+			String currentDateTime = serverDateFormat.format(new Date());
+			long deviceCurrentTimeLong = System.currentTimeMillis();
+			String deviceTime = displayFormat.format(new Date(
+					deviceCurrentTimeLong));
+			Log.e("DeviceTime", deviceTime);
+			// 1421216214567
+			// takes cuurent devive time and convert it to display Format
+		} catch (Exception e) {
+			e.printStackTrace();
 		}
 	}
 

@@ -133,7 +133,7 @@
         android:focusableInTouchMode="false"
         android:scrollingCache="true" />
 
-    <Button
+    <ImageButton
         android:id="@+id/floating_button"
         android:layout_width="60dp"
         android:layout_height="60dp"
@@ -141,10 +141,8 @@
         android:layout_alignParentRight="true"
         android:layout_marginBottom="20dp"
         android:layout_marginRight="20dp"
-        android:background="@drawable/floating_button_selector"
         android:clickable="true"
-        android:drawableStart="@drawable/ic_action_new"
         android:gravity="center_vertical"
-        android:onClick="floatButtonOnClick" />
+        android:src="@drawable/ic_action_new" />
 
 </RelativeLayout>

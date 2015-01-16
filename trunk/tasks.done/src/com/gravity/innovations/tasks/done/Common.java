@@ -1,8 +1,12 @@
 package com.gravity.innovations.tasks.done;
 
 import java.io.Serializable;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.StringTokenizer;
+import java.util.TimeZone;
 
 import org.json.JSONObject;
 
@@ -19,6 +23,7 @@ import android.graphics.Bitmap;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.provider.ContactsContract;
+import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ListView;
@@ -58,7 +63,8 @@ public class Common {
 	public static final String AUTH_TOKEN_TYPE = "oauth2:profile https://www.googleapis.com/auth/plus.login https://www.googleapis.com/auth/plus.me";// https://www.googleapis.com/auth/userinfo.profile";// https://www.googleapis.com/auth/drive.file https://www.googleapis.com/auth/datastoremobile https://www.googleapis.com/auth/appstate";
 	public static final String EXTRA_MESSAGE = "message";
 	public static final String GOOGLE_PROPERTY_REG_ID = "registration_id";
-	public static final String GOOGLE_IS_USER_SYNCED = prefix+"ProfileDataSynced";
+	public static final String GOOGLE_IS_USER_SYNCED = prefix
+			+ "ProfileDataSynced";
 	public static final String GOOGLE_PROPERTY_APP_VERSION = "appVersion";
 	public final static int PLAY_SERVICES_RESOLUTION_REQUEST = 9000;
 	public final static String HAS_EXCEPTION = prefix + "hasException";
@@ -95,20 +101,25 @@ public class Common {
 	public static final int CONFIG_GCM = 9;
 	public static final int GRAVITY_SYNC = 10;
 	public static final int USERS_SYNC = 11;
-	
+
 	// Activity Names
 	public static final String AUTH_ACTIVITY = "AuthenticationActivity";
 	public static final String SPLASH_ACTIVITY = "SplashActivity";
-	//gravity urls
-	public static final String GRAVITY_BASE_URL = "http://192.168.0.103/";
-	public static final String GRAVITY_ACCOUNT_URL = GRAVITY_BASE_URL+"Account/";
-	public static final String GRAVITY_GCM_URL = GRAVITY_BASE_URL+"GCM/";
-	public static final String GRAVITY_TASKLIST_URL = GRAVITY_BASE_URL+"TaskList/";
-	public static final String GRAVITY_TASK_URL = GRAVITY_BASE_URL+"Task/";
-	
-	//google urls
-	public static final String USER_INFO_URL = "https://www.googleapis.com/oauth2/v1/userinfo?alt=json&access_token=";//require token
-// request codes
+	// gravity urls
+	public static final String GRAVITY_BASE_URL = "http://192.168.1.2/";
+	public static final String GRAVITY_ACCOUNT_URL = GRAVITY_BASE_URL
+			+ "Account/";
+	public static final String GRAVITY_GCM_URL = GRAVITY_BASE_URL + "GCM/";
+	public static final String GRAVITY_TASKLIST_URL = GRAVITY_BASE_URL
+			+ "TaskList/";
+	public static final String GRAVITY_TASK_URL = GRAVITY_BASE_URL + "Task/";
+
+	// google urls
+	public static final String USER_INFO_URL = "https://www.googleapis.com/oauth2/v1/userinfo?alt=json&access_token=";// require
+																														// token
+
+	// request codes
+
 	public class RequestCodes {
 		public static final int SPLASH_ACC = 999;
 		public static final int SPLASH_AUTH = 996;
@@ -120,26 +131,30 @@ public class Common {
 		public static final int GRAVITY_VALIDATE_USERS = 992;
 		public static final int GRAVITY_GET_TASKS = 991;
 	}
-	public static class serviceActions{
+
+	public static class serviceActions {
 		public static final String START_APP = "startapplication";
 		public static final String RESTART_SERVICE = "restartservice";
 		public static final String USER_START_APP = "userstartedapplication";
 	}
+
 	public class EXCEPTIONS {
 		public static final int NoException = 0;
 		public static final int UserRecoverableAuthException = 1;
 	}
 
 	public static class Callbacks {
-		public interface ServiceCallback{
+		public interface ServiceCallback {
 			public void onServiceBound(AppHandlerService handleService);
+
 			void startResultActivity(Intent intent, int RequestCode);
 		}
-		public interface TimeCallBack{
-			 public void onTimeReceive(Context mContext, Intent intent);
-			
+
+		public interface TimeCallBack {
+			public void onTimeReceive(Context mContext, Intent intent);
+
 		}
-		
+
 		public interface GoogleAuthCallback {
 			public void AuthResult(Intent i);
 
@@ -159,36 +174,41 @@ public class Common {
 
 		public interface AuthActivityCallback extends GoogleAuthCallback {
 		}
-		public interface SplashCallback{
-	public void CheckInternet();
 
-	public void LoadPreferences();// 1
+		public interface SplashCallback {
+			public void CheckInternet();
 
-	public void GetAccount();
+			public void LoadPreferences();// 1
 
-	public void GoogleAuth();
-	public void GetUserDataFromGoogle();
-	public void LoadLocalDB();//2
+			public void GetAccount();
 
+			public void GoogleAuth();
 
-	public void GravityRegister();
+			public void GetUserDataFromGoogle();
 
-	public void GoToMainThread();
+			public void LoadLocalDB();// 2
 
-	public void ConfigureGCM();
+			public void GravityRegister();
 
-	public void SyncAppData();
-	public void SyncUsers(boolean isFirstTime);
+			public void GoToMainThread();
 
-}
+			public void ConfigureGCM();
+
+			public void SyncAppData();
+
+			public void SyncUsers(boolean isFirstTime);
+
+		}
+
 		public interface SplashActivityCallback extends GoogleAuthCallback,
 				HttpCallback, GCMCallback, ServiceCallback, SplashCallback {
-			
+
 		}
+
 		public interface SplashServiceCallback extends GoogleAuthCallback,
-		HttpCallback, GCMCallback, SplashCallback {
+				HttpCallback, GCMCallback, SplashCallback {
 			public void onAccountProvided(String email, int ResultCode);
-}
+		}
 
 	}
 
@@ -227,6 +247,7 @@ public class Common {
 		public Boolean google_is_data_synced;
 		public Boolean all_users_synced;
 		public static Bitmap image;
+
 		public userData() {
 
 		}
@@ -274,7 +295,8 @@ public class Common {
 
 	// for dialog creation and handling
 	public static class CustomDialog {
-		public static final void CustomDialog(final Context context, View view, String dialogTitle) {
+		public static final void CustomDialog(final Context context, View view,
+				String dialogTitle) {
 
 			AlertDialog.Builder builder = new AlertDialog.Builder(context);
 			builder.setIcon(android.R.drawable.ic_dialog_alert);
@@ -282,16 +304,17 @@ public class Common {
 			builder.setView(view);
 			builder.create().show();
 		}
-		public static final AlertDialog.Builder CustomDialog(final Context context, View view) {
 
-			AlertDialog.Builder builder = new AlertDialog.Builder(context);			
+		public static final AlertDialog.Builder CustomDialog(
+				final Context context, View view) {
+
+			AlertDialog.Builder builder = new AlertDialog.Builder(context);
 			builder.setView(view);
 			builder.create().show();
 			builder.setCancelable(true);
 			return builder;
 		}
-		
-		
+
 		public static final void CustomDialog(final Context context,
 				int posText, int negText,
 				DialogInterface.OnClickListener negListener,
@@ -336,31 +359,32 @@ public class Common {
 				DialogInterface.OnClickListener negListener,
 				DialogInterface.OnClickListener posListener, int posText,
 				int negText, String dialogTitle) {
-			AlertDialog builder= null;
-			if(posListener!=null && negListener!=null)
-			builder= new AlertDialog.Builder(context)
-					.setTitle(dialogTitle).setAdapter(adapter, null)
-					.setPositiveButton(posText, posListener)
-					.setNegativeButton(negText, negListener).create();
-			else if(posListener==null && negListener==null)
-				builder= new AlertDialog.Builder(context)
-			.setTitle(dialogTitle).setAdapter(adapter, null).create();
-			else if(posListener==null)
-				builder= new AlertDialog.Builder(context)
-			.setTitle(dialogTitle).setAdapter(adapter, null)
-			.setNegativeButton(negText, negListener).create();
-			else if(negListener == null)
-				builder= new AlertDialog.Builder(context)
-			.setTitle(dialogTitle).setAdapter(adapter, null)
-			.setPositiveButton(posText, posListener).create();
-			
+			AlertDialog builder = null;
+			if (posListener != null && negListener != null)
+				builder = new AlertDialog.Builder(context)
+						.setTitle(dialogTitle).setAdapter(adapter, null)
+						.setPositiveButton(posText, posListener)
+						.setNegativeButton(negText, negListener).create();
+			else if (posListener == null && negListener == null)
+				builder = new AlertDialog.Builder(context)
+						.setTitle(dialogTitle).setAdapter(adapter, null)
+						.create();
+			else if (posListener == null)
+				builder = new AlertDialog.Builder(context)
+						.setTitle(dialogTitle).setAdapter(adapter, null)
+						.setNegativeButton(negText, negListener).create();
+			else if (negListener == null)
+				builder = new AlertDialog.Builder(context)
+						.setTitle(dialogTitle).setAdapter(adapter, null)
+						.setPositiveButton(posText, posListener).create();
+
 			// final AlertDialog dialog = new AlertDialog.Builder(context);
 			// final AlertDialog.Builder builder = new
 			// AlertDialog.Builder(context);
 
 			// builder.setMultiChoiceItems(items, "checked", "email",
 			// chooseItemListner);
-			
+
 			builder.getListView().setItemsCanFocus(false);
 			builder.getListView().setChoiceMode(ListView.CHOICE_MODE_MULTIPLE);
 			// builder.getListView().setOnItemSelectedListener(onItemSelectedListener);//.setOnItemClickListener(itemClickListener);
@@ -387,11 +411,12 @@ public class Common {
 			}
 
 			builder.create().show();
-			
+
 		}
 	}
+
 	public static class FormateTimeStrings {
-		//this class only return formated time String to the dialogs
+		// this class only return formated time String to the dialogs
 		public static String getFormatedDateTimeString(String remindAt) {
 			StringTokenizer tokens = new StringTokenizer(remindAt, "/");
 			String year_string = tokens.nextToken();// year
@@ -454,6 +479,7 @@ public class Common {
 			// String.valueOf(temp.remind_interval);
 			return newFormatedDate;
 		}
+
 		public static String getFormatedTimeString(String remindAt) {
 
 			StringTokenizer tokens = new StringTokenizer(remindAt, "/");
@@ -466,7 +492,8 @@ public class Common {
 			return newFormatedDate;
 		}
 
-		public static String getFormatedWeeklyTimeString(int weekday, String remindAt) {
+		public static String getFormatedWeeklyTimeString(int weekday,
+				String remindAt) {
 			StringTokenizer tokens = new StringTokenizer(remindAt, "/");
 			String year_string = tokens.nextToken();// year
 			String month_string = tokens.nextToken();// month
@@ -534,44 +561,66 @@ public class Common {
 			String minute_string = tokens.nextToken();// minute
 			String newFormatedDate = null;
 			if (month == 0) {
-				newFormatedDate = "Jan " + date_string + ", " + hours_string + ":"
-						+ minute_string;
+				newFormatedDate = "Jan " + date_string + ", " + hours_string
+						+ ":" + minute_string;
 			} else if (month == 1) {
-				newFormatedDate = "Feb " + date_string + ", " + hours_string + ":"
-						+ minute_string;
+				newFormatedDate = "Feb " + date_string + ", " + hours_string
+						+ ":" + minute_string;
 			} else if (month == 2) {
-				newFormatedDate = "Mar " + date_string + ", " + hours_string + ":"
-						+ minute_string;
+				newFormatedDate = "Mar " + date_string + ", " + hours_string
+						+ ":" + minute_string;
 			} else if (month == 3) {
-				newFormatedDate = "Apr " + date_string + ", " + hours_string + ":"
-						+ minute_string;
+				newFormatedDate = "Apr " + date_string + ", " + hours_string
+						+ ":" + minute_string;
 			} else if (month == 4) {
-				newFormatedDate = "May " + date_string + ", " + hours_string + ":"
-						+ minute_string;
+				newFormatedDate = "May " + date_string + ", " + hours_string
+						+ ":" + minute_string;
 			} else if (month == 5) {
-				newFormatedDate = "Jun " + date_string + ", " + hours_string + ":"
-						+ minute_string;
+				newFormatedDate = "Jun " + date_string + ", " + hours_string
+						+ ":" + minute_string;
 			} else if (month == 6) {
-				newFormatedDate = "Jul " + date_string + ", " + hours_string + ":"
-						+ minute_string;
+				newFormatedDate = "Jul " + date_string + ", " + hours_string
+						+ ":" + minute_string;
 			} else if (month == 7) {
-				newFormatedDate = "Aug " + date_string + ", " + hours_string + ":"
-						+ minute_string;
+				newFormatedDate = "Aug " + date_string + ", " + hours_string
+						+ ":" + minute_string;
 			} else if (month == 8) {
-				newFormatedDate = "Sept " + date_string + ", " + hours_string + ":"
-						+ minute_string;
+				newFormatedDate = "Sept " + date_string + ", " + hours_string
+						+ ":" + minute_string;
 			} else if (month == 9) {
-				newFormatedDate = "Oct " + date_string + ", " + hours_string + ":"
-						+ minute_string;
+				newFormatedDate = "Oct " + date_string + ", " + hours_string
+						+ ":" + minute_string;
 			} else if (month == 10) {
-				newFormatedDate = "Nov " + date_string + ", " + hours_string + ":"
-						+ minute_string;
+				newFormatedDate = "Nov " + date_string + ", " + hours_string
+						+ ":" + minute_string;
 			} else if (month == 11) {
-				newFormatedDate = "Dec " + date_string + ", " + hours_string + ":"
-						+ minute_string;
+				newFormatedDate = "Dec " + date_string + ", " + hours_string
+						+ ":" + minute_string;
 			}
 			return newFormatedDate;
 		}
-	}
 
+		public static void getMillis(String date) {
+			// gets dateTime string of format1 type
+			SimpleDateFormat format1 = new SimpleDateFormat(
+					"yyyy-MM-dd'T'HH:mm:ss.SSSSSSS'Z'");
+			format1.setTimeZone(TimeZone.getTimeZone("UTC"));
+			SimpleDateFormat format2 = new SimpleDateFormat(
+					"yyyy-MM-dd'T'HH:mm:ss");
+			format2.setTimeZone(TimeZone.getTimeZone("UTC"));
+			Date d1;
+			try {
+				d1 = format2.parse(date);
+				Log.e("date", " ///" + String.valueOf(d1));
+				Long timeInMillis = d1.getTime();
+				Log.e("date in millis", " ///" + String.valueOf(timeInMillis));
+			} catch (ParseException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			// long CurrentDeviceTime = System.currentTimeMillis();
+			// String dateString = format1.format(new Date(CurrentDeviceTime));
+			// Log.e("CurrentDeviceTime", " ///" + dateString);
+		}
+	}
 }
