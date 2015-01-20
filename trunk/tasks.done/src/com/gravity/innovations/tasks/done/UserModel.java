@@ -11,6 +11,7 @@ public class UserModel {
 	public String email;
 	public String server_id;
 	public byte[] image;
+	public double image_alpha = 1.0;
 	public String phone;
 
 	public String displayName;

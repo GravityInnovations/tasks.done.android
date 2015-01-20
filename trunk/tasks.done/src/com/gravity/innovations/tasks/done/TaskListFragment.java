@@ -139,17 +139,7 @@ public class TaskListFragment extends Fragment {
 
 			}
 		});
-		if (this.data.users.size() <= 0)
-			btn_shared.setVisibility(View.GONE);
-		btn_shared.setOnClickListener(new View.OnClickListener() {
-
-			@Override
-			public void onClick(View v) {
-				mActivity = getActivity();
-				openSharedViewDialog();
-
-			}
-		});
+		
 		btn_edit.setOnClickListener(new View.OnClickListener() {
 
 			@Override
@@ -227,7 +217,7 @@ public class TaskListFragment extends Fragment {
 			}
 			mGridView = (GridView) lv_footer.findViewById(R.id.gridView1);
 			mActivity = getActivity();
-
+			
 			ArrayList<Bitmap> users_images = getUsersImages(this.data.users);
 
 			// new ArrayList<Bitmap>();//
@@ -528,7 +518,9 @@ public class TaskListFragment extends Fragment {
 				ArrayList<Integer> sel = adapter.getSelected();
 				ArrayList<UserModel> sel_users = new ArrayList<UserModel>();
 				for (Integer i : sel) {
-					sel_users.add(users.get(i));
+					UserModel m = users.get(i);
+					m.image_alpha = 0.8;
+					sel_users.add(m);
 				}
 				data.users.clear();
 				data.users.addAll(sel_users);
@@ -611,12 +603,21 @@ public class TaskListFragment extends Fragment {
 	public ArrayList<Bitmap> getUsersImages(ArrayList<UserModel> users) {
 		ArrayList<Bitmap> bmps = new ArrayList<Bitmap>();
 		for (UserModel user : users) {
-			if (user.image != null)
-				bmps.add(BitmapFactory.decodeByteArray(user.image, 0,
-						user.image.length));
-			else
-				bmps.add(BitmapFactory.decodeResource(mActivity.getResources(),
-						R.drawable.catag_personal));
+			if (user.image != null){
+				
+				Bitmap b = BitmapFactory.decodeByteArray(user.image, 0,
+						user.image.length);
+				b =  ImageGridAdapter.getRoundedCornerBitmap(b,user.image_alpha);
+				
+				bmps.add(b);
+			
+			}
+			else{
+				Bitmap b = BitmapFactory.decodeResource(mActivity.getResources(),
+						R.drawable.catag_personal);
+				b =  ImageGridAdapter.getRoundedCornerBitmap(b,user.image_alpha);
+				bmps.add(b);
+			}
 		}
 		return bmps;
 	}

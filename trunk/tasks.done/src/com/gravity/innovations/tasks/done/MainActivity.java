@@ -354,7 +354,7 @@ public class MainActivity extends ActionBarActivity implements
 
 		ArrayList<Common.CustomViewsData.MultiSelectRowData> users_lv = new ArrayList<Common.CustomViewsData.MultiSelectRowData>();
 
-		users= h.User_List();
+		users= h.users.Get();//.User_List();
 		ArrayList<String> S = new ArrayList<String>();
 		for (UserModel temp : users) {
 			Common.CustomViewsData.MultiSelectRowData user = new Common.CustomViewsData.MultiSelectRowData();
@@ -510,6 +510,8 @@ public class MainActivity extends ActionBarActivity implements
 	@Override
 	public void httpResult(JSONObject data, int RequestCode, int ResultCode) {
 		// TODO Auto-generated method stub
+		
+		
 		switch (RequestCode) {
 		case Common.RequestCodes.GRAVITY_SEND_TASKLIST:
 			if (ResultCode == Common.HTTP_RESPONSE_OK) {
@@ -537,7 +539,7 @@ public class MainActivity extends ActionBarActivity implements
 	public ArrayList<UserModel> getUsers() {
 		// TODO Auto-generated method stub
 		if(service!=null)
-		return service.db.User_List();
+		return service.db.users.Get();//.User_List();
 	
 		return new ArrayList<UserModel>();
 	}

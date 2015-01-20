@@ -20,7 +20,11 @@ import android.util.Log;
 
 //FAIK malik
 public class DatabaseHelper extends SQLiteOpenHelper {
-
+	
+	public Tasks tasks = new Tasks();
+	public TaskLists tasklists = new TaskLists();
+	public Users users = new Users();
+	private UsersLists userlists = new UsersLists();
 	// Database Version
 	private static final int DATABASE_VERSION = 1;
 
@@ -41,119 +45,57 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 	// ******** TABLE NAMES *********//
 
 	// ******** Columns Entries *********//
-	private static final String KEY_PK = "_id";
-	private static final String KEY_TITLE = "title";
-	private static final String KEY_DETAILS = "details";
-	private static final String KEY_NOTES = "notes";
-	private static final String KEY_FK_TASKLIST_ID = "fk_tasklist_id";
+	protected static final String KEY_PK = "_id";
+	protected static final String KEY_TITLE = "title";
+	protected static final String KEY_DETAILS = "details";
+	protected static final String KEY_NOTES = "notes";
+	protected static final String KEY_FK_TASKLIST_ID = "fk_tasklist_id";
+	protected static final String KEY_FK_USER_ID = "fk_user_id";
+	protected static final String KEY_USER_NAME = "user_name";
+	protected static final String KEY_USER_EMAIL = "user_email";
+	// protected static final String KEY_USER_PHONE_NUM = "user_phone";
 
-	private static final String KEY_USER_NAME = "user_name";
-	private static final String KEY_USER_EMAIL = "user_email";
-	// private static final String KEY_USER_PHONE_NUM = "user_phone";
-
-	private static final String KEY_SERVER_ID = "server_id";
-	private static final String KEY_PARENT = "parent";
-	private static final String KEY_STATUS = "status";
-	private static final String KEY_COMPLETED = "completed";
-	private static final String KEY_DELETED = "deleted";
-	private static final String KEY_HIDDEN = "hidden";
-	private static final String KEY_LINKS = "links";
-	private static final String KEY_SYNC_STATUS = "sync_status";
-	private static final String KEY_SYNC_STATUS_TIMESTAMP = "sync_status_timestamp";
-	private static final String KEY_SELF_LINK = "self_link";
-	private static final String KEY_USER_IMAGE = "user_image";
+	protected static final String KEY_SERVER_ID = "server_id";
+	protected static final String KEY_PARENT = "parent";
+	protected static final String KEY_STATUS = "status";
+	protected static final String KEY_COMPLETED = "completed";
+	protected static final String KEY_DELETED = "deleted";
+	protected static final String KEY_HIDDEN = "hidden";
+	protected static final String KEY_LINKS = "links";
+	protected static final String KEY_SYNC_STATUS = "sync_status";
+	protected static final String KEY_SYNC_STATUS_TIMESTAMP = "sync_status_timestamp";
+	protected static final String KEY_SELF_LINK = "self_link";
+	protected static final String KEY_USER_IMAGE = "user_image";
 
 	// Table
-	private static final String KEY_DISPLAY_NAME = "display_name";
-	private static final String KEY_CONTACT_ID = "contact_id";
+	protected static final String KEY_DISPLAY_NAME = "display_name";
+	protected static final String KEY_CONTACT_ID = "contact_id";
 
-	private static final String KEY_UPDATED_AT = "updated_date_time";
-	// private static final String KEY_DUE_AT = "due_date_tTime";
-	// private static final String KEY_COMPLETED_AT = "completed_date_time";
+	protected static final String KEY_UPDATED_AT = "updated_date_time";
+	// protected static final String KEY_DUE_AT = "due_date_tTime";
+	// protected static final String KEY_COMPLETED_AT = "completed_date_time";
 
-	private static final String KEY_REMIND_AT = "remind_date_time";
-	private static final String KEY_REMIND_INTERVAL = "remind_interval";
+	protected static final String KEY_REMIND_AT = "remind_date_time";
+	protected static final String KEY_REMIND_INTERVAL = "remind_interval";
 
-	private static final String KEY_ETAG = "etag";
-	private static final String KEY_USER_ID = "user_id";
-	private static final String KEY_KIND = "kind";
-	private static final String KEY_LIST_TYPE = "icon_identifier";
+	protected static final String KEY_ETAG = "etag";
+	protected static final String KEY_USER_ID = "user_id";
+	protected static final String KEY_KIND = "kind";
+	protected static final String KEY_LIST_TYPE = "icon_identifier";
 
-	private static final String KEY_ALARM_ID = "alarm_identifier";
-	private static final String KEY_ALARM_STATUS = "alarm_status";
-	private static final String KEY_ALARM_WEEKDAY = "alarm_weekday";
+	protected static final String KEY_ALARM_ID = "alarm_identifier";
+	protected static final String KEY_ALARM_STATUS = "alarm_status";
+	protected static final String KEY_ALARM_WEEKDAY = "alarm_weekday";
 
-	private static final String KEY_ASSOCIATED_USERMODELS = "associated_usermodel";
+	protected static final String KEY_ASSOCIATED_USERMODELS = "associated_usermodel";
 	// ******** Columns Entries *********//
 
 	// ********* SQLite Table Structure Queries *********//
-	private static final String CREATE_TASKS_TABLE = "CREATE TABLE "
-			+ TABLE_TASKS
-			+ "("
-			+ KEY_PK
-			+ " INTEGER PRIMARY KEY AUTOINCREMENT,"// 0
-			+ KEY_TITLE
-			+ " TEXT,"
-			+ KEY_DETAILS
-			+ " TEXT,"
-			+ KEY_NOTES
-			+ " TEXT,"
+	
+	
 
-			+ KEY_UPDATED_AT
-			+ " DATETIME," // time long
-			+ KEY_REMIND_AT
-			+ " DATETIME," // time long
-			+ KEY_REMIND_INTERVAL
-			+ " INTEGER," // values 0-3
-
-			+ KEY_SERVER_ID + " TEXT,"
-			+ KEY_SELF_LINK
-			+ " TEXT,"
-			+ KEY_PARENT
-			+ " TEXT,"
-			+ KEY_STATUS
-			+ " TEXT,"// 10
-			+ KEY_COMPLETED + " INTEGER," + KEY_DELETED + " INTEGER,"
-			+ KEY_HIDDEN + " INTEGER,"
-			+ KEY_SYNC_STATUS
-			+ " TEXT,"
-			+ KEY_SYNC_STATUS_TIMESTAMP
-			+ " DATETIME,"// 15
-			+ KEY_LINKS + " TEXT,"
-
-			+ KEY_ALARM_ID + " INTEGER," + KEY_ALARM_STATUS + " INTEGER,"
-			+ KEY_ALARM_WEEKDAY + " INTEGER,"
-
-			+ KEY_ASSOCIATED_USERMODELS
-			+ " TEXT,"// 20 associated users
-
-			+ KEY_FK_TASKLIST_ID + " INTEGER," + " FOREIGN KEY ("
-			+ KEY_FK_TASKLIST_ID + ")" + "REFERENCES " + TABLE_TASK_LIST + "("
-			+ KEY_PK + ")" + ")";
-
-	private static final String CREATE_TASK_LIST_TABLE = "CREATE TABLE "
-			+ TABLE_TASK_LIST + "(" + KEY_PK
-			+ " INTEGER PRIMARY KEY AUTOINCREMENT," + KEY_TITLE + " TEXT,"
-			+ KEY_SERVER_ID + " TEXT," + KEY_ETAG + " TEXT," + KEY_UPDATED_AT
-			+ " DATETIME," + KEY_SELF_LINK + " TEXT," + KEY_KIND + " TEXT,"
-			+ KEY_USER_ID + " INTEGER," + KEY_SYNC_STATUS + " TEXT,"
-			+ KEY_SYNC_STATUS_TIMESTAMP + " DATETIME," + KEY_LIST_TYPE
-			+ " INTEGER" // values 1-5 icons
-			+ ")";
-
-	private static final String CREATE_USERS_TABLE = "CREATE TABLE "
-			+ TABLE_USERS + "(" + KEY_PK
-			+ " INTEGER PRIMARY KEY AUTOINCREMENT," + KEY_USER_NAME + " TEXT,"
-			+ KEY_USER_EMAIL + " TEXT," + KEY_SERVER_ID + " TEXT,"
-			+ KEY_USER_IMAGE + " BLOB," + KEY_CONTACT_ID + " TEXT,"
-			+ KEY_DISPLAY_NAME + " TEXT" + ")";
-
-	private static final String CREATE_USERS_LISTS_TABLE = "CREATE TABLE "
-			+ TABLE_USERS_LISTS + "(" + KEY_PK
-			+ " INTEGER PRIMARY KEY AUTOINCREMENT," + KEY_SERVER_ID + " TEXT,"
-			+ KEY_SYNC_STATUS + " TEXT," + KEY_SYNC_STATUS_TIMESTAMP
-			+ " DATETIME," + KEY_USER_ID + " INTEGER," + KEY_FK_TASKLIST_ID
-			+ " INTEGER" + ")";
+	
+	
 
 	// ********* SQLite Table Structure Queries *********//
 
@@ -182,22 +124,22 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 	public void onCreate(SQLiteDatabase db) {
 		String _TAG = "DbHelper onCreate";
 		try {
-			db.execSQL(CREATE_TASKS_TABLE);
+			db.execSQL(tasks.CREATE_TASKS_TABLE);
 		} catch (Exception e) {
 			Log.e(_TAG, "TASKS_TABLE not created");
 		}
 		try {
-			db.execSQL(CREATE_TASK_LIST_TABLE);
+			db.execSQL(tasklists.CREATE_TASK_LIST_TABLE);
 		} catch (Exception e) {
 			Log.e(_TAG, "TASK_LIST_TABLE not created");
 		}
 		try {
-			db.execSQL(CREATE_USERS_TABLE);
+			db.execSQL(users.CREATE_USERS_TABLE);
 		} catch (Exception e) {
 			Log.e(_TAG, "USERS_TABLE not created");
 		}
 		try {
-			db.execSQL(CREATE_USERS_LISTS_TABLE);
+			db.execSQL(userlists.CREATE_USERS_LISTS_TABLE);
 		} catch (Exception e) {
 			Log.e(_TAG, "CREATE_USERS_LISTS_TABLE not created");
 		}
@@ -225,671 +167,1068 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 	/**
 	 * All CRUD FOR TASK(Create, Read, Update, Delete) Operations
 	 */
+	
+	
+	protected class Tasks{
+		protected static final String CREATE_TASKS_TABLE = "CREATE TABLE "
+				+ TABLE_TASKS
+				+ "("
+				+ KEY_PK+ " INTEGER PRIMARY KEY AUTOINCREMENT,"// 0
+				+ KEY_TITLE+ " TEXT,"
+				+ KEY_DETAILS+ " TEXT,"
+				+ KEY_NOTES+ " TEXT,"
 
-	// Add new TaskModel
-	public int Task_New(TaskModel task) {
-		// error, wrong foreign key
-		SQLiteDatabase db = this.getWritableDatabase();
-		ContentValues values = new ContentValues();
-		values.put(KEY_TITLE, task.title);
-		values.put(KEY_DETAILS, task.details);
+				+ KEY_UPDATED_AT
+				+ " DATETIME," // time long
+				
+				+ KEY_REMIND_AT+ " DATETIME," // time long
+				+ KEY_REMIND_INTERVAL+ " INTEGER," // values 0-3
+				/*+ KEY_ALARM_ID + " INTEGER,"*/
+				+ KEY_ALARM_STATUS + " INTEGER,"
+				+ KEY_ALARM_WEEKDAY + " INTEGER,"
+				
+				+ KEY_SERVER_ID + " TEXT,"
+				+ KEY_COMPLETED + " INTEGER," 
+				+ KEY_SYNC_STATUS
+				+ " TEXT,"
+				+ KEY_SYNC_STATUS_TIMESTAMP
+				+ " DATETIME,"// 15
+				
+				/*+ KEY_FK_TASKLIST_ID + " INTEGER,"*/ + " FOREIGN KEY ("
+				+ KEY_FK_TASKLIST_ID + ")" + "REFERENCES " + TABLE_TASK_LIST + "("
+				+ KEY_PK + ")" + ")";
+		
+		private ContentValues setContent(TaskModel task)
+		{
+			ContentValues values = new ContentValues();
+			
+			values.put(KEY_TITLE, task.title);
+			values.put(KEY_DETAILS, task.details);
+			values.put(KEY_NOTES, task.notes);
+			values.put(KEY_UPDATED_AT, task.updated);
+			values.put(KEY_REMIND_AT, task.remind_at);
+			values.put(KEY_REMIND_INTERVAL, task.remind_interval);
+			values.put(KEY_SERVER_ID, task.server_id);
+			values.put(KEY_COMPLETED, task.completed);
+			values.put(KEY_SYNC_STATUS, task.syncStatus);
+			values.put(KEY_SYNC_STATUS_TIMESTAMP, task.syncStatusTimeStamp);
+			values.put(KEY_ALARM_STATUS, task.alarm_status);
+			values.put(KEY_ALARM_WEEKDAY, task.weekday);
+			values.put(KEY_FK_TASKLIST_ID, task.fk_tasklist_id);
+			return values;
+		}
+		private TaskModel getValuesFromCursor(Cursor c)
+		{
+			int colID = c.getColumnIndex(KEY_PK);
+			int colTitle = c.getColumnIndex(KEY_TITLE);
+			int colDetails = c.getColumnIndex(KEY_DETAILS);
+			int colNotes = c.getColumnIndex(KEY_NOTES);
+			int colUpdated = c.getColumnIndex(KEY_UPDATED_AT);
+			int colRemindAt = c.getColumnIndex(KEY_REMIND_AT);
+			int colRemindInt = c.getColumnIndex(KEY_REMIND_INTERVAL);
+			int colServerId = c.getColumnIndex(KEY_SERVER_ID);
+			int colCompleted = c.getColumnIndex(KEY_COMPLETED);
+			int colSyncStatus = c.getColumnIndex(KEY_SYNC_STATUS);
+			int colSyncTime = c.getColumnIndex(KEY_SYNC_STATUS_TIMESTAMP);
+			int colAlarmStatus = c.getColumnIndex(KEY_ALARM_STATUS);
+			int colAlarmWeekday = c.getColumnIndex(KEY_ALARM_WEEKDAY);
+			int colFKtasklistid = c.getColumnIndex(KEY_FK_TASKLIST_ID);
+			TaskModel task = new TaskModel();
+			task._id = c.getInt(colID);
+			task.title = c.getString(colTitle);
+			task.details = c.getString(colDetails);
+			task.notes = c.getString(colNotes);
+			task.updated = c.getString(colUpdated);
+			task.remind_at = c.getString(colRemindAt);
+			task.remind_interval = c.getInt(colRemindInt);
+			task.server_id = c.getString(colServerId);
+			task.completed = c.getInt(colCompleted);
+			task.syncStatus = c.getString(colSyncStatus);
+			task.syncStatusTimeStamp = c.getString(colSyncTime);
+			task.alarm_status = c.getInt(colAlarmStatus);
+			task.weekday = c.getInt(colAlarmWeekday);
+			task.fk_tasklist_id = c.getInt(colFKtasklistid);
+			return task;
+		}
+		public int Add(TaskModel task)
+		{
+			SQLiteDatabase db = getWritableDatabase();
+			ContentValues values = setContent(task);
+			
+			int id = (int) db.insert(TABLE_TASKS, null, values);
+			db.close();
+			return id;
+		}
+		public boolean Delete(int id) {
+			// it will take input from TaskList_Delete
+			// and delete all tasks against that list
+			SQLiteDatabase db = getWritableDatabase();
+			if(db.delete(TABLE_TASKS, KEY_PK + " = ?",
+					new String[] { String.valueOf(id) })>0)
+				{
+				db.close();
+				return true;
+				
+				}
+			db.close();
+			return false;
+		}
+		public int Edit(TaskModel task) {
+			SQLiteDatabase db = getWritableDatabase();
 
-		values.put(KEY_NOTES, task.notes);
-		values.put(KEY_UPDATED_AT, task.updated);// 4
-		// currentDateTime gets its value from above declared string
-		values.put(KEY_REMIND_AT, task.remind_at);
-		values.put(KEY_REMIND_INTERVAL, task.remind_interval);
-		values.put(KEY_SERVER_ID, task.server_id);
-		values.put(KEY_SELF_LINK, task.self_link);
-		values.put(KEY_PARENT, task.parent);
-		values.put(KEY_STATUS, task.status);// 10
+			ContentValues values = setContent(task);
 
-		values.put(KEY_COMPLETED, task.completed);
-		values.put(KEY_DELETED, task.deleted);
-		values.put(KEY_HIDDEN, task.hidden);
-		values.put(KEY_SYNC_STATUS, task.syncStatus);
-		values.put(KEY_SYNC_STATUS_TIMESTAMP, task.syncStatusTimeStamp);// 15
-		values.put(KEY_LINKS, task.links);
+			return db.update(TABLE_TASKS, values, KEY_PK + " = ?",
+					new String[] { String.valueOf(task._id) });// updating row
+		}
+		
+		public TaskModel Get(int id)
+		{
+			SQLiteDatabase db = getReadableDatabase();
+			String query = "SELECT * FROM "+TABLE_TASKS+" WHERE " + KEY_PK +" = "+ id;
+			Cursor cursor = db.rawQuery(query, null);//query(query);
+//					TABLE_TASKS, new String[] { KEY_PK, KEY_TITLE,
+//					KEY_DETAILS, KEY_NOTES,
+//
+//					KEY_UPDATED_AT, KEY_REMIND_AT, KEY_ALARM_ID, KEY_ALARM_STATUS,
+//					KEY_ALARM_WEEKDAY,
+//
+//					KEY_REMIND_INTERVAL, KEY_FK_TASKLIST_ID }, KEY_PK + "=?",
+					//new String[] { String.valueOf(id) }, null, null, null, null);
+			if (cursor != null)
+				cursor.moveToFirst();
+			
+			TaskModel task = getValuesFromCursor(cursor);
+			// return TaskModel
+			cursor.close();
+			db.close();
+			return task;
+		}
+		public TaskModel Get(String ServerId)
+		{
+			SQLiteDatabase db = getReadableDatabase();
+			String query = "SELECT * FROM "+TABLE_TASKS+" WHERE " + KEY_SERVER_ID +" = "+ ServerId;
+			Cursor cursor = db.rawQuery(query, null);//query(query);
 
-		values.put(KEY_ALARM_ID, task.alarm_id);
-		values.put(KEY_ALARM_STATUS, task.alarm_status);
-		values.put(KEY_ALARM_WEEKDAY, task.weekday);
-
-		values.put(KEY_ASSOCIATED_USERMODELS, task.associated_usermodels);// 20
-
-		values.put(KEY_FK_TASKLIST_ID, task.fk_tasklist_id);
-		int id = (int) db.insert(TABLE_TASKS, null, values);
-		db.close();
-		return id;
-	}
-
-	// Delete a TaskModel
-	public boolean Task_Delete(int id) {
-		// it will take input from TaskList_Delete
-		// and delete all tasks against that list
-		SQLiteDatabase db = this.getWritableDatabase();
-		db.delete(TABLE_TASKS, KEY_PK + " = ?",
-				new String[] { String.valueOf(id) });
-		db.close();
-		return true;
-	}
-
-	// Updating a TaskModel
-	public int Task_Edit(TaskModel task) {
-		SQLiteDatabase db = this.getWritableDatabase();
-
-		ContentValues values = new ContentValues();
-		values.put(KEY_TITLE, task.title);
-		values.put(KEY_DETAILS, task.details);
-		values.put(KEY_NOTES, task.notes);
-		// correct this one this may be the wrong assignment
-		values.put(KEY_UPDATED_AT, task.updated);
-		// currentDateTime gets its value from above declared string
-		values.put(KEY_REMIND_AT, task.remind_at);// 5
-		values.put(KEY_REMIND_INTERVAL, task.remind_interval);
-		values.put(KEY_SERVER_ID, task.server_id);
-		values.put(KEY_SELF_LINK, task.self_link);
-		values.put(KEY_PARENT, task.parent);
-		values.put(KEY_STATUS, task.status);// 10
-		values.put(KEY_COMPLETED, task.completed);
-		values.put(KEY_DELETED, task.deleted);
-		values.put(KEY_HIDDEN, task.hidden);
-		values.put(KEY_SYNC_STATUS, task.syncStatus);
-		values.put(KEY_SYNC_STATUS_TIMESTAMP, task.syncStatusTimeStamp);// 15
-		values.put(KEY_LINKS, task.links);
-
-		values.put(KEY_ALARM_ID, task.alarm_id);
-		values.put(KEY_ALARM_STATUS, task.alarm_status);
-		values.put(KEY_ALARM_WEEKDAY, task.weekday);
-		values.put(KEY_ASSOCIATED_USERMODELS, task.associated_usermodels);// 20
-
-		return db.update(TABLE_TASKS, values, KEY_PK + " = ?",
-				new String[] { String.valueOf(task._id) });// updating row
-	}
-
-	/*
-	 * public void Task_Completed(TaskModel task, int flag){ SQLiteDatabase db =
-	 * this.getWritableDatabase(); ContentValues values = new ContentValues();
-	 * values.put(KEY_COMPLETED, flag); db.update(TABLE_TASKS, values, KEY_PK +
-	 * " = ?", new String[] { String.valueOf(task._id) });// updating row }
-	 */
-	// Getting single TaskModel //needed at notification
-	public TaskModel Task_Single(int id) {
-		SQLiteDatabase db = this.getReadableDatabase();
-		Cursor cursor = db.query(TABLE_TASKS, new String[] { KEY_PK, KEY_TITLE,
-				KEY_DETAILS, KEY_NOTES,
-
-				KEY_UPDATED_AT, KEY_REMIND_AT, KEY_ALARM_ID, KEY_ALARM_STATUS,
-				KEY_ALARM_WEEKDAY,
-
-				KEY_REMIND_INTERVAL, KEY_FK_TASKLIST_ID }, KEY_PK + "=?",
-				new String[] { String.valueOf(id) }, null, null, null, null);
-		if (cursor != null)
-			cursor.moveToFirst();
-		TaskModel task = new TaskModel(Integer.parseInt(cursor.getString(0)),
-				cursor.getString(1), cursor.getString(2), cursor.getString(3),
-				cursor.getString(4), cursor.getString(5),
-				Integer.parseInt(cursor.getString(6)), Integer.parseInt(cursor
-						.getString(7)), Integer.parseInt(cursor.getString(8)),
-				Integer.parseInt(cursor.getString(9)), Integer.parseInt(cursor
-						.getString(10)));
-		// return TaskModel
-		cursor.close();
-		db.close();
-		return task;
-	}
-
-	// Getting All Tasks of task list
-	public ArrayList<TaskModel> Task_List(int id) {
-		ArrayList<TaskModel> data = new ArrayList<TaskModel>();
-		try {
-
-			// Select All Query
+			if (cursor != null)
+				cursor.moveToFirst();
+			
+			TaskModel task = getValuesFromCursor(cursor);
+			// return TaskModel
+			cursor.close();
+			db.close();
+			return task;
+		}
+		public ArrayList<TaskModel> Get(TaskListModel tasklist)
+		{
+			//>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+			
+			ArrayList<TaskModel> data = new ArrayList<TaskModel>();
 			String selectQuery = "SELECT  * FROM " + TABLE_TASKS + " WHERE "
-					+ KEY_FK_TASKLIST_ID + " = " + id +
+					+ KEY_FK_TASKLIST_ID + " = " + tasklist._id +
 					// " ORDER BY updated_date_time DESC"
 					// " ORDER BY completed, "
 					" ORDER BY completed, updated_date_time DESC";
 
-			SQLiteDatabase db = this.getWritableDatabase();
+			SQLiteDatabase db = getWritableDatabase();
 
 			Cursor cursor = db.rawQuery(selectQuery, null);
-
-			// looping through all rows and adding to list
 			if (cursor.moveToFirst()) {
 				do {
-					TaskModel task = new TaskModel();
-					task._id = (Integer.parseInt(cursor.getString(0)));
-					task.title = (cursor.getString(1));
-					task.details = (cursor.getString(2));
-					task.notes = (cursor.getString(3));
-					task.updated = (cursor.getString(4));
-					task.remind_at = (cursor.getString(5));
-					task.remind_interval = (Integer.parseInt(cursor
-							.getString(6)));
-					task.server_id = (cursor.getString(7));
-					task.self_link = (cursor.getString(8));
-					task.parent = (cursor.getString(9));
-					task.status = (cursor.getString(10));
-					task.completed = (Integer.parseInt(cursor.getString(11)));
-					task.deleted = (Integer.parseInt(cursor.getString(12)));
-					task.hidden = (Integer.parseInt(cursor.getString(13)));
-					task.syncStatus = cursor.getString(14);
-					task.syncStatusTimeStamp = cursor.getString(15);
-					task.links = (cursor.getString(16));
-
-					task.alarm_id = (Integer.parseInt(cursor.getString(17)));
-					task.alarm_status = (Integer.parseInt(cursor.getString(18)));
-					task.weekday = (Integer.parseInt(cursor.getString(19)));
-					// task.associated_usermodels = (cursor.getString(20));
-					task.fk_tasklist_id = (Integer.parseInt(cursor
-							.getString(21)));
-					// Adding TaskModel to list
-					data.add(task);
+					data.add(getValuesFromCursor(cursor));
 				} while (cursor.moveToNext());
 			}
-
-			// return TaskModel list
-			cursor.close();
-			db.close();
 			return data;
-		} catch (Exception e) {
-			// TODO: handle exception
-			Log.e("all_Task", "DBHelper GetTasks" + e);
 		}
-		return data;
-	}
-
-	// Getting All Alarm of tasks
-	public ArrayList<TaskModel> Alarm_List(/* int id */) {
-		ArrayList<TaskModel> data = new ArrayList<TaskModel>();
-		int id = 1;
-		try {
-
-			// Select All Query
-			String selectQuery = "SELECT  * FROM " + TABLE_TASKS + " WHERE "
-					+ KEY_ALARM_STATUS + " = " + id;
-
-			SQLiteDatabase db = this.getWritableDatabase();
-
-			Cursor cursor = db.rawQuery(selectQuery, null);
-
-			// looping through all rows and adding to list
-			if (cursor.moveToFirst()) {
-				do {
-					TaskModel task = new TaskModel();
-					task._id = (Integer.parseInt(cursor.getString(0)));
-					task.title = (cursor.getString(1));
-					task.details = (cursor.getString(2));
-					task.notes = (cursor.getString(3));
-					task.updated = (cursor.getString(4));
-					task.remind_at = (cursor.getString(5));
-					task.remind_interval = (Integer.parseInt(cursor
-							.getString(6)));
-					task.server_id = (cursor.getString(7));
-					task.self_link = (cursor.getString(8));
-					task.parent = (cursor.getString(9));
-					task.status = (cursor.getString(10));
-					task.completed = (Integer.parseInt(cursor.getString(11)));
-					task.deleted = (Integer.parseInt(cursor.getString(12)));
-					task.hidden = (Integer.parseInt(cursor.getString(13)));
-					task.syncStatus = cursor.getString(14);
-					task.syncStatusTimeStamp = cursor.getString(15);
-					task.links = (cursor.getString(16));
-
-					task.alarm_id = (Integer.parseInt(cursor.getString(17)));
-					task.alarm_status = (Integer.parseInt(cursor.getString(18)));
-					task.weekday = (Integer.parseInt(cursor.getString(19)));
-
-					task.fk_tasklist_id = (Integer.parseInt(cursor
-							.getString(20)));
-
-					// Adding TaskModel to list
-					data.add(task);
-				} while (cursor.moveToNext());
-			}
-
-			// return TaskModel list
-			cursor.close();
-			db.close();
-			return data;
-		} catch (Exception e) {
-			// TODO: handle exception
-			Log.e("all_Alarms", "DBHelper Active Alarm_LIST" + e);
-		}
-		return data;
-	}
-
-	/**
-	 * All CRUD FOR TASK LIST(Create, Read, Update, Delete) Operations
-	 */
-	// Add a TaskListModel
-	public int TaskList_New(TaskListModel tasklist) {
-		SQLiteDatabase db = this.getWritableDatabase();
-		ContentValues values = new ContentValues();
-		values.put(KEY_TITLE, tasklist.title);
-		values.put(KEY_SERVER_ID, tasklist.server_id);
-		values.put(KEY_ETAG, tasklist.etag);
-		values.put(KEY_UPDATED_AT, tasklist.updated);
-		values.put(KEY_SELF_LINK, tasklist.self_link);
-		values.put(KEY_KIND, tasklist.kind);
-		values.put(KEY_USER_ID, tasklist.user_id);
-		values.put(KEY_SYNC_STATUS, tasklist.syncStatus);
-		values.put(KEY_SYNC_STATUS_TIMESTAMP, tasklist.syncStatusTimeStamp);
-		values.put(KEY_LIST_TYPE, tasklist.icon_identifier);
-
-		int id = (int) db.insert(TABLE_TASK_LIST, null, values);
-		tasklist._id = id;
-		
-		db.close();
-		if(id!=-1 && tasklist.gravity_id == "" && service.hasInternet && service.user_data.is_sync_type)
+		public ArrayList<TaskModel> Get()
 		{
-			//final TaskListModel tl = tasklist;
-			GravityController.post_tasklist(service, service.user_data, tasklist, -1);
-//			service.runOnUiThread(new Runnable() {
-//				
-//				@Override
-//				public void run() {
-//					// TODO Auto-generated method stub
-//					
-//				}
-//			});
+			//>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 			
+			ArrayList<TaskModel> data = new ArrayList<TaskModel>();
+			String selectQuery = "SELECT  * FROM " + TABLE_TASKS 
+					+
+					" ORDER BY completed, updated_date_time DESC";
+
+			SQLiteDatabase db = getWritableDatabase();
+
+			Cursor cursor = db.rawQuery(selectQuery, null);
+			if (cursor.moveToFirst()) {
+				do {
+					data.add(getValuesFromCursor(cursor));
+				} while (cursor.moveToNext());
+			}
+			return data;
 		}
-		return id;
-		// return true; //boolean to check if the tasklist is added in db
-
-	}
-
-	// Delete a TaskListModel
-	public void TaskList_Delete(int id) {
-		SQLiteDatabase db = this.getWritableDatabase();
-		db.delete(TABLE_TASK_LIST, KEY_PK + " = ?",
-				new String[] { String.valueOf(id) });
-		// Task_Delete(id); // Delete tasks and then delete list
-		db.close();
-	}
-
-	// Updating single TaskListModel
-	public int TaskList_Edit(TaskListModel tasklist) {
-		SQLiteDatabase db = this.getWritableDatabase();
-
-		ContentValues values = new ContentValues();
-		values.put(KEY_TITLE, tasklist.title);
-		values.put(KEY_LIST_TYPE, tasklist.icon_identifier);
-		values.put(KEY_SERVER_ID, tasklist.server_id);
-		values.put(KEY_ETAG, tasklist.etag);
-		values.put(KEY_UPDATED_AT, tasklist.updated);
-		values.put(KEY_SELF_LINK, tasklist.self_link);
-		values.put(KEY_KIND, tasklist.kind);
-		values.put(KEY_USER_ID, tasklist.user_id);
-		values.put(KEY_SYNC_STATUS, tasklist.syncStatus);
-		values.put(KEY_SYNC_STATUS_TIMESTAMP, tasklist.syncStatusTimeStamp);
-		return db.update(TABLE_TASK_LIST, values, KEY_PK + " = ?",
-				new String[] { String.valueOf(tasklist._id) });
 	}
 	
-	// Getting All TasksLists
-
-	public ArrayList<TaskListModel> TaskList_List() {
-		ArrayList<TaskListModel> data = new ArrayList<TaskListModel>();
-		try {
-			// Select All Query
-			String selectQuery = "SELECT  * FROM " + TABLE_TASK_LIST;
-
-			SQLiteDatabase db = this.getWritableDatabase();
-
-			Cursor cursor = db.rawQuery(selectQuery, null);
-
-			// looping through all rows and adding to list
-			if (cursor.moveToFirst()) {
-				do {
-					TaskListModel tasklist = new TaskListModel();
-					tasklist._id = (Integer.parseInt(cursor.getString(0)));
-					tasklist.title = (cursor.getString(1));
-
-					tasklist.server_id = (cursor.getString(2));
-					tasklist.etag = (cursor.getString(3));
-					tasklist.updated = (cursor.getString(4));
-					tasklist.self_link = (cursor.getString(5));
-					tasklist.kind = (cursor.getString(6));
-					tasklist.user_id = (Integer.parseInt(cursor.getString(7)));
-					tasklist.syncStatus = (cursor.getString(8));
-					tasklist.syncStatusTimeStamp = (cursor.getString(9));
-					tasklist.icon_identifier = (Integer.parseInt(cursor
-							.getString(10)));
-					// Adding TaskModel to list
-					tasklist.users = this.UserList_List(tasklist._id);
-					tasklist.tasks = this.Task_List(tasklist._id);
-					data.add(tasklist);
-				} while (cursor.moveToNext());
-			}
-			cursor.close();
+	protected class TaskLists{
+		private static final String KEY_FK_USER_ID = "fk_user_id";
+		private static final String KEY_LIST_COLOR = "list_color";
+		protected static final String CREATE_TASK_LIST_TABLE = "CREATE TABLE "
+				+ TABLE_TASK_LIST + "(" + KEY_PK
+				+ " INTEGER PRIMARY KEY AUTOINCREMENT," + KEY_TITLE + " TEXT,"
+				+ KEY_SERVER_ID + " TEXT," + KEY_UPDATED_AT
+				+ " DATETIME,"  + KEY_SYNC_STATUS + " TEXT,"
+				+ KEY_SYNC_STATUS_TIMESTAMP + " DATETIME," + KEY_LIST_TYPE
+				+ " INTEGER," 
+				+ KEY_LIST_COLOR + " TEXT,"
+				
+				+ KEY_FK_USER_ID +" INTEGER,"
+				+" FOREIGN KEY ("
+				+ KEY_FK_USER_ID + ")" + "REFERENCES " + TABLE_USERS + "("
+				+ KEY_PK + ")"
+				
+				+ ")";
+		
+		private ContentValues setContent(TaskListModel temp)
+		{
+			ContentValues values = new ContentValues();
+			values.put(KEY_TITLE, temp.title);
+			values.put(KEY_SERVER_ID, temp.server_id);
+			values.put(KEY_UPDATED_AT, temp.updated);
+			values.put(KEY_SYNC_STATUS, temp.syncStatus);
+			values.put(KEY_SYNC_STATUS_TIMESTAMP, temp.syncStatusTimeStamp);
+			values.put(KEY_LIST_TYPE, temp.icon_identifier);	
+			values.put(KEY_LIST_COLOR, temp.fragmentColor);
+			values.put(KEY_FK_USER_ID, temp.user_id);
+			return values;
+		}
+		private TaskListModel getValuesFromCursor(Cursor c)
+		{
+			//list
+			int colId = c.getColumnIndex(KEY_PK);
+			int colTitle = c.getColumnIndex(KEY_TITLE);
+			int colServerID = c.getColumnIndex(KEY_SERVER_ID);
+			int colUpdatedAt = c.getColumnIndex(KEY_UPDATED_AT);
+			int colUserID = c.getColumnIndex(KEY_FK_USER_ID);
+			int colSyncStatus = c.getColumnIndex(KEY_SYNC_STATUS);
+			int colSyncStatusTimeStamp = c.getColumnIndex(KEY_SYNC_STATUS_TIMESTAMP);
+			int colFragmentColor = c.getColumnIndex(KEY_LIST_COLOR);
+			int colListType = c.getColumnIndex(KEY_LIST_TYPE);
+			TaskListModel temp = new TaskListModel();
+			temp._id = c.getInt(colId);
+			temp.title = c.getString(colTitle);
+			temp.server_id = c.getString(colServerID);
+			temp.updated = c.getString(colUpdatedAt);
+			temp.user_id = c.getInt(colUserID);
+			temp.syncStatus = c.getString(colSyncStatus);
+			temp.syncStatusTimeStamp = c.getString(colSyncStatusTimeStamp);
+			temp.fragmentColor = c.getString(colFragmentColor);
+			temp.icon_identifier = c.getInt(colListType);
+			temp.users = users.Get(temp);
+			temp.tasks = tasks.Get(temp);
+			return temp;
+		}
+		public int Add(TaskListModel tasklist)
+		{
+			SQLiteDatabase db = getWritableDatabase();
+			ContentValues values = setContent(tasklist);
+			int id = (int) db.insert(TABLE_TASK_LIST, null, values);
+			tasklist._id = id;
 			db.close();
-		} catch (Exception e) {
-			// TODO: handle exception
-			Log.e("all_TaskTitleList", "DBHelper GetTaskTitleList" + e);
-		}
-		return data;
-
-	}
-
-	// Getting single TaskListModel
-	// needed at opening drawer after onClickNotification
-
-	public TaskListModel TaskList_Single(int id) {
-		SQLiteDatabase db = this.getReadableDatabase();
-		Cursor cursor = db.query(TABLE_TASK_LIST, new String[] {
-
-		KEY_PK, KEY_TITLE, KEY_SERVER_ID, KEY_ETAG, KEY_UPDATED_AT,
-				KEY_SELF_LINK, KEY_KIND, KEY_USER_ID, KEY_SYNC_STATUS,
-				KEY_SYNC_STATUS_TIMESTAMP, KEY_LIST_TYPE
-
-		}, KEY_PK + "=?", new String[] { String.valueOf(id) }, null, null,
-				null, null);
-		if (cursor != null)
-			cursor.moveToFirst();
-
-		TaskListModel tasklist = new TaskListModel(Integer.parseInt(cursor
-				.getString(0)),
-
-		cursor.getString(1), cursor.getString(2), cursor.getString(3),
-				cursor.getString(4), cursor.getString(5), cursor.getString(6),
-
-				Integer.parseInt(cursor.getString(7)), (cursor.getString(8)),
-				(cursor.getString(9)), Integer.parseInt(cursor.getString(10)));
-		// return TaskModel
-		cursor.close();
-		db.close();
-		return tasklist;
-	}
-
-	/*
-	 * public TaskListModel TaskList_Single(int id) { SQLiteDatabase db =
-	 * this.getReadableDatabase();
-	 * 
-	 * Cursor cursor = db.query(TABLE_TASK_LIST, new String[] { KEY_PK,
-	 * KEY_TITLE }, KEY_PK + "=?", new String[] { String.valueOf(id) }, null,
-	 * null, null, null); if (cursor != null) cursor.moveToFirst();
-	 * TaskListModel tasklist = new TaskListModel(Integer.parseInt(cursor
-	 * .getString(0)), cursor.getString(1));// return TaskListModel
-	 * cursor.close(); db.close(); return tasklist; }
-	 */
-
-	public ArrayList<Common.CustomViewsData.MultiSelectRowData> Get_Users() {
-
-		ArrayList<Common.CustomViewsData.MultiSelectRowData> users = new ArrayList<Common.CustomViewsData.MultiSelectRowData>();
-
-		try {
-			// Select All Query
-			String selectQuery = "SELECT  * FROM " + TABLE_USERS;
-
-			SQLiteDatabase db = this.getWritableDatabase();
-			Cursor cursor = db.rawQuery(selectQuery, null);
-
-			// looping through all rows and adding to list
-			if (cursor.moveToFirst()) {
-				do {
-					Common.CustomViewsData.MultiSelectRowData user = new Common.CustomViewsData.MultiSelectRowData();
-					user.text1 = (cursor.getString(1));
-					user.text2 = (cursor.getString(2));
-					user.iconRes = (cursor.getBlob(4));
-					
-					// Adding Task to list
-					users.add(user);
-				} while (cursor.moveToNext());
+			if(id!=-1 && tasklist.server_id == "" && service.hasInternet && service.user_data.is_sync_type)
+			{
+				GravityController.post_tasklist(service, service.user_data, tasklist, -1);
 			}
-
-			return users;
-
-			// cursor.close();
-			// db.close();
-			// for (int i = 0; i < 30; i++) {
-			// Common.CustomViewsData.MultiSelectRowData user = new
-			// Common.CustomViewsData.MultiSelectRowData();
-			// user.text1 = "h";
-			// user.text2 = "some";
-			// user.iconRes = R.drawable.ic_launcher;
-			// // Adding Task to list
-			// users.add(user);
-			// }
-			// // return users;
-			// } catch (Exception e) {
-			// // TODO: handle exception
-			// Log.e("all_Task", "" + e);
-			// }
-
-			// if (cursor.moveToFirst()) {
-			// do {
-
-			// Common.CustomViewsData.MultiSelectRowData user = new
-			// Common.CustomViewsData.MultiSelectRowData();
-			// user.text1 = (cursor.getString(2));
-			// user.text2 = (cursor.getString(1));
-			// user.iconRes = (cursor.getBlob(4));
-			// // Adding TaskModel to list
-			// users.add (user);
-			// } while (cursor.moveToNext());
-			// }
-
-			//
-		} catch (Exception e) {
-			Log.e("", "");
-
-		} finally {
-			return users;
+			return id;
 		}
-	}
-
-	/**
-	 * All CRUD FOR Users(Create, Read, Update, Delete) Operations
-	 */
-
-	// Add a user
-	public int User_New(UserModel user) {
-		SQLiteDatabase db = this.getWritableDatabase();
-		ContentValues values = new ContentValues();
-
-		values.put(KEY_USER_NAME, user.name);// added later
-		
-		values.put(KEY_DISPLAY_NAME, user.displayName);
-		values.put(KEY_USER_EMAIL, user.email);
-		
-		values.put(KEY_USER_IMAGE, user.image);
-		values.put(KEY_CONTACT_ID, user.contact_id);
-
-		int id = (int) db.insert(TABLE_USERS, null, values);
-		db.close();
-//		if(service!=null)
-//		{
-//			GravityController.
-//		}
-//		if(id!=-1){
-//			String PendingServerUsers = mSharedPreferences.getString(SharedPreferencesHelper.Pending_Sync_Users, "");
-//			
-//			if(PendingServerUsers!="")
-//			PendingServerUsers+=","+id;
-//			else if(PendingServerUsers == "")
-//				PendingServerUsers=id+"";
-//			
-//			mSharedPreferencesEditor.putString(SharedPreferencesHelper.Pending_Sync_Users, PendingServerUsers);
-//		}
-		
-		return id;
-		// return true; //boolean to check if the user is added in db
-	}
-	public int User_validate(UserModel user)
-	{
-		SQLiteDatabase db = this.getWritableDatabase();
-
-		ContentValues values = new ContentValues();
-		values.put(KEY_USER_NAME, user.name);
-		values.put(KEY_SERVER_ID, user.server_id);
-		//values.put(KEY_USER_EMAIL, user.email);
-
-		
-				int i = db.update(TABLE_USERS, values, KEY_PK  + " = ?",
-				new String[] { String.valueOf(user._id) });// updating row
-				return i;
-	}
-	// Edit a UserModel
-	public int User_Edit(UserModel user) {
-		SQLiteDatabase db = this.getWritableDatabase();
-
-		ContentValues values = new ContentValues();
-		values.put(KEY_USER_NAME, user.name);
-		values.put(KEY_DISPLAY_NAME, user.displayName);
-		//values.put(KEY_USER_EMAIL, user.email);
-		values.put(KEY_USER_IMAGE, user.image);
-
-		values.put(KEY_USER_ID, user.server_id);
-		return db.update(TABLE_USERS, values, KEY_PK + " = ?",
-				new String[] { String.valueOf(user._id) });// updating row
-	}
-
-	// Delete a user
-	public void User_Delete(int id) {
-		SQLiteDatabase db = this.getWritableDatabase();
-		db.delete(TABLE_USERS, KEY_PK + " = ?",
-				new String[] { String.valueOf(id) });
-		db.close();
-	}
-
-	public void User_Delete_All() {
-		SQLiteDatabase db = this.getWritableDatabase();
-		db.delete(TABLE_USERS, null, null);
-		db.close();
-	}
-
-	public ArrayList<UserModel> User_List() {
-		ArrayList<UserModel> data = new ArrayList<UserModel>();
-		try {
-			// Select All Query
-			String selectQuery = "SELECT  * FROM " + TABLE_USERS;
-
-			SQLiteDatabase db = this.getWritableDatabase();
-
-			Cursor cursor = db.rawQuery(selectQuery, null);
-			int contactIdCol = cursor.getColumnIndex(KEY_CONTACT_ID);
-			int NameCol = cursor.getColumnIndex(KEY_USER_NAME);
-			int ServerIdCol = cursor.getColumnIndex(KEY_SERVER_ID);
-			// looping through all rows and adding to list
-			if (cursor.moveToFirst()) {
-				do {
-					UserModel userModel = new UserModel();
-					userModel._id = (Integer.parseInt(cursor.getString(0)));
-					userModel.name = (cursor.getString(NameCol));
-					userModel.displayName = (cursor.getString(6));
-					userModel.email = (cursor.getString(2));
-					userModel.server_id = (cursor.getString(ServerIdCol));
-					userModel.image = (cursor.getBlob(4));
-					userModel.contact_id = (cursor.getString(contactIdCol));
-					data.add(userModel);
-				} while (cursor.moveToNext());
-			}
-			cursor.close();
+		public boolean Delete(int id) {
+			SQLiteDatabase db = getWritableDatabase();
+			
+			if(db.delete(TABLE_TASK_LIST, KEY_PK + " = ?",
+					new String[] { String.valueOf(id) })>0)
+				{
+				db.close();
+				return true;
+				
+				}
 			db.close();
-		} catch (Exception e) {
-			// TODO: handle exception
-			Log.e("all_TaskTitleList", "DBHelper GetTaskTitleList" + e);
+			return false;
 		}
-		return data;
+		public int Edit(TaskListModel tasklist) {
+			SQLiteDatabase db = getWritableDatabase();
 
-	}
-
-	// Delete a user
-	public void UserList_Delete(int taskListID, int userID) {
-		SQLiteDatabase db = this.getWritableDatabase();
-		String selectQuery = "DELETE FROM " + TABLE_USERS_LISTS + " WHERE "
-				+ KEY_USER_ID + " = " + userID + " AND " + KEY_FK_TASKLIST_ID
-				+ " = " + taskListID + " ";
-		db.execSQL(selectQuery);
-		db.close();
-		
-	}
-
-	public int UserList_New(TaskListModel tasklist, UserModel user) {
-		// error, wrong foreign key
-		SQLiteDatabase db = this.getWritableDatabase();
-		ContentValues values = new ContentValues();
-		values.put(KEY_USER_ID, user._id);
-		values.put(KEY_FK_TASKLIST_ID, tasklist._id);
-		int id = (int) db.insert(TABLE_USERS_LISTS, null, values);
-		db.close();
-		return id;
-	}
-
-	public ArrayList<UserModel> UserList_List(int tasklistID) {
-		ArrayList<Integer> users_ids = new ArrayList<Integer>();
-		SQLiteDatabase db = this.getReadableDatabase();
-		String selectQuery = "SELECT  * FROM " + TABLE_USERS_LISTS + " WHERE "
-				+ KEY_FK_TASKLIST_ID + " = " + tasklistID;
-
-		Cursor cursor = db.rawQuery(selectQuery, null);
-		int col_userid = cursor.getColumnIndex(KEY_USER_ID);
-		// looping through all rows and adding to list
-		if (cursor.moveToFirst()) {
-			do {
-				// Adding TaskModel to list
-				users_ids.add(cursor.getInt(col_userid));
-			} while (cursor.moveToNext());
+			ContentValues values = setContent(tasklist);
+			return db.update(TABLE_TASK_LIST, values, KEY_PK + " = ?",
+					new String[] { String.valueOf(tasklist._id) });
 		}
-		cursor.close();
-		db.close();
-		if (users_ids.size() > 0) {
-			//String[] ids = users_ids.toArray(new String[users_ids.size()]);
-			return Users_List(users_ids); // call to a function for returning
-									// userModelss
-		} else {
-			return new ArrayList<UserModel>();
-		}
-	}
+	
+		public ArrayList<TaskListModel> Get() {
+			ArrayList<TaskListModel> data = new ArrayList<TaskListModel>();
+			try {
+				// Select All Query
+				String selectQuery = "SELECT  * FROM " + TABLE_TASK_LIST;
 
-	private ArrayList<UserModel> Users_List(ArrayList<Integer> ids) {
-		ArrayList<UserModel> data = new ArrayList<UserModel>();
+				SQLiteDatabase db = getWritableDatabase();
 
-		SQLiteDatabase db = this.getReadableDatabase();
-		Cursor cursor = db.query(TABLE_USERS, new String[] { KEY_PK,
-				KEY_DISPLAY_NAME, KEY_USER_NAME, KEY_USER_EMAIL,
-				KEY_USER_IMAGE, KEY_CONTACT_ID
-
-		}, null, null, null, null, KEY_PK+ " ASC ", null);
-		int col_pk = cursor.getColumnIndex(KEY_PK);
-		int col_displayName = cursor.getColumnIndex(KEY_DISPLAY_NAME);
-		int col_name = cursor.getColumnIndex(KEY_USER_NAME);
-		int col_email = cursor.getColumnIndex(KEY_USER_EMAIL);
-		int col_image = cursor.getColumnIndex(KEY_USER_IMAGE);
-		int col_contactID = cursor.getColumnIndex(KEY_CONTACT_ID);
-		// get all
-		if (cursor.moveToFirst()) {
-			do {
-				for(Integer i:ids){
-					int tempid = cursor.getInt(col_pk);//Integer.parseInt(cursor.getString(col_pk));
-					if(i ==  tempid || i.equals(tempid)){
+				Cursor cursor = db.rawQuery(selectQuery, null);
+				
+				// looping through all rows and adding to list
+				if (cursor.moveToFirst()) {
+					do {
 						
-				UserModel temp = new UserModel();
-				temp._id = cursor.getInt(col_pk);
-				temp.displayName = cursor.getString(col_displayName);
-				temp.name = cursor.getString(col_name);
-				temp.contact_id = cursor.getString(col_contactID);
-				temp.email = cursor.getString(col_email);
-				temp.image = cursor.getBlob(col_image);
+						data.add(getValuesFromCursor(cursor));
+					} while (cursor.moveToNext());
+				}
+				cursor.close();
+				db.close();
+			} catch (Exception e) {
+				// TODO: handle exception
+				Log.e("all_TaskTitleList", "DBHelper GetTaskTitleList" + e);
+			}
+			return data;
 
-				// other attributes
+		}
+		public TaskListModel Get(int id) {
+			SQLiteDatabase db = getReadableDatabase();
+			Cursor cursor = db.query(TABLE_TASK_LIST,null, KEY_PK + "=?", new String[] { String.valueOf(id) }, null, null,
+					null, null);
+			if (cursor != null)
+				cursor.moveToFirst();
 
-				data.add(temp);
-				break;
+			TaskListModel tasklist = getValuesFromCursor(cursor);
+			// return TaskModel
+			cursor.close();
+			db.close();
+			return tasklist;
+		}
+		public TaskListModel Get(String ServerId) {
+			SQLiteDatabase db = getReadableDatabase();
+			Cursor cursor = db.query(TABLE_TASK_LIST,null, KEY_SERVER_ID + "=?", new String[] { ServerId }, null, null,
+					null, null);
+			if (cursor != null)
+				cursor.moveToFirst();
+
+			TaskListModel tasklist = getValuesFromCursor(cursor);
+			// return TaskModel
+			cursor.close();
+			db.close();
+			return tasklist;
+		}
+	}
+	
+	protected class Users{
+		
+		private static final String CREATE_USERS_TABLE = "CREATE TABLE "
+				+ TABLE_USERS + "(" + KEY_PK
+				+ " INTEGER PRIMARY KEY AUTOINCREMENT," + KEY_USER_NAME + " TEXT,"
+				+ KEY_USER_EMAIL + " TEXT," + KEY_SERVER_ID + " TEXT,"
+				+ KEY_USER_IMAGE + " BLOB," + KEY_CONTACT_ID + " TEXT,"
+				+ KEY_DISPLAY_NAME + " TEXT" + ")";
+		private ContentValues setContent(UserModel temp)
+		{	//UserModel
+			ContentValues values = new ContentValues();
+			values.put(KEY_USER_NAME, temp.name);
+			values.put(KEY_USER_EMAIL, temp.email);
+			values.put(KEY_SERVER_ID, temp.server_id);
+			values.put(KEY_USER_IMAGE, temp.image);
+			values.put(KEY_CONTACT_ID, temp.contact_id);
+			values.put(KEY_DISPLAY_NAME, temp.displayName);	 
+			return values;
+		}
+		private UserModel getValuesFromCursor(Cursor c)
+		{
+			int colId = c.getColumnIndex(KEY_PK);
+			int colName = c.getColumnIndex(KEY_USER_NAME);
+			int colDisplayName = c.getColumnIndex(KEY_DISPLAY_NAME);
+			int colEmail = c.getColumnIndex(KEY_USER_EMAIL);
+			int colServerID = c.getColumnIndex(KEY_SERVER_ID);
+			int colImage= c.getColumnIndex(KEY_USER_IMAGE);
+			int colContactID= c.getColumnIndex(KEY_CONTACT_ID);
+			 
+			UserModel temp = new UserModel();
+			temp._id = c.getInt(colId);
+			temp.name = c.getString(colName);
+			temp.displayName = c.getString(colDisplayName);
+			temp.email = c.getString(colEmail);
+			temp.server_id = c.getString(colServerID);
+			temp.image = c.getBlob(colImage);
+			temp.contact_id = c.getString(colContactID);
+			return temp;
+			
+		}
+		public int Add(UserModel user)
+		{
+			SQLiteDatabase db = getWritableDatabase();
+			ContentValues values = setContent(user);
+
+			int id = (int) db.insert(TABLE_USERS, null, values);
+			db.close();
+//			if(service!=null)
+//			{
+//				GravityController.
+//			}
+//			if(id!=-1){
+//				String PendingServerUsers = mSharedPreferences.getString(SharedPreferencesHelper.Pending_Sync_Users, "");
+//				
+//				if(PendingServerUsers!="")
+//				PendingServerUsers+=","+id;
+//				else if(PendingServerUsers == "")
+//					PendingServerUsers=id+"";
+//				
+//				mSharedPreferencesEditor.putString(SharedPreferencesHelper.Pending_Sync_Users, PendingServerUsers);
+//			}
+			
+			return id;
+		}
+		
+		public ArrayList<Common.CustomViewsData.MultiSelectRowData> GetRows()
+		{
+			ArrayList<Common.CustomViewsData.MultiSelectRowData> users = new ArrayList<Common.CustomViewsData.MultiSelectRowData>();
+			for(UserModel user:this.Get())
+			{
+				Common.CustomViewsData.MultiSelectRowData u = new Common.CustomViewsData.MultiSelectRowData();
+				if(user.name!=null && user.name!="")
+				u.text1 = user.name;
+				else
+					u.text1 = user.displayName;
+				u.text2 = user.email;
+				u.iconRes = user.image;
+			}
+				return users;
+			
+		}
+		public int ServerValidate(UserModel user)
+		{
+			SQLiteDatabase db = getWritableDatabase();
+
+			ContentValues values = setContent(user);
+			//values.put(KEY_USER_EMAIL, user.email);
+
+			
+					int i = db.update(TABLE_USERS, values, KEY_PK  + " = ?",
+					new String[] { String.valueOf(user._id) });// updating row
+					return i;
+		}
+		public int Edit(UserModel user) {
+			SQLiteDatabase db = getWritableDatabase();
+
+			ContentValues values = setContent(user);
+			return db.update(TABLE_USERS, values, KEY_PK + " = ?",
+					new String[] { String.valueOf(user._id) });// updating row
+		}
+		public void Delete(int id) {
+			SQLiteDatabase db = getWritableDatabase();
+			db.delete(TABLE_USERS, KEY_PK + " = ?",
+					new String[] { String.valueOf(id) });
+			db.close();
+		}
+		public void Delete(UserModel user) {
+			Delete(user._id);
+		}
+		public void DeleteAll() {
+			SQLiteDatabase db = getWritableDatabase();
+			db.delete(TABLE_USERS, null, null);
+			db.close();
+		}
+		public UserModel Get(String ServerId) {
+			SQLiteDatabase db = getReadableDatabase();
+			Cursor cursor = db.query(TABLE_USERS,null, KEY_SERVER_ID + "=?", new String[] { ServerId }, null, null,
+					null, null);
+			UserModel user = null;
+			if (cursor != null){
+				cursor.moveToFirst();
+
+			user = getValuesFromCursor(cursor);
+			}
+			// return TaskModel
+			cursor.close();
+			db.close();
+			return user;
+		}
+		public ArrayList<UserModel> Get() {
+			ArrayList<UserModel> data = new ArrayList<UserModel>();
+			try {
+				// Select All Query
+				String selectQuery = "SELECT  * FROM " + TABLE_USERS;
+
+				SQLiteDatabase db = getWritableDatabase();
+
+				Cursor cursor = db.rawQuery(selectQuery, null);
+				
+				// looping through all rows and adding to list
+				if (cursor.moveToFirst()) {
+					do {
+						UserModel userModel = getValuesFromCursor(cursor);
+						data.add(userModel);
+					} while (cursor.moveToNext());
+				}
+				cursor.close();
+				db.close();
+			} catch (Exception e) {
+				// TODO: handle exception
+				Log.e("all_TaskTitleList", "DBHelper GetTaskTitleList" + e);
+			}
+			return data;
+
+		}
+		private ArrayList<UserModel> Get(ArrayList<Integer> ids, double alpha) {
+			ArrayList<UserModel> data = new ArrayList<UserModel>();
+			for (UserModel user : this.Get()) {
+				for (Integer i : ids) {
+					int tempid = user._id;// cursor.getInt(col_pk);//Integer.parseInt(cursor.getString(col_pk));
+					if (i == tempid || i.equals(tempid)) {
+						user.image_alpha = alpha;
+						
+						data.add(user);
+						break;
 					}
 				}
-				// Adding TaskModel to list
-				// data.add((Integer.parseInt(cursor.getString(0))));
-			} while (cursor.moveToNext());
-		}
-		cursor.close();
-		db.close();
-		return data;
+			}
+			return data;
 
+		}
+		public ArrayList<UserModel> Get(TaskListModel tasklist) {
+			ArrayList<Integer> users_ids1 = new ArrayList<Integer>();
+			ArrayList<Integer> users_ids2 = new ArrayList<Integer>();
+			SQLiteDatabase db = getReadableDatabase();
+			String selectQuery = "SELECT  * FROM " + TABLE_USERS_LISTS + " WHERE "
+					+ KEY_FK_TASKLIST_ID + " = " + tasklist._id;
+
+			Cursor cursor = db.rawQuery(selectQuery, null);
+			int col_userid = cursor.getColumnIndex(KEY_USER_ID);
+			int col_sync = cursor.getColumnIndex(KEY_SYNC_STATUS);
+			// looping through all rows and adding to list
+			if (cursor.moveToFirst()) {
+				do {
+					// Adding TaskModel to list
+					if(cursor.getString(col_sync) == "Synced")
+					users_ids1.add(cursor.getInt(col_userid));
+					else
+						users_ids2.add(cursor.getInt(col_userid));
+				} while (cursor.moveToNext());
+			}
+			cursor.close();
+			db.close();
+			ArrayList<UserModel> users = new ArrayList<UserModel>();
+			
+			if (users_ids1.size() > 0) {
+				//String[] ids = users_ids.toArray(new String[users_ids.size()]);
+				users.addAll(this.Get(users_ids1,1.0));
+				 // call to a function for returning
+										// userModelss
+			} 
+			if (users_ids2.size() > 0) {
+				//String[] ids = users_ids.toArray(new String[users_ids.size()]);
+				users.addAll(this.Get(users_ids2,0.8)); // call to a function for returning
+										// userModelss
+			} 
+			
+			
+				return users;
+			
+		}
+		private int Share(TaskListModel tasklist, UserModel user) {
+			// error, wrong foreign key
+			SQLiteDatabase db = getWritableDatabase();
+			
+			ContentValues values = userlists.setContent(new UsersListsModel(user._id, tasklist._id,"unsynced"));//new ContentValues();
+			
+			int id = (int) db.insert(TABLE_USERS_LISTS, null, values);
+			db.close();
+			return id;
+		}
+		
+		public int Share(TaskListModel tasklist, ArrayList<UserModel> users) {
+			// error, wrong foreign key
+			int id = -1;
+			String dataids = "";
+			for(UserModel user:users){
+				id = this.Share(tasklist, user);
+				if(id!=-1)
+					dataids += id+",";
+				else
+					users.remove(user);
+			}
+			if(tasklist.server_id != null && tasklist.server_id != "" && service.hasInternet && service.user_data.is_sync_type)
+			{
+				GravityController.share_tasklist(service, service.user_data, tasklist, users, -1, "add");//, dataids);
+				
+				//.post_tasklist(service, service.user_data, tasklist, -1);
+
+				
+			}
+			
+			
+			
+			return id;
+		}
+		
+		public int Share_ServerValidate(int TasklistId, int UserId) {
+			// error, wrong foreign key
+			SQLiteDatabase db = getWritableDatabase();
+			
+			ContentValues values = new ContentValues();
+			values.put(KEY_SYNC_STATUS, "Synced");
+			
+		
+			int i = db.update(TABLE_USERS_LISTS, values, KEY_USER_ID + " = ? AND "+ KEY_FK_TASKLIST_ID + " = ?",
+					new String[] {  UserId+"",TasklistId+"" });
+			db.close();
+			return i;
+			
+			
+		}
+		public int Share_ServerValidate(String TaskListServerId, String UserServerId)
+		{
+			TaskListModel tasklist = tasklists.Get(TaskListServerId);
+			UserModel user = users.Get(UserServerId);
+			int i = -1;
+			if(tasklist!=null && user !=null)
+			{
+				i = Share_ServerValidate(tasklist._id, user._id);
+			}
+			return i;
+		}
+		public void Share_Remove(TaskListModel tasklist, ArrayList<UserModel> users) {
+//			SQLiteDatabase db = this.getWritableDatabase();
+//			
+//			for(UserModel user:users){
+//			String selectQuery = "DELETE FROM " + TABLE_USERS_LISTS + " WHERE "
+//					+ KEY_USER_ID + " = " + user._id + " AND " + KEY_FK_TASKLIST_ID
+//					+ " = " + tasklist._id + " ";
+//			db.execSQL(selectQuery);
+//			}
+//			db.close();
+			if(tasklist.server_id != null && tasklist.server_id != "" && service.hasInternet && service.user_data.is_sync_type)
+			{
+				GravityController.share_tasklist(service, service.user_data, tasklist, users, -1, "delete");//, dataids);
+				
+				//.post_tasklist(service, service.user_data, tasklist, -1);
+
+				
+			}
+			
+		}
+		public void Share_Remove_ServerValidate(String tasklistServerId, String userServerId) {
+			TaskListModel tasklist = tasklists.Get(tasklistServerId);
+			UserModel user = users.Get(userServerId);
+			if(tasklist!=null && user !=null)
+			{
+				Share_Remove_ServerValidate(tasklist._id, user._id);
+			}
+		
+
+			
+		}
+		public void Share_Remove_ServerValidate(int tasklistid, int userid) {
+			SQLiteDatabase db = getWritableDatabase();
+			
+			String selectQuery = "DELETE FROM " + TABLE_USERS_LISTS + " WHERE "
+					+ KEY_FK_USER_ID + " = " + userid + " AND " + KEY_FK_TASKLIST_ID
+					+ " = " + tasklistid + " ";
+			db.execSQL(selectQuery);
+			
+			db.close();
+
+			
+		}
 	}
+	
+	protected class UsersLists
+	{
+		
+		protected static final String CREATE_USERS_LISTS_TABLE = "CREATE TABLE "+ TABLE_USERS_LISTS + "(" +
+				KEY_FK_USER_ID + " INTEGER,"+
+				KEY_FK_TASKLIST_ID  + " INTEGER,"+
+				"PRIMARY KEY ("+ KEY_FK_USER_ID + ","+ KEY_FK_TASKLIST_ID +"),"
+				+KEY_SYNC_STATUS + " TEXT,"
+				/*+ KEY_FK_TASKLIST_ID + " INTEGER,"*/ 
+				+ "FOREIGN KEY ("
+				+ KEY_FK_USER_ID + ")" + "REFERENCES " + TABLE_USERS + "("+ KEY_PK + ")," 
+				
+				+ "FOREIGN KEY ("
+				+ KEY_FK_TASKLIST_ID + ")" + "REFERENCES " + TABLE_TASK_LIST + "("+ KEY_PK + ")" 
+				+ ")";
+		
+		private ContentValues setContent(UsersListsModel temp)
+		{	//UserModel
+			ContentValues values = new ContentValues();
+			values.put(KEY_FK_USER_ID, temp.user_id);
+			values.put(KEY_FK_TASKLIST_ID, temp.tasklist_id);
+			values.put(KEY_SYNC_STATUS, temp.SyncStatus);
+			return values;
+		}
+		private UsersListsModel getValuesFromCursor(Cursor c)
+		{
+			int coluId = c.getColumnIndex(KEY_FK_USER_ID);
+			int collId = c.getColumnIndex(KEY_FK_TASKLIST_ID);
+			int colSyncStatus = c.getColumnIndex(KEY_SYNC_STATUS);
+			UsersListsModel temp = new UsersListsModel();
+			temp.user_id = c.getInt(coluId);
+			temp.tasklist_id = c.getInt(collId);
+			temp.SyncStatus = c.getString(colSyncStatus);//"Synced";
+			return temp;
+			
+		}
+		
+	
+	}
+//	public ArrayList<Common.CustomViewsData.MultiSelectRowData> Get_Users() {
+//
+//		ArrayList<Common.CustomViewsData.MultiSelectRowData> users = new ArrayList<Common.CustomViewsData.MultiSelectRowData>();
+//
+//		try {
+//			// Select All Query
+//			String selectQuery = "SELECT  * FROM " + TABLE_USERS;
+//
+//			SQLiteDatabase db = this.getWritableDatabase();
+//			Cursor cursor = db.rawQuery(selectQuery, null);
+//
+//			// looping through all rows and adding to list
+//			if (cursor.moveToFirst()) {
+//				do {
+//					Common.CustomViewsData.MultiSelectRowData user = new Common.CustomViewsData.MultiSelectRowData();
+//					user.text1 = (cursor.getString(1));
+//					user.text2 = (cursor.getString(2));
+//					user.iconRes = (cursor.getBlob(4));
+//					
+//					// Adding Task to list
+//					users.add(user);
+//				} while (cursor.moveToNext());
+//			}
+//
+//			return users;
+//
+//			// cursor.close();
+//			// db.close();
+//			// for (int i = 0; i < 30; i++) {
+//			// Common.CustomViewsData.MultiSelectRowData user = new
+//			// Common.CustomViewsData.MultiSelectRowData();
+//			// user.text1 = "h";
+//			// user.text2 = "some";
+//			// user.iconRes = R.drawable.ic_launcher;
+//			// // Adding Task to list
+//			// users.add(user);
+//			// }
+//			// // return users;
+//			// } catch (Exception e) {
+//			// // TODO: handle exception
+//			// Log.e("all_Task", "" + e);
+//			// }
+//
+//			// if (cursor.moveToFirst()) {
+//			// do {
+//
+//			// Common.CustomViewsData.MultiSelectRowData user = new
+//			// Common.CustomViewsData.MultiSelectRowData();
+//			// user.text1 = (cursor.getString(2));
+//			// user.text2 = (cursor.getString(1));
+//			// user.iconRes = (cursor.getBlob(4));
+//			// // Adding TaskModel to list
+//			// users.add (user);
+//			// } while (cursor.moveToNext());
+//			// }
+//
+//			//
+//		} catch (Exception e) {
+//			Log.e("", "");
+//
+//		} finally {
+//			return users;
+//		}
+//	}
+//
+//	/**
+//	 * All CRUD FOR Users(Create, Read, Update, Delete) Operations
+//	 */
+//
+//	// Add a user
+//	public int User_New(UserModel user) {
+//		SQLiteDatabase db = this.getWritableDatabase();
+//		ContentValues values = new ContentValues();
+//
+//		values.put(KEY_USER_NAME, user.name);// added later
+//		
+//		values.put(KEY_DISPLAY_NAME, user.displayName);
+//		values.put(KEY_USER_EMAIL, user.email);
+//		
+//		values.put(KEY_USER_IMAGE, user.image);
+//		values.put(KEY_CONTACT_ID, user.contact_id);
+//
+//		int id = (int) db.insert(TABLE_USERS, null, values);
+//		db.close();
+////		if(service!=null)
+////		{
+////			GravityController.
+////		}
+////		if(id!=-1){
+////			String PendingServerUsers = mSharedPreferences.getString(SharedPreferencesHelper.Pending_Sync_Users, "");
+////			
+////			if(PendingServerUsers!="")
+////			PendingServerUsers+=","+id;
+////			else if(PendingServerUsers == "")
+////				PendingServerUsers=id+"";
+////			
+////			mSharedPreferencesEditor.putString(SharedPreferencesHelper.Pending_Sync_Users, PendingServerUsers);
+////		}
+//		
+//		return id;
+//		// return true; //boolean to check if the user is added in db
+//	}
+//	public int User_validate(UserModel user)
+//	{
+//		SQLiteDatabase db = this.getWritableDatabase();
+//
+//		ContentValues values = new ContentValues();
+//		values.put(KEY_USER_NAME, user.name);
+//		values.put(KEY_SERVER_ID, user.server_id);
+//		//values.put(KEY_USER_EMAIL, user.email);
+//
+//		
+//				int i = db.update(TABLE_USERS, values, KEY_PK  + " = ?",
+//				new String[] { String.valueOf(user._id) });// updating row
+//				return i;
+//	}
+//	// Edit a UserModel
+//	public int User_Edit(UserModel user) {
+//		SQLiteDatabase db = this.getWritableDatabase();
+//
+//		ContentValues values = new ContentValues();
+//		values.put(KEY_USER_NAME, user.name);
+//		values.put(KEY_DISPLAY_NAME, user.displayName);
+//		//values.put(KEY_USER_EMAIL, user.email);
+//		values.put(KEY_USER_IMAGE, user.image);
+//		//if(user.server_id!=null)
+//		values.put(KEY_USER_ID, user.server_id);
+//		return db.update(TABLE_USERS, values, KEY_PK + " = ?",
+//				new String[] { String.valueOf(user._id) });// updating row
+//	}
+//
+//	// Delete a user
+//	public void User_Delete(int id) {
+//		SQLiteDatabase db = this.getWritableDatabase();
+//		db.delete(TABLE_USERS, KEY_PK + " = ?",
+//				new String[] { String.valueOf(id) });
+//		db.close();
+//	}
+//
+//	public void User_Delete_All() {
+//		SQLiteDatabase db = this.getWritableDatabase();
+//		db.delete(TABLE_USERS, null, null);
+//		db.close();
+//	}
+//
+//	public ArrayList<UserModel> User_List() {
+//		ArrayList<UserModel> data = new ArrayList<UserModel>();
+//		try {
+//			// Select All Query
+//			String selectQuery = "SELECT  * FROM " + TABLE_USERS;
+//
+//			SQLiteDatabase db = this.getWritableDatabase();
+//
+//			Cursor cursor = db.rawQuery(selectQuery, null);
+//			int contactIdCol = cursor.getColumnIndex(KEY_CONTACT_ID);
+//			int NameCol = cursor.getColumnIndex(KEY_USER_NAME);
+//			int ServerIdCol = cursor.getColumnIndex(KEY_SERVER_ID);
+//			// looping through all rows and adding to list
+//			if (cursor.moveToFirst()) {
+//				do {
+//					UserModel userModel = new UserModel();
+//					userModel._id = (Integer.parseInt(cursor.getString(0)));
+//					userModel.name = (cursor.getString(NameCol));
+//					userModel.displayName = (cursor.getString(6));
+//					userModel.email = (cursor.getString(2));
+//					userModel.server_id = (cursor.getString(ServerIdCol));
+//					userModel.image = (cursor.getBlob(4));
+//					userModel.contact_id = (cursor.getString(contactIdCol));
+//					data.add(userModel);
+//				} while (cursor.moveToNext());
+//			}
+//			cursor.close();
+//			db.close();
+//		} catch (Exception e) {
+//			// TODO: handle exception
+//			Log.e("all_TaskTitleList", "DBHelper GetTaskTitleList" + e);
+//		}
+//		return data;
+//
+//	}
+
+	// Delete a user
+//	public void UserList_Delete(TaskListModel tasklist, ArrayList<UserModel> users) {
+////		SQLiteDatabase db = this.getWritableDatabase();
+////		
+////		for(UserModel user:users){
+////		String selectQuery = "DELETE FROM " + TABLE_USERS_LISTS + " WHERE "
+////				+ KEY_USER_ID + " = " + user._id + " AND " + KEY_FK_TASKLIST_ID
+////				+ " = " + tasklist._id + " ";
+////		db.execSQL(selectQuery);
+////		}
+////		db.close();
+//		if(tasklist.server_id != null && tasklist.server_id != "" && service.hasInternet && service.user_data.is_sync_type)
+//		{
+//			GravityController.share_tasklist(service, service.user_data, tasklist, users, -1, "delete");//, dataids);
+//			
+//			//.post_tasklist(service, service.user_data, tasklist, -1);
+//
+//			
+//		}
+//		
+//	}
+//	public void UserList_Delete_Validate(String tasklistid, String userid) {
+//		SQLiteDatabase db = this.getWritableDatabase();
+//		
+//		String selectQuery = "DELETE FROM " + TABLE_USERS_LISTS + " WHERE "
+//				+ KEY_USER_ID + " = " + userid + " AND " + KEY_FK_TASKLIST_ID
+//				+ " = " + tasklistid + " ";
+//		db.execSQL(selectQuery);
+//		
+//		db.close();
+////		if(tasklist.server_id != null && tasklist.server_id != "" && service.hasInternet && service.user_data.is_sync_type)
+////		{
+////			GravityController.share_tasklist(service, service.user_data, tasklist, users, -1, "delete");//, dataids);
+////			
+////			//.post_tasklist(service, service.user_data, tasklist, -1);
+////
+////			
+////		}
+//		
+//	}
+//	public int UserList_New(TaskListModel tasklist, UserModel user) {
+//		// error, wrong foreign key
+//		SQLiteDatabase db = this.getWritableDatabase();
+//		ContentValues values = new ContentValues();
+//		values.put(KEY_USER_ID, user._id);
+//		values.put(KEY_FK_TASKLIST_ID, tasklist._id);
+//		int id = (int) db.insert(TABLE_USERS_LISTS, null, values);
+//		db.close();
+//		return id;
+//	}
+//	
+//	public int UserList_New(TaskListModel tasklist, ArrayList<UserModel> users) {
+//		// error, wrong foreign key
+//		SQLiteDatabase db = this.getWritableDatabase();
+//		int id = -1;
+//		String dataids = "";
+//		for(UserModel user:users){
+//			
+//			ContentValues values = new ContentValues();
+//			values.put(KEY_USER_ID, user._id);
+//			values.put(KEY_FK_TASKLIST_ID, tasklist._id);
+//			id = (int) db.insert(TABLE_USERS_LISTS, null, values);
+//			if(id!=-1)
+//				dataids += id+",";
+//			else
+//				users.remove(user);
+//		}
+//		db.close();
+//		if(tasklist.server_id != null && tasklist.server_id != "" && service.hasInternet && service.user_data.is_sync_type)
+//		{
+//			GravityController.share_tasklist(service, service.user_data, tasklist, users, -1, "add");//, dataids);
+//			
+//			//.post_tasklist(service, service.user_data, tasklist, -1);
+//
+//			
+//		}
+//		
+//		
+//		
+//		return id;
+//	}
+//	
+//	public int UserList_New_Validate(String TasklistId, String UserId) {
+//		// error, wrong foreign key
+//		SQLiteDatabase db = this.getWritableDatabase();
+//		
+//		ContentValues values = new ContentValues();
+//		values.put(KEY_SYNC_STATUS, "Synced");
+//		
+//	
+//		return db.update(TABLE_USERS_LISTS, values, KEY_USER_ID + " = ? AND"+ KEY_FK_TASKLIST_ID + " = ?",
+//				new String[] {  UserId,TasklistId });
+//		
+//		
+//	}
+//
+//	public ArrayList<UserModel> UserList_List(int tasklistID) {
+//		ArrayList<Integer> users_ids1 = new ArrayList<Integer>();
+//		ArrayList<Integer> users_ids2 = new ArrayList<Integer>();
+//		SQLiteDatabase db = this.getReadableDatabase();
+//		String selectQuery = "SELECT  * FROM " + TABLE_USERS_LISTS + " WHERE "
+//				+ KEY_FK_TASKLIST_ID + " = " + tasklistID;
+//
+//		Cursor cursor = db.rawQuery(selectQuery, null);
+//		int col_userid = cursor.getColumnIndex(KEY_USER_ID);
+//		int col_sync = cursor.getColumnIndex(KEY_SYNC_STATUS);
+//		// looping through all rows and adding to list
+//		if (cursor.moveToFirst()) {
+//			do {
+//				// Adding TaskModel to list
+//				if(cursor.getString(col_sync) == "Synced")
+//				users_ids1.add(cursor.getInt(col_userid));
+//				else
+//					users_ids2.add(cursor.getInt(col_userid));
+//			} while (cursor.moveToNext());
+//		}
+//		cursor.close();
+//		db.close();
+//		ArrayList<UserModel> users = new ArrayList<UserModel>();
+//		
+//		if (users_ids1.size() > 0) {
+//			//String[] ids = users_ids.toArray(new String[users_ids.size()]);
+//			users.addAll(Users_List(users_ids1,1.0));
+//			 // call to a function for returning
+//									// userModelss
+//		} 
+//		if (users_ids2.size() > 0) {
+//			//String[] ids = users_ids.toArray(new String[users_ids.size()]);
+//			users.addAll(Users_List(users_ids2,0.8)); // call to a function for returning
+//									// userModelss
+//		} 
+//		
+//		
+//			return users;
+//		
+//	}
+
+//	private ArrayList<UserModel> Users_List(ArrayList<Integer> ids,double alpha) {
+//		ArrayList<UserModel> data = new ArrayList<UserModel>();
+//
+//		SQLiteDatabase db = this.getReadableDatabase();
+//		Cursor cursor = db.query(TABLE_USERS, new String[] { KEY_PK,
+//				KEY_DISPLAY_NAME, KEY_USER_NAME, KEY_USER_EMAIL,
+//				KEY_USER_IMAGE, KEY_CONTACT_ID
+//
+//		}, null, null, null, null, KEY_PK+ " ASC ", null);
+//		int col_pk = cursor.getColumnIndex(KEY_PK);
+//		int col_displayName = cursor.getColumnIndex(KEY_DISPLAY_NAME);
+//		int col_name = cursor.getColumnIndex(KEY_USER_NAME);
+//		int col_email = cursor.getColumnIndex(KEY_USER_EMAIL);
+//		int col_image = cursor.getColumnIndex(KEY_USER_IMAGE);
+//		int col_contactID = cursor.getColumnIndex(KEY_CONTACT_ID);
+//		// get all
+//		if (cursor.moveToFirst()) {
+//			do {
+//				for(Integer i:ids){
+//					int tempid = cursor.getInt(col_pk);//Integer.parseInt(cursor.getString(col_pk));
+//					if(i ==  tempid || i.equals(tempid)){
+//						
+//				UserModel temp = new UserModel();
+//				temp._id = cursor.getInt(col_pk);
+//				temp.image_alpha = alpha;
+//				temp.displayName = cursor.getString(col_displayName);
+//				temp.name = cursor.getString(col_name);
+//				temp.contact_id = cursor.getString(col_contactID);
+//				temp.email = cursor.getString(col_email);
+//				temp.image = cursor.getBlob(col_image);
+//
+//				// other attributes
+//
+//				data.add(temp);
+//				break;
+//					}
+//				}
+//				// Adding TaskModel to list
+//				// data.add((Integer.parseInt(cursor.getString(0))));
+//			} while (cursor.moveToNext());
+//		}
+//		cursor.close();
+//		db.close();
+//		return data;
+//
+//	}
+
 }
 /*
  * public int User_New() { SQLiteDatabase db = this.getWritableDatabase();

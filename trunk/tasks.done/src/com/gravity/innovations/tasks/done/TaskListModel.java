@@ -5,7 +5,7 @@ import java.util.ArrayList;
 public class TaskListModel {
 	public int _id;
 	public String title;
-	public String gravity_id = "";
+	//public String gravity_id = "";
 
 	public String server_id="";
 	public String etag;
@@ -19,6 +19,7 @@ public class TaskListModel {
 
 	public ArrayList<TaskModel> tasks = new ArrayList<TaskModel>(); // task_data;
 	public ArrayList<UserModel> users = new ArrayList<UserModel>(); // task_data;
+	public String fragmentColor;
 	// ********* Constructors *********//
 	public TaskListModel() {
 		_id = -1;

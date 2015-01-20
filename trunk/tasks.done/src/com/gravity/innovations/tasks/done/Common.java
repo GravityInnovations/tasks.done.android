@@ -100,10 +100,11 @@ public class Common {
 	public static final String AUTH_ACTIVITY = "AuthenticationActivity";
 	public static final String SPLASH_ACTIVITY = "SplashActivity";
 	//gravity urls
-	public static final String GRAVITY_BASE_URL = "http://192.168.0.103/";
+	public static final String GRAVITY_BASE_URL = "http://192.168.1.3/";
 	public static final String GRAVITY_ACCOUNT_URL = GRAVITY_BASE_URL+"Account/";
 	public static final String GRAVITY_GCM_URL = GRAVITY_BASE_URL+"GCM/";
 	public static final String GRAVITY_TASKLIST_URL = GRAVITY_BASE_URL+"TaskList/";
+	public static final String GRAVITY_TASKLIST_SHARE_URL = GRAVITY_BASE_URL+"ShareTaskList/";
 	public static final String GRAVITY_TASK_URL = GRAVITY_BASE_URL+"Task/";
 	
 	//google urls

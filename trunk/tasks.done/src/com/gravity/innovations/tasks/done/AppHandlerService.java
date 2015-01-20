@@ -568,9 +568,9 @@ public class AppHandlerService extends Service implements
 						TaskListModel model = new TaskListModel(
 								temp.getString("Title"));
 						model.syncStatus = "Synced";
-						model.gravity_id = temp.optString("TaskListId");
+						model.server_id = temp.optString("TaskListId");
 						model.updated = temp.optString("updated");
-						db.TaskList_New(model);
+						db.tasklists.Add(model);//.TaskList_New(model);
 					} catch (JSONException e) {
 						// TODO Auto-generated catch block
 						e.printStackTrace();
@@ -594,7 +594,7 @@ public class AppHandlerService extends Service implements
 						JSONObject temp = arr_data.getJSONObject(i);
 						TaskListModel model = new TaskListModel(
 								temp.getString("Title"));
-						db.TaskList_New(model);
+						db.tasklists.Add(model);//.TaskList_New(model);
 					} catch (JSONException e) {
 						// TODO Auto-generated catch block
 						e.printStackTrace();
@@ -645,7 +645,7 @@ public class AppHandlerService extends Service implements
 							if(user.email.toLowerCase().equals(Email.toLowerCase())||user.email == Email){
 								user.name = juser.optString("Name");
 								user.server_id = juser.optString("UserId");
-								db.User_validate(user);
+								db.users.ServerValidate(user);//.User_validate(user);
 								break;
 							}
 							//user.email = juser.optString("Email");
@@ -1056,7 +1056,7 @@ public class AppHandlerService extends Service implements
 		try {
 			if(user_data._id == -1){
 				
-				user_data._id = db.User_New(new UserModel("Me",user_data.email));
+				user_data._id = db.users.Add(new UserModel("Me",user_data.email));//.User_New(new UserModel("Me",user_data.email));
 				mSharedPreferencesEditor.putInt(Common.USER_LOCAL_ID, user_data._id);
 				mSharedPreferencesEditor.commit();
 				}
@@ -1104,7 +1104,7 @@ public class AppHandlerService extends Service implements
 										.getColumnIndex(ContactsContract.Contacts.DISPLAY_NAME));
 						user.image = loadContactPhoto(photoid);
 						// users.add(user);
-						db.User_New(user);
+						db.users.Add(user);//.User_New(user);
 //
 //						s.add(rawContacts.getString(rawContacts
 //								.getColumnIndex(ContactsContract.Contacts.DISPLAY_NAME)));
@@ -1136,7 +1136,7 @@ public class AppHandlerService extends Service implements
 		if (isFirstTime) {
 			// TODO Auto-generated method stub
 			try {
-				db.User_Delete_All();
+				db.users.DeleteAll();//.User_Delete_All();
 				ArrayList<UserModel> users = getUserContacts(true);
 //				for (UserModel user : users) {
 //					 //db.User_New(user);
@@ -1159,7 +1159,7 @@ public class AppHandlerService extends Service implements
 					}
 					if(emails!="" && hasInternet)
 					{
-						AppUsers = db.User_List();
+						AppUsers = db.users.Get();//.User_List();
 						GravityController.validate_gravity_accounts(mContext, emails, Common.RequestCodes.GRAVITY_VALIDATE_USERS);
 					}
 					
@@ -1173,7 +1173,7 @@ public class AppHandlerService extends Service implements
 				addProgressTask(e.getLocalizedMessage());
 			}
 		} else {
-			ArrayList<UserModel> db_data = db.User_List();
+			ArrayList<UserModel> db_data = db.users.Get();//.User_List();
 			ArrayList<UserModel> contacts_data = getUserContacts(false);
 			for (UserModel c_user : contacts_data) {
 				boolean found = false;
@@ -1187,7 +1187,7 @@ public class AppHandlerService extends Service implements
 							db_user.displayName = c_user.displayName;
 							db_user.image = c_user.image;
 							db_user.email = c_user.email;
-							db.User_Edit(db_user);
+							db.users.Edit(db_user);//.User_Edit(db_user);
 							db_data.remove(db_user);
 							contacts_data.remove(c_user);
 							break;
@@ -1198,7 +1198,7 @@ public class AppHandlerService extends Service implements
 					}
 				}
 				if (!found) {
-					db.User_New(c_user);
+					db.users.Add(c_user);//.User_New(c_user);
 				}
 			}
 		}
@@ -1264,13 +1264,14 @@ public class AppHandlerService extends Service implements
 	public void response_new_tasklist(TaskListModel temp)
 	{
 		
-		if(db.TaskList_Edit(temp)>0)
+		if(db.tasklists.Edit(temp)>0)
 		{
 			if (FocusedActivity != null
 					&& FocusedActivity.getClass() == MainActivity.class) {
 				
 						// TODO Auto-generated method stub
 						((MainActivity)FocusedActivity).mNavigationDrawerFragment.editTaskListInAdapter(temp);
+						
 					}
 				
 				
@@ -1279,5 +1280,49 @@ public class AppHandlerService extends Service implements
 			
 		}
 	}
+	public void response_share_add_tasklist(String tasklistId,String userids)
+	{
+		
+		//if(db.TaskList_Edit(temp)>0)
+		{
+			if (FocusedActivity != null
+					&& FocusedActivity.getClass() == MainActivity.class) {
+				
+						// TODO Auto-generated method stub
+						((MainActivity)FocusedActivity).mNavigationDrawerFragment.addUserShareInAdapter(tasklistId, userids);
+						for(String UserId:userids.split(","))
+						{
+							if(UserId!="")
+						db.users.Share_ServerValidate(tasklistId, UserId);//.UserList_New_Validate(tasklistId, UserId);
+						}
+					}
+				
+				
+				//navigation drawer update tasklist
+				
+			
+		}
+	}
+
+	public void response_share_remove_tasklist(String tasklistid, String userids) {
+		// TODO Auto-generated method stub
+		if (FocusedActivity != null
+				&& FocusedActivity.getClass() == MainActivity.class) {
+			
+					// TODO Auto-generated method stub
+					((MainActivity)FocusedActivity).mNavigationDrawerFragment.removeUserShareInAdapter(tasklistid, userids);
+					for(String UserId:userids.split(","))
+					{
+						if(UserId!="")
+					db.users.Share_Remove_ServerValidate(tasklistid, UserId);//.UserList_Delete_Validate(tasklistid, UserId);
+					}
+				}
+			
+			
+			//navigation drawer update tasklist
+			
+		
+	}
+	
 
 }
