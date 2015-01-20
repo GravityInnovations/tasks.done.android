@@ -45,7 +45,7 @@ public class TaskListFragment extends Fragment {
 	private ListView mListView;
 	private TextView mTextView_listName, mTextView_syncedTime;
 	private ImageView mImageView;
-	private ImageButton btn_share, btn_edit, btn_delete;
+	private ImageButton btn_share, btn_edit, btn_delete, toggleNavDrawer;
 	public TaskAdapter mTaskAdapter;
 	public int selCount = 0; // for CAB multi select count
 	NavigationDrawerFragment mNavigationDrawerFragment;
@@ -135,6 +135,23 @@ public class TaskListFragment extends Fragment {
 
 		} catch (Exception e) {
 			Log.e("TaskListFragment", "Header&FloatingBtnColor");
+		}
+
+		try {
+			toggleNavDrawer = ((ImageButton) rootView
+					.findViewById(R.id.iv_drawer_toggle));
+
+			toggleNavDrawer.setOnClickListener(new View.OnClickListener() {
+
+				@Override
+				public void onClick(View v) {
+					mNavigationDrawerFragment.onMinusOne(-1);
+					// to open navigation drawer
+				}
+			});
+
+		} catch (Exception e) {
+			e.printStackTrace();
 		}
 
 		btn_share = ((ImageButton) rootView.findViewById(R.id.btn_share_list));

@@ -56,6 +56,7 @@ import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ArrayAdapter;
+import android.widget.Button;
 import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.GridView;
@@ -66,6 +67,7 @@ import android.widget.RelativeLayout;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.TimePicker;
+import android.widget.Toast;
 
 import com.gravity.innovations.tasks.done.Common.userData;
 import com.gravity.innovations.tasks.done.CustomIconListAdapter.OptionsModel;
@@ -153,8 +155,8 @@ public class NavigationDrawerFragment extends Fragment implements
 		// Select either the default item (0) or the last selected item.
 		selectItem(mCurrentSelectedPosition, -1);
 
-		 GetUTC g = new GetUTC();
-		 g.GetUTCdatetimeAsDate();
+		GetUTC g = new GetUTC();
+		g.GetUTCdatetimeAsDate();
 		// getCalendars();
 
 	}
@@ -559,6 +561,11 @@ public class NavigationDrawerFragment extends Fragment implements
 			// to keep the drawer open on every start up
 		}
 	}
+
+	// public void magicButton(){
+	// //mFragmentContainerView = getActivity().findViewById(fragmentId);
+	// mDrawerLayout.openDrawer(mFragmentContainerView);
+	// }
 
 	public void selectItem(int position, int selectTaskId) {
 		position--;
@@ -1858,8 +1865,8 @@ public class NavigationDrawerFragment extends Fragment implements
 				String serverString = year_string + "-" + month_string + "-"
 						+ date_string + "T" + hours_string + ":"
 						+ minute_string + ":" + seconds_string + ".";
-				//getTime();
-				//ServerAndDeviceTime();
+				// getTime();
+				// ServerAndDeviceTime();
 				serverString = serverString + " ";
 
 			} catch (ParseException e) {

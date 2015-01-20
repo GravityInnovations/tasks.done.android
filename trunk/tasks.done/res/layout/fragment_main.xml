@@ -54,6 +54,17 @@
                 android:layout_alignParentRight="true"
                 android:layout_alignParentTop="true"
                 android:layout_marginLeft="5dp" />
+
+            <ImageButton
+                android:id="@+id/iv_drawer_toggle"
+                android:layout_width="35dp"
+                android:layout_height="35dp"
+                android:layout_alignParentLeft="true"
+                android:layout_alignParentTop="true"
+                android:background="@drawable/default_button_selector"
+                android:clickable="true"
+                android:onClick="toggButton"
+                android:src="@drawable/ic_drawer" />
         </RelativeLayout>
         <!-- <Button -->
         <!-- android:layout_width="wrap_content" -->
