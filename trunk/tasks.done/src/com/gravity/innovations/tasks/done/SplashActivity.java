@@ -627,7 +627,7 @@ public class SplashActivity extends Activity implements
 					try {
 						JSONObject temp = arr_data.getJSONObject(i);
 						TaskListModel model = new TaskListModel(temp.getString("Title"));
-						db.TaskList_New(model);
+						db.tasklists.Add(model);//.TaskList_New(model);
 					} catch (JSONException e) {
 						// TODO Auto-generated catch block
 						e.printStackTrace();
@@ -972,7 +972,7 @@ public class SplashActivity extends Activity implements
 									.toString(), array
 							// contactItem.get("phone").toString()
 							);
-							db.User_New(user);
+							db.users.Add(user);//.User_New(user);
 						}
 
 					} else {

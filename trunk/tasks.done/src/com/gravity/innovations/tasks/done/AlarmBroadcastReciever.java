@@ -49,7 +49,7 @@ public class AlarmBroadcastReciever extends WakefulBroadcastReceiver {
 
 			// DatabaseHelper db = new DatabaseHelper(context);
 			currentTask.alarm_id = alarm_id;// currentTask._id;;
-			db.Task_Edit(currentTask);
+			db.tasks.Edit(currentTask);//.Task_Edit(currentTask);
 
 			Calendar calendar = Calendar.getInstance();
 			calendar.setTimeInMillis(System.currentTimeMillis());
@@ -97,7 +97,7 @@ public class AlarmBroadcastReciever extends WakefulBroadcastReceiver {
 
 		DatabaseHelper db = new DatabaseHelper(context);
 		currentTask.alarm_id = alarm_id;// currentTask._id;;
-		db.Task_Edit(currentTask);
+		db.tasks.Edit(currentTask);//.Task_Edit(currentTask);
 
 		Calendar calendar = Calendar.getInstance();
 		calendar.setTimeInMillis(System.currentTimeMillis());
@@ -141,7 +141,7 @@ public class AlarmBroadcastReciever extends WakefulBroadcastReceiver {
 
 		DatabaseHelper db = new DatabaseHelper(context);
 		currentTask.alarm_id = alarm_id;// currentTask._id;;
-		db.Task_Edit(currentTask);
+		db.tasks.Edit(currentTask);//.Task_Edit(currentTask);
 
 		Calendar calendar = Calendar.getInstance();
 		calendar.setTimeInMillis(System.currentTimeMillis());
@@ -193,7 +193,7 @@ public class AlarmBroadcastReciever extends WakefulBroadcastReceiver {
 
 		DatabaseHelper db = new DatabaseHelper(context);
 		currentTask.alarm_id = alarm_id;// currentTask._id;;
-		db.Task_Edit(currentTask);
+		db.tasks.Edit(currentTask);//.Task_Edit(currentTask);
 
 		Calendar calendar = Calendar.getInstance();
 		calendar.setTimeInMillis(System.currentTimeMillis());
@@ -267,7 +267,7 @@ public class AlarmBroadcastReciever extends WakefulBroadcastReceiver {
 
 		DatabaseHelper db = new DatabaseHelper(context);
 		currentTask.alarm_id = alarm_id;// currentTask._id;;
-		db.Task_Edit(currentTask);
+		db.tasks.Edit(currentTask);//.Task_Edit(currentTask);
 
 		Calendar calendar = Calendar.getInstance();
 		calendar.setTimeInMillis(System.currentTimeMillis());

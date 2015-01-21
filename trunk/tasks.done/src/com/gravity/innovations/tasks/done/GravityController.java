@@ -5,6 +5,7 @@ import java.util.List;
 
 import org.apache.http.NameValuePair;
 import org.apache.http.message.BasicNameValuePair;
+import org.json.JSONObject;
 
 import android.app.Activity;
 import android.content.Context;
@@ -71,13 +72,37 @@ public class GravityController {
 		postData.add(new BasicNameValuePair("dataid",tasklist._id+""));
 		//add or edit
 		if(tasklist.server_id!= ""){
-			postData.add(new BasicNameValuePair("_id", tasklist.gravity_id));
+			postData.add(new BasicNameValuePair("_id", tasklist.server_id));
 			postData.add(new BasicNameValuePair("action", "edit"));
 		}
 		else
 			postData.add(new BasicNameValuePair("action", "add"));
 		postData.add(new BasicNameValuePair("title", tasklist.title));
 		HttpTask Temp = new HttpTask(context, Common.GRAVITY_TASKLIST_URL, postData,Common.HttpMethod.HttpPost,
+				RequestCode);
+		Temp.execute();
+		
+	}
+	public static void share_tasklist( Context context, Common.userData user_data,  TaskListModel tasklist,
+			ArrayList<UserModel> users, 
+			int RequestCode, String action)//, String dataids)
+	{
+		String userIds = "";
+		for(UserModel user:users)
+		{
+			if(user.server_id!=null && user.server_id!="")
+			userIds += user.server_id+",";
+		}
+		
+		List<NameValuePair> postData = new ArrayList<NameValuePair>();
+		postData.add(new BasicNameValuePair("userIds", userIds));
+		postData.add(new BasicNameValuePair("tasklistId", tasklist.server_id));
+		postData.add(new BasicNameValuePair("action", action));
+		//postData.add(new BasicNameValuePair("dataids",dataids));
+		
+		postData.add(new BasicNameValuePair("senderid", user_data.gravity_user_id));
+		
+		HttpTask Temp = new HttpTask(context, Common.GRAVITY_TASKLIST_SHARE_URL, postData,Common.HttpMethod.HttpPost,
 				RequestCode);
 		Temp.execute();
 		

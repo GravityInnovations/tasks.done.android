@@ -75,6 +75,8 @@ public class GcmBroadcastReceiver extends WakefulBroadcastReceiver {
 			String status = bundle.optString("status");
 			String message = bundle.optString("message");
 			String dataid = bundle.optString("dataid");
+			String userids = bundle.optString("userids");
+			
 			JSONObject sender = bundle.optJSONObject("sender");
 			JSONObject data = bundle.optJSONObject("data");
 			if(status == TASKLIST_ADD || status.equals(TASKLIST_ADD))
@@ -84,13 +86,51 @@ public class GcmBroadcastReceiver extends WakefulBroadcastReceiver {
 				if(mService.user_data.gravity_user_id == sender.optString("UserId") 
 					|| mService.user_data.gravity_user_id.equals(sender.optString("UserId"))){
 					//for self
-					TaskListModel temp = mService.db.TaskList_Single(Integer.parseInt(dataid));//new TaskListModel();
-					temp.syncStatus = "Synced";
-					temp.gravity_id = data.optString("TaskListId");
-					temp.updated = data.optString("updated");
-					mService.response_new_tasklist(temp);
+					validate_tasklist(Integer.parseInt(dataid), data);
 				}
 				//temp.user_id = user._id;//data.optString("");
+			}
+			else if(status == TASKLIST_SHARE_ADD || status.equals(TASKLIST_SHARE_ADD))
+			{
+				//if self or not logic
+				if(mService.user_data.gravity_user_id!=null && sender.optString("UserId") !=null){
+					if(mService.user_data.gravity_user_id == sender.optString("UserId") 
+						|| mService.user_data.gravity_user_id.equals(sender.optString("UserId"))){
+						//for self
+	//					String dataids = dataid;
+	//					for(String data_id:dataids.split(","))
+	//					{
+	//						
+	//					}
+						String tasklistid = data.optString("TaskListId");
+	//					TaskListModel temp = mService.db.TaskList_Single(Integer.parseInt(dataid));//new TaskListModel();
+	//					temp.syncStatus = "Synced";
+	//					//temp.gravity_id = data.optString("TaskListId");
+	//					temp.updated = data.optString("updated");
+						mService.response_share_add_tasklist(tasklistid, userids);
+					}
+					else {
+						
+					}
+				
+				}
+				//temp.user_id = user._id;//data.optString("");
+			}
+			else if(status == TASKLIST_SHARE_DELETE || status.equals(TASKLIST_SHARE_DELETE))
+			{
+				if(mService.user_data.gravity_user_id!=null && sender.optString("UserId") !=null){
+					if(mService.user_data.gravity_user_id == sender.optString("UserId") 
+						|| mService.user_data.gravity_user_id.equals(sender.optString("UserId"))){
+						
+						String tasklistid = data.optString("TaskListId");
+	//					
+						mService.response_share_remove_tasklist(tasklistid, userids);
+					}
+					else {
+						
+					}
+				
+				}
 			}
 			
 		} catch (Exception e) {
@@ -102,5 +142,17 @@ public class GcmBroadcastReceiver extends WakefulBroadcastReceiver {
 	private static String TASKLIST_ADD = "add_tasklist";
 	private static String TASKLIST_DELETE = "delete_tasklist";
 	private static String TASKLIST_EDIT = "edit_tasklist";
+	private static String TASKLIST_SHARE_ADD = "add_share_tasklist";
+	private static String TASKLIST_SHARE_DELETE = "delete_share_tasklist";
+	
+	
+	private void validate_tasklist(int TasklistLocalId, JSONObject data)
+	{
+		TaskListModel temp = mService.db.tasklists.Get(TasklistLocalId);//TaskList_Single(TasklistLocalId);//new TaskListModel();
+		temp.syncStatus = "Synced";
+		temp.server_id = data.optString("TaskListId");
+		temp.updated = data.optString("updated");
+		mService.response_new_tasklist(temp);
+	}
 	
 }
