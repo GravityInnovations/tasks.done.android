@@ -105,20 +105,18 @@ public class Common {
 	// Activity Names
 	public static final String AUTH_ACTIVITY = "AuthenticationActivity";
 	public static final String SPLASH_ACTIVITY = "SplashActivity";
-	// gravity urls
-	public static final String GRAVITY_BASE_URL = "http://192.168.1.2/";
-	public static final String GRAVITY_ACCOUNT_URL = GRAVITY_BASE_URL
-			+ "Account/";
-	public static final String GRAVITY_GCM_URL = GRAVITY_BASE_URL + "GCM/";
-	public static final String GRAVITY_TASKLIST_URL = GRAVITY_BASE_URL
-			+ "TaskList/";
-	public static final String GRAVITY_TASK_URL = GRAVITY_BASE_URL + "Task/";
 
-	// google urls
-	public static final String USER_INFO_URL = "https://www.googleapis.com/oauth2/v1/userinfo?alt=json&access_token=";// require
-																														// token
-
-	// request codes
+	//gravity urls
+	public static final String GRAVITY_BASE_URL = "http://192.168.1.3/";
+	public static final String GRAVITY_ACCOUNT_URL = GRAVITY_BASE_URL+"Account/";
+	public static final String GRAVITY_GCM_URL = GRAVITY_BASE_URL+"GCM/";
+	public static final String GRAVITY_TASKLIST_URL = GRAVITY_BASE_URL+"TaskList/";
+	public static final String GRAVITY_TASKLIST_SHARE_URL = GRAVITY_BASE_URL+"ShareTaskList/";
+	public static final String GRAVITY_TASK_URL = GRAVITY_BASE_URL+"Task/";
+	
+	//google urls
+	public static final String USER_INFO_URL = "https://www.googleapis.com/oauth2/v1/userinfo?alt=json&access_token=";//require token
+// request codes
 
 	public class RequestCodes {
 		public static final int SPLASH_ACC = 999;

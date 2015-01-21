@@ -31,9 +31,9 @@ public class BootBroadcastReceiver extends BroadcastReceiver {
 		 * Checking reboot-able alarm
 		 */
 		db = new DatabaseHelper(context);
-		ArrayList<TaskModel> alarms = new ArrayList<TaskModel>();
-		alarms = db.Alarm_List();
-		for (TaskModel temp : alarms) {
+		ArrayList<TaskModel> tasks = new ArrayList<TaskModel>();
+		tasks = db.tasks.Get();
+		for (TaskModel temp : tasks) {
 			if (temp.remind_interval == 1) {// repeat once
 
 				String remindAt = temp.remind_at;
