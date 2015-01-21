@@ -20,11 +20,7 @@ public class TaskListModel {
 	public ArrayList<TaskModel> tasks = new ArrayList<TaskModel>(); // task_data;
 	public ArrayList<UserModel> users = new ArrayList<UserModel>(); // task_data;
 	public String fragmentColor;
-<<<<<<< HEAD
-=======
-
->>>>>>> branch 'master' of https://github.com/GravityInnovations/tasks.done.android
-	// ********* Constructors *********//
+// ********* Constructors *********//
 	public TaskListModel() {
 		_id = -1;
 		this.tasks = new ArrayList<TaskModel>();
