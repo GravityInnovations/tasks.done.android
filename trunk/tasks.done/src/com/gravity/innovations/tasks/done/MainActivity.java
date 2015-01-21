@@ -535,7 +535,7 @@ public class MainActivity extends ActionBarActivity implements
 		}
 
 	}
-
+//chg
 	@Override
 	public void onTimeReceive(Context mContext, Intent intent) {
 		// mNavigationDrawerFragment.onTimeReceive(mContext, intent);
