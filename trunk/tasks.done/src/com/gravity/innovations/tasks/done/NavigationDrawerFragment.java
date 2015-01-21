@@ -342,7 +342,7 @@ public class NavigationDrawerFragment extends Fragment implements
 		this.mService = service;
 		db = this.mService.db;// new DatabaseHelper(mContext);
 		this.user_data = user_data;
-		this.data = db.TaskList_List();
+		this.data = db.tasklists.Get();//.TaskList_List();
 		mAdapter = new TaskListAdapter(getActivity(),
 				R.layout.tasklist_listview_row, data);
 		mDrawerListView.setAdapter(mAdapter);
@@ -787,7 +787,7 @@ public class NavigationDrawerFragment extends Fragment implements
 										list_type, colorHEX);
 								temp.user_id = user_data._id;
 								// should retun a bool on true
-								temp._id = db.TaskList_New(temp);
+								temp._id = db.tasklists.Add(temp);//.TaskList_New(temp);
 								if (temp._id != -1) {
 									// toastMsg = "tasklist added";
 									addTaskList(temp);
@@ -819,13 +819,11 @@ public class NavigationDrawerFragment extends Fragment implements
 						String title = et_title.getText().toString();
 						if (title.length() != 0) {
 
+
 							tasklist.title = title;
 							tasklist.icon_identifier = list_type;
 
-							int nRows = db.TaskList_Edit(tasklist);
-							// (new TaskListModel(tasklist._id, title,
-							// list_type));
-
+							int nRows = db.tasklists.Edit(tasklist);
 							if (nRows > 0) {
 								tasklist.title = title;
 								tasklist.icon_identifier = list_type;
@@ -872,7 +870,7 @@ public class NavigationDrawerFragment extends Fragment implements
 			TaskListModel temp = mAdapter.getItem(i);
 			if (temp._id == m._id) {
 				temp.etag = m.etag;
-				temp.gravity_id = m.gravity_id;
+				//temp.gravity_id = m.gravity_id;
 				temp.icon_identifier = m.icon_identifier;
 				temp.kind = m.kind;
 				temp.self_link = m.self_link;
@@ -885,13 +883,59 @@ public class NavigationDrawerFragment extends Fragment implements
 				this.mAdapter.notifyDataSetChanged();
 				// ((MainActivity)mActivity).mTaskListFragment.
 				int position = this.mAdapter.getPosition(temp);
-				selectItem(++position, -1);
+				selectItem(++position, -1);//select if selected
 				break;
 			}
 		}
 
 	}
-
+	public void addUserShareInAdapter(String tasklistId, String userids)
+	{
+		for(int i =0; i<mAdapter.getCount();i++)//TaskListModel temp:this.data)
+		{
+			TaskListModel temp = mAdapter.getItem(i);
+			if(temp.server_id == tasklistId || temp.server_id.equals(tasklistId))
+			{
+				for(UserModel user:temp.users)
+				{
+					if(user.server_id!= null && userids.contains(user.server_id))
+					{
+						user.image_alpha = 1.0;
+					}
+				}
+				this.mAdapter.notifyDataSetChanged();
+				//((MainActivity)mActivity).mTaskListFragment.
+				int position = this.mAdapter.getPosition(temp);
+				selectItem(++position, -1);//select if selected
+				break;
+			}
+		}
+		
+	}
+	public void removeUserShareInAdapter(String tasklistId, String userids)
+	{
+		for(int i =0; i<mAdapter.getCount();i++)//TaskListModel temp:this.data)
+		{
+			TaskListModel temp = mAdapter.getItem(i);
+			if(temp.server_id == tasklistId || temp.server_id.equals(tasklistId))
+			{
+				for(UserModel user:temp.users)
+				{
+					if(user.server_id!= null && userids.contains(user.server_id))
+					{
+						mAdapter.getItem(i).users.remove(user);
+					}
+				}
+				this.mAdapter.notifyDataSetChanged();
+				//((MainActivity)mActivity).mTaskListFragment.
+				int position = this.mAdapter.getPosition(temp);
+				selectItem(++position, -1);//select if selected
+				break;
+			}
+		}
+		
+	}
+	
 	// full details of the tasks
 	public void openTaskDetailsDialog(final TaskListModel parent,
 			final TaskModel current) {
@@ -954,7 +998,7 @@ public class NavigationDrawerFragment extends Fragment implements
 								 */
 
 								// should retun a bool on true
-								temp._id = db.Task_New(temp);
+								temp._id = db.tasks.Add(temp);//.Task_New(temp);
 
 								if (temp._id != -1) {
 									// toastMsg = "tasklist added";
@@ -981,7 +1025,7 @@ public class NavigationDrawerFragment extends Fragment implements
 							task.notes = notes;
 							openReminderListDialog(tasklist, task);// testing
 																	// now
-							int nRows = db.Task_Edit(task);
+							int nRows = db.tasks.Edit(task);//.Task_Edit(task);
 							if (nRows > 0) {
 								// tasklist.title = title;
 								editTask(tasklist, task); // task and temp
@@ -1089,7 +1133,7 @@ public class NavigationDrawerFragment extends Fragment implements
 						long currTime = System.currentTimeMillis();
 						String currentDateTime = Long.toString(currTime);
 						temp.updated = currentDateTime;
-						db.Task_Edit(temp);
+						db.tasks.Edit(temp);//.Task_Edit(temp);
 						editTask(tasklist, temp);
 						// mAdapter.notifyDataSetChanged();
 					}
@@ -1179,7 +1223,7 @@ public class NavigationDrawerFragment extends Fragment implements
 		temp.alarm_status = 0;
 		temp.weekday = 0;
 		temp.updated = currentDateTime;
-		db.Task_Edit(temp);
+		db.tasks.Edit(temp);//.Task_Edit(temp);
 		editTask(tasklist, temp);
 	}
 
@@ -1231,7 +1275,7 @@ public class NavigationDrawerFragment extends Fragment implements
 				temp.remind_interval = 1;// remind_interval_once;
 				temp.remind_at = remind_DateTime;
 				temp.alarm_status = 1;// alarm_status_active;
-				db.Task_Edit(temp);
+				db.tasks.Edit(temp);//.Task_Edit(temp);
 				editTask(tasklist, temp);// for alarm icon adapter refresh
 				// dialog.cancel();
 				try {
@@ -1294,7 +1338,7 @@ public class NavigationDrawerFragment extends Fragment implements
 				temp.remind_interval = 2;// 2_remind_interval_daily;
 				temp.remind_at = remind_DateTime;
 				temp.alarm_status = 1;// alarm_status_active;
-				db.Task_Edit(temp);
+				db.tasks.Edit(temp);//.Task_Edit(temp);
 
 				editTask(tasklist, temp);
 
@@ -1381,7 +1425,7 @@ public class NavigationDrawerFragment extends Fragment implements
 				temp.remind_at = remind_DateTime;
 				temp.weekday = weekday_int_value;
 				temp.alarm_status = 1;// alarm_status_active;
-				db.Task_Edit(temp);
+				db.tasks.Edit(temp);//Task_Edit(temp);
 				editTask(tasklist, temp);
 				try {
 					mAlarmBroadcastReciever.setAlarm_RepeatWeekly(mContext,
@@ -1461,7 +1505,7 @@ public class NavigationDrawerFragment extends Fragment implements
 				temp.remind_interval = 4; // repeat_monthly_remind_interval;
 				temp.remind_at = remind_DateTime;
 				temp.alarm_status = 1;// alarm_status_active;
-				db.Task_Edit(temp);
+				db.tasks.Edit(temp);//.Task_Edit(temp);
 				editTask(tasklist, temp);
 				try {
 					mAlarmBroadcastReciever.setAlarm_RepeatMonthly(mContext,
@@ -1523,7 +1567,7 @@ public class NavigationDrawerFragment extends Fragment implements
 				temp.remind_interval = 5; // repeat_yearly_remind_interval;
 				temp.remind_at = remind_DateTime;
 				temp.alarm_status = 1;// alarm_status_active;
-				db.Task_Edit(temp);
+				db.tasks.Edit(temp);//.Task_Edit(temp);
 				editTask(tasklist, temp);
 				try {
 					mAlarmBroadcastReciever.setAlarm_RepeatYearly(mContext,
@@ -1610,7 +1654,7 @@ public class NavigationDrawerFragment extends Fragment implements
 	public boolean MarkDoneTask(TaskListModel parent, TaskModel temp) {
 		if (temp.completed == 1) {
 			// temp.completed = 1;
-			if (db.Task_Edit(temp) != -1) {
+			if (db.tasks.Edit(temp) != -1) {
 				int position = mAdapter.getPosition(parent);
 				this.mAdapter.getItem(position).GetTask(temp._id).set(temp);
 				this.mAdapter.notifyDataSetChanged();
@@ -1621,7 +1665,7 @@ public class NavigationDrawerFragment extends Fragment implements
 			// temp.completed = 0;
 
 			// temp.updated = currentDateTime;
-			if (db.Task_Edit(temp) != -1) {
+			if (db.tasks.Edit(temp) != -1) {
 				int position = mAdapter.getPosition(parent);
 				this.mAdapter.getItem(position).GetTask(temp._id).set(temp);
 				this.mAdapter.notifyDataSetChanged();
@@ -1636,7 +1680,7 @@ public class NavigationDrawerFragment extends Fragment implements
 			@Override
 			public void onClick(DialogInterface dialog, int which) {
 				try {
-					db.TaskList_Delete(tasklist._id);
+					db.tasks.Delete(tasklist._id);
 					removeTaskList(tasklist);
 
 					/**
@@ -1698,7 +1742,7 @@ public class NavigationDrawerFragment extends Fragment implements
 						// cancel every alarm associated with multiple task
 						// deletion
 						mAlarmBroadcastReciever.cancelAlarm(mContext, temp);
-						if (db.Task_Delete(temp) == true) {
+						if (db.tasks.Delete(temp) == true) {
 							// conditional handle true false
 							mAdapter.getItem(position).RemoveTask(temp);
 						} else {
@@ -1785,7 +1829,7 @@ public class NavigationDrawerFragment extends Fragment implements
 	public void addUserToTaskList(TaskListModel mTaskList,
 			ArrayList<UserModel> sel_users) {
 		// TODO Auto-generated method stub
-		ArrayList<UserModel> db_users = db.UserList_List(mTaskList._id);
+		ArrayList<UserModel> db_users =db.users.Get(mTaskList);// db.UserList_List(mTaskList._id);
 		ArrayList<UserModel> final_users = new ArrayList<UserModel>();
 		ArrayList<UserModel> del_users = new ArrayList<UserModel>();
 		for (UserModel m1 : sel_users) {
@@ -1812,10 +1856,12 @@ public class NavigationDrawerFragment extends Fragment implements
 				del_users.add(m1);
 			}
 		}
-		for (UserModel user : final_users)
-			db.UserList_New(mTaskList, user);
-		for (UserModel user : del_users)
-			db.UserList_Delete(mTaskList._id, user._id);// del
+		//for (UserModel user : final_users)
+		if(final_users.size()>0)
+			db.users.Share(mTaskList, final_users);//.UserList_New(mTaskList, final_users);
+		//for (UserModel user : del_users)
+		if(del_users.size()>0)
+		db.users.Share(mTaskList, del_users);// del
 	}
 
 	public class GetUTC {

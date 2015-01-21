@@ -65,7 +65,7 @@ public class BitmapAdapter extends
 		
 			flatIcon = this.getItem(position);
 		
-		roundIcon = ImageGridAdapter.getRoundedCornerBitmap(flatIcon);
+		roundIcon =ImageGridAdapter.getRoundedCornerBitmap(flatIcon);
 		// Drawable imageThumb = new
 		// BitmapDrawable(mContext.getResources(),roundIcon);
 

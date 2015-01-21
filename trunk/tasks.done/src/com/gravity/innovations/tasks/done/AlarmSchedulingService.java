@@ -53,7 +53,7 @@ public class AlarmSchedulingService extends IntentService {
 	public void sendNotification(int alarm_id) {
 		mContext = getApplicationContext();
 		db = new DatabaseHelper(mContext);
-		TaskModel task = db.Task_Single(alarm_id);
+		TaskModel task = db.tasks.Get(alarm_id);//.Task_Single(alarm_id);
 		String alarmTitle = task.title;
 		String alarmMessage = task.details;
 
