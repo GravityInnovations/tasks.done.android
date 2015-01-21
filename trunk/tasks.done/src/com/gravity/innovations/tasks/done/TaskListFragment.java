@@ -3,17 +3,17 @@ package com.gravity.innovations.tasks.done;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.zip.Inflater;
-
-import com.google.android.gms.internal.ad;
 
 import android.annotation.SuppressLint;
 import android.app.Activity;
-import android.content.res.Resources;
 import android.content.DialogInterface;
 import android.content.DialogInterface.OnClickListener;
+import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Color;
+import android.graphics.drawable.ShapeDrawable;
+import android.graphics.drawable.shapes.OvalShape;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.util.Log;
@@ -22,22 +22,21 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
-import android.view.View.OnTouchListener;
 import android.view.ViewGroup;
-import android.view.ViewGroup.LayoutParams;
+import android.view.View.OnTouchListener;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
+import android.webkit.WebView.FindListener;
 import android.widget.AbsListView.MultiChoiceModeListener;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.AdapterView.OnItemLongClickListener;
-import android.widget.EditText;
+import android.widget.Button;
 import android.widget.GridView;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.RelativeLayout;
-import android.widget.ScrollView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -46,7 +45,7 @@ public class TaskListFragment extends Fragment {
 	private ListView mListView;
 	private TextView mTextView_listName, mTextView_syncedTime;
 	private ImageView mImageView;
-	private ImageButton btn_share, btn_edit, btn_delete;
+	private ImageButton btn_share, btn_edit, btn_delete, toggleNavDrawer;
 	public TaskAdapter mTaskAdapter;
 	public int selCount = 0; // for CAB multi select count
 	NavigationDrawerFragment mNavigationDrawerFragment;
@@ -97,6 +96,15 @@ public class TaskListFragment extends Fragment {
 		super.onAttach(activity);
 	}
 
+	private ShapeDrawable returnButtonShape(String hex) {
+		ShapeDrawable circle;
+		circle = new ShapeDrawable(new OvalShape());
+		// circle.setBounds(10, 10, 20, 20);
+		// circle.setPadding(14, 15, 10, 10);// L,T,R,B
+		circle.getPaint().setColor(Color.parseColor(hex));
+		return circle;
+	}
+
 	@SuppressLint("NewApi")
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -104,16 +112,53 @@ public class TaskListFragment extends Fragment {
 		// TODO Auto-generated method stub
 		super.onCreateView(inflater, container, savedInstanceState);
 		View rootView = inflater.inflate(R.layout.fragment_main, container,
-
 				false);
-		btn_share = ((ImageButton) rootView
-				.findViewById(R.id.btn_share_list));
-		btn_edit = ((ImageButton) rootView
-				.findViewById(R.id.btn_edit_list));
-		btn_delete = ((ImageButton) rootView
-				.findViewById(R.id.btn_delete_list));
 
-		btn_shared = ((ImageButton)rootView.findViewById(R.id.btn_showShared));
+		try {
+			// Assign color to headerLayout
+			RelativeLayout headerLayout = (RelativeLayout) rootView
+					.findViewById(R.id.header);
+			String hex = data.fragmentColor;
+			headerLayout.setBackgroundColor(Color.parseColor(hex));
+			// floating button
+			final ImageButton floatingBtn = (ImageButton) rootView
+					.findViewById(R.id.floating_button);
+			floatingBtn.setBackground(returnButtonShape(hex));
+			floatingBtn.setOnClickListener(new View.OnClickListener() {
+
+				@Override
+				public void onClick(View v) {
+					mNavigationDrawerFragment.addOrEditTask(data,
+							new TaskModel());
+				}
+			});
+
+		} catch (Exception e) {
+			Log.e("TaskListFragment", "Header&FloatingBtnColor");
+		}
+
+		try {
+			toggleNavDrawer = ((ImageButton) rootView
+					.findViewById(R.id.iv_drawer_toggle));
+
+			toggleNavDrawer.setOnClickListener(new View.OnClickListener() {
+
+				@Override
+				public void onClick(View v) {
+					mNavigationDrawerFragment.onMinusOne(-1);
+					// to open navigation drawer
+				}
+			});
+
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+
+		btn_share = ((ImageButton) rootView.findViewById(R.id.btn_share_list));
+		btn_edit = ((ImageButton) rootView.findViewById(R.id.btn_edit_list));
+		btn_delete = ((ImageButton) rootView.findViewById(R.id.btn_delete_list));
+
+		btn_shared = ((ImageButton) rootView.findViewById(R.id.btn_showShared));
 
 		btn_share.setOnClickListener(new View.OnClickListener() {
 
@@ -194,11 +239,13 @@ public class TaskListFragment extends Fragment {
 			View lv_footer = inflater.inflate(R.layout.fragment_main_footer,
 					null);// navigation_drawer_header,
 							// null);
-			if(this.data.syncStatus!= null &&( this.data.syncStatus == "Synced" || this.data.syncStatus.equals("Synced")))
-			mImageView2.setImageResource(R.drawable.ic_launcher);
+			if (this.data.syncStatus != null
+					&& (this.data.syncStatus == "Synced" || this.data.syncStatus
+							.equals("Synced")))
+				mImageView2.setImageResource(R.drawable.ic_launcher);
 			else
 				mImageView2.setImageResource(R.drawable.ic_unsynced);
-				
+
 			mTextView_syncedTime = (TextView) lv_footer
 					.findViewById(R.id.time_sync);
 			try {
@@ -456,16 +503,16 @@ public class TaskListFragment extends Fragment {
 		ArrayList<String> S = new ArrayList<String>();
 		for (UserModel temp : users) {
 			Common.CustomViewsData.MultiSelectRowData user = new Common.CustomViewsData.MultiSelectRowData();
-			
-			if(temp.name== null || temp.name=="" || temp.name.isEmpty() )
-				
-			user.text1 = temp.displayName;
+
+			if (temp.name == null || temp.name == "" || temp.name.isEmpty())
+
+				user.text1 = temp.displayName;
 			else
 				user.text1 = temp.name;
-			
-				user.text2 = temp.email;
-			
-				// Bitmap bmp = BitmapFactory.decodeByteArray(temp.image, 0,
+
+			user.text2 = temp.email;
+
+			// Bitmap bmp = BitmapFactory.decodeByteArray(temp.image, 0,
 			// temp.image.length);
 			// ImageView image = (ImageView) findViewById(R.id.imageView1);
 
@@ -475,9 +522,10 @@ public class TaskListFragment extends Fragment {
 			// ,byteArray.length);
 			S.add(temp.displayName);
 			user.iconRes = temp.image;
-			if(temp.server_id!="" && temp.server_id!=null)
+			if (temp.server_id != "" && temp.server_id != null)
 				user.iconResId = R.drawable.ic_launcher;
-			else user.iconResId = -1;
+			else
+				user.iconResId = -1;
 			users_lv.add(user);
 			for (UserModel m1 : this.data.users) {
 				if (m1._id == temp._id)
@@ -559,16 +607,16 @@ public class TaskListFragment extends Fragment {
 		ArrayList<String> S = new ArrayList<String>();
 		for (UserModel temp : users) {
 			Common.CustomViewsData.MultiSelectRowData user = new Common.CustomViewsData.MultiSelectRowData();
-			if(temp.name== null || temp.name=="" || temp.name.isEmpty() )
-					user.text1 = temp.displayName;
-				else
-					user.text1 = temp.name;
+			if (temp.name == null || temp.name == "" || temp.name.isEmpty())
+				user.text1 = temp.displayName;
+			else
+				user.text1 = temp.name;
 			user.text2 = temp.email;
 
-			if(temp.server_id!="" && temp.server_id!=null)
+			if (temp.server_id != "" && temp.server_id != null)
 				user.iconResId = R.drawable.ic_launcher;
-			else user.iconResId = -1;
-			
+			else
+				user.iconResId = -1;
 
 			S.add(temp.displayName);
 			user.iconRes = temp.image;

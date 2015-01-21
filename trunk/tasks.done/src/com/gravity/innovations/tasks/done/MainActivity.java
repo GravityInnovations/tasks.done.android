@@ -2,7 +2,12 @@ package com.gravity.innovations.tasks.done;
 
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.TimeZone;
 import org.json.JSONException;
 import org.json.JSONObject;
 import android.accounts.Account;
@@ -14,8 +19,17 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.DialogInterface.OnClickListener;
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.graphics.Canvas;
+import android.graphics.Color;
+import android.graphics.drawable.BitmapDrawable;
+import android.graphics.drawable.Drawable;
+import android.graphics.drawable.ShapeDrawable;
+import android.graphics.drawable.shapes.OvalShape;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.support.v4.app.ActionBarDrawerToggle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.widget.DrawerLayout;
@@ -41,7 +55,8 @@ import com.gravity.innovations.tasks.done.Common.Callbacks.ServiceCallback;
 
 public class MainActivity extends ActionBarActivity implements
 		NavigationDrawerFragment.NavigationDrawerCallbacks,
-		Common.Callbacks.HttpCallback, Common.Callbacks.TimeCallBack,ServiceCallback
+		Common.Callbacks.HttpCallback, Common.Callbacks.TimeCallBack,
+		ServiceCallback
 /* , Common.Callbacks.SplashActivityCallback */{
 
 	/**
@@ -77,6 +92,7 @@ public class MainActivity extends ActionBarActivity implements
 	private int mUserActionBarColor;
 	private Button btn_share;
 	private static final String PREF_USER_ACTION_BAR_COLOR = "actionbar_color";
+
 	@Override
 	public void onBackPressed() {
 		// TODO Auto-generated method stub
@@ -87,68 +103,70 @@ public class MainActivity extends ActionBarActivity implements
 	@Override
 	protected void onStop() {
 		// TODO Auto-generated method stub
-		
+
 		super.onStop();
 	}
+
 	@Override
 	protected void onDestroy() {
 		// TODO Auto-generated method stub
 		super.onStart();
-		if(service!=null)
-		service.onActivityOpen(null,null);
-		
+		if (service != null)
+			service.onActivityOpen(null, null);
+
 	}
-//	protected void onStart() {
-//		// TODO Auto-generated method stub
-//		super.onStart();
-//		AsyncTask<Void,Void,Void> t = new AsyncTask<Void, Void, Void>(){
-//
-//			@Override
-//			protected Void doInBackground(Void... params) {
-//				// TODO Auto-generated method stub
-//				try {
-//				
-//					((TheApp) getApplicationContext()).startService((Common.Callbacks.ServiceCallback)mContext);
-//					
-//					
-//				} catch (Exception e) {
-//					// TODO Auto-generated catch block
-//					e.printStackTrace();
-//				}
-//				return null;
-//			}
-//		};
-//		//t.execute();
-//		
-//
-//		
-//	}
-//	
+
+	// protected void onStart() {
+	// // TODO Auto-generated method stub
+	// super.onStart();
+	// AsyncTask<Void,Void,Void> t = new AsyncTask<Void, Void, Void>(){
+	//
+	// @Override
+	// protected Void doInBackground(Void... params) {
+	// // TODO Auto-generated method stub
+	// try {
+	//
+	// ((TheApp)
+	// getApplicationContext()).startService((Common.Callbacks.ServiceCallback)mContext);
+	//
+	//
+	// } catch (Exception e) {
+	// // TODO Auto-generated catch block
+	// e.printStackTrace();
+	// }
+	// return null;
+	// }
+	// };
+	// //t.execute();
+	//
+	//
+	//
+	// }
+	//
 	public void onServiceBound(AppHandlerService handleService) {
 		// TODO Auto-generated method stub
-		try{
-			
-//			Intent i = getIntent();
-//			Bundle b = i.getBundleExtra("AppServiceExtra");
-//			
-//			mBinder= (AppHandlerService.AppHandlerBinder)b.getBinder("binder");
-//			
-			
-			service =((TheApp) getApplicationContext()).getService();// mBinder.getService();
+		try {
+
+			// Intent i = getIntent();
+			// Bundle b = i.getBundleExtra("AppServiceExtra");
+			//
+			// mBinder=
+			// (AppHandlerService.AppHandlerBinder)b.getBinder("binder");
+			//
+
+			service = ((TheApp) getApplicationContext()).getService();// mBinder.getService();
 			service.onActivityOpen(this, this);
 			service.addProgressTask("Main Application opened");
-			
-			
-			
-			}
-			catch(Exception ex)
-			{
-				Toast.makeText(getApplicationContext(),"Problem Starting Service, Please Restart for Proper Experience", 
-						Toast.LENGTH_LONG).show();
-			}
+
+		} catch (Exception ex) {
+			Toast.makeText(
+					getApplicationContext(),
+					"Problem Starting Service, Please Restart for Proper Experience",
+					Toast.LENGTH_LONG).show();
+		}
 	}
-	private void startActions()
-	{
+
+	private void startActions() {
 		Intent i = getIntent();
 		int listID = -1, taskID = -1;
 		Bundle extra = i.getExtras();
@@ -158,20 +176,20 @@ public class MainActivity extends ActionBarActivity implements
 			taskID = i.getIntExtra("_task_id", 1);
 
 		}
-		
+
 		// String x = getHash("Faik");
 		mContext = this;
 		FragmentManager mgr = getSupportFragmentManager();
-		
+
 		mNavigationDrawerFragment = (NavigationDrawerFragment) mgr
 				.findFragmentById(R.id.navigation_drawer);
-		mTitle = "";//getTitle();
+		mTitle = "";// getTitle();
 		// new userData();//
-		user_data =service.user_data;//(Common.userData)getIntent().getExtras().getSerializable("user");//
-									// after latest commits commented		
+		user_data = service.user_data;// (Common.userData)getIntent().getExtras().getSerializable("user");//
+										// after latest commits commented
 		// init user_data from intent extras
 		// Set up the drawer.
-		//user_data.image = null;
+		// user_data.image = null;
 		mNavigationDrawerFragment.setUp(R.id.navigation_drawer,
 				(DrawerLayout) findViewById(R.id.drawer_layout), mContext,
 				user_data, listID, taskID, service);
@@ -198,7 +216,7 @@ public class MainActivity extends ActionBarActivity implements
 			}
 		});
 	}
-	
+
 	@SuppressLint("NewApi")
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -206,26 +224,22 @@ public class MainActivity extends ActionBarActivity implements
 		mContext = this;
 		getActionBar().hide();
 		setContentView(R.layout.activity_main);
-		
-		
-		service =((TheApp) getApplicationContext()).getService();// mBinder.getService();
-		if(service!=null){
-		service.onActivityOpen(this, this);
-		service.addProgressTask("Main Application opened");
-		startActions();
-		}
-		else
-		{
-			AsyncTask<Void,Void,Void> t = new AsyncTask<Void, Void, Void>(){
+		service = ((TheApp) getApplicationContext()).getService();// mBinder.getService();
+		if (service != null) {
+			service.onActivityOpen(this, this);
+			service.addProgressTask("Main Application opened");
+			startActions();
+		} else {
+			AsyncTask<Void, Void, Void> t = new AsyncTask<Void, Void, Void>() {
 
 				@Override
 				protected Void doInBackground(Void... params) {
 					// TODO Auto-generated method stub
 					try {
-					
-						((TheApp) getApplicationContext()).startService((Common.Callbacks.ServiceCallback)mContext);
-						
-						
+
+						((TheApp) getApplicationContext())
+								.startService((Common.Callbacks.ServiceCallback) mContext);
+
 					} catch (Exception e) {
 						// TODO Auto-generated catch block
 						e.printStackTrace();
@@ -242,12 +256,7 @@ public class MainActivity extends ActionBarActivity implements
 		// created for Calendar API
 		super.onActivityResult(arg0, arg1, intent);
 	}
-	
-	public void floatButtonOnClick(View v) {
-		mNavigationDrawerFragment.addOrEditTask(CurrentList, new TaskModel());
-	}// creates a dialog for new task
 
-	// @SuppressLint("NewApi")
 	public void showSoftKeyboard(View view) {
 		if (view.requestFocus()) {
 			mEditText.setFocusable(true);
@@ -279,7 +288,7 @@ public class MainActivity extends ActionBarActivity implements
 						.beginTransaction()
 						.replace(R.id.container,
 								mTaskListFragment.getFragment()).commit();
-				//actionBar.setTitle(CurrentList.title);
+				// actionBar.setTitle(CurrentList.title);
 				actionBar.setTitle("");
 
 			}
@@ -319,9 +328,9 @@ public class MainActivity extends ActionBarActivity implements
 		manuallySelectOptionMenuItem(id);
 		return super.onOptionsItemSelected(item);
 	}
-	public void manuallySelectOptionMenuItem(int id)
-	{
-		
+
+	public void manuallySelectOptionMenuItem(int id) {
+
 		if (id == R.id.action_settings) {
 			Intent i = new Intent(MainActivity.this, SettingsActivity.class);
 			startActivity(i);
@@ -342,13 +351,14 @@ public class MainActivity extends ActionBarActivity implements
 					new TaskModel());
 		} else if (id == R.id.action_share) {
 			listof_nameEmailPic(); // for calling list of users
-		} 
-		
+		}
+
 	}
+
 	ArrayList<UserModel> users;
+
 	public void listof_nameEmailPic() {
 		DatabaseHelper h = new DatabaseHelper(mContext);
-		
 
 		users = new ArrayList<UserModel>();
 
@@ -360,7 +370,7 @@ public class MainActivity extends ActionBarActivity implements
 			Common.CustomViewsData.MultiSelectRowData user = new Common.CustomViewsData.MultiSelectRowData();
 			user.text1 = temp.displayName;
 			user.text2 = temp.email;
-			
+
 			// Bitmap bmp = BitmapFactory.decodeByteArray(temp.image, 0,
 			// temp.image.length);
 			// ImageView image = (ImageView) findViewById(R.id.imageView1);
@@ -374,23 +384,22 @@ public class MainActivity extends ActionBarActivity implements
 			users_lv.add(user);
 
 		}
-//		CharSequence[] cs = S.toArray(new CharSequence[S.size()]);
-//		
-//		AlertDialog.Builder builder = new AlertDialog.Builder(mContext);
-//		builder.setIcon(android.R.drawable.ic_popup_reminder);
-//		builder.setTitle("share");
-//		builder.setItems(cs, null);
-//		builder.create().show();
+		// CharSequence[] cs = S.toArray(new CharSequence[S.size()]);
+		//
+		// AlertDialog.Builder builder = new AlertDialog.Builder(mContext);
+		// builder.setIcon(android.R.drawable.ic_popup_reminder);
+		// builder.setTitle("share");
+		// builder.setItems(cs, null);
+		// builder.create().show();
 		final MultiSelectListAdapter adapter = new MultiSelectListAdapter(this,
 				R.layout.multiselectlist_row, users_lv);
-		
+
 		OnItemClickListener onItemClickListener = new OnItemClickListener() {
 			@Override
 			public void onItemClick(AdapterView<?> parent, View view,
 					int position, long id) {
-				adapter.setOrRemoveSelection(view,position);
-				
-				
+				adapter.setOrRemoveSelection(view, position);
+
 			}
 		};
 		DialogInterface.OnClickListener negListener = new OnClickListener() {
@@ -406,39 +415,38 @@ public class MainActivity extends ActionBarActivity implements
 				dialog.cancel();
 				ArrayList<Integer> sel = adapter.getSelected();
 				ArrayList<UserModel> sel_users = new ArrayList<UserModel>();
-				for(Integer i:sel)
-				{
+				for (Integer i : sel) {
 					sel_users.add(users.get(i));
 				}
-				//add  sel_users in table_users_tasklist and update grid adapter in header
+				// add sel_users in table_users_tasklist and update grid adapter
+				// in header
 				Toast.makeText(mContext, toString().valueOf(which),
 						Toast.LENGTH_SHORT).show();
-				
-//				TaskModel tempModel = null;
-//				String temp = tempModel.associated_usermodels;
-//				temp = temp + ", " + which;
-//				tempModel.associated_usermodels = temp;
-//				db.Task_Edit(tempModel);
-				
+
+				// TaskModel tempModel = null;
+				// String temp = tempModel.associated_usermodels;
+				// temp = temp + ", " + which;
+				// tempModel.associated_usermodels = temp;
+				// db.Task_Edit(tempModel);
+
 			}
 		};
 		Common.CustomDialog.MultiChoiceDialog(mContext, adapter,
 				onItemClickListener, negListener, posListener,
 				R.string.dialog_ok, R.string.dialog_cancel, "Share");
-		
-//		View view = getLayoutInflater().inflate(
-//				R.layout.multiselectlist_list, null);
-//
-//		ListView lst = (ListView) view.findViewById(R.id.listView1);
-//		lst.setAdapter(adapter);
-//
-//		
-//
-//		
-//		Common.CustomDialog.CustomDialog(mContext, view);
+
+		// View view = getLayoutInflater().inflate(
+		// R.layout.multiselectlist_list, null);
+		//
+		// ListView lst = (ListView) view.findViewById(R.id.listView1);
+		// lst.setAdapter(adapter);
+		//
+		//
+		//
+		//
+		// Common.CustomDialog.CustomDialog(mContext, view);
 
 	}
-
 
 	public String getHash(String message) {
 		String algorithm = "SHA384";
@@ -510,8 +518,6 @@ public class MainActivity extends ActionBarActivity implements
 	@Override
 	public void httpResult(JSONObject data, int RequestCode, int ResultCode) {
 		// TODO Auto-generated method stub
-		
-		
 		switch (RequestCode) {
 		case Common.RequestCodes.GRAVITY_SEND_TASKLIST:
 			if (ResultCode == Common.HTTP_RESPONSE_OK) {
@@ -538,15 +544,15 @@ public class MainActivity extends ActionBarActivity implements
 
 	public ArrayList<UserModel> getUsers() {
 		// TODO Auto-generated method stub
+
 		if(service!=null)
 		return service.db.users.Get();//.User_List();
-	
-		return new ArrayList<UserModel>();
+return new ArrayList<UserModel>();
 	}
 
 	@Override
 	public void startResultActivity(Intent intent, int RequestCode) {
 		// TODO Auto-generated method stub
-		
-	}	
+
+	}
 }

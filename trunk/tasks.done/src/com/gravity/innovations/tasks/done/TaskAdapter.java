@@ -146,7 +146,7 @@ public class TaskAdapter extends ArrayAdapter<TaskModel> {
 								temp.title = temp.title;
 
 								notifyDataSetChanged();
-								rearrangeList(pos, row2);
+								//rearrangeList(pos, row2);
 								// animatedSwapWithNextItem(pos);
 							}
 

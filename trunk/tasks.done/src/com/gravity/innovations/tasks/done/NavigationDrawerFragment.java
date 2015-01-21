@@ -1,9 +1,18 @@
 package com.gravity.innovations.tasks.done;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.Random;
+import java.util.StringTokenizer;
+import java.util.TimeZone;
 import java.util.TimerTask;
+
 import org.json.JSONException;
 import org.json.JSONObject;
+
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -16,11 +25,17 @@ import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.content.res.Configuration;
 import android.content.res.Resources;
+import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
+import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
+import android.provider.CalendarContract;
+import android.provider.CalendarContract.Calendars;
+import android.provider.CalendarContract.Events;
 import android.support.v4.app.ActionBarDrawerToggle;
 import android.support.v4.app.DialogFragment;
 import android.support.v4.app.Fragment;
@@ -41,6 +56,7 @@ import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ArrayAdapter;
+import android.widget.Button;
 import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.GridView;
@@ -51,6 +67,7 @@ import android.widget.RelativeLayout;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.TimePicker;
+import android.widget.Toast;
 
 import com.gravity.innovations.tasks.done.Common.userData;
 import com.gravity.innovations.tasks.done.CustomIconListAdapter.OptionsModel;
@@ -137,6 +154,10 @@ public class NavigationDrawerFragment extends Fragment implements
 		}
 		// Select either the default item (0) or the last selected item.
 		selectItem(mCurrentSelectedPosition, -1);
+
+		GetUTC g = new GetUTC();
+		g.GetUTCdatetimeAsDate();
+		// getCalendars();
 
 	}
 
@@ -314,6 +335,7 @@ public class NavigationDrawerFragment extends Fragment implements
 	 *            The DrawerLayout containing this fragment's UI.
 	 * @param user_data
 	 */
+
 	public void setUp(int fragmentId, DrawerLayout drawerLayout,
 			Context mContext, userData user_data, int tasklistid, int taskid,
 			AppHandlerService service) {
@@ -540,6 +562,11 @@ public class NavigationDrawerFragment extends Fragment implements
 		}
 	}
 
+	// public void magicButton(){
+	// //mFragmentContainerView = getActivity().findViewById(fragmentId);
+	// mDrawerLayout.openDrawer(mFragmentContainerView);
+	// }
+
 	public void selectItem(int position, int selectTaskId) {
 		position--;
 		if (position < 0)
@@ -636,10 +663,10 @@ public class NavigationDrawerFragment extends Fragment implements
 		int position = this.mAdapter.getPosition(temp);
 		selectItem(++position, -1);
 
-//		if (user_data.is_sync_type && Common.hasInternet(mActivity)) {
-//			GravityController.post_tasklist(mActivity, user_data, temp,
-//					Common.RequestCodes.GRAVITY_SEND_TASKLIST);
-//		}
+		// if (user_data.is_sync_type && Common.hasInternet(mActivity)) {
+		// GravityController.post_tasklist(mActivity, user_data, temp,
+		// Common.RequestCodes.GRAVITY_SEND_TASKLIST);
+		// }
 	}
 
 	/*
@@ -661,10 +688,10 @@ public class NavigationDrawerFragment extends Fragment implements
 	 * implement.
 	 */
 	public void clearSelection() {
-		// if (oldSelection != null) {
-		// oldSelection.setBackgroundColor(getResources().getColor(
-		// android.R.color.transparent));
-		// }
+		if (oldSelection != null) {
+			oldSelection.setBackgroundColor(getResources().getColor(
+					android.R.color.transparent));
+		}
 	}
 
 	public void addOrEditTaskList(final TaskListModel tasklist) {
@@ -747,8 +774,17 @@ public class NavigationDrawerFragment extends Fragment implements
 						String title = et_title.getText().toString();
 						if (title.length() != 0) {
 							try {
+								String[] colorsArray = { "#7FFFD4", "#B0B3B6",
+										"#F4D05E", "#F46C5E", "#34495e",
+										"#e67e22", "#95a5a6", "#00A5A6",
+										"#5AADAD", "#C1A79A", "#FF982F",
+										"#FFC182" };
+								Random rand = new Random();
+								int fragment_color = rand
+										.nextInt(colorsArray.length) + 1;
+								String colorHEX = colorsArray[fragment_color];
 								TaskListModel temp = new TaskListModel(title,
-										list_type);
+										list_type, colorHEX);
 								temp.user_id = user_data._id;
 								// should retun a bool on true
 								temp._id = db.tasklists.Add(temp);//.TaskList_New(temp);
@@ -771,17 +807,23 @@ public class NavigationDrawerFragment extends Fragment implements
 								 */
 
 							} catch (Exception e) {
-								Log.e("MainActivity", "newOrEditTaskList");
+								Log.e("MainActivity", "addOrEditTaskList");
 							} finally {
-								Log.e("MainActivitynewOrEditTaskList", "np");
-							}// finally
+								int position = mAdapter.getCount();
+								mAdapter.setSelection(position - 1);
+								// for highlighting the selection
+							}
 						}
 					} else {
 						// update tasklist
 						String title = et_title.getText().toString();
 						if (title.length() != 0) {
-							int nRows = db.tasklists.Edit(new TaskListModel(
-									tasklist._id, title, list_type));
+
+
+							tasklist.title = title;
+							tasklist.icon_identifier = list_type;
+
+							int nRows = db.tasklists.Edit(tasklist);
 							if (nRows > 0) {
 								tasklist.title = title;
 								tasklist.icon_identifier = list_type;
@@ -795,10 +837,12 @@ public class NavigationDrawerFragment extends Fragment implements
 						/**
 						 * update data
 						 */
-
+						int position = mAdapter.getPosition(tasklist);
+						mAdapter.setSelection(position);
+						// setSelection for item
 					}
 				} catch (Exception e) {
-					Log.d("Exception on", "Positive Listener");
+					Log.d("MainActivity", "addOrEditTaskList");
 				}
 			}
 		};
@@ -818,13 +862,13 @@ public class NavigationDrawerFragment extends Fragment implements
 		int position = this.mAdapter.getPosition(Old);
 		selectItem(++position, -1);
 	}
-	public void editTaskListInAdapter(TaskListModel m)
-	{
-		for(int i =0; i<mAdapter.getCount();i++)//TaskListModel temp:this.data)
+
+	public void editTaskListInAdapter(TaskListModel m) {
+		for (int i = 0; i < mAdapter.getCount(); i++)// TaskListModel
+														// temp:this.data)
 		{
 			TaskListModel temp = mAdapter.getItem(i);
-			if(temp._id == m._id)
-			{
+			if (temp._id == m._id) {
 				temp.etag = m.etag;
 				//temp.gravity_id = m.gravity_id;
 				temp.icon_identifier = m.icon_identifier;
@@ -837,13 +881,13 @@ public class NavigationDrawerFragment extends Fragment implements
 				temp.updated = temp.updated;
 				temp.user_id = temp.user_id;
 				this.mAdapter.notifyDataSetChanged();
-				//((MainActivity)mActivity).mTaskListFragment.
+				// ((MainActivity)mActivity).mTaskListFragment.
 				int position = this.mAdapter.getPosition(temp);
 				selectItem(++position, -1);//select if selected
 				break;
 			}
 		}
-		
+
 	}
 	public void addUserShareInAdapter(String tasklistId, String userids)
 	{
@@ -1554,39 +1598,27 @@ public class NavigationDrawerFragment extends Fragment implements
 	@SuppressLint("NewApi")
 	public void reminderListDialogActionThree(final TaskListModel tasklist,
 			final TaskModel temp) {
-		/*
-		 * AlertDialog.Builder builder = new AlertDialog.Builder(mContext);
-		 * builder.setTitle("Location"); builder.setMessage("Go Premium");
-		 * builder.setPositiveButton(R.string.dialog_ok, new
-		 * DialogInterface.OnClickListener() { public void
-		 * onClick(DialogInterface dialog, int id) { dialog.cancel();
-		 * openReminderListDialog(tasklist, temp); } });
-		 * builder.setNegativeButton(R.string.dialog_back, new
-		 * DialogInterface.OnClickListener() { public void
-		 * onClick(DialogInterface dialog, int id) { dialog.cancel();
-		 * openReminderListDialog(tasklist, temp); } });
-		 * builder.setCancelable(false); final Dialog dialog = builder.create();
-		 * dialog.show();
-		 */
 
-		// Calendar beginTime = Calendar.getInstance();
-		// beginTime.set(2015, 1, 8, 3, 48);
-		// Calendar endTime = Calendar.getInstance();
-		// endTime.set(2015, 1, 8, 3, 50);
-		// Intent intent = new Intent(Intent.ACTION_INSERT)
-		// .setData(Events.CONTENT_URI)
-		// .putExtra(CalendarContract.EXTRA_EVENT_BEGIN_TIME,
-		// beginTime.getTimeInMillis())
-		// .putExtra(CalendarContract.EXTRA_EVENT_END_TIME,
-		// endTime.getTimeInMillis())
-		// .putExtra(Events.TITLE, "task.done> TASK.DONE")
-		// .putExtra(Events.DESCRIPTION, "App Complition")
-		// .putExtra(Events.EVENT_LOCATION, "Gravity Innovation")
-		// .putExtra(Events.AVAILABILITY, Events.AVAILABILITY_BUSY)
-		// .putExtra(Intent.EXTRA_EMAIL,
-		// "mushahidhassan110@example.com,trevor@example.com");
-		// // startActivity(intent);
-		// startActivityForResult(intent, 2525);
+		AlertDialog.Builder builder = new AlertDialog.Builder(mContext);
+		builder.setTitle("Location");
+		builder.setMessage("Go Premium");
+		builder.setPositiveButton(R.string.dialog_ok,
+				new DialogInterface.OnClickListener() {
+					public void onClick(DialogInterface dialog, int id) {
+						dialog.cancel();
+						openReminderListDialog(tasklist, temp);
+					}
+				});
+		builder.setNegativeButton(R.string.dialog_back,
+				new DialogInterface.OnClickListener() {
+					public void onClick(DialogInterface dialog, int id) {
+						dialog.cancel();
+						openReminderListDialog(tasklist, temp);
+					}
+				});
+		builder.setCancelable(false);
+		final Dialog dialog = builder.create();
+		dialog.show();
 
 	}
 
@@ -1830,6 +1862,116 @@ public class NavigationDrawerFragment extends Fragment implements
 		//for (UserModel user : del_users)
 		if(del_users.size()>0)
 		db.users.Share(mTaskList, del_users);// del
+	}
+
+	public class GetUTC {
+
+		static final String DATEFORMAT = "yyyy-MM-dd HH:mm:ss.SSS";
+
+		// "yyyy-MM-dd HH:mm:ss z";
+
+		public Date GetUTCdatetimeAsDate() {
+			// note: doesn't check for null
+			return StringDateToDate(GetUTCdatetimeAsString());
+		}
+
+		public String GetUTCdatetimeAsString() {
+			final SimpleDateFormat sdf = new SimpleDateFormat(DATEFORMAT);
+			sdf.setTimeZone(TimeZone.getTimeZone("UTC"));
+			final String utcTime = sdf.format(new Date());
+
+			return utcTime;
+		}
+
+		public Date StringDateToDate(String StrDate) {
+			Date dateToReturn = null;
+			SimpleDateFormat dateFormat = new SimpleDateFormat(DATEFORMAT);
+
+			try {
+				dateToReturn = (Date) dateFormat.parse(StrDate);
+
+				SimpleDateFormat formatter = new SimpleDateFormat(
+						"dd.MM.yyyy HH:mm:ss");
+				String reportDate = formatter.format(dateToReturn);
+
+				StringTokenizer timeTokens = new StringTokenizer(reportDate,
+						" : ");
+				String date_string_full = timeTokens.nextToken();// date
+				String hours_string = timeTokens.nextToken();// hours
+				String minute_string = timeTokens.nextToken();// minute
+				String seconds_string = timeTokens.nextToken();// seconds
+
+				StringTokenizer dateTokens = new StringTokenizer(
+						date_string_full, ".");
+				String date_string = dateTokens.nextToken();// date
+				String month_string = dateTokens.nextToken();// month
+				String year_string = dateTokens.nextToken();// year
+
+				// yy-mm-ddThh:mm:ss.{6Digit}{sp/+}
+				String serverString = year_string + "-" + month_string + "-"
+						+ date_string + "T" + hours_string + ":"
+						+ minute_string + ":" + seconds_string + ".";
+				// getTime();
+				// ServerAndDeviceTime();
+				serverString = serverString + " ";
+
+			} catch (ParseException e) {
+				e.printStackTrace();
+			}
+			return dateToReturn;
+		}
+	}
+
+	public long getTime() throws ParseException {
+		// SimpleDateFormat df = new SimpleDateFormat(
+		// "yyyy-MM-dd'T'HH:mm:ss.SSSSSSS'GMT'");
+		// Date date = (Date) df.parse("2015-01-10T15:09:16.5975889+5:00");
+		// long time0 = date.getTime();
+		// long d = df.parse ("2015-01-10T15:09:16.5975889+5:00").getTime();
+
+		/************************************************/
+		SimpleDateFormat dateFormat = new SimpleDateFormat(
+				"yyyy-M-dd'T'HH:mm:ss.SSSSSSS'Z'");
+		long time = dateFormat.parse("2015-01-10T15:09:16.5975889Z").getTime();
+		return time;// date.getTime();
+		/************************************************/
+
+	}
+
+	public void ServerAndDeviceTime() {
+		try {
+
+			// String ServerDate = data.optString("data");//
+			// 2015-01-13T12:00:28.3367416Z
+			// localtime on Desktop 5:02PM
+			String DATEFORMAT_SERVER = "yyyy-M-dd'T'HH:mm:ss.SSSSSSS'Z'";
+			SimpleDateFormat serverDateFormat = new SimpleDateFormat(
+					DATEFORMAT_SERVER);
+
+			String DATEFORMAT_DISPLAY = "yyyy-MM-dd HH:mm:ss.SSS";
+			SimpleDateFormat displayFormat = new SimpleDateFormat(
+					DATEFORMAT_DISPLAY);
+			displayFormat.setTimeZone(TimeZone.getTimeZone("UTC"));
+
+			// returns formatted serverDateTime
+			long serverTimeLong = serverDateFormat.parse(
+					"2015-01-13T12:00:28.3367416Z").getTime();
+			// 1421135795416;
+			String serverTime = displayFormat.format(new Date(serverTimeLong));
+			Log.e("ServerTime", serverTime);
+			// returns formatted serverDateTime
+
+			// takes cuurent devive time and convert it to display Format
+			String currentDateTime = serverDateFormat.format(new Date());
+			long deviceCurrentTimeLong = System.currentTimeMillis();
+			String deviceTime = displayFormat.format(new Date(
+					deviceCurrentTimeLong));
+			Log.e("DeviceTime", deviceTime);
+			// 1421216214567
+			// takes cuurent devive time and convert it to display Format
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 	}
 
 }

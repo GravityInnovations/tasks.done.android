@@ -54,6 +54,17 @@
                 android:layout_alignParentRight="true"
                 android:layout_alignParentTop="true"
                 android:layout_marginLeft="5dp" />
+
+            <ImageButton
+                android:id="@+id/iv_drawer_toggle"
+                android:layout_width="35dp"
+                android:layout_height="35dp"
+                android:layout_alignParentLeft="true"
+                android:layout_alignParentTop="true"
+                android:background="@drawable/default_button_selector"
+                android:clickable="true"
+                android:onClick="toggButton"
+                android:src="@drawable/ic_drawer" />
         </RelativeLayout>
         <!-- <Button -->
         <!-- android:layout_width="wrap_content" -->
@@ -133,7 +144,7 @@
         android:focusableInTouchMode="false"
         android:scrollingCache="true" />
 
-    <Button
+    <ImageButton
         android:id="@+id/floating_button"
         android:layout_width="60dp"
         android:layout_height="60dp"
@@ -141,10 +152,8 @@
         android:layout_alignParentRight="true"
         android:layout_marginBottom="20dp"
         android:layout_marginRight="20dp"
-        android:background="@drawable/floating_button_selector"
         android:clickable="true"
-        android:drawableStart="@drawable/ic_action_new"
         android:gravity="center_vertical"
-        android:onClick="floatButtonOnClick" />
+        android:src="@drawable/ic_action_new" />
 
 </RelativeLayout>
