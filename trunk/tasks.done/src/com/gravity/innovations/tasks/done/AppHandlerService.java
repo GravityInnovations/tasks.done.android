@@ -35,7 +35,10 @@ import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.AsyncTask;
 import android.os.Binder;
+import android.os.Handler;
 import android.os.IBinder;
+import android.os.Looper;
+import android.os.Message;
 import android.provider.ContactsContract;
 import android.provider.ContactsContract.Data;
 import android.provider.ContactsContract.Contacts.Photo;
@@ -310,7 +313,23 @@ public class AppHandlerService extends Service implements
 	private int todotasks = 0;
 	private int donetasks = 0;
 
+	public class tdHandler extends Handler {
+		  public tdHandler(Looper looper) {
+		    super(looper);
+		  }
+
+		  @Override
+		  public void handleMessage(Message msg) {
+		    super.handleMessage(msg);
+		    int startId = msg.arg1;
+		    Object someObject = msg.obj;
+		    // Do some processing
+		    boolean stopped = stopSelfResult(startId);
+		    // stopped is true if the service is stopped
+		  }
+		}
 	public void TriggerEvent(final int eventId) {
+		
 		AsyncTask<Void, Void, Void> t = new AsyncTask<Void, Void, Void>() {
 
 			@Override
@@ -924,7 +943,7 @@ public class AppHandlerService extends Service implements
 			
 			
 		GravityController.register_gravity_account(mContext, user_data.email,
-				user_data.google_reg_id, "",
+				user_data.google_reg_id, user_data.name,
 				Common.RequestCodes.GRAVITY_REGISTER);
 		else{
 			
@@ -1104,6 +1123,7 @@ public class AppHandlerService extends Service implements
 										.getColumnIndex(ContactsContract.Contacts.DISPLAY_NAME));
 						user.image = loadContactPhoto(photoid);
 						// users.add(user);
+						if(add)
 						db.users.Add(user);//.User_New(user);
 //
 //						s.add(rawContacts.getString(rawContacts
@@ -1175,8 +1195,9 @@ public class AppHandlerService extends Service implements
 		} else {
 			ArrayList<UserModel> db_data = db.users.Get();//.User_List();
 			ArrayList<UserModel> contacts_data = getUserContacts(false);
+			boolean found = false;
 			for (UserModel c_user : contacts_data) {
-				boolean found = false;
+				found = false;
 				for (UserModel db_user : db_data) {
 					try {
 						String c1 = db_user.contact_id;
@@ -1194,11 +1215,20 @@ public class AppHandlerService extends Service implements
 						}
 
 					} catch (Exception e) {
-
+						addProgressTask(e.getMessage());
 					}
+					
 				}
-				if (!found) {
-					db.users.Add(c_user);//.User_New(c_user);
+				
+				try{
+					
+//				if (!found) {
+//					db.users.Add(c_user);//.User_New(c_user);
+//				}
+				}
+				catch(Exception e)
+				{
+					addProgressTask(e.getMessage());
 				}
 			}
 		}

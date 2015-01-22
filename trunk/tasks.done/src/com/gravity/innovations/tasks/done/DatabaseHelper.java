@@ -604,8 +604,12 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 			SQLiteDatabase db = getWritableDatabase();
 
 			ContentValues values = setContent(user);
-			return db.update(TABLE_USERS, values, KEY_PK + " = ?",
+			 
+					
+					int i = db.update(TABLE_USERS, values, KEY_PK + " = ?",
 					new String[] { String.valueOf(user._id) });// updating row
+					db.close();
+					return i;
 		}
 		public void Delete(int id) {
 			SQLiteDatabase db = getWritableDatabase();
