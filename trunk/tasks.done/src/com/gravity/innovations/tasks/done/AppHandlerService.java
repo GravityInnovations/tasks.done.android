@@ -35,7 +35,11 @@ import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.AsyncTask;
 import android.os.Binder;
+import android.os.Handler;
+import android.os.HandlerThread;
 import android.os.IBinder;
+import android.os.Looper;
+import android.os.Message;
 import android.provider.ContactsContract;
 import android.provider.ContactsContract.Data;
 import android.provider.ContactsContract.Contacts.Photo;
@@ -60,6 +64,7 @@ public class AppHandlerService extends Service implements
 	public DatabaseHelper db = null;
 	public boolean hasInternet = false;
 	private NotificationHandler nH= null;
+	private tdHandler mHandler;
 	public AppHandlerService() {
 		super();
 		// setIntentRedelivery(true);
@@ -95,7 +100,13 @@ public class AppHandlerService extends Service implements
 //			 LoadLocalDB() ;
 //			SyncUsers(true);
 			//TriggerEvent(Common.USERS_SYNC);
+			HandlerThread thread = new HandlerThread("Thread name", android.os.Process.THREAD_PRIORITY_DEFAULT);//.THREAD_PRIORITY_BACKGROUND);
+		    thread.start();
+		    Looper looper = thread.getLooper();
+		    mHandler = new tdHandler(looper);
 			TriggerEvent(Common.LOAD_PREFS);
+			
+			 
 		} catch (Exception ex) {
 			progress_tasks.add(0, ex.getLocalizedMessage());
 		}
@@ -310,7 +321,169 @@ public class AppHandlerService extends Service implements
 	private int todotasks = 0;
 	private int donetasks = 0;
 
+	public class tdHandler extends Handler {
+		  public tdHandler(Looper looper) {
+		    super(looper);
+		  }
+
+		  @Override
+		  public void handleMessage(Message msg) {
+		    super.handleMessage(msg);
+		    int eventId = msg.arg1;
+		   
+		    try {
+				Thread.sleep(1000);
+			} catch (InterruptedException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			switch (eventId) {
+			case 999999: //save bitmap
+				String url = (String) msg.obj;
+				getAndSaveBitmap(url);
+				break;
+			case Common.LOAD_LOCAL_DB:
+				addProgressTask(getString(R.string.load_db));
+				LoadLocalDB();
+				donetasks++;
+				break;
+			case Common.LOAD_PREFS:
+				addProgressTask(getString(R.string.load_sp));
+				// TriggerNextEvent();
+				LoadPreferences();
+
+				TriggerEvent(Common.LOAD_LOCAL_DB);
+
+				if (user_data.is_sync_type) {
+					if (user_data.email == "" || user_data.email == null)
+						TriggerEvent(Common.GET_ACCOUNT);// GetAccount();
+
+					else if (user_data.email != ""
+							&& user_data.email != null) {
+						addProgressTask(getString(R.string.check_internet));
+						TriggerEvent(Common.CHECK_INTERNET);
+					}
+
+					// TriggerWaitEvent(Common.CHECK_INTERNET);
+					donetasks++;
+				} else {
+
+					TriggerEvent(Common.GO_TO_MAIN);
+					donetasks++;
+				}
+
+				break;
+			case Common.CHECK_INTERNET:
+				CheckInternet();
+				donetasks++;
+				break;
+			case Common.CONFIG_GCM:
+				ConfigureGCM();
+				break;
+			case Common.GET_ACCOUNT:
+
+				GetAccount();
+
+				break;
+			case Common.GOT_ACCOUNT:
+
+				if (user_data.is_sync_type && user_data.email != null) {
+
+					if (!user_data.gravity_is_registered) {
+						TriggerEvent(Common.GRAVITY_REGISTER);
+					}
+
+					TriggerEvent(Common.GOOGLE_AUTH);
+				}
+				donetasks++;
+				break;
+			case Common.USERS_SYNC:
+				if (user_data.is_sync_type) {// >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>needs
+												// review
+					addProgressTask(getString(R.string.users_sync));
+					if (!user_data.all_users_synced)
+						SyncUsers(true);
+					else
+						SyncUsers(false);
+					//
+					// SyncUsers();
+				}
+				donetasks++;
+				break;
+			case Common.GOOGLE_AUTH:
+				GoogleAuth();
+
+				break;
+			case Common.GOOGLE_USER_INFO:
+				GetUserDataFromGoogle();
+				break;
+			case Common.GRAVITY_REGISTER:
+				if (!user_data.gravity_is_registered) {
+					addProgressTask(getString(R.string.gravity_register));
+
+					GravityRegister();
+				}
+				break;
+			case Common.GRAVITY_SYNC:
+
+				if (user_data.gravity_is_registered) {
+					addProgressTask(getString(R.string.gravity_sync));
+					SyncAppData();
+
+				}
+				break;
+			case Common.GO_TO_MAIN:
+				// donetasks++;
+				todotasks--;
+				int d = donetasks;
+				int x = todotasks;
+				if (donetasks == todotasks) {
+					AppStateIntent = new Intent(FocusedActivity,
+							MainActivity.class);
+					//AppStateClassName = MainActivity.class.getName();
+					FocusedActivity.runOnUiThread(new Runnable() {
+
+						@Override
+						public void run() {
+							// TODO Auto-generated method stub
+							AppStateIntent.putExtra("user", user_data);
+							FocusedActivity.startActivity(AppStateIntent);
+							FocusedActivity.finish();
+						}
+					});
+					//
+					// FocusedActivity.finish();
+
+					// addProgressTask(">>>>>>>>>>>>>>>>>>main launched<<<<<<<<<<<<<<<<<<<");
+				} else
+					try {
+						Thread.sleep(2000);
+						// this.execute();
+						TriggerEvent(Common.GO_TO_MAIN);
+					} catch (InterruptedException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+
+				break;
+			default:
+				addProgressTask("No such option exists yet");
+				todotasks--;
+				break;
+
+			}
+		    
+		    // Do some processing
+		    //boolean stopped = stopSelfResult(startId);
+		    // stopped is true if the service is stopped
+		  }
+		}
 	public void TriggerEvent(final int eventId) {
+//		Message msg = mHandler.obtainMessage();
+//	    msg.arg1 = eventId;
+//	    todotasks++;
+//	    mHandler.sendMessage(msg);
+//	    
 		AsyncTask<Void, Void, Void> t = new AsyncTask<Void, Void, Void>() {
 
 			@Override
@@ -325,7 +498,7 @@ public class AppHandlerService extends Service implements
 				// TODO Auto-generated method stub
 
 				try {
-					Thread.sleep(0);
+					Thread.sleep(1000);
 				} catch (InterruptedException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
@@ -617,6 +790,11 @@ public class AppHandlerService extends Service implements
 						user_data.name);
 
 				getAndSaveBitmap(data.getString("picture"));
+//				Message msg = mHandler.obtainMessage();
+//			    msg.arg1 = 999999;
+//			    msg.obj = data.getString("picture");
+			    //todotasks++;
+			   // mHandler.sendMessage(msg);
 				// next step in getAndSaveBitmap function
 				mSharedPreferencesEditor.commit();
 				addProgressTask("User information fetch complete");
@@ -735,6 +913,7 @@ public class AppHandlerService extends Service implements
 
 		};
 		t.execute();
+		
 	}
 
 	@Override
@@ -944,6 +1123,16 @@ public class AppHandlerService extends Service implements
 						return null;
 					}};
 				t.execute();
+//					try {
+//						Thread.sleep(1000);
+//						//todotasks--;
+//						//TriggerEvent(Common.GRAVITY_REGISTER);
+//						GravityRegister();
+//					} catch (InterruptedException e) {
+//						// TODO Auto-generated catch block
+//						e.printStackTrace();
+//					}
+					
 			
 		}
 	}
@@ -1104,6 +1293,7 @@ public class AppHandlerService extends Service implements
 										.getColumnIndex(ContactsContract.Contacts.DISPLAY_NAME));
 						user.image = loadContactPhoto(photoid);
 						// users.add(user);
+						if(add)
 						db.users.Add(user);//.User_New(user);
 //
 //						s.add(rawContacts.getString(rawContacts
@@ -1173,15 +1363,29 @@ public class AppHandlerService extends Service implements
 				addProgressTask(e.getLocalizedMessage());
 			}
 		} else {
+			try {
+				Thread.sleep(0);
+			} catch (InterruptedException e1) {
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
+			}
 			ArrayList<UserModel> db_data = db.users.Get();//.User_List();
 			ArrayList<UserModel> contacts_data = getUserContacts(false);
-			for (UserModel c_user : contacts_data) {
+			for(int i = 0;i<contacts_data.size();i++)
+			{
+				UserModel c_user = contacts_data.get(i);
+			//for (UserModel c_user : contacts_data) {
 				boolean found = false;
 				for (UserModel db_user : db_data) {
 					try {
 						String c1 = db_user.contact_id;
 						String c2 = c_user.contact_id;
-						if (db_user.contact_id == c_user.contact_id
+						if(db_user.displayName!= null && db_user.displayName.equals("Me")){
+							db_data.remove(db_user);
+							found = true;break;
+						}
+						if(c1==null || c2 == null);
+						else if (db_user.contact_id == c_user.contact_id
 								|| db_user.contact_id.equals(c_user.contact_id)) {
 							found = true;
 							db_user.displayName = c_user.displayName;
@@ -1194,12 +1398,22 @@ public class AppHandlerService extends Service implements
 						}
 
 					} catch (Exception e) {
-
+						addProgressTask(e.getMessage());
+					}
+					
+				}
+				
+				try{
+					
+					if (!found) {
+						db.users.Add(c_user);//.User_New(c_user);
 					}
 				}
-				if (!found) {
-					db.users.Add(c_user);//.User_New(c_user);
+				catch(Exception e)
+				{
+					addProgressTask(e.getMessage());
 				}
+				
 			}
 		}
 		addProgressTask("user sync complete");
