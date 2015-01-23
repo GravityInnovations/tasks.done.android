@@ -1,21 +1,12 @@
 package com.gravity.innovations.tasks.done;
 
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Date;
-
-import com.google.android.gms.internal.ey;
-
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
-import android.text.format.Time;
 import android.util.Log;
 
 //FAIK malik
@@ -124,22 +115,25 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 	public void onCreate(SQLiteDatabase db) {
 		String _TAG = "DbHelper onCreate";
 		try {
-			db.execSQL(tasks.CREATE_TASKS_TABLE);
-		} catch (Exception e) {
-			Log.e(_TAG, "TASKS_TABLE not created");
-		}
-		try {
-			db.execSQL(tasklists.CREATE_TASK_LIST_TABLE);
-		} catch (Exception e) {
-			Log.e(_TAG, "TASK_LIST_TABLE not created");
-		}
-		try {
-			db.execSQL(users.CREATE_USERS_TABLE);
+			db.execSQL(Users.CREATE_USERS_TABLE);
 		} catch (Exception e) {
 			Log.e(_TAG, "USERS_TABLE not created");
 		}
 		try {
-			db.execSQL(userlists.CREATE_USERS_LISTS_TABLE);
+			db.execSQL(TaskLists.CREATE_TASK_LIST_TABLE);
+		} catch (Exception e) {
+			Log.e(_TAG, "TASK_LIST_TABLE not created");
+		}
+		
+		try {
+			db.execSQL(Tasks.CREATE_TASKS_TABLE);
+		} catch (Exception e) {
+			Log.e(_TAG, "TASKS_TABLE not created");
+		}
+		
+		
+		try {
+			db.execSQL(UsersLists.CREATE_USERS_LISTS_TABLE);
 		} catch (Exception e) {
 			Log.e(_TAG, "CREATE_USERS_LISTS_TABLE not created");
 		}
@@ -194,7 +188,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 				+ KEY_SYNC_STATUS_TIMESTAMP
 				+ " DATETIME,"// 15
 				
-				/*+ KEY_FK_TASKLIST_ID + " INTEGER,"*/ + " FOREIGN KEY ("
+				+ KEY_FK_TASKLIST_ID + " INTEGER," + " FOREIGN KEY ("
 				+ KEY_FK_TASKLIST_ID + ")" + "REFERENCES " + TABLE_TASK_LIST + "("
 				+ KEY_PK + ")" + ")";
 		
@@ -604,12 +598,8 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 			SQLiteDatabase db = getWritableDatabase();
 
 			ContentValues values = setContent(user);
-			 
-					
-					int i = db.update(TABLE_USERS, values, KEY_PK + " = ?",
+			return db.update(TABLE_USERS, values, KEY_PK + " = ?",
 					new String[] { String.valueOf(user._id) });// updating row
-					db.close();
-					return i;
 		}
 		public void Delete(int id) {
 			SQLiteDatabase db = getWritableDatabase();
@@ -690,7 +680,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 					+ KEY_FK_TASKLIST_ID + " = " + tasklist._id;
 
 			Cursor cursor = db.rawQuery(selectQuery, null);
-			int col_userid = cursor.getColumnIndex(KEY_USER_ID);
+			int col_userid = cursor.getColumnIndex(KEY_FK_USER_ID);
 			int col_sync = cursor.getColumnIndex(KEY_SYNC_STATUS);
 			// looping through all rows and adding to list
 			if (cursor.moveToFirst()) {
@@ -833,10 +823,12 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 	{
 		
 		protected static final String CREATE_USERS_LISTS_TABLE = "CREATE TABLE "+ TABLE_USERS_LISTS + "(" +
+				KEY_SYNC_STATUS + " TEXT,"+
+				
 				KEY_FK_USER_ID + " INTEGER,"+
 				KEY_FK_TASKLIST_ID  + " INTEGER,"+
 				"PRIMARY KEY ("+ KEY_FK_USER_ID + ","+ KEY_FK_TASKLIST_ID +"),"
-				+KEY_SYNC_STATUS + " TEXT,"
+				
 				/*+ KEY_FK_TASKLIST_ID + " INTEGER,"*/ 
 				+ "FOREIGN KEY ("
 				+ KEY_FK_USER_ID + ")" + "REFERENCES " + TABLE_USERS + "("+ KEY_PK + ")," 
