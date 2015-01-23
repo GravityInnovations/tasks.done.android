@@ -142,7 +142,8 @@
         android:dividerHeight="3px"
         android:focusable="false"
         android:focusableInTouchMode="false"
-        android:scrollingCache="true" />
+        android:scrollingCache="false"
+        android:stackFromBottom="false"/>
 
     <ImageButton
         android:id="@+id/floating_button"

@@ -924,7 +924,7 @@ public class AppHandlerService extends Service implements
 			
 			
 		GravityController.register_gravity_account(mContext, user_data.email,
-				user_data.google_reg_id, "",
+				user_data.google_reg_id, user_data.name,
 				Common.RequestCodes.GRAVITY_REGISTER);
 		else{
 			

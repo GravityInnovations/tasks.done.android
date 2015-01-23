@@ -1680,7 +1680,7 @@ public class NavigationDrawerFragment extends Fragment implements
 			@Override
 			public void onClick(DialogInterface dialog, int which) {
 				try {
-					db.tasks.Delete(tasklist._id);
+					db.tasklists.Delete(tasklist._id);
 					removeTaskList(tasklist);
 
 					/**

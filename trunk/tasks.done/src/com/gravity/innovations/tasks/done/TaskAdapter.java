@@ -3,6 +3,7 @@ package com.gravity.innovations.tasks.done;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Set;
+
 import android.app.Activity;
 import android.content.Context;
 import android.util.Log;
@@ -10,6 +11,8 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
 import android.widget.ArrayAdapter;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
@@ -131,38 +134,52 @@ public class TaskAdapter extends ArrayAdapter<TaskModel> {
 
 					@Override
 					public void onClick(View v) {
-						if ((Integer) v.getTag() == R.drawable.task_row_bg) {
+						TaskModel temp = task_data.get(pos);
+						if (temp.completed == 0) {
+							if ((Integer) v.getTag() == R.drawable.task_row_bg) {
 
-							TaskModel temp = task_data.get(pos);
-							temp.updateTimeNow();
-							temp.completed = 1;
-							boolean flag = mNavigationDrawerFragment
-									.MarkDoneTask(mTaskListModel, temp);
+								temp.updateTimeNow();
+								temp.completed = 1;
+								boolean flag = mNavigationDrawerFragment
+										.MarkDoneTask(mTaskListModel, temp);
 
-							if (flag) {
-								((ImageView) v)
-										.setImageResource(R.drawable.task_row_done_bg);
-								v.setTag(R.drawable.task_row_done_bg);
-								temp.title = temp.title;
+								if (flag) {
+									((ImageView) v)
+											.setImageResource(R.drawable.task_row_done_bg);
+									v.setTag(R.drawable.task_row_done_bg);
+									temp.title = temp.title;
 
-								notifyDataSetChanged();
-								//rearrangeList(pos, row2);
-								// animatedSwapWithNextItem(pos);
+									notifyDataSetChanged();
+									// rearrangeList(pos, row2);
+									// animatedSwapWithNextItem(pos);
+									// m tsting
+									swapWithNextItem(pos);
+									notifyDataSetChanged();
+								}
+
 							}
 
 						} else {
-							TaskModel temp = task_data.get(pos);
-							temp.completed = 0;
-							temp.updateTimeNow();
-							boolean flag = mNavigationDrawerFragment
-									.MarkDoneTask(mTaskListModel, temp);
-							if (flag) {
-								((ImageView) v)
-										.setImageResource(R.drawable.task_row_bg);
-								v.setTag(R.drawable.task_row_bg);
-								notifyDataSetChanged();
+							// TaskModel temp = task_data.get(pos);
+
+							if (temp.completed == 1) {
+
+								temp.completed = 0;
+								temp.updateTimeNow();
+								boolean flag = mNavigationDrawerFragment
+										.MarkDoneTask(mTaskListModel, temp);
+								if (flag) {
+									((ImageView) v)
+											.setImageResource(R.drawable.task_row_bg);
+									v.setTag(R.drawable.task_row_bg);
+									notifyDataSetChanged();
+									swapWithPreviousItem(pos);
+									notifyDataSetChanged();
+								}
 							}
+
 						}
+
 					}
 				});
 
@@ -267,9 +284,94 @@ public class TaskAdapter extends ArrayAdapter<TaskModel> {
 
 	}
 
+	// M listitem swap
+
+	public void swapWithNextItem(int pos) {
+		// TaskModel tempAtPosiionN = task_data.get(pos); //marked as done
+		// TaskModel tempAtPosiionNplusOne = task_data.get(pos+1);
+		for (int i = pos; i <= task_data.size() - 1; i++) {
+			
+			TaskModel tempAtPositionN = task_data.get(pos); //focus item
+			TaskModel tempAtPosiionNplusOne = task_data.get(pos + 1); //next item
+			
+			//task_data.remove(tempAtPositionN);
+			//notifyDataSetChanged();
+			task_data.set(pos, tempAtPosiionNplusOne);
+			
+			int nextPosition = pos + 1;
+			//task_data.remove(tempAtPosiionNplusOne);
+			//notifyDataSetChanged();
+			task_data.set(nextPosition, tempAtPositionN);
+			
+			//finall mover 
+			++pos;
+			
+			notifyDataSetChanged();
+			
+			// Animation animationFadeIn = AnimationUtils.loadAnimation(
+			// this.mContext, R.anim.fade_in);
+			// row.startAnimation(animationFadeIn);
+
+		}
+	}
+
+	public void swapWithPreviousItem(int pos) {
+		// TaskModel tempAtPosiionN = task_data.get(pos); //marked as done
+		// TaskModel tempAtPosiionNplusOne = task_data.get(pos+1);
+		for (int i =  pos; i <= task_data.size() - 1;  i--) {
+			TaskModel tempAtPositionN = task_data.get(pos);
+			TaskModel tempAtPosiionNminusOne = task_data.get(pos - 1);
+			task_data.set(pos, tempAtPosiionNminusOne);
+			task_data.set(--pos, tempAtPositionN);
+			notifyDataSetChanged();
+
+			// Animation animationFadeIn = AnimationUtils.loadAnimation(
+			// this.mContext, R.anim.fade_in);
+			// row.startAnimation(animationFadeIn);
+
+		}
+	}
+
+	public void arrangeList(final int pos/* , final View row */) {
+		int currentpos = pos;// consider pos = 0 and task_data=4
+		for (int i = pos; i < task_data.size() - 1; i++) {
+			swapWithLastItem(currentpos);
+			/*
+			 * boolean flag = swapWithLastItem(currentpos/* , row ); /* if
+			 * (flag) { currentpos++; } else { break; }
+			 */
+		}
+		notifyDataSetChanged();
+
+	}
+
+	public void swapWithLastItem(int pos/* , View row */) { // this will work
+															// for done
+		TaskModel temp0 = task_data.get(pos); // model on 0 position
+		int postionLast = task_data.size() - 1; // gives the last postion
+		TaskModel tempLast = task_data.get(postionLast);// last Model
+		// at first move the temp0 item to the last
+		task_data.set(postionLast, temp0);
+		task_data.set(pos, tempLast);
+		// task_data.set(pos, temp2);
+		// task_data.set(pos + 1, temp1);
+	}
+
+	public void swapWithFirstItem(int pos) { // this will work for undone
+		TaskModel tempAtPositionN = task_data.get(pos); // model on n position
+														// clicked
+		int indexPostionZero = 0; // gives the item at zero position
+		TaskModel tempAtPositionZero = task_data.get(indexPostionZero);// last
+																		// Model
+		// at first move the temp0 item to the last
+		task_data.set(0, tempAtPositionN); // moved to first position on adapter
+		task_data.set(pos, tempAtPositionZero);
+	}
+
+	// M listitem swap
+
 	private void rearrangeList(final int pos, final View row) {
 		int currentpos = pos;
-
 		for (int i = pos; i < task_data.size() - 1; i++) {
 			boolean flag = animatedSwapWithNextItem(currentpos, row);
 			if (flag) {
