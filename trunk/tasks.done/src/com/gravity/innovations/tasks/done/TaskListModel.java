@@ -3,7 +3,7 @@ package com.gravity.innovations.tasks.done;
 import java.util.ArrayList;
 
 public class TaskListModel {
-	public int _id;
+	public int _id = -1;
 	public String title;
 	//public String gravity_id = "";
 
@@ -20,6 +20,7 @@ public class TaskListModel {
 	public ArrayList<TaskModel> tasks = new ArrayList<TaskModel>(); // task_data;
 	public ArrayList<UserModel> users = new ArrayList<UserModel>(); // task_data;
 	public String fragmentColor;
+	public UserModel owner;
 // ********* Constructors *********//
 	public TaskListModel() {
 		_id = -1;

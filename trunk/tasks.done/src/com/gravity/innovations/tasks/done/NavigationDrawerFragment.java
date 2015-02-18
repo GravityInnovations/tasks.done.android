@@ -656,7 +656,7 @@ public class NavigationDrawerFragment extends Fragment implements
 		return ((ActionBarActivity) getActivity()).getSupportActionBar();
 	}
 
-	private void addTaskList(TaskListModel temp) {
+	public void addTaskList(TaskListModel temp) {
 		data.add(temp);
 		// this.mAdapter.add(temp);
 		this.mAdapter.notifyDataSetChanged();
@@ -889,13 +889,18 @@ public class NavigationDrawerFragment extends Fragment implements
 		}
 
 	}
-	public void addUserShareInAdapter(String tasklistId, String userids)
+	public void addUserShareInAdapter(String tasklistId, String userids, boolean updateUsersAdapter)
 	{
+		
 		for(int i =0; i<mAdapter.getCount();i++)//TaskListModel temp:this.data)
 		{
 			TaskListModel temp = mAdapter.getItem(i);
 			if(temp.server_id == tasklistId || temp.server_id.equals(tasklistId))
 			{
+				if(updateUsersAdapter)
+				{
+					temp.users = db.users.Get(temp);
+				}
 				for(UserModel user:temp.users)
 				{
 					if(user.server_id!= null && userids.contains(user.server_id))
@@ -1861,7 +1866,7 @@ public class NavigationDrawerFragment extends Fragment implements
 			db.users.Share(mTaskList, final_users);//.UserList_New(mTaskList, final_users);
 		//for (UserModel user : del_users)
 		if(del_users.size()>0)
-		db.users.Share(mTaskList, del_users);// del
+		db.users.Share_Remove(mTaskList, del_users);// del
 	}
 
 	public class GetUTC {

@@ -70,6 +70,8 @@ public class GravityController {
 		postData.add(new BasicNameValuePair("deviceid", user_data.google_reg_id));
 		postData.add(new BasicNameValuePair("userid", user_data.gravity_user_id));
 		postData.add(new BasicNameValuePair("dataid",tasklist._id+""));
+		postData.add(new BasicNameValuePair("color", tasklist.fragmentColor));
+		postData.add(new BasicNameValuePair("icon",tasklist.icon_identifier+""));
 		//add or edit
 		if(tasklist.server_id!= ""){
 			postData.add(new BasicNameValuePair("_id", tasklist.server_id));

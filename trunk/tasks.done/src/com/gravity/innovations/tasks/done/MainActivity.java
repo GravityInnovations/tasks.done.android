@@ -106,7 +106,22 @@ public class MainActivity extends ActionBarActivity implements
 
 		super.onStop();
 	}
+	@Override
+	protected void onPause() {
+		// TODO Auto-generated method stub
 
+		super.onPause();
+		if(service!=null)
+			service.onActivityOpen(null, null);
+	}
+	@Override
+	protected void onResume() {
+		// TODO Auto-generated method stub
+
+		super.onResume();
+		if(service!=null)
+			service.onActivityOpen(this, this);
+	}
 	@Override
 	protected void onDestroy() {
 		// TODO Auto-generated method stub
@@ -115,6 +130,7 @@ public class MainActivity extends ActionBarActivity implements
 			service.onActivityOpen(null, null);
 
 	}
+	
 
 	// protected void onStart() {
 	// // TODO Auto-generated method stub
@@ -282,7 +298,7 @@ public class MainActivity extends ActionBarActivity implements
 				mTaskListFragment = new TaskListFragment();
 
 				mTaskListFragment.newInstance(temp, selectTaskId,
-						mNavigationDrawerFragment);
+						mNavigationDrawerFragment, service);
 
 				fragmentManager
 						.beginTransaction()

@@ -411,8 +411,41 @@ public class Common {
 			builder.create().show();
 
 		}
-	}
+		public static AlertDialog.Builder TextDialog(Context mContext,AlertData data) {
+			// TODO Auto-generated method stub
+			AlertDialog.Builder builder = new AlertDialog.Builder(mContext);
+			builder.setIcon(android.R.drawable.ic_popup_reminder);
+			builder.setTitle(data.title);
+			builder.setCancelable(false);
+			builder.setMessage(data.message);
+			builder.setIcon(data.icon);
+			// builder.setView(view);
 
+			if (data.posListener != null) {
+				builder.setPositiveButton(data.posText, data.posListener);
+			}
+			if (data.negListener != null) {
+				builder.setNegativeButton(data.negText, data.negListener);
+			}
+			return builder;
+			//builder//.create().show();
+
+		}
+	}
+	public static class AlertData implements Serializable{
+		int icon; String title;
+		String message; String posText; String negText;
+		OnClickListener posListener; OnClickListener negListener;
+		AlertData(int icon, String title,
+				String message, String posText, String negText,
+				OnClickListener posListener, OnClickListener negListener)
+				{
+			this.icon=icon;
+			this.title=title;
+			this.message= message; this.posText= posText;this.negText=negText;
+			this.posListener=posListener; this.negListener=negListener;
+				}
+	}
 	public static class FormateTimeStrings {
 		// this class only return formated time String to the dialogs
 		public static String getFormatedDateTimeString(String remindAt) {

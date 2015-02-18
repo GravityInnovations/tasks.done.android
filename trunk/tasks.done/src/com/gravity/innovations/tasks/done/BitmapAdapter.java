@@ -17,12 +17,12 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 public class BitmapAdapter extends
-		ArrayAdapter<Bitmap> {
+		ArrayAdapter<UserModel> {
 	private Context mContext;
 	private Activity mActivity;
 	private GridView mGridView;
 	
-	public BitmapAdapter(Context context, GridView mGridView, int resource, ArrayList<Bitmap> objects, Activity mActivity) {
+	public BitmapAdapter(Context context, GridView mGridView, int resource, ArrayList<UserModel> objects, Activity mActivity) {
 		super(context, resource, objects);
 		this.mContext = mContext;
 		this.mActivity = mActivity;
@@ -55,21 +55,27 @@ public class BitmapAdapter extends
 			convertView = inflater.inflate(R.layout.grid_cell,parent, false);
 			holder = new ViewHolder();
 			holder.img =(ImageView) convertView.findViewById(R.id.grid_item_image);
+			holder.txt = (TextView)convertView.findViewById(R.id.grid_item_name);
 			convertView.setTag(holder);
 
 		} else {
 			holder = (ViewHolder) convertView.getTag();
 		}
 		Bitmap flatIcon, roundIcon;
+		UserModel m = this.getItem(position);
 		
-		
-			flatIcon = this.getItem(position);
+			flatIcon = getUserImage(m);//this.getItem(position);
 		
 		roundIcon =ImageGridAdapter.getRoundedCornerBitmap(flatIcon);
 		// Drawable imageThumb = new
 		// BitmapDrawable(mContext.getResources(),roundIcon);
 
 		holder.img.setImageBitmap(roundIcon);// .setImageResource(imageThumb);//(mThumbIds[position]);
+		if(m.name!=null)
+		holder.txt.setText(m.name);
+		else
+			holder.txt.setText(m.displayName);
+			
 		return convertView;
 		/*
 		 * View grid; LayoutInflater inflater = (LayoutInflater) mContext
@@ -83,7 +89,28 @@ public class BitmapAdapter extends
 		 * (View) convertView; } return grid;
 		 */
 	}
+	public Bitmap getUserImage(UserModel user) {
+		Bitmap bmp =null;
+			if (user.image != null){
+				
+				Bitmap b = BitmapFactory.decodeByteArray(user.image, 0,
+						user.image.length);
+				b =  ImageGridAdapter.getRoundedCornerBitmap(b,user.image_alpha);
+				
+				bmp = b;
+			
+			}
+			else{
+				Bitmap b = BitmapFactory.decodeResource(mActivity.getResources(),
+						R.drawable.catag_personal);
+				b =  ImageGridAdapter.getRoundedCornerBitmap(b,user.image_alpha);
+				bmp = b;
+			}
+		
+		return bmp;
+	}
 	class ViewHolder {
 		ImageView img;
+		TextView txt;
 	}
 }

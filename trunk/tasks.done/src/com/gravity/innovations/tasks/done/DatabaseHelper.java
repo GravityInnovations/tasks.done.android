@@ -405,6 +405,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 			temp.server_id = c.getString(colServerID);
 			temp.updated = c.getString(colUpdatedAt);
 			temp.user_id = c.getInt(colUserID);
+			temp.owner = users.Get(temp.user_id);
 			temp.syncStatus = c.getString(colSyncStatus);
 			temp.syncStatusTimeStamp = c.getString(colSyncStatusTimeStamp);
 			temp.fragmentColor = c.getString(colFragmentColor);
@@ -488,12 +489,22 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 		}
 		public TaskListModel Get(String ServerId) {
 			SQLiteDatabase db = getReadableDatabase();
-			Cursor cursor = db.query(TABLE_TASK_LIST,null, KEY_SERVER_ID + "=?", new String[] { ServerId }, null, null,
-					null, null);
-			if (cursor != null)
-				cursor.moveToFirst();
+			String selectQuery = "SELECT  * FROM " + TABLE_TASK_LIST + " WHERE "+ KEY_SERVER_ID + " = '"+ServerId+"'";
+			
+			Cursor cursor = db.rawQuery(selectQuery, null);
+//			Cursor cursor = db.query(TABLE_TASK_LIST,null, KEY_SERVER_ID + "=?", new String[] { ServerId }, null, null,
+//					null, null);
+			if (cursor != null && cursor.moveToFirst())
+				;
 
-			TaskListModel tasklist = getValuesFromCursor(cursor);
+			TaskListModel tasklist = new TaskListModel();
+			try{
+			tasklist = getValuesFromCursor(cursor);
+			}
+			catch(Exception e)
+			{
+				String s = "";
+			}
 			// return TaskModel
 			cursor.close();
 			db.close();
@@ -615,17 +626,63 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 			db.delete(TABLE_USERS, null, null);
 			db.close();
 		}
-		public UserModel Get(String ServerId) {
+		public UserModel Get(int id) {
 			SQLiteDatabase db = getReadableDatabase();
-			Cursor cursor = db.query(TABLE_USERS,null, KEY_SERVER_ID + "=?", new String[] { ServerId }, null, null,
-					null, null);
 			UserModel user = null;
-			if (cursor != null){
-				cursor.moveToFirst();
+			Cursor cursor = null;
+			try{
+				String selectQuery = "SELECT  * FROM " + TABLE_USERS + " WHERE "+ KEY_PK + " = '"+id+"'";
+	
+			cursor = db.rawQuery(selectQuery, null);
+			//.query(TABLE_USERS,null, KEY_SERVER_ID + "= ? ", new String[] { ServerId }, null, null,
+					//null, null);
+			
+			if (cursor != null && cursor.moveToFirst()){
+				
 
 			user = getValuesFromCursor(cursor);
 			}
+			
 			// return TaskModel
+			
+			}
+			catch(Exception e)
+			{
+				String s="";
+				
+			}
+			if(cursor!=null)
+			cursor.close();
+			db.close();
+			return user;
+		}
+		
+		public UserModel Get(String ServerId) {
+			SQLiteDatabase db = getReadableDatabase();
+			UserModel user = null;
+			Cursor cursor = null;
+			try{
+				String selectQuery = "SELECT  * FROM " + TABLE_USERS + " WHERE "+ KEY_SERVER_ID + " = '"+ServerId+"'";
+	
+			cursor = db.rawQuery(selectQuery, null);
+			//.query(TABLE_USERS,null, KEY_SERVER_ID + "= ? ", new String[] { ServerId }, null, null,
+					//null, null);
+			
+			if (cursor != null && cursor.moveToFirst()){
+				
+
+			user = getValuesFromCursor(cursor);
+			}
+			
+			// return TaskModel
+			
+			}
+			catch(Exception e)
+			{
+				String s="";
+				
+			}
+			if(cursor!=null)
 			cursor.close();
 			db.close();
 			return user;
@@ -634,7 +691,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 			ArrayList<UserModel> data = new ArrayList<UserModel>();
 			try {
 				// Select All Query
-				String selectQuery = "SELECT  * FROM " + TABLE_USERS;
+				String selectQuery = "SELECT  * FROM " + TABLE_USERS + " ORDER BY "+ KEY_USER_NAME+ " DESC, "+KEY_DISPLAY_NAME + " ASC";
 
 				SQLiteDatabase db = getWritableDatabase();
 
@@ -644,6 +701,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 				if (cursor.moveToFirst()) {
 					do {
 						UserModel userModel = getValuesFromCursor(cursor);
+						if(userModel.displayName.toString()!= "Me" && !userModel.displayName.equals("Me"))
 						data.add(userModel);
 					} while (cursor.moveToNext());
 				}
@@ -677,7 +735,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 			ArrayList<Integer> users_ids2 = new ArrayList<Integer>();
 			SQLiteDatabase db = getReadableDatabase();
 			String selectQuery = "SELECT  * FROM " + TABLE_USERS_LISTS + " WHERE "
-					+ KEY_FK_TASKLIST_ID + " = " + tasklist._id;
+					+ KEY_FK_TASKLIST_ID + " = " + tasklist._id + " ORDER BY "+ KEY_SYNC_STATUS + " DESC";
 
 			Cursor cursor = db.rawQuery(selectQuery, null);
 			int col_userid = cursor.getColumnIndex(KEY_FK_USER_ID);
@@ -686,7 +744,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 			if (cursor.moveToFirst()) {
 				do {
 					// Adding TaskModel to list
-					if(cursor.getString(col_sync) == "Synced")
+					if(cursor.getString(col_sync) == "Synced" || cursor.getString(col_sync).equals("Synced"))
 					users_ids1.add(cursor.getInt(col_userid));
 					else
 						users_ids2.add(cursor.getInt(col_userid));
@@ -712,11 +770,11 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 				return users;
 			
 		}
-		private int Share(TaskListModel tasklist, UserModel user) {
+		public int Share(TaskListModel tasklist, UserModel user, String syncStatus) {
 			// error, wrong foreign key
 			SQLiteDatabase db = getWritableDatabase();
 			
-			ContentValues values = userlists.setContent(new UsersListsModel(user._id, tasklist._id,"unsynced"));//new ContentValues();
+			ContentValues values = userlists.setContent(new UsersListsModel(user._id, tasklist._id,syncStatus));//new ContentValues();
 			
 			int id = (int) db.insert(TABLE_USERS_LISTS, null, values);
 			db.close();
@@ -724,15 +782,16 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 		}
 		
 		public int Share(TaskListModel tasklist, ArrayList<UserModel> users) {
-			// error, wrong foreign key
 			int id = -1;
 			String dataids = "";
 			for(UserModel user:users){
-				id = this.Share(tasklist, user);
+				if(user._id != tasklist.user_id){
+				id = this.Share(tasklist, user, "unsynced");
 				if(id!=-1)
 					dataids += id+",";
 				else
 					users.remove(user);
+				}
 			}
 			if(tasklist.server_id != null && tasklist.server_id != "" && service.hasInternet && service.user_data.is_sync_type)
 			{
@@ -756,9 +815,17 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 			values.put(KEY_SYNC_STATUS, "Synced");
 			
 		
-			int i = db.update(TABLE_USERS_LISTS, values, KEY_USER_ID + " = ? AND "+ KEY_FK_TASKLIST_ID + " = ?",
+			int i =-1;
+			try{
+			i = db.update(TABLE_USERS_LISTS, values, KEY_FK_USER_ID + " = ? AND "+ KEY_FK_TASKLIST_ID + " = ? ",
 					new String[] {  UserId+"",TasklistId+"" });
+			
 			db.close();
+			}
+			catch(Exception e)
+			{
+				String x = "";
+			}
 			return i;
 			
 			

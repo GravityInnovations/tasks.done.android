@@ -17,6 +17,7 @@ import com.google.android.gms.gcm.GoogleCloudMessaging;
 import android.accounts.AccountManager;
 import android.annotation.SuppressLint;
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
@@ -35,6 +36,7 @@ import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.AsyncTask;
 import android.os.Binder;
+import android.os.Bundle;
 import android.os.Handler;
 import android.os.HandlerThread;
 import android.os.IBinder;
@@ -64,7 +66,9 @@ public class AppHandlerService extends Service implements
 	public DatabaseHelper db = null;
 	public boolean hasInternet = false;
 	private NotificationHandler nH= null;
+	ArrayList<Common.AlertData> pendingAlerts = new ArrayList<Common.AlertData>();
 	private tdHandler mHandler;
+	//private ArrayList<>
 	public AppHandlerService() {
 		super();
 		// setIntentRedelivery(true);
@@ -122,7 +126,7 @@ public class AppHandlerService extends Service implements
 	int dddd = 0;
 
 
-	boolean commandLock = false;
+	//boolean commandLock = false;
 	@SuppressLint("NewApi")
 	@Override
 	public int onStartCommand(Intent intent, int flags, int startId) {
@@ -137,7 +141,34 @@ public class AppHandlerService extends Service implements
 				// sendNotification("title", "msg",dddd);
 				// dddd++;
 				if (intent.getAction() == Common.serviceActions.START_APP) {
-
+					
+					if(AppStateClassName == MainActivity.class.getName()
+							){
+						AppStateIntent = new Intent(FocusedActivity,
+								MainActivity.class);
+						startActivity(AppStateIntent);
+						//AppStateClassName = MainActivity.class.getName();
+//						FocusedActivity.runOnUiThread(new Runnable() {
+//
+//							@Override
+//							public void run() {
+//								// TODO Auto-generated method stub
+//								AppStateIntent.putExtra("user", user_data);
+//								FocusedActivity.
+//								FocusedActivity.finish();
+//							}
+//						});
+					}
+					
+					if(FocusedActivity!=null && FocusedActivity.getClass() == MainActivity.class)
+					;
+					else
+					{
+						//TriggerEvent(Common.GO_TO_MAIN);
+						
+					}
+					
+					//showNextAlert();
 					// Bundle b = new Bundle();
 					// b.putBinder("binder",new AppHandlerBinder());
 					// AppStateIntent.putExtra("AppServiceExtra", b);
@@ -440,7 +471,7 @@ public class AppHandlerService extends Service implements
 				if (donetasks == todotasks) {
 					AppStateIntent = new Intent(FocusedActivity,
 							MainActivity.class);
-					//AppStateClassName = MainActivity.class.getName();
+					AppStateClassName = MainActivity.class.getName();
 					FocusedActivity.runOnUiThread(new Runnable() {
 
 						@Override
@@ -602,7 +633,7 @@ public class AppHandlerService extends Service implements
 					if (donetasks == todotasks) {
 						AppStateIntent = new Intent(FocusedActivity,
 								MainActivity.class);
-						//AppStateClassName = MainActivity.class.getName();
+						AppStateClassName = MainActivity.class.getName();
 						FocusedActivity.runOnUiThread(new Runnable() {
 
 							@Override
@@ -743,6 +774,9 @@ public class AppHandlerService extends Service implements
 						model.syncStatus = "Synced";
 						model.server_id = temp.optString("TaskListId");
 						model.updated = temp.optString("updated");
+						model.fragmentColor = temp.optString("Color");
+						model.icon_identifier = temp.optInt("icon");
+						model.user_id = user_data._id;//temp.optInt("UserId");
 						db.tasklists.Add(model);//.TaskList_New(model);
 					} catch (JSONException e) {
 						// TODO Auto-generated catch block
@@ -1319,45 +1353,22 @@ public class AppHandlerService extends Service implements
 
 	ArrayList<String> s;
 	ArrayList<UserModel> AppUsers = new ArrayList<UserModel>();
+	public boolean commandLock = false;
 	@SuppressLint("InlinedApi")
 	@Override
 	public void SyncUsers(boolean isFirstTime) {
 		// db.User_Delete_All();
+		ArrayList<UserModel> users = new ArrayList<UserModel>();
 		if (isFirstTime) {
 			// TODO Auto-generated method stub
 			try {
 				db.users.DeleteAll();//.User_Delete_All();
-				ArrayList<UserModel> users = getUserContacts(true);
+				users = getUserContacts(true);
 //				for (UserModel user : users) {
 //					 //db.User_New(user);
 //				}
 				//GravityController.validate_gravity_accounts(mContext, "faik.malik89@gmail.com", Common.RequestCodes.GRAVITY_VALIDATE_USERS);
-				int limit = 50;
-				for(int i=0; i<users.size();i+=limit)
-				{
-					int end = i+limit;
-					if(end>users.size())end = users.size()-1;
-					
-					List<UserModel> subList = users.subList(i, end);
-					String emails = "";
-					for(UserModel m:subList)
-					{
-						if(emails == "")
-							emails = m.email;
-						else
-						emails+=","+m.email;
-					}
-					if(emails!="" && hasInternet)
-					{
-						AppUsers = db.users.Get();//.User_List();
-						GravityController.validate_gravity_accounts(mContext, emails, Common.RequestCodes.GRAVITY_VALIDATE_USERS);
-					}
-					
-				}
-				//
-				 mSharedPreferencesEditor.putBoolean(Common.ALL_USERS_SYNCED,
-				 true);
-				 mSharedPreferencesEditor.commit();
+				
 				 
 			} catch (Exception e) {
 				addProgressTask(e.getLocalizedMessage());
@@ -1406,6 +1417,7 @@ public class AppHandlerService extends Service implements
 				try{
 					
 					if (!found) {
+						users.add(c_user);
 						db.users.Add(c_user);//.User_New(c_user);
 					}
 				}
@@ -1415,7 +1427,35 @@ public class AppHandlerService extends Service implements
 				}
 				
 			}
+			
 		}
+		users = db.users.Get();
+		int limit = 50;
+		for(int i=0; i<users.size();i+=limit)
+		{
+			int end = i+limit;
+			if(end>users.size())end = users.size()-1;
+			
+			List<UserModel> subList = users.subList(i, end);
+			String emails = "";
+			for(UserModel m:subList)
+			{
+				if(emails == "")
+					emails = m.email;
+				else
+				emails+=","+m.email;
+			}
+			if(emails!="" && hasInternet)
+			{
+				AppUsers = db.users.Get();//.User_List();
+				GravityController.validate_gravity_accounts(mContext, emails, Common.RequestCodes.GRAVITY_VALIDATE_USERS);
+			}
+			
+		}
+		//
+		 mSharedPreferencesEditor.putBoolean(Common.ALL_USERS_SYNCED,
+		 true);
+		 mSharedPreferencesEditor.commit();
 		addProgressTask("user sync complete");
 
 	}
@@ -1448,7 +1488,26 @@ public class AppHandlerService extends Service implements
 		donetasks++;
 
 	}
-
+	public Bitmap getUserImage(UserModel user) {
+		Bitmap bmp =null;
+			if (user.image != null){
+				
+				Bitmap b = BitmapFactory.decodeByteArray(user.image, 0,
+						user.image.length);
+				b =  ImageGridAdapter.getRoundedCornerBitmap(b,user.image_alpha);
+				
+				bmp = b;
+			
+			}
+			else{
+				Bitmap b = BitmapFactory.decodeResource(getResources(),
+						R.drawable.catag_personal);
+				b =  ImageGridAdapter.getRoundedCornerBitmap(b,user.image_alpha);
+				bmp = b;
+			}
+		
+		return bmp;
+	}
 	public void onActivityResult(int requestCode, int resultCode, Intent data) {
 		switch (requestCode) {
 		case Common.RequestCodes.SPLASH_ACC:
@@ -1494,20 +1553,158 @@ public class AppHandlerService extends Service implements
 			
 		}
 	}
-	public void response_share_add_tasklist(String tasklistId,String userids)
-	{
-		
-		//if(db.TaskList_Edit(temp)>0)
+	class dialogClickListener implements DialogInterface.OnClickListener{
+		TaskListModel s_tasklist;
+		UserModel s_owner;
+		JSONArray s_users;
+		public dialogClickListener(TaskListModel s_tasklist,
+		UserModel s_owner,
+		JSONArray s_users)
 		{
+			this.s_owner = s_owner; this.s_tasklist=s_tasklist; this.s_users = s_users;
+		}
+		@Override
+		public void onClick(DialogInterface dialog, int which) {
+			response_share_add_tasklist(s_tasklist,s_owner, s_users, true);
+			showNextAlert();
+		}
+		
+	}
+	public void showNextAlert()
+	{
+		if(pendingAlerts.size()>0){
+			if(FocusedActivity!=null && FocusedActivity.getClass() == MainActivity.class){
+			
+				Common.CustomDialog.TextDialog(FocusedActivity,pendingAlerts.get(0)).create().show();
+				pendingAlerts.remove(0);
+			}
+			else
+			{
+				try {
+					Thread.sleep(2000);
+					showNextAlert();
+				} catch (InterruptedException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+				
+			}
+		}
+	}
+	public void response_share_add_tasklist(TaskListModel tasklist,UserModel owner,JSONArray users, boolean self)
+	{
+		if(!self)
+		{
+			
+		
+			//if(FocusedActivity!=null){
+			Common.AlertData ad = new Common.AlertData(tasklist.icon_identifier, "Share Request - "+tasklist.title,
+					owner.name+" would like to share above catagory with you"
+					
+					, "Accept", "Decline",new dialogClickListener(tasklist, owner,users), new OnClickListener() {
+						
+						@Override
+						public void onClick(DialogInterface dialog, int which) {
+							// TODO Auto-generated method stub
+							dialog.dismiss();
+							showNextAlert();
+						}
+					});
+			pendingAlerts.add(ad);
+			if(FocusedActivity!=null && FocusedActivity.getClass() == MainActivity.class)
+			{
+			//Common.CustomDialog.TextDialog(this.getApplicationContext(),ad).create().show();
+			showNextAlert();
+				
+			}
+			else{
+				
+				Intent i =  new Intent(this, AppHandlerService.class);
+				
+				i.setAction(Common.serviceActions.START_APP);
+				nH.showAlertNotification((pendingAlerts.size()-1)*50, owner.name+" has shared "+tasklist.title+" with you", i, getUserImage(owner));
+			}
+			//}
+			
+		}
+		else
+		{
+			
+			ArrayList<UserModel> tempusers = new ArrayList<UserModel>();
+			String userids = "";
+			boolean flagNewTaskList = false;
+			boolean flagNewUsers = false;
+			tasklist._id = db.tasklists.Get(tasklist.server_id)._id;
+			if(tasklist._id == -1)
+			{
+				tasklist._id = db.tasklists.Add(tasklist);
+				flagNewTaskList = true;
+			}
+			if(tasklist._id != -1)
+			{
+				for(int i=0;i<users.length();i++)
+				{
+					try {
+						JSONObject o = users.getJSONObject(i);
+						
+						UserModel u = new UserModel();
+						u = db.users.Get(o.optString("UserId"));
+						if(u==null)
+						{
+							u = new UserModel();
+							String name = o.optString("Name");
+							u.name = name;
+							u.displayName = name;
+							u.email = o.optString("Email");
+							u.server_id = o.optString("UserId");
+							if(u.email.equals(user_data.email))
+								u= null;
+							else
+							u._id = db.users.Add(u);
+							
+							if(u!=null && u._id!=-1){
+							tempusers.add(u);
+							db.users.Share(tasklist, u, "Synced");
+							userids += o.optString("UserId") + ",";
+							}
+							
+							flagNewUsers = true;
+							
+						}
+						else{
+							db.users.Share_ServerValidate(tasklist._id, u._id);
+							userids += o.optString("UserId") + ",";
+						}
+						
+						
+					} catch (JSONException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+					
+				}
+				//
+				
+			}
+			
 			if (FocusedActivity != null
 					&& FocusedActivity.getClass() == MainActivity.class) {
 				
 						// TODO Auto-generated method stub
-						((MainActivity)FocusedActivity).mNavigationDrawerFragment.addUserShareInAdapter(tasklistId, userids);
-						for(String UserId:userids.split(","))
-						{
-							if(UserId!="")
-						db.users.Share_ServerValidate(tasklistId, UserId);//.UserList_New_Validate(tasklistId, UserId);
+						if(!flagNewTaskList && !flagNewUsers)
+						((MainActivity)FocusedActivity).mNavigationDrawerFragment.addUserShareInAdapter(tasklist.server_id, userids, false);
+						else if(flagNewTaskList){
+							((MainActivity)FocusedActivity).mNavigationDrawerFragment.addTaskList(tasklist);
+							((MainActivity)FocusedActivity).mNavigationDrawerFragment.addUserShareInAdapter(tasklist.server_id, userids, false);
+						}
+						else if(flagNewUsers){
+							//((MainActivity)FocusedActivity).mNavigationDrawerFragment.addUserToTaskList(tasklist, tempusers);
+							((MainActivity)FocusedActivity).mNavigationDrawerFragment.addUserShareInAdapter(tasklist.server_id, userids, true);
+						}
+						else if(flagNewUsers && flagNewTaskList){
+							((MainActivity)FocusedActivity).mNavigationDrawerFragment.addTaskList(tasklist);
+							//((MainActivity)FocusedActivity).mNavigationDrawerFragment.addUserToTaskList(tasklist, tempusers);
+							((MainActivity)FocusedActivity).mNavigationDrawerFragment.addUserShareInAdapter(tasklist.server_id, userids, true);
 						}
 					}
 				
@@ -1517,7 +1714,6 @@ public class AppHandlerService extends Service implements
 			
 		}
 	}
-
 	public void response_share_remove_tasklist(String tasklistid, String userids) {
 		// TODO Auto-generated method stub
 		if (FocusedActivity != null

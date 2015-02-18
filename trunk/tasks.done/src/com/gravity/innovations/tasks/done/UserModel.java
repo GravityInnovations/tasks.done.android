@@ -6,7 +6,7 @@ import org.json.JSONObject;
 public class UserModel {
 
 	// private variables
-	public int _id;
+	public int _id = -1;
 	public String name;
 	public String email;
 	public String server_id;
