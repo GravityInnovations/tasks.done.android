@@ -1,5 +1,6 @@
 package com.gravity.innovations.tasks.done;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -75,18 +76,20 @@ public class GcmBroadcastReceiver extends WakefulBroadcastReceiver {
 			String status = bundle.optString("status");
 			String message = bundle.optString("message");
 			String dataid = bundle.optString("dataid");
-			String userids = bundle.optString("userids");
+			JSONArray users = bundle.optJSONArray("users");
 			
 			JSONObject sender = bundle.optJSONObject("sender");
 			JSONObject data = bundle.optJSONObject("data");
 			if(status == TASKLIST_ADD || status.equals(TASKLIST_ADD))
 			{
 				//if self or not logic
-				if(mService.user_data.gravity_user_id!=null && sender.optString("UserId") !=null)
+				if(mService.user_data.gravity_user_id!=null && sender.optString("UserId") !=null){
 				if(mService.user_data.gravity_user_id == sender.optString("UserId") 
 					|| mService.user_data.gravity_user_id.equals(sender.optString("UserId"))){
 					//for self
 					validate_tasklist(Integer.parseInt(dataid), data);
+				}
+				
 				}
 				//temp.user_id = user._id;//data.optString("");
 			}
@@ -94,23 +97,38 @@ public class GcmBroadcastReceiver extends WakefulBroadcastReceiver {
 			{
 				//if self or not logic
 				if(mService.user_data.gravity_user_id!=null && sender.optString("UserId") !=null){
+					String tasklistid = data.optString("TaskListId");
+					String color = data.optString("Color");
+					int icon = data.optInt("icon");
+					TaskListModel tasklist = new TaskListModel();
+					String usid = data.optString("UserId");
+					UserModel owner = mService.db.users.Get(usid);
+					tasklist.server_id = tasklistid;
+					if(mService.user_data.gravity_user_id == usid 
+							|| mService.user_data.gravity_user_id.equals(usid)){
+						tasklist.user_id = mService.user_data._id;//owner._id;
+					}
+					else if(owner!=null)
+					{
+						tasklist.user_id = owner._id;
+					}
+					tasklist.owner = owner;
+					//tasklist.user_id = mService.user_data._id;//owner._id;
+					tasklist.title = data.optString("Title");
+					tasklist.icon_identifier = icon;
+					tasklist.fragmentColor = color;
+					tasklist.syncStatus = "Synced";
+					tasklist.updated = data.optString("updated");
 					if(mService.user_data.gravity_user_id == sender.optString("UserId") 
 						|| mService.user_data.gravity_user_id.equals(sender.optString("UserId"))){
-						//for self
-	//					String dataids = dataid;
-	//					for(String data_id:dataids.split(","))
-	//					{
-	//						
-	//					}
-						String tasklistid = data.optString("TaskListId");
-	//					TaskListModel temp = mService.db.TaskList_Single(Integer.parseInt(dataid));//new TaskListModel();
-	//					temp.syncStatus = "Synced";
-	//					//temp.gravity_id = data.optString("TaskListId");
-	//					temp.updated = data.optString("updated");
-						mService.response_share_add_tasklist(tasklistid, userids);
+					
+			
+						
+						mService.response_share_add_tasklist(tasklist,owner, users, true);
 					}
 					else {
 						
+						mService.response_share_add_tasklist(tasklist,owner, users, false);
 					}
 				
 				}
@@ -124,7 +142,7 @@ public class GcmBroadcastReceiver extends WakefulBroadcastReceiver {
 						
 						String tasklistid = data.optString("TaskListId");
 	//					
-						mService.response_share_remove_tasklist(tasklistid, userids);
+						//mService.response_share_remove_tasklist(tasklistid, userids);
 					}
 					else {
 						

@@ -4,6 +4,8 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 
+import com.google.android.gms.internal.db;
+
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.DialogInterface;
@@ -56,28 +58,31 @@ public class TaskListFragment extends Fragment {
 
 	private GridView mGridView;
 	private ImageView mImageView2;
-
+	private ImageView mTextView_ownerImage;
+	private TextView mTextView_ownerName;
+	private AppHandlerService mService;
 	public TaskListFragment() {
 
 	}
 
 	public void newInstance(TaskListModel temp, int _selectTaskId,
-			NavigationDrawerFragment mNavigationDrawerFragment) {
+			NavigationDrawerFragment mNavigationDrawerFragment, AppHandlerService mService) {
 		// TODO Auto-generated method stub
 		this.data = temp;
 
 		// updateRelativeTime();
 		this.mNavigationDrawerFragment = mNavigationDrawerFragment;
 		this.selectedTaskID = _selectTaskId;
+		this.mService = mService;
 		// this.mThumbIds= mThumbIds;
 	}
 
 	public void newInstance(TaskListModel temp,
-			NavigationDrawerFragment navigationDrawerFragment) {
+			NavigationDrawerFragment navigationDrawerFragment, AppHandlerService mService) {
 		this.data = temp;
 		// updateRelativeTime();
 		this.mNavigationDrawerFragment = navigationDrawerFragment;
-
+		this.mService = mService;
 	}
 
 	public Fragment getFragment() {
@@ -246,6 +251,24 @@ public class TaskListFragment extends Fragment {
 			else
 				mImageView2.setImageResource(R.drawable.ic_unsynced);
 
+			View lv_owner = lv_footer.findViewById(R.id.ownerinfo);
+			mTextView_ownerImage = (ImageView)lv_owner.findViewById(R.id.grid_item_image);
+			mTextView_ownerName = (TextView)lv_owner.findViewById(R.id.grid_item_name);
+			//UserModel owner =
+			if(data.user_id == mService.user_data._id)
+			{
+				Bitmap b = ImageGridAdapter.getRoundedCornerBitmap(Bitmap
+						.createScaledBitmap(mService.user_data.image,40, 40, true));
+				mTextView_ownerImage.setImageBitmap(b);
+				mTextView_ownerName.setText(mService.user_data.name);
+			}
+			else
+			{
+				Bitmap b = ImageGridAdapter.getRoundedCornerBitmap(getUserImage(data.owner));
+				mTextView_ownerImage.setImageBitmap(b);
+				mTextView_ownerName.setText(data.owner.name);
+			}
+			
 			mTextView_syncedTime = (TextView) lv_footer
 					.findViewById(R.id.time_sync);
 			try {
@@ -271,7 +294,7 @@ public class TaskListFragment extends Fragment {
 			// getUsersImages(((MainActivity)mActivity).getUsers());//new
 			// ArrayList<Bitmap>();//getUsersImages(this.data.users);
 			mUsersAdapter = new BitmapAdapter(mActivity, mGridView,
-					R.layout.grid_cell, users_images, mActivity);// new
+					R.layout.grid_cell, this.data.users, mActivity);// new
 																	// ImageGridAdapter(users_images,
 																	// getActivity().getApplicationContext());
 
@@ -577,7 +600,7 @@ public class TaskListFragment extends Fragment {
 				else
 					btn_shared.setVisibility(View.VISIBLE);
 				mUsersAdapter.clear();
-				mUsersAdapter.addAll(getUsersImages(sel_users));
+				mUsersAdapter.addAll(sel_users);//(getUsersImages(sel_users));
 				mUsersAdapter.notifyDataSetChanged();// = new ImageGridAdapter(,
 														// mActivity);
 				mNavigationDrawerFragment.addUserToTaskList(data, sel_users);
@@ -651,25 +674,30 @@ public class TaskListFragment extends Fragment {
 	public ArrayList<Bitmap> getUsersImages(ArrayList<UserModel> users) {
 		ArrayList<Bitmap> bmps = new ArrayList<Bitmap>();
 		for (UserModel user : users) {
+			bmps.add(getUserImage(user));
+		}
+		return bmps;
+	}
+	public Bitmap getUserImage(UserModel user) {
+		Bitmap bmp =null;
 			if (user.image != null){
 				
 				Bitmap b = BitmapFactory.decodeByteArray(user.image, 0,
 						user.image.length);
 				b =  ImageGridAdapter.getRoundedCornerBitmap(b,user.image_alpha);
 				
-				bmps.add(b);
+				bmp = b;
 			
 			}
 			else{
 				Bitmap b = BitmapFactory.decodeResource(mActivity.getResources(),
 						R.drawable.catag_personal);
 				b =  ImageGridAdapter.getRoundedCornerBitmap(b,user.image_alpha);
-				bmps.add(b);
+				bmp = b;
 			}
-		}
-		return bmps;
+		
+		return bmp;
 	}
-
 	// private void openShareDialog()
 	// {
 	// ArrayList<UserModel> temp_users = ((MainActivity)mActivity).getUsers();
