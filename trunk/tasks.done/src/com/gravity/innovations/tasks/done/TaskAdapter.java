@@ -10,6 +10,8 @@ import java.util.Set;
 import android.app.Activity;
 import android.content.Context;
 import android.graphics.Bitmap;
+import android.graphics.Color;
+import android.support.v7.appcompat.R.color;
 import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
@@ -120,15 +122,22 @@ public class TaskAdapter extends RecyclerView.Adapter {// <TaskAdapter.ViewHolde
 				if (task.relativeTime == "" || task.relativeTime == null)
 					task.updateRelativeTime(currentTimeMills);
 				viewHolder.tv_updatedAt.setText(task.relativeTime);
-
+				//viewHolder.iv_doneToggle.setBackgroundColor(Color.parseColor(mTaskListModel.fragmentColor));
 				try {
+					//viewHolder.iv_doneToggle.setBackgroundColor(Color.parseColor(mTaskListModel.fragmentColor));
+					float alpha = 0;
 					if (task.completed == 1) {
-						viewHolder.iv_doneToggle
-								.setImageResource(R.drawable.task_row_done_bg);
+						alpha = 1.0f;
+//						viewHolder.iv_doneToggle
+//								.setImageResource(R.drawable.task_row_done_bg);
+						//v//iewHolder.iv_doneToggle.setb
 					} else if (task.completed == 0) {
-						viewHolder.iv_doneToggle
-								.setImageResource(R.drawable.task_row_bg);
+//						viewHolder.iv_doneToggle
+//								.setImageResource(R.drawable.task_row_bg);
+						alpha = 0.10f;
 					}
+					viewHolder.iv_doneToggle.setBackgroundColor(adjustAlpha(Color.parseColor(mTaskListModel.fragmentColor), alpha));
+					
 				} catch (Exception e) {
 					Log.e("TaskAdapter", "iv_doneToggle");
 				}
@@ -266,7 +275,14 @@ public class TaskAdapter extends RecyclerView.Adapter {// <TaskAdapter.ViewHolde
 			}
 		}
 	}
-
+	public int adjustAlpha(int color, float alpha) {
+		//float f = alpha/100;
+		int a =Math.round(255 * alpha);//( 255 * (float)());
+	    int red = Color.red(color);
+	    int green = Color.green(color);
+	    int blue = Color.blue(color);
+	    return Color.argb(a, red, green, blue);
+	}
 	private int calculatePos(int pos) {
 		int pos_final = pos;
 		boolean completedExists = false;

@@ -119,7 +119,8 @@
             android:layout_alignParentRight="true"
             android:layout_below="@+id/alarm_toggle"
             android:focusable="false"
-            android:src="@drawable/task_row_bg" />
+            android:src="@drawable/task_row_mask"
+            android:background="#efefef" />
 
         <View
             android:id="@+id/itemDivider"

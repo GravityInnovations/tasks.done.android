@@ -153,4 +153,17 @@
         android:layout_alignRight="@+id/LL2"
         android:focusable="false" />
 
+    <com.gravity.innovations.custom.views.CalendarView
+        
+        android:id="@+id/calendar1"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_above="@+id/detail_done_toggle"
+        android:layout_alignParentLeft="true"
+        android:layout_alignRight="@+id/txt_time_synced"
+        android:layout_below="@+id/LL1"
+        android:layout_marginLeft="22dp" >
+
+    </com.gravity.innovations.custom.views.CalendarView>
+
 </RelativeLayout>
