@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent" >
+
+  <android.support.v7.widget.RecyclerView
+        xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:tools="http://schemas.android.com/tools"
+        android:id="@+id/cal"
+        
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:focusableInTouchMode="false" 
+        android:background="#fff"
+        
+         android:listSelector="@android:color/transparent"
+         />
+
+<!-- <GridView -->
+   
+<!--     android:layout_width="match_parent" -->
+<!--     android:layout_height="wrap_content" -->
+<!--     android:layout_centerHorizontal="true" -->
+<!--     android:layout_below="@+id/header_weeks" -->
+<!--     android:focusableInTouchMode="false" -->
+<!--     android:listSelector="@android:color/transparent" -->
+<!--     android:numColumns="7" -->
+<!--     android:scrollbars="none" -->
+<!--     android:stretchMode="columnWidth" > -->
+<!-- </GridView> -->
+
+    
+</RelativeLayout>

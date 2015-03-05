@@ -22,6 +22,8 @@ import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.app.Service;
+import android.content.ContentUris;
+import android.content.ContentValues;
 import android.content.Context;
 import android.content.DialogInterface.OnClickListener;
 import android.content.ContentResolver;
@@ -34,6 +36,7 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
+import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Binder;
 import android.os.Bundle;
@@ -43,8 +46,10 @@ import android.os.IBinder;
 import android.os.Looper;
 import android.os.Message;
 import android.provider.ContactsContract;
+import android.provider.ContactsContract.CommonDataKinds.StructuredName;
 import android.provider.ContactsContract.Data;
 import android.provider.ContactsContract.Contacts.Photo;
+import android.provider.ContactsContract.RawContacts;
 import android.support.v4.app.NotificationCompat;
 import android.widget.Toast;
 
@@ -96,7 +101,7 @@ public class AppHandlerService extends Service implements
 			AppStateClassName = SplashActivity.class.getName();
 			user_data = new Common.userData();
 			nH = new NotificationHandler(this);
-			
+			addContractContact();
 			// InitEvents();
 			
 			sendNotification("task.done", "background service is running", 2);
@@ -727,7 +732,37 @@ public class AppHandlerService extends Service implements
 			// runWorker
 		}
 	}
+	public void addContractContact()//UserModel temp)
+	{
+		try{
+		ContentValues p=new ContentValues();
+		p.put(RawContacts.ACCOUNT_TYPE, "com.google");
+	    p.put(RawContacts.ACCOUNT_NAME, "email");
+	    Uri rowcontect= getContentResolver().insert(RawContacts.CONTENT_URI, p);
+	    long rawcontectid=ContentUris.parseId(rowcontect);
+	    ContentValues value = new ContentValues();
+	    value.put(Data.RAW_CONTACT_ID,rawcontectid);
+	    value.put(android.provider.ContactsContract.Data.MIMETYPE,ContactsContract.Contacts.CONTENT_ITEM_TYPE);
+	    value.put(ContactsContract.Contacts.DISPLAY_NAME, "aaaa");
+	    value.put(ContactsContract.CommonDataKinds.Email.DATA, "test@gmail.com");
+	    getContentResolver().insert(ContactsContract.CommonDataKinds.Email.CONTENT_URI, value);
+	    //.DISPLAY_NAME
+//	    p.put(ContactsContract.CommonDataKinds.Email.DATA, "com.google");
+//	    p.put(ContactsContract.Contacts.DISPLAY_NAME, "aaaaaaaaaaaaaaaaaaaaaaaaaaa");
+//	    Uri rowcontect= getContentResolver().insert(ContactsContract.CommonDataKinds.Email.CONTENT_URI, p);
+//	    long rawcontectid=ContentUris.parseId(rowcontect);
 
+	    //ContentValues value = new ContentValues();
+//	    value.put(Data.RAW_CONTACT_ID,rawcontectid);
+//	    value.put(android.provider.ContactsContract.Data.MIMETYPE,StructuredName.CONTENT_ITEM_TYPE);
+//	    value.put(StructuredName.DISPLAY_NAME, "aaaaaaaaaaaaaaaaaa");
+//	    getContentResolver().insert(android.provider.ContactsContract.Data.CONTENT_URI, value);
+		}
+		catch(Exception e)
+		{
+			ContentValues value = new ContentValues();
+		}
+	}
 	public void httpResult(JSONObject data, int RequestCode, int ResultCode) {
 		switch (RequestCode) {
 		case Common.RequestCodes.GRAVITY_REGISTER:
@@ -776,8 +811,38 @@ public class AppHandlerService extends Service implements
 						model.updated = temp.optString("updated");
 						model.fragmentColor = temp.optString("Color");
 						model.icon_identifier = temp.optInt("icon");
+						if(temp.optString("UserId") != null &&
+								user_data.gravity_user_id.equals(temp.optString("UserId")))
 						model.user_id = user_data._id;//temp.optInt("UserId");
-						db.tasklists.Add(model);//.TaskList_New(model);
+						else if(temp.optString("UserId") != null)
+						{
+							UserModel m = db.users.Get(temp.optInt("UserId"));
+							if(m!=null)
+							{
+								model.user_id = m._id;
+							}
+							else{
+								m = new UserModel(temp.optJSONObject("Owner"));
+								
+								db.users.Add(m);
+							}
+						}
+						int id = db.tasklists.Add(model);//.TaskList_New(model);
+						JSONArray tasks = temp.optJSONArray("Tasks");
+						for (int j = 0; j < tasks.length(); j++) {
+							TaskModel taskModel = new TaskModel();
+							JSONObject taskObj = tasks.getJSONObject(j);
+							taskModel.title = taskObj.optString("Title");
+							taskModel.details = taskObj.optString("Details");
+							taskModel.notes = taskObj.optString("Notes");
+							if(taskObj.optBoolean("Completed"))
+							taskModel.completed = 1;//.optString("Title");
+							else taskModel.completed = 0;
+							taskModel.server_id =  taskObj.optString("TaskId");
+							
+							taskModel.fk_tasklist_id = id;
+							db.tasks.Add(taskModel);
+						}
 					} catch (JSONException e) {
 						// TODO Auto-generated catch block
 						e.printStackTrace();
@@ -1292,6 +1357,7 @@ public class AppHandlerService extends Service implements
 			final String selection = ContactsContract.CommonDataKinds.Email.DATA
 					+ " LIKE ?";
 			String[] mSelectionArgs = { "%gmail.com" };
+			
 			Cursor rawContacts = cr.query(
 					ContactsContract.CommonDataKinds.Email.CONTENT_URI,
 					projection, selection, mSelectionArgs,

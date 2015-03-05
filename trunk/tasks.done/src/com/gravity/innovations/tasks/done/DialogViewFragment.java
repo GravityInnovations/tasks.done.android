@@ -4,9 +4,14 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 
+import com.gravity.innovations.custom.views.CalendarView;
+
 import android.annotation.SuppressLint;
+import android.os.AsyncTask;
 import android.os.Bundle;
+import android.support.annotation.Nullable;
 import android.support.v4.app.DialogFragment;
+import android.support.v4.app.FragmentManager;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -25,6 +30,7 @@ public class DialogViewFragment extends DialogFragment {
 	private TaskModel taskModel;
 	private NavigationDrawerFragment mNavigationDrawerFragment;
 	private DialogViewFragment dialog;
+	private CalendarView cal;
  
 	public DialogViewFragment(TaskListModel listModel, TaskModel taskModel,
 			NavigationDrawerFragment ndf) {
@@ -33,6 +39,14 @@ public class DialogViewFragment extends DialogFragment {
 		this.mNavigationDrawerFragment = ndf;
 		//this.dialog = _dialog = this.dialog = this;
 		this.dialog = this;
+	}
+
+	@Override
+	public void show(FragmentManager manager, String tag) {
+		// TODO Auto-generated method stub
+		super.show(manager, tag);
+		if(cal!=null)
+		cal.ScrollToToday();
 	}
 
 	@Override
@@ -48,15 +62,25 @@ public class DialogViewFragment extends DialogFragment {
 	}
 
 	@Override
+	public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
+		// TODO Auto-generated method stub
+		super.onViewCreated(view, savedInstanceState);
+		if(cal!=null)
+			cal.ScrollToToday();
+	}
+
+	@Override
 	public void onActivityCreated(Bundle arg0) {
 		super.onActivityCreated(arg0);
+		
 		tv_title = (TextView) view.findViewById(R.id.txt_task_name);
 		tv_details = (TextView) view.findViewById(R.id.txt_details);
 		tv_notes = (TextView) view.findViewById(R.id.txt_notes);
 		tv_updated = (TextView) view.findViewById(R.id.txt_time_updated);
 		// TextView tv_due = (TextView) view.findViewById(R.id.);
 		tv_sync_time = (TextView) view.findViewById(R.id.txt_time_synced);
-
+		cal =(CalendarView)view.findViewById(R.id.calendar1);
+		//
 		markDoneToggle = (ImageView) view.findViewById(R.id.detail_done_toggle);
 
 		taskEdit = (ImageView) view
@@ -174,6 +198,31 @@ public class DialogViewFragment extends DialogFragment {
 				}
 			}
 		});
+		
+//		AsyncTask<Void, Void, Void> t = new AsyncTask<Void, Void, Void>() {
+//			
+//			@Override
+//			protected void onPostExecute(Void result) {
+//				// TODO Auto-generated method stub
+//				super.onPostExecute(result);
+//				cal.ScrollToToday();
+//			}
+//
+//			@Override
+//			protected Void doInBackground(Void... params) {
+//				// TODO Auto-generated method stub
+//				try {
+//					Thread.sleep(3000);
+//					
+//				} catch (InterruptedException e) {
+//					// TODO Auto-generated catch block
+//					e.printStackTrace();
+//				}
+//				
+//				return null;
+//			}
+//		};
+		//t.execute();
 
 	}
 

@@ -22,6 +22,12 @@ public class UserModel implements Serializable{
 
 	public UserModel() {
 	}
+	public UserModel(JSONObject obj)
+	{
+		this.server_id = obj.optString("UserId");
+		this.name = obj.optString("Name");
+		this.email = obj.optString("Email");
+	}
 	public JSONObject toJsonObj()
 	{
 		 JSONObject obj = new JSONObject();

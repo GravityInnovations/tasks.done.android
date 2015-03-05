@@ -168,7 +168,9 @@ public class TaskListFragment extends Fragment {
 
 		btn_listSharedWith = ((ImageButton) rootView
 				.findViewById(R.id.btn_showShared));
-
+		if (data.user_id == mService.user_data._id) {
+			
+		
 		btn_shareList.setOnClickListener(new View.OnClickListener() {
 
 			@Override
@@ -176,18 +178,7 @@ public class TaskListFragment extends Fragment {
 				mActivity = getActivity();
 				openShareDialog();
 			}
-		});
-		if (this.data.users.size() <= 0)
-			btn_listSharedWith.setVisibility(View.GONE);
-		btn_listSharedWith.setOnClickListener(new View.OnClickListener() {
-
-			@Override
-			public void onClick(View v) {
-				mActivity = getActivity();
-
-				openSharedViewDialog();
-
-			}
+			
 		});
 
 		btn_editList.setOnClickListener(new View.OnClickListener() {
@@ -213,6 +204,26 @@ public class TaskListFragment extends Fragment {
 						.manuallySelectOptionMenuItem(R.id.action_delete);
 			}
 		});
+		}
+		else{
+			btn_shareList.setVisibility(View.GONE);
+			btn_editList.setVisibility(View.GONE);
+			btn_deleteList.setVisibility(View.GONE);
+		}
+			if (this.data.users.size() <= 0)
+			btn_listSharedWith.setVisibility(View.GONE);
+		btn_listSharedWith.setOnClickListener(new View.OnClickListener() {
+
+			@Override
+			public void onClick(View v) {
+				mActivity = getActivity();
+
+				openSharedViewDialog();
+
+			}
+		});
+		
+
 
 		if (true) {// (data.tasks != null && data.tasks.size() > 0) {
 			// header on each fragment
