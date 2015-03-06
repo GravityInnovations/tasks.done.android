@@ -15,7 +15,7 @@ public class TaskModel implements Comparable, Serializable{
 
 	public String server_id;
 	public String self_link;
-	public String parent;
+	public TaskListModel parent;
 	public String status;
 	public int completed;// yes(1) or no(0)
 	public int deleted;

@@ -53,6 +53,7 @@ import android.widget.ProgressBar;
 import android.widget.TimePicker;
 import android.widget.Toast;
 
+import com.google.android.gms.ads.AdRequest;
 import com.gravity.innovations.tasks.done.Common.Callbacks.ServiceCallback;
 
 public class MainActivity extends ActionBarActivity implements
@@ -73,9 +74,9 @@ public class MainActivity extends ActionBarActivity implements
 	ArrayList<Account> mAccounts;
 	Account mAccount;
 
-	TimePicker mTimePicker;
-	int hour;
-	int minute;
+	// TimePicker mTimePicker;
+	// int hour;
+	// int minute;
 
 	DatabaseHelper db;
 	ImageView mImageView;
@@ -91,6 +92,7 @@ public class MainActivity extends ActionBarActivity implements
 	private ActionBar actionBar;
 	private CharSequence mTitle;
 	public TaskListFragment mTaskListFragment;
+	private DashboardFragment mDashboardFragment;
 	private int mUserActionBarColor;
 	private Button btn_share;
 	private TimeReciever mTimeReciever;
@@ -116,13 +118,12 @@ public class MainActivity extends ActionBarActivity implements
 		super.onStart();
 		if (service != null)
 			service.onActivityOpen(null, null);
-		
+
 		try {
 			mContext.unregisterReceiver(mTimeReciever);
 		} catch (Exception e) {
 			Log.e(this.toString() + ": onDestroy", e.getLocalizedMessage());
 		}
-
 
 	}
 
@@ -212,8 +213,8 @@ public class MainActivity extends ActionBarActivity implements
 		Bundle extra = i.getExtras();
 		mContext = getApplicationContext();
 		if (extra != null) {
-			listID = i.getIntExtra("_task_list_id", 1);
-			taskID = i.getIntExtra("_task_id", 1);
+			listID = i.getIntExtra("_task_list_id", -1);
+			taskID = i.getIntExtra("_task_id", -1);
 
 		}
 
@@ -293,6 +294,16 @@ public class MainActivity extends ActionBarActivity implements
 		}
 	}
 
+	public void displayAds() {
+		try {
+			// AdView mAdView = (AdView) findViewById(R.id.adView);
+			AdRequest adRequest = new AdRequest.Builder().build();
+			// mAdView.loadAd(adRequest);
+		} catch (Exception e) {
+			Log.e("displayAd:MainActivity", e.getLocalizedMessage());
+		}
+	}
+
 	@Override
 	protected void onActivityResult(int arg0, int arg1, Intent intent) {
 		// created for Calendar API
@@ -318,11 +329,11 @@ public class MainActivity extends ActionBarActivity implements
 			try {
 				if (temp._id == -1) {
 					int id = temp._id;
-					mNavigationDrawerFragment.onMinusOne(id);
+					mNavigationDrawerFragment.openNavigationDrawer(id);
 				} else {
 					// update the main content by replacing fragments
-//					actionBar = getSupportActionBar();
-//					actionBar.setTitle("");
+					// actionBar = getSupportActionBar();
+					// actionBar.setTitle("");
 					FragmentManager fragmentManager = this
 							.getSupportFragmentManager();
 					mTaskListFragment = new TaskListFragment();
@@ -344,13 +355,41 @@ public class MainActivity extends ActionBarActivity implements
 		}
 	}
 
+	@Override
+	public void onDashboardSelected() {
+
+		if (mNavigationDrawerFragment != null) {
+			try {
+
+				FragmentManager fragmentManager = this
+						.getSupportFragmentManager();
+				// db = new DatabaseHelper(mContext);
+				// ArrayList<TaskModel> tasks = db.tasks.GetsDashboardTasks();
+				mDashboardFragment = new DashboardFragment();
+				mDashboardFragment.newInstance(
+						mNavigationDrawerFragment.getPendingTasks(),
+						mNavigationDrawerFragment, service);
+
+				fragmentManager
+						.beginTransaction()
+						.replace(R.id.container,
+								mDashboardFragment.getFragment()).commit();
+
+				mNavigationDrawerFragment.shutNavigationDrawer();
+			} catch (Exception ex) {
+				String x = ex.getLocalizedMessage();
+			}
+		}
+	}
+
 	public void restoreActionBar() {
 		actionBar = getSupportActionBar();
 		actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_STANDARD);
 		actionBar.setDisplayShowTitleEnabled(true);
 		// actionBar.setTitle(mTitle);
 		actionBar.setTitle(CurrentList.title);
-		actionBar.hide();/***********/
+		actionBar.hide();
+		/***********/
 	}
 
 	@Override
@@ -382,6 +421,8 @@ public class MainActivity extends ActionBarActivity implements
 		if (id == R.id.action_settings) {
 			Intent i = new Intent(MainActivity.this, SettingsActivity.class);
 			startActivity(i);
+		} else if (id == R.id.action_dashboard) {
+			onDashboardSelected();
 		} else if (id == R.id.action_add) {
 			mNavigationDrawerFragment.addOrEditTaskList(new TaskListModel());
 		} else if (id == R.id.action_delete) {

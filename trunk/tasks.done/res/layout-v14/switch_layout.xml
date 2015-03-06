@@ -3,11 +3,16 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical" >
-         <Switch
-            
-            android:id="@+id/alramToggle"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Alarm" android:padding="10dp"/>
 
-</LinearLayout>
+    <Switch
+        android:id="@+id/onOFF"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="All Day"
+        android:textSize="17sp" />
+
+</LinearLayout><!-- <Switch -->
+<!-- android:id="@+id/alramToggle" -->
+<!-- android:layout_width="match_parent" -->
+<!-- android:layout_height="wrap_content" -->
+<!-- android:text="Alarm" android:padding="10dp"/> -->

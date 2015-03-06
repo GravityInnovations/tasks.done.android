@@ -106,17 +106,21 @@ public class Common {
 	public static final String AUTH_ACTIVITY = "AuthenticationActivity";
 	public static final String SPLASH_ACTIVITY = "SplashActivity";
 
-	//gravity urls
+	// gravity urls
 	public static final String GRAVITY_BASE_URL = "http://192.168.1.9/";
-	public static final String GRAVITY_ACCOUNT_URL = GRAVITY_BASE_URL+"Account/";
-	public static final String GRAVITY_GCM_URL = GRAVITY_BASE_URL+"GCM/";
-	public static final String GRAVITY_TASKLIST_URL = GRAVITY_BASE_URL+"TaskList/";
-	public static final String GRAVITY_TASKLIST_SHARE_URL = GRAVITY_BASE_URL+"ShareTaskList/";
-	public static final String GRAVITY_TASK_URL = GRAVITY_BASE_URL+"Task/";
-	
-	//google urls
-	public static final String USER_INFO_URL = "https://www.googleapis.com/oauth2/v1/userinfo?alt=json&access_token=";//require token
-// request codes
+	public static final String GRAVITY_ACCOUNT_URL = GRAVITY_BASE_URL
+			+ "Account/";
+	public static final String GRAVITY_GCM_URL = GRAVITY_BASE_URL + "GCM/";
+	public static final String GRAVITY_TASKLIST_URL = GRAVITY_BASE_URL
+			+ "TaskList/";
+	public static final String GRAVITY_TASKLIST_SHARE_URL = GRAVITY_BASE_URL
+			+ "ShareTaskList/";
+	public static final String GRAVITY_TASK_URL = GRAVITY_BASE_URL + "Task/";
+
+	// google urls
+	public static final String USER_INFO_URL = "https://www.googleapis.com/oauth2/v1/userinfo?alt=json&access_token=";// require
+																														// token
+	// request codes
 
 	public class RequestCodes {
 		public static final int SPLASH_ACC = 999;
@@ -337,6 +341,92 @@ public class Common {
 		public static final void CustomDialog(final Context context, View view,
 				DialogInterface.OnClickListener negListener,
 				DialogInterface.OnClickListener posListener, int posText,
+				int negText) {
+			// editText task edit Activity
+			AlertDialog.Builder builder = new AlertDialog.Builder(context);
+			builder.setView(view);
+			// builder.setTitle(dialogTitle);
+			if (posListener != null) {
+				builder.setPositiveButton(posText, posListener);
+			}
+			if (negListener != null) {
+				builder.setNegativeButton(negText, negListener);
+			}
+			builder.create().show();
+		}
+
+		public static final void CustomDialog(final Context context, View view,
+				View headerView, DialogInterface.OnClickListener posListener,
+				int posText) {
+			// editText task edit Activity
+			AlertDialog.Builder builder = new AlertDialog.Builder(context);
+
+			builder.setView(view);
+			builder.setCustomTitle(headerView);
+
+			// builder.setTitle(dialogTitle);
+			if (posListener != null) {
+				builder.setPositiveButton(posText, posListener);
+			}
+
+			builder.create().show();
+		}
+
+		public static final void CustomDialog(final Context context, View view,
+				DialogInterface.OnClickListener posListener, int posText) {
+			// editText task edit Activity
+			AlertDialog.Builder builder = new AlertDialog.Builder(context);
+
+			builder.setView(view);
+
+			// builder.setTitle(dialogTitle);
+			if (posListener != null) {
+				builder.setPositiveButton(posText, posListener);
+			}
+
+			builder.create().show();
+		}
+
+		public static final void CustomDialogWithRadio(final Context context,
+				View view, DialogInterface.OnClickListener posListener,
+				int posText) {
+			AlertDialog.Builder builder = new AlertDialog.Builder(context);
+			builder.setView(view);
+
+			// final CharSequence[] items = { " Minutes Before ",
+			// " Hours Before ", " Days Before ", " Weeks Before " };
+			// builder.setSingleChoiceItems(items, -1,
+			// new DialogInterface.OnClickListener() {
+			// public void onClick(DialogInterface dialog, int item) {
+			//
+			// switch (item) {
+			// case 0:
+			// // Your code when first option seletced
+			// break;
+			// case 1:
+			// // Your code when 2nd option seletced
+			//
+			// break;
+			// case 2:
+			// // Your code when 3rd option seletced
+			// break;
+			// case 3:
+			// // Your code when 4th option seletced
+			// break;
+			//
+			// }
+			// }
+			// });
+
+			if (posListener != null) {
+				builder.setPositiveButton(posText, posListener);
+			}
+			builder.create().show();
+		}
+
+		public static final void CustomDialog(final Context context, View view,
+				DialogInterface.OnClickListener negListener,
+				DialogInterface.OnClickListener posListener, int posText,
 				int negText, String dialogTitle) {
 
 			AlertDialog.Builder builder = new AlertDialog.Builder(context);
@@ -411,7 +501,9 @@ public class Common {
 			builder.create().show();
 
 		}
-		public static AlertDialog.Builder TextDialog(Context mContext,AlertData data) {
+
+		public static AlertDialog.Builder TextDialog(Context mContext,
+				AlertData data) {
 			// TODO Auto-generated method stub
 			AlertDialog.Builder builder = new AlertDialog.Builder(mContext);
 			builder.setIcon(android.R.drawable.ic_popup_reminder);
@@ -428,24 +520,33 @@ public class Common {
 				builder.setNegativeButton(data.negText, data.negListener);
 			}
 			return builder;
-			//builder//.create().show();
+			// builder//.create().show();
 
 		}
 	}
-	public static class AlertData implements Serializable{
-		int icon; String title;
-		String message; String posText; String negText;
-		OnClickListener posListener; OnClickListener negListener;
-		AlertData(int icon, String title,
-				String message, String posText, String negText,
-				OnClickListener posListener, OnClickListener negListener)
-				{
-			this.icon=icon;
-			this.title=title;
-			this.message= message; this.posText= posText;this.negText=negText;
-			this.posListener=posListener; this.negListener=negListener;
-				}
+
+	public static class AlertData implements Serializable {
+		int icon;
+		String title;
+		String message;
+		String posText;
+		String negText;
+		OnClickListener posListener;
+		OnClickListener negListener;
+
+		AlertData(int icon, String title, String message, String posText,
+				String negText, OnClickListener posListener,
+				OnClickListener negListener) {
+			this.icon = icon;
+			this.title = title;
+			this.message = message;
+			this.posText = posText;
+			this.negText = negText;
+			this.posListener = posListener;
+			this.negListener = negListener;
+		}
 	}
+
 	public static class FormateTimeStrings {
 		// this class only return formated time String to the dialogs
 		public static String getFormatedDateTimeString(String remindAt) {

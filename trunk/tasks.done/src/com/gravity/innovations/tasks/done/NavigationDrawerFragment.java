@@ -163,6 +163,14 @@ public class NavigationDrawerFragment extends Fragment implements
 
 	}
 
+	public ArrayList<TaskModel> getPendingTasks() {
+		ArrayList<TaskModel> temp = new ArrayList<TaskModel>();
+		for (TaskListModel tasklist : this.data) {
+			temp.addAll(tasklist.getPendingTasks());
+		}
+		return temp;
+	}
+
 	public void CustomActionBarColor() {
 		SharedPreferences settings = mContext.getSharedPreferences(
 				"action_bar_color_settings", Context.MODE_PRIVATE);
@@ -344,7 +352,7 @@ public class NavigationDrawerFragment extends Fragment implements
 		this.mService = service;
 		db = this.mService.db;// new DatabaseHelper(mContext);
 		this.user_data = user_data;
-		this.data = db.tasklists.Get();//.TaskList_List();
+		this.data = db.tasklists.Get();// .TaskList_List();
 		mAdapter = new TaskListAdapter(getActivity(),
 				R.layout.tasklist_listview_row, data);
 		mDrawerListView.setAdapter(mAdapter);
@@ -359,6 +367,7 @@ public class NavigationDrawerFragment extends Fragment implements
 		options.add(new OptionsModel(R.drawable.ic_action_group,
 				"About Developers"));
 		options.add(new OptionsModel(R.drawable.ic_action_settings, "Settings"));
+		options.add(new OptionsModel(R.drawable.ic_list_default, "Dashboard"));
 		final CustomIconListAdapter opt_adapter = new CustomIconListAdapter(
 				getActivity(), R.layout.tasklist_listview_row, options);
 		// new TaskListAdapter(getActivity(),
@@ -367,8 +376,14 @@ public class NavigationDrawerFragment extends Fragment implements
 		// automating the selection on selected
 		if (tasklistid != -1 && taskid != -1)
 			selectItem(tasklistid, taskid);
-		else
-			selectItem(1, -1);
+		else {
+			try {
+				((MainActivity) mActivity).onDashboardSelected();
+			} catch (Exception e) {
+				selectItem(tasklistid, -1);
+			}
+		}
+
 		// SharedPreferences tasklistID = mContext.getSharedPreferences(
 		// PREF_TASKLIST_ID_LAST_CLICKED, Context.MODE_PRIVATE);
 		// mCurrentSelectedPosition =
@@ -431,6 +446,7 @@ public class NavigationDrawerFragment extends Fragment implements
 									case 1:
 										((MainActivity) mActivity)
 												.manuallySelectOptionMenuItem(R.id.action_add);
+										options_toggle.performClick();
 										break;
 									case 2:
 										((MainActivity) mActivity)
@@ -444,6 +460,11 @@ public class NavigationDrawerFragment extends Fragment implements
 									case 4:
 										((MainActivity) mActivity)
 												.manuallySelectOptionMenuItem(R.id.action_settings);
+										break;
+									case 5:
+										((MainActivity) mActivity)
+												.manuallySelectOptionMenuItem(R.id.action_dashboard);
+										options_toggle.performClick();
 										break;
 
 									}
@@ -538,30 +559,38 @@ public class NavigationDrawerFragment extends Fragment implements
 		// }
 	}
 
-	/*@Override
-	public void onPause() {
-		super.onPause();
-		mContext.unregisterReceiver(mTimeReciever);
+	/*
+	 * @Override public void onPause() { super.onPause();
+	 * mContext.unregisterReceiver(mTimeReciever); }
+	 * 
+	 * @Override public void onResume() { super.onResume();
+	 * mContext.registerReceiver(mTimeReciever, new IntentFilter(
+	 * "android.intent.action.TIME_TICK")); }
+	 */
+	public void openNavigationDrawer(int id) {
+		if (id == -1) {
+			// NOTE: it does not need the
+			// check and argument int remove them later
+			mDrawerLayout.openDrawer(mFragmentContainerView);
+			// to open the drawer on every start up
+			// and when there is no list
+		}
 	}
 
-	@Override
-	public void onResume() {
-		super.onResume();
-		mContext.registerReceiver(mTimeReciever, new IntentFilter(
-				"android.intent.action.TIME_TICK"));
-	}
-*/
-	public void onMinusOne(int id) {
-		if (id == -1) {
-			mDrawerLayout.openDrawer(mFragmentContainerView);
-			// to keep the drawer open on every start up
-		}
+	public void shutNavigationDrawer() {
+		mDrawerLayout.closeDrawer(mFragmentContainerView);
+		// to close the drawer
 	}
 
 	// public void magicButton(){
 	// //mFragmentContainerView = getActivity().findViewById(fragmentId);
 	// mDrawerLayout.openDrawer(mFragmentContainerView);
 	// }
+	public void selectItem(TaskModel temp) {
+		int list_pos = this.data.indexOf(temp.parent);
+		int task_pos = this.data.get(list_pos).tasks.indexOf(temp);
+		selectItem(++list_pos, task_pos);
+	}
 
 	public void selectItem(int position, int selectTaskId) {
 		position--;
@@ -652,7 +681,7 @@ public class NavigationDrawerFragment extends Fragment implements
 		return ((ActionBarActivity) getActivity()).getSupportActionBar();
 	}
 
-	public  void addTaskList(TaskListModel temp) {
+	public void addTaskList(TaskListModel temp) {
 		data.add(temp);
 		// this.mAdapter.add(temp);
 		this.mAdapter.notifyDataSetChanged();
@@ -783,7 +812,7 @@ public class NavigationDrawerFragment extends Fragment implements
 										list_type, colorHEX);
 								temp.user_id = user_data._id;
 								// should retun a bool on true
-								temp._id = db.tasklists.Add(temp);//.TaskList_New(temp);
+								temp._id = db.tasklists.Add(temp);// .TaskList_New(temp);
 								if (temp._id != -1) {
 									// toastMsg = "tasklist added";
 									addTaskList(temp);
@@ -814,7 +843,6 @@ public class NavigationDrawerFragment extends Fragment implements
 						// update tasklist
 						String title = et_title.getText().toString();
 						if (title.length() != 0) {
-
 
 							tasklist.title = title;
 							tasklist.icon_identifier = list_type;
@@ -866,7 +894,7 @@ public class NavigationDrawerFragment extends Fragment implements
 			TaskListModel temp = mAdapter.getItem(i);
 			if (temp._id == m._id) {
 				temp.etag = m.etag;
-				//temp.gravity_id = m.gravity_id;
+				// temp.gravity_id = m.gravity_id;
 				temp.icon_identifier = m.icon_identifier;
 				temp.kind = m.kind;
 				temp.self_link = m.self_link;
@@ -879,64 +907,64 @@ public class NavigationDrawerFragment extends Fragment implements
 				this.mAdapter.notifyDataSetChanged();
 				// ((MainActivity)mActivity).mTaskListFragment.
 				int position = this.mAdapter.getPosition(temp);
-				selectItem(++position, -1);//select if selected
+				selectItem(++position, -1);// select if selected
 				break;
 			}
 		}
 
 	}
-	public void addUserShareInAdapter(String tasklistId, String userids, boolean updateUsersAdapter)
-	{
-		
-		for(int i =0; i<mAdapter.getCount();i++)//TaskListModel temp:this.data)
+
+	public void addUserShareInAdapter(String tasklistId, String userids,
+			boolean updateUsersAdapter) {
+
+		for (int i = 0; i < mAdapter.getCount(); i++)// TaskListModel
+														// temp:this.data)
 		{
 			TaskListModel temp = mAdapter.getItem(i);
-			if(temp.server_id == tasklistId || temp.server_id.equals(tasklistId))
-			{
-				if(updateUsersAdapter)
-				{
+			if (temp.server_id == tasklistId
+					|| temp.server_id.equals(tasklistId)) {
+				if (updateUsersAdapter) {
 					temp.users = db.users.Get(temp);
 				}
-				for(UserModel user:temp.users)
-				{
-					if(user.server_id!= null && userids.contains(user.server_id))
-					{
+				for (UserModel user : temp.users) {
+					if (user.server_id != null
+							&& userids.contains(user.server_id)) {
 						user.image_alpha = 1.0;
 					}
 				}
 				this.mAdapter.notifyDataSetChanged();
-				//((MainActivity)mActivity).mTaskListFragment.
+				// ((MainActivity)mActivity).mTaskListFragment.
 				int position = this.mAdapter.getPosition(temp);
-				selectItem(++position, -1);//select if selected
+				selectItem(++position, -1);// select if selected
 				break;
 			}
 		}
-		
+
 	}
-	public void removeUserShareInAdapter(String tasklistId, String userids)
-	{
-		for(int i =0; i<mAdapter.getCount();i++)//TaskListModel temp:this.data)
+
+	public void removeUserShareInAdapter(String tasklistId, String userids) {
+		for (int i = 0; i < mAdapter.getCount(); i++)// TaskListModel
+														// temp:this.data)
 		{
 			TaskListModel temp = mAdapter.getItem(i);
-			if(temp.server_id == tasklistId || temp.server_id.equals(tasklistId))
-			{
-				for(UserModel user:temp.users)
-				{
-					if(user.server_id!= null && userids.contains(user.server_id))
-					{
+			if (temp.server_id == tasklistId
+					|| temp.server_id.equals(tasklistId)) {
+				for (UserModel user : temp.users) {
+					if (user.server_id != null
+							&& userids.contains(user.server_id)) {
 						mAdapter.getItem(i).users.remove(user);
 					}
 				}
 				this.mAdapter.notifyDataSetChanged();
-				//((MainActivity)mActivity).mTaskListFragment.
+				// ((MainActivity)mActivity).mTaskListFragment.
 				int position = this.mAdapter.getPosition(temp);
-				selectItem(++position, -1);//select if selected
+				selectItem(++position, -1);// select if selected
 				break;
 			}
 		}
-		
+
 	}
-	
+
 	// full details of the tasks
 	public void openTaskDetailsDialog(final TaskListModel parent,
 			final TaskModel current) {
@@ -999,7 +1027,7 @@ public class NavigationDrawerFragment extends Fragment implements
 								 */
 
 								// should retun a bool on true
-								temp._id = db.tasks.Add(temp);//.Task_New(temp);
+								temp._id = db.tasks.Add(temp);// .Task_New(temp);
 
 								if (temp._id != -1) {
 									// toastMsg = "tasklist added";
@@ -1026,7 +1054,7 @@ public class NavigationDrawerFragment extends Fragment implements
 							task.notes = notes;
 							openReminderListDialog(tasklist, task);// testing
 																	// now
-							int nRows = db.tasks.Edit(task);//.Task_Edit(task);
+							int nRows = db.tasks.Edit(task);// .Task_Edit(task);
 							if (nRows > 0) {
 								// tasklist.title = title;
 								editTask(tasklist, task); // task and temp
@@ -1134,7 +1162,7 @@ public class NavigationDrawerFragment extends Fragment implements
 						long currTime = System.currentTimeMillis();
 						String currentDateTime = Long.toString(currTime);
 						temp.updated = currentDateTime;
-						db.tasks.Edit(temp);//.Task_Edit(temp);
+						db.tasks.Edit(temp);// .Task_Edit(temp);
 						editTask(tasklist, temp);
 						// mAdapter.notifyDataSetChanged();
 					}
@@ -1224,7 +1252,7 @@ public class NavigationDrawerFragment extends Fragment implements
 		temp.alarm_status = 0;
 		temp.weekday = 0;
 		temp.updated = currentDateTime;
-		db.tasks.Edit(temp);//.Task_Edit(temp);
+		db.tasks.Edit(temp);// .Task_Edit(temp);
 		editTask(tasklist, temp);
 	}
 
@@ -1276,7 +1304,7 @@ public class NavigationDrawerFragment extends Fragment implements
 				temp.remind_interval = 1;// remind_interval_once;
 				temp.remind_at = remind_DateTime;
 				temp.alarm_status = 1;// alarm_status_active;
-				db.tasks.Edit(temp);//.Task_Edit(temp);
+				db.tasks.Edit(temp);// .Task_Edit(temp);
 				editTask(tasklist, temp);// for alarm icon adapter refresh
 				// dialog.cancel();
 				try {
@@ -1339,7 +1367,7 @@ public class NavigationDrawerFragment extends Fragment implements
 				temp.remind_interval = 2;// 2_remind_interval_daily;
 				temp.remind_at = remind_DateTime;
 				temp.alarm_status = 1;// alarm_status_active;
-				db.tasks.Edit(temp);//.Task_Edit(temp);
+				db.tasks.Edit(temp);// .Task_Edit(temp);
 
 				editTask(tasklist, temp);
 
@@ -1426,7 +1454,7 @@ public class NavigationDrawerFragment extends Fragment implements
 				temp.remind_at = remind_DateTime;
 				temp.weekday = weekday_int_value;
 				temp.alarm_status = 1;// alarm_status_active;
-				db.tasks.Edit(temp);//Task_Edit(temp);
+				db.tasks.Edit(temp);// Task_Edit(temp);
 				editTask(tasklist, temp);
 				try {
 					mAlarmBroadcastReciever.setAlarm_RepeatWeekly(mContext,
@@ -1506,7 +1534,7 @@ public class NavigationDrawerFragment extends Fragment implements
 				temp.remind_interval = 4; // repeat_monthly_remind_interval;
 				temp.remind_at = remind_DateTime;
 				temp.alarm_status = 1;// alarm_status_active;
-				db.tasks.Edit(temp);//.Task_Edit(temp);
+				db.tasks.Edit(temp);// .Task_Edit(temp);
 				editTask(tasklist, temp);
 				try {
 					mAlarmBroadcastReciever.setAlarm_RepeatMonthly(mContext,
@@ -1568,7 +1596,7 @@ public class NavigationDrawerFragment extends Fragment implements
 				temp.remind_interval = 5; // repeat_yearly_remind_interval;
 				temp.remind_at = remind_DateTime;
 				temp.alarm_status = 1;// alarm_status_active;
-				db.tasks.Edit(temp);//.Task_Edit(temp);
+				db.tasks.Edit(temp);// .Task_Edit(temp);
 				editTask(tasklist, temp);
 				try {
 					mAlarmBroadcastReciever.setAlarm_RepeatYearly(mContext,
@@ -1731,61 +1759,42 @@ public class NavigationDrawerFragment extends Fragment implements
 		 */
 		selectItem(position, -1);
 	}
-/*
-	public void deleteTask(final TaskListModel parent,
-			final ArrayList<Integer> arrayList) {
-		DialogInterface.OnClickListener posListener = new DialogInterface.OnClickListener() {
-			@Override
-			public void onClick(DialogInterface dialog, int which) {
-				try {
-					int position = mAdapter.getPosition(parent);
-					for (int temp : arrayList) {
-						// cancel every alarm associated with multiple task
-						// deletion
-						mAlarmBroadcastReciever.cancelAlarm(mContext, temp);
-						if (db.tasks.Delete(temp) == true) {
-							// conditional handle true false
-							mAdapter.getItem(position).RemoveTask(temp);
-						} else {
-							Log.e("NDF deleteTask", "bool if condition error");
-						}
-					}
-					mAdapter.notifyDataSetChanged();
-					/**
-					 * update data
-					 */
-/*					mAdapter.updateData(data); // update data
-					/**
-					 * update data
-					 */
-	/*				selectItem(++position, -1);
-				} catch (Exception E) {
-					Log.e("MainActivity", "Delete Task");
-				} finally {
-					// Update adapter
-				}
-			}
-		};
-		DialogInterface.OnClickListener negListener = new DialogInterface.OnClickListener() {
-			@Override
-			public void onClick(DialogInterface dialog, int which) {
-				dialog.cancel();
-			}
-		};
-		Common.CustomDialog.CustomDialog(mContext, R.string.delete,
-				R.string.dialog_cancel, negListener, posListener);
-	}
 
-	*/
-	
-	
-	public void deleteTask(final TaskListModel tasklist,  final TaskModel task) {
+	/*
+	 * public void deleteTask(final TaskListModel parent, final
+	 * ArrayList<Integer> arrayList) { DialogInterface.OnClickListener
+	 * posListener = new DialogInterface.OnClickListener() {
+	 * 
+	 * @Override public void onClick(DialogInterface dialog, int which) { try {
+	 * int position = mAdapter.getPosition(parent); for (int temp : arrayList) {
+	 * // cancel every alarm associated with multiple task // deletion
+	 * mAlarmBroadcastReciever.cancelAlarm(mContext, temp); if
+	 * (db.tasks.Delete(temp) == true) { // conditional handle true false
+	 * mAdapter.getItem(position).RemoveTask(temp); } else {
+	 * Log.e("NDF deleteTask", "bool if condition error"); } }
+	 * mAdapter.notifyDataSetChanged(); /** update data
+	 */
+	/*
+	 * mAdapter.updateData(data); // update data /** update data
+	 */
+	/*
+	 * selectItem(++position, -1); } catch (Exception E) { Log.e("MainActivity",
+	 * "Delete Task"); } finally { // Update adapter } } };
+	 * DialogInterface.OnClickListener negListener = new
+	 * DialogInterface.OnClickListener() {
+	 * 
+	 * @Override public void onClick(DialogInterface dialog, int which) {
+	 * dialog.cancel(); } }; Common.CustomDialog.CustomDialog(mContext,
+	 * R.string.delete, R.string.dialog_cancel, negListener, posListener); }
+	 */
+
+	public void deleteTask(final TaskListModel tasklist, final TaskModel task) {
 		DialogInterface.OnClickListener posListener = new DialogInterface.OnClickListener() {
 			@Override
 			public void onClick(DialogInterface dialog, int which) {
 				try {
-					 int position = mAdapter.getPosition(tasklist);
-					//db.tasks.Delete(task._id);
+					int position = mAdapter.getPosition(tasklist);
+					// db.tasks.Delete(task._id);
 					if (db.tasks.Delete(task._id) == true) {
 						// conditional handle true false
 						mAdapter.getItem(position).RemoveTask(task._id);
@@ -1795,16 +1804,16 @@ public class NavigationDrawerFragment extends Fragment implements
 					} else {
 						Log.e("NDF deleteTask", "bool if condition error");
 					}
-					
+
 					mAdapter.notifyDataSetChanged();
 					/**
 					 * update data
 					 */
- 					mAdapter.updateData(data); // update data
+					mAdapter.updateData(data); // update data
 					/**
 					 * update data
 					 */
-	 				selectItem(++position, -1);
+					selectItem(++position, -1);
 
 				} catch (Exception E) {
 					Log.e("MainActivity", "Delete Task");
@@ -1822,7 +1831,7 @@ public class NavigationDrawerFragment extends Fragment implements
 		Common.CustomDialog.CustomDialog(mContext, R.string.delete,
 				R.string.dialog_cancel, negListener, posListener);
 	}
-	
+
 	/**
 	 * Callbacks interface that all activities using this fragment must
 	 * implement.
@@ -1833,6 +1842,8 @@ public class NavigationDrawerFragment extends Fragment implements
 		 */
 
 		void onNavigationDrawerItemSelected(TaskListModel temp, int selectTaskId);
+
+		void onDashboardSelected();
 	}
 
 	@Override
@@ -1855,17 +1866,17 @@ public class NavigationDrawerFragment extends Fragment implements
 		}
 	}
 
-//	class UpdateTimeTask extends TimerTask {
-//
-//		public void run() {
-//			try {
-//				mAdapter.notifyDataSetChanged();
-//			} catch (Exception e) {
-//				Log.e("TimerTask", "ERROR");
-//			}
-//		}
-//
-//	}
+	// class UpdateTimeTask extends TimerTask {
+	//
+	// public void run() {
+	// try {
+	// mAdapter.notifyDataSetChanged();
+	// } catch (Exception e) {
+	// Log.e("TimerTask", "ERROR");
+	// }
+	// }
+	//
+	// }
 
 	@Override
 	public void onTimeReceive(Context mContext, Intent intent) {
@@ -1875,7 +1886,7 @@ public class NavigationDrawerFragment extends Fragment implements
 	public void addUserToTaskList(TaskListModel mTaskList,
 			ArrayList<UserModel> sel_users) {
 		// TODO Auto-generated method stub
-		ArrayList<UserModel> db_users =db.users.Get(mTaskList);// db.UserList_List(mTaskList._id);
+		ArrayList<UserModel> db_users = db.users.Get(mTaskList);// db.UserList_List(mTaskList._id);
 		ArrayList<UserModel> final_users = new ArrayList<UserModel>();
 		ArrayList<UserModel> del_users = new ArrayList<UserModel>();
 		for (UserModel m1 : sel_users) {
@@ -1902,12 +1913,13 @@ public class NavigationDrawerFragment extends Fragment implements
 				del_users.add(m1);
 			}
 		}
-		//for (UserModel user : final_users)
-		if(final_users.size()>0)
-			db.users.Share(mTaskList, final_users);//.UserList_New(mTaskList, final_users);
-		//for (UserModel user : del_users)
-		if(del_users.size()>0)
-		db.users.Share_Remove(mTaskList, del_users);// del
+		// for (UserModel user : final_users)
+		if (final_users.size() > 0)
+			db.users.Share(mTaskList, final_users);// .UserList_New(mTaskList,
+													// final_users);
+		// for (UserModel user : del_users)
+		if (del_users.size() > 0)
+			db.users.Share_Remove(mTaskList, del_users);// del
 	}
 
 	public class GetUTC {
@@ -2022,30 +2034,31 @@ public class NavigationDrawerFragment extends Fragment implements
 
 	public void setReminder(final TaskListModel list, final TaskModel task) {
 		mActivity.runOnUiThread(new Runnable() {
-			
+
 			@Override
 			public void run() {
-				try{
-					Intent intent = new Intent(mActivity, SetTaskReminderActivity.class);//"com.gravity.innovations.tasks.done.SetTaskReminderActivity");
-					//TaskModel newtask = task;
-				//	TaskListModel newlist = new TaskListModel();
-					//	newlist =	list;
-//						Bundle mBundle = new Bundle();
-//						mBundle.putSerializable("list_object", newlist );
-						Serializable s = (Serializable) list;
-						intent.putExtra("key_list",s);
-						Serializable t = (Serializable) task;
-						intent.putExtra("key_task",t);						
-						//intent.pu
-						//mActivity.
-					mActivity.startActivityForResult(intent,123);
-					}catch(Exception e){
-						Log.e("NDF: setReminder",  e.getLocalizedMessage());
-						
-					}
-				
+				try {
+					Intent intent = new Intent(mActivity,
+							SetTaskReminderActivity.class);// "com.gravity.innovations.tasks.done.SetTaskReminderActivity");
+					// TaskModel newtask = task;
+					// TaskListModel newlist = new TaskListModel();
+					// newlist = list;
+					// Bundle mBundle = new Bundle();
+					// mBundle.putSerializable("list_object", newlist );
+					Serializable s = (Serializable) list;
+					intent.putExtra("key_list", s);
+					Serializable t = (Serializable) task;
+					intent.putExtra("key_task", t);
+					// intent.pu
+					// mActivity.
+					mActivity.startActivityForResult(intent, 123);
+				} catch (Exception e) {
+					Log.e("NDF: setReminder", e.getLocalizedMessage());
+
+				}
+
 			}
 		});
-		
+
 	}
 }

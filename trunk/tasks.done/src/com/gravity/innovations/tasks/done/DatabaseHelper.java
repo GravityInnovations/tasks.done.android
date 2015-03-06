@@ -353,6 +353,29 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 			}
 			return data;
 		}
+		
+		public ArrayList<TaskModel> GetsPendingTasks()
+		{
+			int id =0;
+			ArrayList<TaskModel> data = new ArrayList<TaskModel>();
+			
+			String selectQuery = "SELECT * FROM " + TABLE_TASKS 
+					+
+					 " WHERE " + KEY_COMPLETED +" = "+ id
+					+
+					" ORDER BY updated_date_time DESC";
+
+			SQLiteDatabase db = getWritableDatabase();
+
+			Cursor cursor = db.rawQuery(selectQuery, null);
+			if (cursor.moveToFirst()) {
+				do {
+					data.add(getValuesFromCursor(cursor));
+				} while (cursor.moveToNext());
+			}
+			return data;
+		}
+		
 	}
 	
 	protected class TaskLists{

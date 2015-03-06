@@ -151,7 +151,7 @@ public class TaskListFragment extends Fragment {
 
 				@Override
 				public void onClick(View v) {
-					mNavigationDrawerFragment.onMinusOne(-1);
+					mNavigationDrawerFragment.openNavigationDrawer(-1);
 					// to open navigation drawer
 				}
 			});

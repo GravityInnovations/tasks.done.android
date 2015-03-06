@@ -3,11 +3,11 @@ package com.gravity.innovations.tasks.done;
 import java.io.Serializable;
 import java.util.ArrayList;
 
-public class TaskListModel implements Serializable{
+public class TaskListModel implements Serializable {
 	public UserModel owner;
-	public int _id=-1;
+	public int _id = -1;
 	public String title;
-	//public String gravity_id = "";
+	// public String gravity_id = "";
 	public String server_id = "";
 	public String etag;
 	public String updated;
@@ -21,11 +21,29 @@ public class TaskListModel implements Serializable{
 	public ArrayList<TaskModel> tasks = new ArrayList<TaskModel>(); // task_data;
 	public ArrayList<UserModel> users = new ArrayList<UserModel>(); // task_data;
 	public String fragmentColor;
-// ********* Constructors *********//
-	
+
+	// ********* Constructors *********//
+
 	public TaskListModel() {
-//		_id = -1;
-//		this.tasks = new ArrayList<TaskModel>();
+		// _id = -1;
+		// this.tasks = new ArrayList<TaskModel>();
+	}
+
+	public ArrayList<TaskModel> getPendingTasks() {
+		ArrayList<TaskModel> temp = new ArrayList<TaskModel>();
+
+		for (TaskModel task : this.tasks) {
+
+			if (task.completed == 0) {
+				task.parent = this;
+				temp.add(task);
+
+				// temp.parent
+
+			}
+		}
+		return temp;
+
 	}
 
 	public TaskListModel(String title) {
