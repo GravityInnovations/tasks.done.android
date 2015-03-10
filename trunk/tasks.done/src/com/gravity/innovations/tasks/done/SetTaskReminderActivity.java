@@ -251,7 +251,7 @@ public class SetTaskReminderActivity extends ActionBarActivity {
 	//
 	// }
 	// }
-	public void openCalenderViewDialog() {
+	@SuppressLint("NewApi") public void openCalenderViewDialog() {
 		View dialog_headerView = this.getLayoutInflater().inflate(
 				R.layout.dialog_calenderview_header, null);
 		View dialog_detailsView = this.getLayoutInflater().inflate(

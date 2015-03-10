@@ -950,6 +950,96 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 		
 	
 	}
+	
+	protected class Task_Repeat{
+	/*	private static final String TABLE_TASK_REPEAT = "task_repeat";
+		protected static final String KEY_TASK_ID = "task_id";
+		protected static final String KEY_INTERVAL = "interval";
+		protected static final String KEY_INTERVAL_TYPE = "interval_type";
+		protected static final String KEY_INTERVAL_EXPIRATION = "interval_expiration";
+		protected static final String KEY_INTERVAL_WEEK = "interval_week";
+		protected static final String KEY_WEEK_OF_MONTH = "week_of_month";
+		protected static final String KEY_DAY_OF_MONTH = "day_of_month";
+		
+		protected static final String CREATE_TASKS_TABLE = "CREATE TABLE "
+				+ TABLE_TASK_REPEAT
+				+ "("
+				+ KEY_TASK_ID + " INTEGER,"
+				+ KEY_INTERVAL + " INTEGER,"
+				
+				+ KEY_INTERVAL_TYPE + " INTEGER,"
+				//values 0-4 noRepeat/daily/weekly/monthly/yearly
+				+ KEY_INTERVAL_EXPIRATION + " TEXT,"
+				
+				+ KEY_INTERVAL_WEEK	+ " TEXT,"
+				//Comma Separated				
+				+ KEY_WEEK_OF_MONTH + " INTEGER,"
+				//values 0-5
+				+ KEY_DAY_OF_MONTH+ " INTEGER"
+				//values=date
+			
+				
+				+ ")";
+		
+		private ContentValues setContent(RepeatModel repeatModel)
+		{
+			ContentValues values = new ContentValues();
+			
+			values.put(KEY_TASK_ID, repeatModel._id);
+			values.put(KEY_INTERVAL, repeatModel.interval);
+			values.put(KEY_INTERVAL_TYPE, repeatModel.interval_type);
+			values.put(KEY_INTERVAL_EXPIRATION, repeatModel.interval_expiration);
+			values.put(KEY_INTERVAL_WEEK, repeatModel.interval_week);
+			values.put(KEY_WEEK_OF_MONTH, repeatModel.week_of_month);
+			values.put(KEY_DAY_OF_MONTH, repeatModel.day_of_month);
+			return values;
+		}
+		private TaskModel getValuesFromCursor(Cursor c)
+		{
+			int colID = c.getColumnIndex(KEY_TASK_ID);
+			int colInterval = c.getColumnIndex(KEY_INTERVAL);
+			int colIntervalType = c.getColumnIndex(KEY_INTERVAL_TYPE);
+			int colIntervalExpiration = c.getColumnIndex(KEY_INTERVAL_EXPIRATION);
+			int colIntervalWeek = c.getColumnIndex(KEY_INTERVAL_WEEK);
+			int colWeekOfMonth = c.getColumnIndex(KEY_WEEK_OF_MONTH);
+			int colDayOfMonth = c.getColumnIndex(KEY_DAY_OF_MONTH);
+			RepeatModel repeatModel = new RepeatModel();
+			repeatModel._id = c.getInt(colID);
+			repeatModel.title = c.getString(colInterval);
+			repeatModel.details = c.getString(colIntervalType);
+			repeatModel.notes = c.getString(colIntervalExpiration);
+			repeatModel.updated = c.getString(colIntervalWeek);
+			repeatModel.remind_at = c.getString(colWeekOfMonth);
+			repeatModel.remind_interval = c.getInt(colDayOfMonth); 
+			return repeatModel;
+		}
+		public int Add(RepeatModel repeatModel )
+		{
+			SQLiteDatabase db = getWritableDatabase();
+			ContentValues values = setContent(repeatModel);
+			
+			int id = (int) db.insert(TABLE_TASK_REPEAT, null, values);
+			db.close();
+			return id;
+		}
+		public boolean Delete(int id) {
+			// it will take input from TaskList_Delete
+			// and delete all tasks against that list
+			SQLiteDatabase db = getWritableDatabase();
+			if(db.delete(TABLE_TASK_REPEAT, KEY_PK + " = ?",
+					new String[] { String.valueOf(id) })>0)
+				{
+				db.close();
+				return true;
+				
+				}
+			db.close();
+			return false;
+		}
+
+		
+		
+	*/}
 //	public ArrayList<Common.CustomViewsData.MultiSelectRowData> Get_Users() {
 //
 //		ArrayList<Common.CustomViewsData.MultiSelectRowData> users = new ArrayList<Common.CustomViewsData.MultiSelectRowData>();

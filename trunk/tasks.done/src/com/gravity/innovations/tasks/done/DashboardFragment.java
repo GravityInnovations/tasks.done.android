@@ -124,12 +124,15 @@ public class DashboardFragment extends Fragment {
 
 				@Override
 				public void onClick(View v) {
-					Animation hyperspaceJumpAnimation = AnimationUtils
+					try{
+					Animation anim = AnimationUtils
 							.loadAnimation(mActivity, R.anim.fade_in);
 					search_layout_relative.setVisibility(View.VISIBLE);
 					search_layout_relative
-							.startAnimation(hyperspaceJumpAnimation);
-
+							.startAnimation(anim);
+					}catch(Exception e){
+						Log.e("DashboardFragment:iv_search:SearchFadeIn",e.getLocalizedMessage());
+					}
 				}
 			});
 
@@ -138,12 +141,15 @@ public class DashboardFragment extends Fragment {
 
 				@Override
 				public void onClick(View v) {
-					Animation hyperspaceJumpAnimation = AnimationUtils
+				try{
+					Animation anim = AnimationUtils
 							.loadAnimation(mActivity, R.anim.fade_out);
 					search_layout_relative.setVisibility(View.GONE);
 					search_layout_relative
-							.startAnimation(hyperspaceJumpAnimation);
-
+							.startAnimation(anim);
+				}catch(Exception e){
+					Log.e("DashboardFragment:iv_cancel:SearchFadeOut",e.getLocalizedMessage());
+				}
 				}
 			});
 

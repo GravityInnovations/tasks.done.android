@@ -420,6 +420,7 @@ public class MainActivity extends ActionBarActivity implements
 
 		if (id == R.id.action_settings) {
 			Intent i = new Intent(MainActivity.this, SettingsActivity.class);
+			//overridePendingTransition(R.anim.abc_fade_in, R.anim.abc_fade_out);
 			startActivity(i);
 		} else if (id == R.id.action_dashboard) {
 			onDashboardSelected();
