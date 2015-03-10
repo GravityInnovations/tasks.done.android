@@ -53,7 +53,10 @@ import android.widget.ProgressBar;
 import android.widget.TimePicker;
 import android.widget.Toast;
 
+import com.google.android.gms.ads.AdListener;
 import com.google.android.gms.ads.AdRequest;
+import com.google.android.gms.ads.AdSize;
+import com.google.android.gms.ads.AdView;
 import com.gravity.innovations.tasks.done.Common.Callbacks.ServiceCallback;
 
 public class MainActivity extends ActionBarActivity implements
@@ -256,6 +259,7 @@ public class MainActivity extends ActionBarActivity implements
 				return true;
 			}
 		});
+		displayAds();
 
 	}
 
@@ -296,9 +300,54 @@ public class MainActivity extends ActionBarActivity implements
 
 	public void displayAds() {
 		try {
-			// AdView mAdView = (AdView) findViewById(R.id.adView);
+			 AdView mAdView = (AdView) findViewById(R.id.adView);
+			 //mAdView.setAdSize(AdSize.SMART_BANNER);
+			 mAdView.setAdListener(new AdListener() {
+
+				@Override
+				public void onAdClosed() {
+					// TODO Auto-generated method stub
+					super.onAdClosed();
+				}
+
+				@Override
+				public void onAdFailedToLoad(int errorCode) {
+					// TODO Auto-generated method stub
+					super.onAdFailedToLoad(errorCode);
+					switch(errorCode)
+					{
+					case AdRequest.ERROR_CODE_INTERNAL_ERROR:
+						break;
+					case AdRequest.ERROR_CODE_INVALID_REQUEST:
+						break;
+					case AdRequest.ERROR_CODE_NETWORK_ERROR:
+						break;
+					case AdRequest.ERROR_CODE_NO_FILL:
+						break;
+					}
+				}
+
+				@Override
+				public void onAdLeftApplication() {
+					// TODO Auto-generated method stub
+					super.onAdLeftApplication();
+				}
+
+				@Override
+				public void onAdLoaded() {
+					// TODO Auto-generated method stub
+					super.onAdLoaded();
+				}
+
+				@Override
+				public void onAdOpened() {
+					// TODO Auto-generated method stub
+					super.onAdOpened();
+				}
+				 
+			});
 			AdRequest adRequest = new AdRequest.Builder().build();
-			// mAdView.loadAd(adRequest);
+			 mAdView.loadAd(adRequest);
 		} catch (Exception e) {
 			Log.e("displayAd:MainActivity", e.getLocalizedMessage());
 		}

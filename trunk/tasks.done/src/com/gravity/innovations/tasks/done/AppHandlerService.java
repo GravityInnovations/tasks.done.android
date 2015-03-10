@@ -905,6 +905,8 @@ public class AppHandlerService extends Service implements
 			} catch (JSONException e) {
 
 				// TODO Auto-generated catch block
+				addProgressTask("Unable to fetch your information from Google");
+				donetasks++;
 				e.printStackTrace();
 			}
 
