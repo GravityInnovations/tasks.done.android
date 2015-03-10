@@ -22,6 +22,7 @@ import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.app.Service;
+import android.content.ContentProviderOperation;
 import android.content.ContentUris;
 import android.content.ContentValues;
 import android.content.Context;
@@ -46,6 +47,7 @@ import android.os.IBinder;
 import android.os.Looper;
 import android.os.Message;
 import android.provider.ContactsContract;
+import android.provider.ContactsContract.CommonDataKinds.Phone;
 import android.provider.ContactsContract.CommonDataKinds.StructuredName;
 import android.provider.ContactsContract.Data;
 import android.provider.ContactsContract.Contacts.Photo;
@@ -101,7 +103,7 @@ public class AppHandlerService extends Service implements
 			AppStateClassName = SplashActivity.class.getName();
 			user_data = new Common.userData();
 			nH = new NotificationHandler(this);
-			addContractContact();
+			
 			// InitEvents();
 			
 			sendNotification("task.done", "background service is running", 2);
@@ -732,35 +734,36 @@ public class AppHandlerService extends Service implements
 			// runWorker
 		}
 	}
-	public void addContractContact()//UserModel temp)
+	public void addContractContact(UserModel temp)
 	{
 		try{
-		ContentValues p=new ContentValues();
-		p.put(RawContacts.ACCOUNT_TYPE, "com.google");
-	    p.put(RawContacts.ACCOUNT_NAME, "email");
-	    Uri rowcontect= getContentResolver().insert(RawContacts.CONTENT_URI, p);
-	    long rawcontectid=ContentUris.parseId(rowcontect);
-	    ContentValues value = new ContentValues();
-	    value.put(Data.RAW_CONTACT_ID,rawcontectid);
-	    value.put(android.provider.ContactsContract.Data.MIMETYPE,ContactsContract.Contacts.CONTENT_ITEM_TYPE);
-	    value.put(ContactsContract.Contacts.DISPLAY_NAME, "aaaa");
-	    value.put(ContactsContract.CommonDataKinds.Email.DATA, "test@gmail.com");
-	    getContentResolver().insert(ContactsContract.CommonDataKinds.Email.CONTENT_URI, value);
-	    //.DISPLAY_NAME
-//	    p.put(ContactsContract.CommonDataKinds.Email.DATA, "com.google");
-//	    p.put(ContactsContract.Contacts.DISPLAY_NAME, "aaaaaaaaaaaaaaaaaaaaaaaaaaa");
-//	    Uri rowcontect= getContentResolver().insert(ContactsContract.CommonDataKinds.Email.CONTENT_URI, p);
-//	    long rawcontectid=ContentUris.parseId(rowcontect);
+			 ArrayList<ContentProviderOperation> ops =
+			          new ArrayList<ContentProviderOperation>();
+			
+			 int rawContactInsertIndex = ops.size();
+			 ops.add(ContentProviderOperation.newInsert(RawContacts.CONTENT_URI)
+			          .withValue(RawContacts.ACCOUNT_TYPE, "com.google")
+			          .withValue(RawContacts.ACCOUNT_NAME, temp.name)
+			          .build());
 
-	    //ContentValues value = new ContentValues();
-//	    value.put(Data.RAW_CONTACT_ID,rawcontectid);
-//	    value.put(android.provider.ContactsContract.Data.MIMETYPE,StructuredName.CONTENT_ITEM_TYPE);
-//	    value.put(StructuredName.DISPLAY_NAME, "aaaaaaaaaaaaaaaaaa");
-//	    getContentResolver().insert(android.provider.ContactsContract.Data.CONTENT_URI, value);
+			 ops.add(ContentProviderOperation.newInsert(Data.CONTENT_URI)
+			          .withValueBackReference(Data.RAW_CONTACT_ID, rawContactInsertIndex)
+			          .withValue(Data.MIMETYPE, StructuredName.CONTENT_ITEM_TYPE)
+			          .withValue(StructuredName.DISPLAY_NAME, temp.name)
+			          .build());
+			 ops.add(ContentProviderOperation.newInsert(ContactsContract.Data.CONTENT_URI)
+					    .withValueBackReference(ContactsContract.Data.RAW_CONTACT_ID, rawContactInsertIndex)
+					    .withValue(ContactsContract.Data.MIMETYPE,
+					            ContactsContract.CommonDataKinds.Email.CONTENT_ITEM_TYPE)
+					    .withValue(ContactsContract.CommonDataKinds.Email.DATA, temp.email)
+					    .withValue(ContactsContract.CommonDataKinds.Email.TYPE, "com.google")
+					    .build());
+			 getContentResolver().applyBatch(ContactsContract.AUTHORITY, ops);
 		}
 		catch(Exception e)
 		{
-			ContentValues value = new ContentValues();
+			String s = "";
+			s+=0;
 		}
 	}
 	public void httpResult(JSONObject data, int RequestCode, int ResultCode) {
