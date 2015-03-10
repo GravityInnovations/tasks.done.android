@@ -198,8 +198,8 @@ public class SetTaskReminderActivity extends ActionBarActivity {
 			RelativeLayout.LayoutParams lp = new RelativeLayout.LayoutParams(
 					RelativeLayout.LayoutParams.WRAP_CONTENT,
 					RelativeLayout.LayoutParams.WRAP_CONTENT);
-			//lp.setMargins(0, 10, 0, 10);
-			//lp.setMargins(0, 0, 0, 10);
+			// lp.setMargins(0, 10, 0, 10);
+			// lp.setMargins(0, 0, 0, 10);
 
 			// lp.addRule(RelativeLayout.BELOW, R.id.add_notification_btn);
 			// lp.addRule(RelativeLayout.ALIGN_LEFT, R.id.add_notification_btn);
@@ -210,8 +210,8 @@ public class SetTaskReminderActivity extends ActionBarActivity {
 			button.setText("Notification Time");
 			button.setTextSize(17);
 			float scale = getResources().getDisplayMetrics().density;
-			int dpAsPixels = (int) (10*scale + 0.5f);
-			
+			int dpAsPixels = (int) (10 * scale + 0.5f);
+
 			button.setPadding(0, dpAsPixels, 0, dpAsPixels);
 			button.setTextColor(getResources().getColor(R.color.black));// Color.parseColor("#bdbdbd"));
 			button.setBackground(getResources().getDrawable(
@@ -251,7 +251,8 @@ public class SetTaskReminderActivity extends ActionBarActivity {
 	//
 	// }
 	// }
-	@SuppressLint("NewApi") public void openCalenderViewDialog() {
+	@SuppressLint("NewApi")
+	public void openCalenderViewDialog() {
 		View dialog_headerView = this.getLayoutInflater().inflate(
 				R.layout.dialog_calenderview_header, null);
 		View dialog_detailsView = this.getLayoutInflater().inflate(
@@ -292,18 +293,21 @@ public class SetTaskReminderActivity extends ActionBarActivity {
 					.setOnDateChangeListener(new CalendarView.OnDateChangeListener() {
 						public void onSelectedDayChange(CalendarView view,
 								int year, int month, int dayOfMonth) {
-							
+
 							c.set(Calendar.YEAR, year);
-							c.set(Calendar.MONTH,month);
+							c.set(Calendar.MONTH, month);
 							c.set(Calendar.DAY_OF_MONTH, dayOfMonth);
-							
-							
-							String monthString =c.getDisplayName(Calendar.MONTH, Calendar.SHORT, Locale.getDefault());
+
+							String monthString = c.getDisplayName(
+									Calendar.MONTH, Calendar.SHORT,
+									Locale.getDefault());
 							tv_year_final.setText(String.valueOf(year));
 							tv_date_final.setText(String.valueOf(dayOfMonth));
-							
+
 							tv_month_final.setText(monthString);
-							tv_weekday.setText(c.getDisplayName(Calendar.DAY_OF_WEEK,Calendar.LONG,Locale.getDefault()));
+							tv_weekday.setText(c.getDisplayName(
+									Calendar.DAY_OF_WEEK, Calendar.LONG,
+									Locale.getDefault()));
 						}
 					});
 
@@ -556,28 +560,24 @@ public class SetTaskReminderActivity extends ActionBarActivity {
 
 			@Override
 			public void onClick(DialogInterface dialog, int which) {
-				// Toast.makeText(getApplicationContext(),
-				// "RepeatDialog " + which, Toast.LENGTH_LONG).show();
-
 				if (which == 0) {
-
 					tv.setText("Does not repeat");
-
+					tv.setTag("0");
 				} else if (which == 1) {
 					tv.setText("Every day");
-
+					tv.setTag("1");
 				} else if (which == 2) {
-
 					tv.setText("Every week");
+					tv.setTag("2");
 				} else if (which == 3) {
-
 					tv.setText("Every month");
+					tv.setTag("3");
 				} else if (which == 4) {
 					tv.setText("Every year");
-
+					tv.setTag("4");
 				} else if (which == 5) {
 					repeatDetailsDialog();
-
+					tv.setTag("5");
 				}
 
 			}
@@ -1280,11 +1280,17 @@ public class SetTaskReminderActivity extends ActionBarActivity {
 
 		if (id == R.id.action_save) {
 			DatabaseHelper db = new DatabaseHelper(mContext);
-
 			task.title = et_title.getText().toString();
 			task.details = et_details.getText().toString();
 			task.notes = et_notes.getText().toString();
 			db.tasks.Edit(task);
+			RepeatTaskModel repeatModel = new RepeatTaskModel();
+			repeatModel.task_id = task._id;
+			String repeatText = (String) tv_repeat.getText();
+			int getTag = (Integer) tv_repeat.getTag();
+			repeatModel.interval_type = getTag;
+			 
+			db.taskRepeat.Add(repeatModel);
 			finish();
 		}
 

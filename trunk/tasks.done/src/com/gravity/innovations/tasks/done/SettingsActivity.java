@@ -30,6 +30,7 @@ public class SettingsActivity extends ActionBarActivity {
 		// TODO Auto-generated method stub
 		super.onCreate(savedInstanceState);
 		mContext = getApplicationContext();
+		overridePendingTransition(R.anim.slide_top_to_bottom, R.anim.slide_top_to_bottom);
 		setContentView(R.layout.activity_settings);
 	
 		// declaration SharedPreferences
@@ -181,6 +182,7 @@ public class SettingsActivity extends ActionBarActivity {
 	@Override
 	public void onBackPressed() {
 		super.onBackPressed();
+		//overridePendingTransition( R.anim.slide_bottom_to_top, R.anim.slide_bottom_to_top);
 
 	}
 

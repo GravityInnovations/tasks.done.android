@@ -5,10 +5,11 @@ public class RepeatTaskModel {
 	public int interval;
 	public int interval_type;
 	public String interval_expiration;
-
 	public String interval_week;
 	public int week_of_month;
-	public int remind_interval;
+	public int day_of_month;
+	public String startDateTime;
+	public String endDateTime;
 	
 	RepeatTaskModel(){}
 }
