@@ -23,6 +23,8 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup.LayoutParams;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
 import android.widget.Button;
 import android.widget.GridView;
 import android.widget.ImageView;
@@ -151,6 +153,17 @@ public class TaskAdapter extends RecyclerView.Adapter {// <TaskAdapter.ViewHolde
 				} catch (Exception e) {
 					Log.e("TaskAdapter", "iv_alarmToggle");
 				}
+				
+				
+				if (HighlightTask !=-1 && task._id == HighlightTask){
+				
+					Animation animationFadeIn = AnimationUtils
+						.loadAnimation(this.mContext, R.anim.fade_in);
+					viewHolder.taskRowLayout.startAnimation(animationFadeIn);
+					mRecyclerView.scrollToPosition(position);
+					
+				}
+				
 				// Assigning task data to the holder finish
 
 				// mark as dne and undone start
