@@ -1286,10 +1286,9 @@ public class SetTaskReminderActivity extends ActionBarActivity {
 			db.tasks.Edit(task);
 			RepeatTaskModel repeatModel = new RepeatTaskModel();
 			repeatModel.task_id = task._id;
-			String repeatText = (String) tv_repeat.getText();
-			int getTag = (Integer) tv_repeat.getTag();
-			repeatModel.interval_type = getTag;
-			 
+			String getTag = (String) tv_repeat.getTag();
+			repeatModel.interval_type = Integer.parseInt(getTag);
+			// interval_type returns 0-5 doesnotRepeat/daily/weekly/monthly/custom
 			db.taskRepeat.Add(repeatModel);
 			finish();
 		}

@@ -92,6 +92,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 	protected static final String KEY_DAY_OF_MONTH = "day_of_month";
 	protected static final String KEY_START_DATETIME = "start_date_time";
 	protected static final String KEY_END_DATETIME = "end_date_time";
+	protected static final String KEY_All_DAY = "all_day";
 	// ******** TASK REPEAT *********//
 	// ********* SQLite Table Structure Queries *********//
 
@@ -1009,7 +1010,8 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 				+ KEY_DAY_OF_MONTH + " INTEGER,"
 				// values=date
 				+ KEY_START_DATETIME + " TEXT,"//datetime
-				+ KEY_END_DATETIME + " TEXT"//datetime
+				+ KEY_END_DATETIME + " TEXT,"//datetime
+				+ KEY_All_DAY + "INTEGER"
 				+ ")";
 
 		private ContentValues setContent(RepeatTaskModel repeatModel) {
@@ -1022,6 +1024,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 			values.put(KEY_INTERVAL_WEEK, repeatModel.interval_week);
 			values.put(KEY_WEEK_OF_MONTH, repeatModel.week_of_month);
 			values.put(KEY_DAY_OF_MONTH, repeatModel.day_of_month);
+			values.put(KEY_All_DAY, repeatModel.allDay);
 			return values;
 		}
 
@@ -1034,6 +1037,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 			int colIntervalWeek = c.getColumnIndex(KEY_INTERVAL_WEEK);
 			int colWeekOfMonth = c.getColumnIndex(KEY_WEEK_OF_MONTH);
 			int colDayOfMonth = c.getColumnIndex(KEY_DAY_OF_MONTH);
+			int colAllDay = c.getColumnIndex(KEY_All_DAY);
 			RepeatTaskModel repeatModel = new RepeatTaskModel();
 			repeatModel.task_id = c.getInt(colID);
 			repeatModel.interval = c.getInt(colInterval);
@@ -1043,6 +1047,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 			repeatModel.interval_week = c.getString(colIntervalWeek);
 			repeatModel.week_of_month = c.getInt(colWeekOfMonth);
 			repeatModel.day_of_month = c.getInt(colDayOfMonth);
+			repeatModel.allDay = c.getInt(colAllDay);
 			return repeatModel;
 		}
 
