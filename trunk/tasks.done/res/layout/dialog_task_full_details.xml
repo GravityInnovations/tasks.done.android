@@ -152,6 +152,7 @@
         android:layout_alignParentBottom="true"
         android:layout_alignParentRight="true"
         android:layout_alignRight="@+id/LL2"
+        android:src="@drawable/task_row_mask"
         android:focusable="false" />
 
     <com.gravity.innovations.custom.views.CalendarView

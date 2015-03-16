@@ -7,8 +7,11 @@ import java.util.Date;
 import com.gravity.innovations.custom.views.CalendarView;
 
 import android.annotation.SuppressLint;
+import android.app.Activity;
+import android.graphics.Color;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.annotation.Nullable;
 import android.support.v4.app.DialogFragment;
 import android.support.v4.app.FragmentManager;
@@ -16,6 +19,8 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -31,22 +36,24 @@ public class DialogViewFragment extends DialogFragment {
 	private NavigationDrawerFragment mNavigationDrawerFragment;
 	private DialogViewFragment dialog;
 	private CalendarView cal;
- 
+	private Activity mActivity;
+
 	public DialogViewFragment(TaskListModel listModel, TaskModel taskModel,
-			NavigationDrawerFragment ndf) {
+			NavigationDrawerFragment ndf, Activity activity) {
 		this.listModel = listModel;
 		this.taskModel = taskModel;
 		this.mNavigationDrawerFragment = ndf;
-		//this.dialog = _dialog = this.dialog = this;
+		// this.dialog = _dialog = this.dialog = this;
 		this.dialog = this;
+		mActivity = activity;
 	}
 
 	@Override
 	public void show(FragmentManager manager, String tag) {
 		// TODO Auto-generated method stub
 		super.show(manager, tag);
-		if(cal!=null)
-		cal.ScrollToToday();
+		if (cal != null)
+			cal.ScrollToToday();
 	}
 
 	@Override
@@ -65,21 +72,21 @@ public class DialogViewFragment extends DialogFragment {
 	public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
 		// TODO Auto-generated method stub
 		super.onViewCreated(view, savedInstanceState);
-		if(cal!=null)
+		if (cal != null)
 			cal.ScrollToToday();
 	}
 
 	@Override
 	public void onActivityCreated(Bundle arg0) {
 		super.onActivityCreated(arg0);
-		
+
 		tv_title = (TextView) view.findViewById(R.id.txt_task_name);
 		tv_details = (TextView) view.findViewById(R.id.txt_details);
 		tv_notes = (TextView) view.findViewById(R.id.txt_notes);
 		tv_updated = (TextView) view.findViewById(R.id.txt_time_updated);
 		// TextView tv_due = (TextView) view.findViewById(R.id.);
 		tv_sync_time = (TextView) view.findViewById(R.id.txt_time_synced);
-		cal =(CalendarView)view.findViewById(R.id.calendar1);
+		cal = (CalendarView) view.findViewById(R.id.calendar1);
 		//
 		markDoneToggle = (ImageView) view.findViewById(R.id.detail_done_toggle);
 
@@ -136,11 +143,16 @@ public class DialogViewFragment extends DialogFragment {
 			Log.e("AssigningSycedTimeStamp", "NDF openTaskDetailsDialog");
 		}
 		// ********************ImageViews*********************//
+		float alpha = 0;
 		if (taskModel.completed == 1) {
-			markDoneToggle.setBackgroundResource(R.drawable.task_row_done_bg);
+			alpha = 1.0f;
+			// markDoneToggle.setBackgroundResource(R.drawable.task_row_done_bg);
 		} else if (taskModel.completed == 0) {
-			markDoneToggle.setBackgroundResource(R.drawable.task_row_bg);
+			alpha = 0.10f;
+			// markDoneToggle.setBackgroundResource(R.drawable.task_row_bg);
 		}
+		markDoneToggle.setBackgroundColor(adjustAlpha(
+				Color.parseColor(listModel.fragmentColor), alpha));
 
 		// taskDelete: to delete the task
 		taskDelete.setOnClickListener(new OnClickListener() {
@@ -150,7 +162,8 @@ public class DialogViewFragment extends DialogFragment {
 				try {
 					ArrayList<Integer> arrayList = new ArrayList<Integer>();
 					arrayList.add(taskModel._id);
-					mNavigationDrawerFragment.deleteTask(listModel, taskModel/*arrayList*/);
+					mNavigationDrawerFragment
+							.deleteTask(listModel, taskModel/* arrayList */);
 					dialog.dismiss();
 				} catch (Exception e) {
 					Log.e("DialogViewFragment", "taskDelete");
@@ -183,47 +196,68 @@ public class DialogViewFragment extends DialogFragment {
 		markDoneToggle.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {
+				float alphaToggle = 0;
 				if (taskModel.completed == 1) {
-					markDoneToggle
-							.setBackgroundResource(R.drawable.task_row_bg);
+					alphaToggle = 0.10f;
+					// markDoneToggle
+					// .setBackgroundResource(R.drawable.task_row_bg);
 					taskModel.completed = 0;
-					mNavigationDrawerFragment
-							.MarkDoneTask(listModel, taskModel);
+
 				} else if (taskModel.completed == 0) {
+					alphaToggle = 1.0f;
 					taskModel.completed = 1;
-					mNavigationDrawerFragment
-							.MarkDoneTask(listModel, taskModel);
-					markDoneToggle
-							.setBackgroundResource(R.drawable.task_row_done_bg);
+					// markDoneToggle
+					// .setBackgroundResource(R.drawable.task_row_done_bg);
+
 				}
+				try {
+					markDoneToggle.setBackgroundColor(adjustAlpha(
+							Color.parseColor(listModel.fragmentColor),
+							alphaToggle));
+					Animation animationFadeIn = AnimationUtils.loadAnimation(
+							mActivity, R.anim.fade_in);
+					markDoneToggle.startAnimation(animationFadeIn);
+				} catch (Exception e) {
+					Log.e("markDoneToggle", e.getLocalizedMessage());
+				}
+				mNavigationDrawerFragment.MarkDoneTask(listModel, taskModel);
+
 			}
 		});
-		
-//		AsyncTask<Void, Void, Void> t = new AsyncTask<Void, Void, Void>() {
-//			
-//			@Override
-//			protected void onPostExecute(Void result) {
-//				// TODO Auto-generated method stub
-//				super.onPostExecute(result);
-//				cal.ScrollToToday();
-//			}
-//
-//			@Override
-//			protected Void doInBackground(Void... params) {
-//				// TODO Auto-generated method stub
-//				try {
-//					Thread.sleep(3000);
-//					
-//				} catch (InterruptedException e) {
-//					// TODO Auto-generated catch block
-//					e.printStackTrace();
-//				}
-//				
-//				return null;
-//			}
-//		};
-		//t.execute();
+
+		// AsyncTask<Void, Void, Void> t = new AsyncTask<Void, Void, Void>() {
+		//
+		// @Override
+		// protected void onPostExecute(Void result) {
+		// // TODO Auto-generated method stub
+		// super.onPostExecute(result);
+		// cal.ScrollToToday();
+		// }
+		//
+		// @Override
+		// protected Void doInBackground(Void... params) {
+		// // TODO Auto-generated method stub
+		// try {
+		// Thread.sleep(3000);
+		//
+		// } catch (InterruptedException e) {
+		// // TODO Auto-generated catch block
+		// e.printStackTrace();
+		// }
+		//
+		// return null;
+		// }
+		// };
+		// t.execute();
 
 	}
 
+	public int adjustAlpha(int color, float alpha) {
+		// float f = alpha/100;
+		int a = Math.round(255 * alpha);// ( 255 * (float)());
+		int red = Color.red(color);
+		int green = Color.green(color);
+		int blue = Color.blue(color);
+		return Color.argb(a, red, green, blue);
+	}
 }

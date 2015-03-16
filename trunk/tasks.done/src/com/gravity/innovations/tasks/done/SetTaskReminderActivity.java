@@ -1,7 +1,9 @@
 package com.gravity.innovations.tasks.done;
 
+import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Date;
 import java.util.Locale;
 
 import android.annotation.SuppressLint;
@@ -11,10 +13,12 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
+import android.opengl.Visibility;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBarActivity;
+import android.text.format.DateFormat;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -30,27 +34,38 @@ import android.widget.CompoundButton.OnCheckedChangeListener;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
+import android.widget.RadioButton;
+import android.widget.RadioGroup;
 import android.widget.RelativeLayout;
 import android.widget.Spinner;
 import android.widget.Switch;
 import android.widget.TextView;
+import android.widget.TimePicker;
 import android.widget.Toast;
 
 public class SetTaskReminderActivity extends ActionBarActivity {
 	private TaskModel task;
 	private TaskListModel list;
 	private ImageButton ib_Save, ib_Cancel;
-	private TextView tv_title, tv_details, tv_notes, notification_btn,
-			notification_another_btn;
+	private TextView tv_title, tv_details, tv_notes;
 	// ,tv_notification;// change tv_repeat to button
 
 	private EditText et_title, et_details, et_notes;
 	private Switch _switch;
-	private TextView tv_repeat, tv_time1, tv_time2, tv_date1, tv_date2;;
+	private TextView tv_repeat, tv_timeStart, tv_timeEnd, tv_dateStart,
+			tv_dateEnd, tv_notification, tv_notification_addAnother;
 
 	private Context mContext;
 	private ActionBar actionBar;
 	private Calendar c;
+	boolean isSwitchChecked = false;
+	String v, nE = null;
+
+	View.OnClickListener mListener;
+	String dateStart, dateEnd, timeStart, timeEnd;// , dateTimeStart,
+													// dateTimeEnd;
+
+	// String v = null;
 
 	// private Button time1_btn, time2_btn;
 	// private Button date1_btn;
@@ -79,10 +94,10 @@ public class SetTaskReminderActivity extends ActionBarActivity {
 		et_notes = (EditText) findViewById(R.id.textViewNotes);
 		et_notes.setText(task.notes);
 
-		tv_time1 = (TextView) findViewById(R.id.btn_time_1);
-		tv_date1 = (TextView) findViewById(R.id.btn_date_1);
-		tv_time2 = (TextView) findViewById(R.id.btn_time_2);
-		tv_date2 = (TextView) findViewById(R.id.btn_date_2);
+		tv_timeStart = (TextView) findViewById(R.id.btn_time_1);
+		tv_dateStart = (TextView) findViewById(R.id.btn_date_1);
+		tv_timeEnd = (TextView) findViewById(R.id.btn_time_2);
+		tv_dateEnd = (TextView) findViewById(R.id.btn_date_2);
 
 		_switch = (Switch) findViewById(R.id.onOFF);
 		_switch.setChecked(false);
@@ -91,21 +106,23 @@ public class SetTaskReminderActivity extends ActionBarActivity {
 			public void onCheckedChanged(CompoundButton buttonView,
 					boolean isChecked) {
 				if (isChecked) {
-					tv_time1.setEnabled(false);
-					tv_time2.setEnabled(false);
-					tv_time1.setVisibility(View.GONE);
-					tv_time2.setVisibility(View.GONE);
+					tv_timeStart.setEnabled(false);
+					tv_timeEnd.setEnabled(false);
+					tv_timeStart.setVisibility(View.GONE);
+					tv_timeEnd.setVisibility(View.GONE);
+					isSwitchChecked = true;
 				} else {
-					tv_time1.setEnabled(true);
-					tv_time2.setEnabled(true);
-					tv_time1.setVisibility(View.VISIBLE);
-					tv_time2.setVisibility(View.VISIBLE);
+					tv_timeStart.setEnabled(true);
+					tv_timeEnd.setEnabled(true);
+					tv_timeStart.setVisibility(View.VISIBLE);
+					tv_timeEnd.setVisibility(View.VISIBLE);
+					isSwitchChecked = false;
 				}
 
 			}
 		});
 
-		tv_time1.setOnClickListener(new View.OnClickListener() {
+		tv_timeStart.setOnClickListener(new View.OnClickListener() {
 
 			@Override
 			public void onClick(View v) {
@@ -114,16 +131,7 @@ public class SetTaskReminderActivity extends ActionBarActivity {
 
 			}
 		});
-		tv_date1.setOnClickListener(new View.OnClickListener() {
-
-			@Override
-			public void onClick(View v) {
-				// open openCustomTimepickerDialog dialog
-				openCalenderViewDialog();
-
-			}
-		});
-		tv_time2.setOnClickListener(new View.OnClickListener() {
+		tv_timeEnd.setOnClickListener(new View.OnClickListener() {
 
 			@Override
 			public void onClick(View v) {
@@ -132,12 +140,22 @@ public class SetTaskReminderActivity extends ActionBarActivity {
 
 			}
 		});
-		tv_date2.setOnClickListener(new View.OnClickListener() {
+
+		tv_dateStart.setOnClickListener(new View.OnClickListener() {
 
 			@Override
 			public void onClick(View v) {
 				// open openCustomTimepickerDialog dialog
-				openCalenderViewDialog();
+				openCalenderViewDialogStartDate();
+
+			}
+		});
+		tv_dateEnd.setOnClickListener(new View.OnClickListener() {
+
+			@Override
+			public void onClick(View v) {
+				// open openCustomTimepickerDialog dialog
+				openCalenderViewDialogEndDate();
 
 			}
 		});
@@ -151,10 +169,10 @@ public class SetTaskReminderActivity extends ActionBarActivity {
 			}
 		});
 
-		notification_btn = (TextView) findViewById(R.id.add_notification_btn);
-		notification_another_btn = (TextView) findViewById(R.id.add_another_notification_btn);
+		tv_notification = (TextView) findViewById(R.id.add_notification_btn);
+		tv_notification_addAnother = (TextView) findViewById(R.id.add_another_notification_btn);
 
-		notification_btn.setOnClickListener(new View.OnClickListener() {
+		tv_notification.setOnClickListener(new View.OnClickListener() {
 
 			@Override
 			public void onClick(View v) {
@@ -164,27 +182,31 @@ public class SetTaskReminderActivity extends ActionBarActivity {
 		});
 
 		final ArrayList<TextView> notificaitonBtnList = new ArrayList<TextView>();
-		notificaitonBtnList.add(notification_btn);
-		notificaitonBtnList.add(notification_another_btn);
+		notificaitonBtnList.add(tv_notification);
+		notificaitonBtnList.add(tv_notification_addAnother);
 
-		notification_another_btn.setOnClickListener(new View.OnClickListener() {
+		tv_notification_addAnother
+				.setOnClickListener(new View.OnClickListener() {
 
-			@Override
-			public void onClick(View v) {
-				if (notificaitonBtnList.size() < 5) {
-					// Button newButton = new Button(getApplicationContext());
-					TextView newButton = new TextView(getApplicationContext());
-					newButton.setOnClickListener(new View.OnClickListener() {
-						@Override
-						public void onClick(View v) {
-							radioDialog();
+					@Override
+					public void onClick(View v) {
+						if (notificaitonBtnList.size() < 5) {
+							// Button newButton = new
+							// Button(getApplicationContext());
+							TextView newButton = new TextView(
+									getApplicationContext());
+							newButton
+									.setOnClickListener(new View.OnClickListener() {
+										@Override
+										public void onClick(View v) {
+											radioDialog();
+										}
+									});
+							addANewButton(newButton);
+							notificaitonBtnList.add(newButton);
 						}
-					});
-					addANewButton(newButton);
-					notificaitonBtnList.add(newButton);
-				}
-			}
-		});
+					}
+				});
 
 	}
 
@@ -227,65 +249,38 @@ public class SetTaskReminderActivity extends ActionBarActivity {
 
 	}
 
-	public void appendItemToEndOfList() {
-
-	}
-
-	// @Override
-	// public void onClick(View v) {
-	// switch (v.getId()) {
-	// case R.id.tv_am: {
-	// // do something for button 1 click
-	// Toast.makeText(getApplicationContext(), "AM", Toast.LENGTH_SHORT)
-	// .show();
-	//
-	// break;
-	// }
-	//
-	// case R.id.tv_pm: {
-	// // do something for button 2 click
-	// Toast.makeText(getApplicationContext(), "PM", Toast.LENGTH_SHORT)
-	// .show();
-	// break;
-	// }
-	//
-	// }
-	// }
 	@SuppressLint("NewApi")
-	public void openCalenderViewDialog() {
+	public void openCalenderViewDialogStartDate() {
 		View dialog_headerView = this.getLayoutInflater().inflate(
 				R.layout.dialog_calenderview_header, null);
 		View dialog_detailsView = this.getLayoutInflater().inflate(
 				R.layout.dialog_calenderview, null);
 
-		DialogInterface.OnClickListener posListener = new DialogInterface.OnClickListener() {
-			@Override
-			public void onClick(DialogInterface dialog, int which) {
-				dialog.cancel();
-				// save the new task title
-			}
-		};
 		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-
+			DialogInterface.OnClickListener posListener = new DialogInterface.OnClickListener() {
+				@Override
+				public void onClick(DialogInterface dialog, int which) {
+					dialog.cancel();
+					// save the new task title
+				}
+			};
 			Common.CustomDialog.CustomDialog(this, dialog_detailsView,
 					posListener, R.string.dialog_done);
 
-		} else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB
-				&& Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) {
+		} else if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP
+				&& Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
 
-			final TextView tv_weekday = (TextView) dialog_headerView
-					.findViewById(R.id.tv_day);
-			TextView tv_date = (TextView) dialog_headerView
-					.findViewById(R.id.tv_date);
-			TextView tv_month = (TextView) dialog_headerView
-					.findViewById(R.id.tv_month);
-			TextView tv_year = (TextView) dialog_headerView
-					.findViewById(R.id.tv_year);
-			final TextView tv_year_final, tv_date_final, tv_month_final;
+			final TextView tv_year, tv_date, tv_month, tv_weekday;
+
+			tv_weekday = (TextView) dialog_headerView.findViewById(R.id.tv_day);
+
+			tv_date = (TextView) dialog_headerView.findViewById(R.id.tv_date);
+			tv_month = (TextView) dialog_headerView.findViewById(R.id.tv_month);
+			tv_year = (TextView) dialog_headerView.findViewById(R.id.tv_year);
 			c = Calendar.getInstance();
-			tv_year_final = tv_year;
-			tv_date_final = tv_date;
-			tv_month_final = tv_month;
+			// tv_year_final = tv_year;
+			// tv_date_final = tv_date;
+			// tv_month_final = tv_month;
 
 			CalendarView calendarView = (CalendarView) dialog_detailsView
 					.findViewById(R.id.calenderView);
@@ -301,19 +296,131 @@ public class SetTaskReminderActivity extends ActionBarActivity {
 							String monthString = c.getDisplayName(
 									Calendar.MONTH, Calendar.SHORT,
 									Locale.getDefault());
-							tv_year_final.setText(String.valueOf(year));
-							tv_date_final.setText(String.valueOf(dayOfMonth));
+							tv_year.setText(String.valueOf(year));
+							tv_date.setText(String.valueOf(dayOfMonth));
 
-							tv_month_final.setText(monthString);
-							tv_weekday.setText(c.getDisplayName(
+							tv_month.setText(monthString);
+
+							String weekdayString = c.getDisplayName(
 									Calendar.DAY_OF_WEEK, Calendar.LONG,
-									Locale.getDefault()));
+									Locale.getDefault());
+
+							tv_weekday.setText(weekdayString);
+							dateStart = weekdayString + ", " + monthString
+									+ " " + String.valueOf(dayOfMonth) + ", "
+									+ String.valueOf(year);
 						}
 					});
+			DialogInterface.OnClickListener posListener = new DialogInterface.OnClickListener() {
+				@Override
+				public void onClick(DialogInterface dialog, int which) {
+					dialog.cancel();
+					Date newDate = c.getTime();
+					long a = c.getTimeInMillis();
+					tv_dateStart.setText(dateStart);
+				}
+			};
 
 			Common.CustomDialog.CustomDialog(this, dialog_detailsView,
 					dialog_headerView, posListener, R.string.dialog_done);
 		} else if (Build.VERSION.SDK_INT < Build.VERSION_CODES.HONEYCOMB) {
+			DialogInterface.OnClickListener posListener = new DialogInterface.OnClickListener() {
+				@Override
+				public void onClick(DialogInterface dialog, int which) {
+					dialog.cancel();
+					// save the new task title
+				}
+			};
+			View dialogView = this.getLayoutInflater().inflate(
+					R.layout.cal_view, null);
+			Common.CustomDialog.CustomDialog(this, dialogView, posListener,
+					R.string.dialog_done);
+
+		}
+	}
+
+	@SuppressLint("NewApi")
+	public void openCalenderViewDialogEndDate() {
+		View dialog_headerView = this.getLayoutInflater().inflate(
+				R.layout.dialog_calenderview_header, null);
+		View dialog_detailsView = this.getLayoutInflater().inflate(
+				R.layout.dialog_calenderview, null);
+
+		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+			DialogInterface.OnClickListener posListener = new DialogInterface.OnClickListener() {
+				@Override
+				public void onClick(DialogInterface dialog, int which) {
+					dialog.cancel();
+					// save the new task title
+				}
+			};
+			Common.CustomDialog.CustomDialog(this, dialog_detailsView,
+					posListener, R.string.dialog_done);
+
+		} else if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP
+				&& Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
+
+			final TextView tv_year, tv_date, tv_month, tv_weekday;
+
+			tv_weekday = (TextView) dialog_headerView.findViewById(R.id.tv_day);
+
+			tv_date = (TextView) dialog_headerView.findViewById(R.id.tv_date);
+			tv_month = (TextView) dialog_headerView.findViewById(R.id.tv_month);
+			tv_year = (TextView) dialog_headerView.findViewById(R.id.tv_year);
+			c = Calendar.getInstance();
+			// tv_year_final = tv_year;
+			// tv_date_final = tv_date;
+			// tv_month_final = tv_month;
+
+			CalendarView calendarView = (CalendarView) dialog_detailsView
+					.findViewById(R.id.calenderView);
+			calendarView
+					.setOnDateChangeListener(new CalendarView.OnDateChangeListener() {
+						public void onSelectedDayChange(CalendarView view,
+								int year, int month, int dayOfMonth) {
+
+							c.set(Calendar.YEAR, year);
+							c.set(Calendar.MONTH, month);
+							c.set(Calendar.DAY_OF_MONTH, dayOfMonth);
+
+							String monthString = c.getDisplayName(
+									Calendar.MONTH, Calendar.SHORT,
+									Locale.getDefault());
+							tv_year.setText(String.valueOf(year));
+							tv_date.setText(String.valueOf(dayOfMonth));
+
+							tv_month.setText(monthString);
+
+							String weekdayString = c.getDisplayName(
+									Calendar.DAY_OF_WEEK, Calendar.LONG,
+									Locale.getDefault());
+
+							tv_weekday.setText(weekdayString);
+							dateEnd = weekdayString + ", " + monthString + " "
+									+ String.valueOf(dayOfMonth) + ", "
+									+ String.valueOf(year);
+						}
+					});
+			DialogInterface.OnClickListener posListener = new DialogInterface.OnClickListener() {
+				@Override
+				public void onClick(DialogInterface dialog, int which) {
+					dialog.cancel();
+					Date newDate = c.getTime();
+					long a = c.getTimeInMillis();
+					tv_dateEnd.setText(dateEnd);
+				}
+			};
+
+			Common.CustomDialog.CustomDialog(this, dialog_detailsView,
+					dialog_headerView, posListener, R.string.dialog_done);
+		} else if (Build.VERSION.SDK_INT < Build.VERSION_CODES.HONEYCOMB) {
+			DialogInterface.OnClickListener posListener = new DialogInterface.OnClickListener() {
+				@Override
+				public void onClick(DialogInterface dialog, int which) {
+					dialog.cancel();
+					// save the new task title
+				}
+			};
 			View dialogView = this.getLayoutInflater().inflate(
 					R.layout.cal_view, null);
 			Common.CustomDialog.CustomDialog(this, dialogView, posListener,
@@ -324,6 +431,634 @@ public class SetTaskReminderActivity extends ActionBarActivity {
 
 	@SuppressLint("NewApi")
 	public void openCustomTimepickerDialog() {
+		View dialog_detailsView = this.getLayoutInflater().inflate(
+				R.layout.dialog_timepicker, null);
+		final TimePicker timePicker = (TimePicker) dialog_detailsView
+				.findViewById(R.id.timepicker);
+
+		DialogInterface.OnClickListener posListener = new DialogInterface.OnClickListener() {
+			@Override
+			public void onClick(DialogInterface dialog, int which) {
+				dialog.cancel();
+				// save the new task title
+				int hour, minute = 0;
+				hour = timePicker.getCurrentHour();
+				minute = timePicker.getCurrentMinute();
+//				timeStart = (String.valueOf(hour) + ":" + String
+//						.valueOf(minute));			
+				if (hour <= 12) { //for am time
+					if(minute < 10){//appends 0 if time and hour are single digits
+						String mins =  String.valueOf(minute);
+						tv_timeStart.setText("0" + hour + ":" + "0" + mins + " AM");
+					}
+				} 
+				else if (hour > 12) {
+					if (hour == 13) {
+						hour = 1;
+					} else if (hour == 14) {
+						hour = 2;
+					} else if (hour == 15) {
+						hour = 3;
+					} else if (hour == 16) {
+						hour = 4;
+					} else if (hour == 17) {
+						hour = 5;
+					} else if (hour == 18) {
+						hour = 6;
+					} else if (hour == 19) {
+						hour = 7;
+					} else if (hour == 20) {
+						hour = 8;
+					} else if (hour == 21) {
+						hour = 9;
+					} else if (hour == 22) {
+						hour = 10;
+					} else if (hour == 23) {
+						hour = 11;
+					} else if (hour == 24) {
+						hour = 12;
+					}
+					timeStart = ("0" + String.valueOf(hour) + ":"
+							+ String.valueOf(minute) + " PM");
+					tv_timeStart.setText(timeStart);
+				}
+				// tv_timeStart.setText(timeStart);
+			}
+		};
+		Common.CustomDialog.CustomDialog(this, dialog_detailsView, posListener,
+				R.string.dialog_done);
+
+	}
+
+	@SuppressLint("NewApi")
+	public void openCustomTimepickerDialogEndTime() {
+		View dialog_detailsView = this.getLayoutInflater().inflate(
+				R.layout.dialog_timepicker, null);
+		final TimePicker timePicker = (TimePicker) dialog_detailsView
+				.findViewById(R.id.timepicker);
+
+		DialogInterface.OnClickListener posListener = new DialogInterface.OnClickListener() {
+			@Override
+			public void onClick(DialogInterface dialog, int which) {
+				dialog.cancel();
+				// save the new task title
+				int hour, minute = 0;
+				hour = timePicker.getCurrentHour();
+				minute = timePicker.getCurrentMinute();
+				timeEnd = (String.valueOf(hour) + String.valueOf(minute));
+				tv_timeEnd.setText(timeEnd);
+
+			}
+		};
+		Common.CustomDialog.CustomDialog(this, dialog_detailsView, posListener,
+				R.string.dialog_done);
+
+	}
+
+	@SuppressLint("NewApi")
+	public void openCustomTimepickerDialogCustom() {
+		Boolean is24HourFormat = DateFormat.is24HourFormat(mContext);
+
+		if (is24HourFormat) {
+
+			View dialog_detailsView = this.getLayoutInflater().inflate(
+					R.layout.dialog_custom_timepicker, null);
+
+			final TextView tv_ampm = (TextView) dialog_detailsView
+					.findViewById(R.id.tv_chrnonometer_am_pm);
+			tv_ampm.setVisibility(View.GONE);
+
+			TextView hour_zeroth = (TextView) dialog_detailsView
+					.findViewById(R.id.tv_hours_zero_index);
+
+			TextView hour_oneth = (TextView) dialog_detailsView
+					.findViewById(R.id.tv_hours_one_index);
+
+			TextView minutes_oneth = (TextView) dialog_detailsView
+					.findViewById(R.id.tv_minutes_one_index);
+
+			TextView minutes_zeroth = (TextView) dialog_detailsView
+					.findViewById(R.id.tv_minutes_zero_index);
+
+			final TextView final_hour_zeroth = hour_zeroth, final_hour_oneth = hour_oneth;
+
+			final TextView final_minutes_zeroth = minutes_zeroth, final_minutes_oneth = minutes_oneth;
+
+			Button amOrPmButton, button_1, button_2, button_3, button_4, button_5, button_6, button_7, button_8, button_9, button_0, button_backspace;
+			button_1 = (Button) dialog_detailsView.findViewById(R.id.tv_1);
+			button_2 = (Button) dialog_detailsView.findViewById(R.id.tv_2);
+			button_3 = (Button) dialog_detailsView.findViewById(R.id.tv_3);
+			button_4 = (Button) dialog_detailsView.findViewById(R.id.tv_4);
+			button_5 = (Button) dialog_detailsView.findViewById(R.id.tv_5);
+			button_6 = (Button) dialog_detailsView.findViewById(R.id.tv_6);
+			button_7 = (Button) dialog_detailsView.findViewById(R.id.tv_7);
+			button_8 = (Button) dialog_detailsView.findViewById(R.id.tv_8);
+			button_9 = (Button) dialog_detailsView.findViewById(R.id.tv_9);
+			button_0 = (Button) dialog_detailsView.findViewById(R.id.tv_0);
+
+			amOrPmButton = (Button) dialog_detailsView.findViewById(R.id.tv_am);
+
+			final Button final_amOrPmButton = amOrPmButton;
+			// final_amOrPmButton.setAlpha(0);
+			final_amOrPmButton.setText(":00");
+			final_amOrPmButton.setEnabled(false);
+
+			button_backspace = (Button) dialog_detailsView
+					.findViewById(R.id.backspace);
+
+			View.OnClickListener listener = new View.OnClickListener() {
+				public void onClick(View v) {
+					String currentText_zeroIndex_hours = final_hour_zeroth
+							.getText().toString();
+					String currentText_oneIndex_hours = final_hour_oneth
+							.getText().toString();
+					String currentText_zeroIndex_minutes = final_minutes_zeroth
+							.getText().toString();
+					String currentText_oneIndex_minutes = final_minutes_oneth
+							.getText().toString();
+
+					String pressed_key = (String) v.getTag();
+					if (v.getTag() == "0" || v.getTag() == "1"
+							|| v.getTag() == "2" || v.getTag() == "3"
+							|| v.getTag() == "4" || v.getTag() == "5"
+							|| v.getTag() == "6" || v.getTag() == "7"
+							|| v.getTag() == "8" || v.getTag() == "9")
+					// != "")
+					{
+
+						if (currentText_zeroIndex_hours.contains("0")
+								&& currentText_oneIndex_hours.contains("0")
+								&& currentText_oneIndex_minutes.contains("0")
+								&& currentText_zeroIndex_minutes.contains("0")) {
+							final_minutes_zeroth.setText(pressed_key);
+						}
+
+						else if (currentText_zeroIndex_hours.contains("0")
+								&& currentText_oneIndex_hours.contains("0")
+								&& currentText_oneIndex_minutes.contains("0")
+								&& !currentText_zeroIndex_minutes.isEmpty()) {
+							final_minutes_oneth
+									.setText(currentText_zeroIndex_minutes);
+							final_minutes_zeroth.setText(pressed_key);
+
+						}
+
+						else if (currentText_zeroIndex_hours.contains("0")
+								&& currentText_oneIndex_hours.contains("0")
+								&& !currentText_oneIndex_minutes.isEmpty()
+								&& !currentText_zeroIndex_minutes.isEmpty())
+
+						{
+							final_hour_zeroth
+									.setText(currentText_oneIndex_minutes);
+							final_minutes_oneth
+									.setText(currentText_zeroIndex_minutes);
+							final_minutes_zeroth.setText(pressed_key);
+
+						}
+
+						else if (!currentText_zeroIndex_hours.isEmpty()
+								&& currentText_oneIndex_hours.contains("0")
+								&& !currentText_oneIndex_minutes.isEmpty()
+								&& !currentText_zeroIndex_minutes.isEmpty())
+
+						{
+							final_hour_oneth
+									.setText(currentText_zeroIndex_hours);
+							final_hour_zeroth
+									.setText(currentText_oneIndex_minutes);
+							final_minutes_oneth
+									.setText(currentText_zeroIndex_minutes);
+							final_minutes_zeroth.setText(pressed_key);
+
+						}
+					}
+
+					else if (v.getTag() == "bs") {
+						if (!currentText_zeroIndex_hours.isEmpty()
+								&& !currentText_oneIndex_hours.isEmpty()
+								&& !currentText_oneIndex_minutes.isEmpty()
+								&& !currentText_zeroIndex_minutes.isEmpty()) {
+
+							final_hour_zeroth
+									.setText(currentText_oneIndex_hours);
+							final_minutes_zeroth
+									.setText(currentText_oneIndex_minutes);
+							final_minutes_oneth
+									.setText(currentText_zeroIndex_hours);
+
+							final_hour_oneth.setText("0");
+
+						}
+					}
+
+				}
+			};
+
+			amOrPmButton.setOnClickListener(new OnClickListener() {
+
+				boolean flag = false;
+
+				@Override
+				public void onClick(View v) {
+					if (!flag) {
+						final_amOrPmButton.setText("PM");
+						tv_ampm.setText("AM");
+						flag = true;
+
+					} else {
+						final_amOrPmButton.setText("AM");
+						tv_ampm.setText("PM");
+						flag = false;
+					}
+
+				}
+			});
+
+			button_1.setTag("1");
+			button_1.setOnClickListener(listener);
+			button_2.setTag("2");
+			button_2.setOnClickListener(listener);
+			button_3.setTag("3");
+			button_3.setOnClickListener(listener);
+			button_4.setTag("4");
+			button_4.setOnClickListener(listener);
+			button_5.setTag("5");
+			button_5.setOnClickListener(listener);
+			button_6.setTag("6");
+			button_6.setOnClickListener(listener);
+			button_7.setTag("7");
+			button_7.setOnClickListener(listener);
+			button_8.setTag("8");
+			button_8.setOnClickListener(listener);
+			button_9.setTag("9");
+			button_9.setOnClickListener(listener);
+			button_0.setTag("0");
+			button_0.setOnClickListener(listener);
+			button_backspace.setTag("bs");
+			button_backspace.setOnClickListener(listener);
+
+			DialogInterface.OnClickListener posListener = new DialogInterface.OnClickListener() {
+				@Override
+				public void onClick(DialogInterface dialog, int which) {
+					dialog.cancel();
+					// save the new task title
+				}
+			};
+			Common.CustomDialog.CustomDialog(this, dialog_detailsView,
+					posListener, R.string.dialog_done);
+
+		} else {
+			View dialog_detailsView = this.getLayoutInflater().inflate(
+					R.layout.rewamp_custom_time_picker, null);
+
+			final TextView tv_ampm = (TextView) dialog_detailsView
+					.findViewById(R.id.tv_chrnonometer_am_pm);
+
+			TextView hour_zeroth = (TextView) dialog_detailsView
+					.findViewById(R.id.tv_hours_zero_index);
+
+			TextView hour_oneth = (TextView) dialog_detailsView
+					.findViewById(R.id.tv_hours_one_index);
+
+			TextView minutes_oneth = (TextView) dialog_detailsView
+					.findViewById(R.id.tv_minutes_one_index);
+
+			TextView minutes_zeroth = (TextView) dialog_detailsView
+					.findViewById(R.id.tv_minutes_zero_index);
+
+			final TextView final_hour_zeroth = hour_zeroth, final_hour_oneth = hour_oneth;
+
+			final TextView final_minutes_zeroth = minutes_zeroth, final_minutes_oneth = minutes_oneth;
+
+			final Button amOrPmButton, button_1, button_2, button_3, button_4, button_5, button_6, button_7, button_8, button_9, button_0, button_backspace;
+			button_1 = (Button) dialog_detailsView.findViewById(R.id.tv_1);
+			button_2 = (Button) dialog_detailsView.findViewById(R.id.tv_2);
+			button_3 = (Button) dialog_detailsView.findViewById(R.id.tv_3);
+			button_4 = (Button) dialog_detailsView.findViewById(R.id.tv_4);
+			button_5 = (Button) dialog_detailsView.findViewById(R.id.tv_5);
+			button_6 = (Button) dialog_detailsView.findViewById(R.id.tv_6);
+			button_7 = (Button) dialog_detailsView.findViewById(R.id.tv_7);
+			button_8 = (Button) dialog_detailsView.findViewById(R.id.tv_8);
+			button_9 = (Button) dialog_detailsView.findViewById(R.id.tv_9);
+			button_0 = (Button) dialog_detailsView.findViewById(R.id.tv_0);
+			button_0.setEnabled(false);
+
+			amOrPmButton = (Button) dialog_detailsView.findViewById(R.id.tv_am);
+
+			final Button final_amOrPmButton = amOrPmButton;
+
+			button_backspace = (Button) dialog_detailsView
+					.findViewById(R.id.backspace);
+
+			View.OnClickListener listener = new View.OnClickListener() {
+				public void onClick(View v) {
+
+					String currentText_zeroIndex_hours = final_hour_zeroth
+							.getText().toString();
+
+					String currentText_oneIndex_hours = final_hour_oneth
+							.getText().toString();
+
+					String currentText_zeroIndex_minutes = final_minutes_zeroth
+							.getText().toString();
+
+					String currentText_oneIndex_minutes = final_minutes_oneth
+							.getText().toString();
+
+					// ///////////////////////////////////////////////////////////////////////////////
+					/*
+					 * if (currentText_zeroIndex_hours == "-" &&
+					 * currentText_oneIndex_hours == "-" &&
+					 * currentText_oneIndex_minutes == "-" &&
+					 * currentText_zeroIndex_minutes == "-") { // enable all
+					 * keys button_0.setEnabled(false);
+					 * button_1.setEnabled(true); button_2.setEnabled(true);
+					 * button_3.setEnabled(true); button_4.setEnabled(true);
+					 * button_5.setEnabled(true); button_6.setEnabled(true);
+					 * button_7.setEnabled(true); button_8.setEnabled(true);
+					 * button_9.setEnabled(true); } else if
+					 * (currentText_oneIndex_hours == "-" &&
+					 * currentText_zeroIndex_hours != "-" &&
+					 * currentText_oneIndex_minutes != "-" &&
+					 * currentText_zeroIndex_minutes != "-") {
+					 * button_0.setEnabled(false); button_1.setEnabled(false);
+					 * button_2.setEnabled(false); button_3.setEnabled(false);
+					 * button_4.setEnabled(false); button_5.setEnabled(false);
+					 * button_6.setEnabled(false); button_7.setEnabled(false);
+					 * button_8.setEnabled(false); button_9.setEnabled(false);
+					 * 
+					 * }
+					 * 
+					 * else if (currentText_oneIndex_hours == "-" &&
+					 * currentText_zeroIndex_hours == "-" &&
+					 * currentText_oneIndex_minutes != "-" &&
+					 * currentText_zeroIndex_minutes != "-") {
+					 * button_0.setEnabled(true); button_1.setEnabled(true);
+					 * button_2.setEnabled(true); button_3.setEnabled(true);
+					 * button_4.setEnabled(true); button_5.setEnabled(true);
+					 * button_6.setEnabled(true); button_7.setEnabled(true);
+					 * button_8.setEnabled(true); button_9.setEnabled(true); }
+					 * else if (currentText_oneIndex_hours == "-" &&
+					 * currentText_zeroIndex_hours == "-" &&
+					 * currentText_oneIndex_minutes == "-" &&
+					 * currentText_zeroIndex_minutes != "-") {
+					 * button_0.setEnabled(true); button_1.setEnabled(true);
+					 * button_2.setEnabled(true); button_3.setEnabled(true);
+					 * button_4.setEnabled(true); button_5.setEnabled(true);
+					 * button_6.setEnabled(false); button_7.setEnabled(false);
+					 * button_8.setEnabled(false); button_9.setEnabled(false); }
+					 */
+					// ////////////////////////////////////////////////////////////////////////////////////////////////
+
+					String pressed_key = (String) v.getTag();
+					if (v.getTag() == "0" || v.getTag() == "1"
+							|| v.getTag() == "2" || v.getTag() == "3"
+							|| v.getTag() == "4" || v.getTag() == "5"
+							|| v.getTag() == "6" || v.getTag() == "7"
+							|| v.getTag() == "8" || v.getTag() == "9")
+					// != "")
+					{
+
+						if (currentText_zeroIndex_hours.contains("-")
+								&& currentText_oneIndex_hours.contains("-")
+								&& currentText_oneIndex_minutes.contains("-")
+								&& currentText_zeroIndex_minutes.contains("-")) {
+							final_minutes_zeroth.setText(pressed_key);
+							button_0.setEnabled(true);
+							button_1.setEnabled(true);
+							button_2.setEnabled(true);
+							button_3.setEnabled(true);
+							button_4.setEnabled(true);
+							button_5.setEnabled(true);
+							button_6.setEnabled(false);
+							button_7.setEnabled(false);
+							button_8.setEnabled(false);
+							button_9.setEnabled(false);
+
+						}
+
+						else if (currentText_zeroIndex_hours.contains("-")
+								&& currentText_oneIndex_hours.contains("-")
+								&& currentText_oneIndex_minutes.contains("-")
+								&& !currentText_zeroIndex_minutes.isEmpty()) {
+							final_minutes_oneth
+									.setText(currentText_zeroIndex_minutes);
+							final_minutes_zeroth.setText(pressed_key);
+							button_0.setEnabled(true);
+							button_1.setEnabled(true);
+							button_2.setEnabled(true);
+							button_3.setEnabled(true);
+							button_4.setEnabled(true);
+							button_5.setEnabled(true);
+							button_6.setEnabled(true);
+							button_7.setEnabled(true);
+							button_8.setEnabled(true);
+							button_9.setEnabled(true);
+
+						}
+
+						else if (currentText_zeroIndex_hours.contains("-")
+								&& currentText_oneIndex_hours.contains("-")
+								&& !currentText_oneIndex_minutes.isEmpty()
+								&& !currentText_zeroIndex_minutes.isEmpty())
+
+						{
+							if (pressed_key == "0" || pressed_key == "1"
+									|| pressed_key == "2" || pressed_key == "3"
+									|| pressed_key == "4" || pressed_key == "5") {
+								button_0.setEnabled(true);
+								button_1.setEnabled(true);
+								button_2.setEnabled(true);
+								button_3.setEnabled(true);
+								button_4.setEnabled(true);
+								button_5.setEnabled(true);
+								button_6.setEnabled(true);
+								button_7.setEnabled(true);
+								button_8.setEnabled(true);
+								button_9.setEnabled(true);
+							} else if (pressed_key == "6" || pressed_key == "7"
+									|| pressed_key == "8" || pressed_key == "9") {
+								button_0.setEnabled(false);
+								button_1.setEnabled(false);
+								button_2.setEnabled(false);
+								button_3.setEnabled(false);
+								button_4.setEnabled(false);
+								button_5.setEnabled(false);
+								button_6.setEnabled(false);
+								button_7.setEnabled(false);
+								button_8.setEnabled(false);
+								button_9.setEnabled(false);
+							}
+							final_hour_zeroth
+									.setText(currentText_oneIndex_minutes);
+							final_minutes_oneth
+									.setText(currentText_zeroIndex_minutes);
+							final_minutes_zeroth.setText(pressed_key);
+						}
+
+						else if (!currentText_zeroIndex_hours.isEmpty()
+								&& currentText_oneIndex_hours.contains("-")
+								&& !currentText_oneIndex_minutes.isEmpty()
+								&& !currentText_zeroIndex_minutes.isEmpty())
+
+						{
+							final_hour_oneth
+									.setText(currentText_zeroIndex_hours);
+							final_hour_zeroth
+									.setText(currentText_oneIndex_minutes);
+							final_minutes_oneth
+									.setText(currentText_zeroIndex_minutes);
+							final_minutes_zeroth.setText(pressed_key);
+
+						}
+					}
+
+					else if (v.getTag() == "bs") {
+						if (!currentText_zeroIndex_hours.isEmpty()
+								&& !currentText_oneIndex_hours.isEmpty()
+								&& !currentText_oneIndex_minutes.isEmpty()
+								&& !currentText_zeroIndex_minutes.isEmpty()) {
+							final_hour_zeroth
+									.setText(currentText_oneIndex_hours);
+							final_minutes_zeroth
+									.setText(currentText_oneIndex_minutes);
+							final_minutes_oneth
+									.setText(currentText_zeroIndex_hours);
+
+							final_hour_oneth.setText("-");
+
+							// ////////////////////////////////////////////////////////////////////////////////
+							if (currentText_zeroIndex_hours == "-"
+									&& currentText_oneIndex_hours == "-"
+									&& currentText_oneIndex_minutes == "-"
+									&& currentText_zeroIndex_minutes == "-") {
+								// enable all keys
+								button_0.setEnabled(false);
+								button_1.setEnabled(true);
+								button_2.setEnabled(true);
+								button_3.setEnabled(true);
+								button_4.setEnabled(true);
+								button_5.setEnabled(true);
+								button_6.setEnabled(true);
+								button_7.setEnabled(true);
+								button_8.setEnabled(true);
+								button_9.setEnabled(true);
+							}
+
+							else if (currentText_oneIndex_hours == "-"
+									&& currentText_zeroIndex_hours != "-"
+									&& currentText_oneIndex_minutes != "-"
+									&& currentText_zeroIndex_minutes != "-") {
+								// enable some and disable some on some basis
+								button_0.setEnabled(false);
+								button_1.setEnabled(false);
+								button_2.setEnabled(false);
+								button_3.setEnabled(false);
+								button_4.setEnabled(false);
+								button_5.setEnabled(false);
+								button_6.setEnabled(false);
+								button_7.setEnabled(false);
+								button_8.setEnabled(false);
+								button_9.setEnabled(false);
+
+							}
+
+							else if (currentText_oneIndex_hours == "-"
+									&& currentText_zeroIndex_hours == "-"
+									&& currentText_oneIndex_minutes != "-"
+									&& currentText_zeroIndex_minutes != "-") {
+								button_0.setEnabled(true);
+								button_1.setEnabled(true);
+								button_2.setEnabled(true);
+								button_3.setEnabled(true);
+								button_4.setEnabled(true);
+								button_5.setEnabled(true);
+								button_6.setEnabled(true);
+								button_7.setEnabled(true);
+								button_8.setEnabled(true);
+								button_9.setEnabled(true);
+							} else if (currentText_oneIndex_hours == "-"
+									&& currentText_zeroIndex_hours == "-"
+									&& currentText_oneIndex_minutes == "-"
+									&& currentText_zeroIndex_minutes != "-") {
+								button_0.setEnabled(true);
+								button_1.setEnabled(true);
+								button_2.setEnabled(true);
+								button_3.setEnabled(true);
+								button_4.setEnabled(true);
+								button_5.setEnabled(true);
+								button_6.setEnabled(false);
+								button_7.setEnabled(false);
+								button_8.setEnabled(false);
+								button_9.setEnabled(false);
+							}
+							// /////////////////////////////////////////////////////////////////////////////////////////////////
+
+						}
+					}
+
+				}
+			};
+
+			amOrPmButton.setOnClickListener(new OnClickListener() {
+
+				boolean flag = false;
+
+				@Override
+				public void onClick(View v) {
+					if (!flag) {
+						final_amOrPmButton.setText("PM");
+						tv_ampm.setText("AM");
+						flag = true;
+
+					} else {
+						final_amOrPmButton.setText("AM");
+						tv_ampm.setText("PM");
+						flag = false;
+					}
+
+				}
+			});
+
+			button_1.setTag("1");
+			button_1.setOnClickListener(listener);
+			button_2.setTag("2");
+			button_2.setOnClickListener(listener);
+			button_3.setTag("3");
+			button_3.setOnClickListener(listener);
+			button_4.setTag("4");
+			button_4.setOnClickListener(listener);
+			button_5.setTag("5");
+			button_5.setOnClickListener(listener);
+			button_6.setTag("6");
+			button_6.setOnClickListener(listener);
+			button_7.setTag("7");
+			button_7.setOnClickListener(listener);
+			button_8.setTag("8");
+			button_8.setOnClickListener(listener);
+			button_9.setTag("9");
+			button_9.setOnClickListener(listener);
+			button_0.setTag("0");
+			button_0.setOnClickListener(listener);
+			button_backspace.setTag("bs");
+			button_backspace.setOnClickListener(listener);
+
+			DialogInterface.OnClickListener posListener = new DialogInterface.OnClickListener() {
+				@Override
+				public void onClick(DialogInterface dialog, int which) {
+					dialog.cancel();
+					// save the new task title
+				}
+			};
+			Common.CustomDialog.CustomDialog(this, dialog_detailsView,
+					posListener, R.string.dialog_done);
+		}
+
+	}
+
+	@SuppressLint("NewApi")
+	public void openCustomTimepickerDialog12() {
 		View dialog_detailsView = this.getLayoutInflater().inflate(
 				R.layout.dialog_custom_timepicker, null);
 
@@ -541,9 +1276,19 @@ public class SetTaskReminderActivity extends ActionBarActivity {
 			public void onClick(DialogInterface dialog, int which) {
 				// Toast.makeText(getApplicationContext(),
 				// "RepeatDialog " + which, Toast.LENGTH_LONG).show();
-
-				if (which == 5) {
-					notificationDialog();
+				if (which == 0) {
+					tv_notification.setText("No Notification");
+				} else if (which == 1) {
+					tv_notification.setText("At time of event");
+				} else if (which == 2) {
+					tv_notification.setText("10 minutes before");
+				} else if (which == 3) {
+					tv_notification.setText("30 minutes before");
+				} else if (which == 4) {
+					tv_notification.setText("1 hour before");
+				} else if (which == 5) {
+					notificationDialog();// it should return a string that shall
+											// be used as setText
 				}
 			}
 		});
@@ -1277,31 +2022,86 @@ public class SetTaskReminderActivity extends ActionBarActivity {
 	}
 
 	public void manuallySelectOptionMenuItem(int id) {
-
 		if (id == R.id.action_save) {
-			DatabaseHelper db = new DatabaseHelper(mContext);
-			task.title = et_title.getText().toString();
-			task.details = et_details.getText().toString();
-			task.notes = et_notes.getText().toString();
-			db.tasks.Edit(task);
-			RepeatTaskModel repeatModel = new RepeatTaskModel();
-			repeatModel.task_id = task._id;
-			String getTag = (String) tv_repeat.getTag();
-			repeatModel.interval_type = Integer.parseInt(getTag);
-			// interval_type returns 0-5 doesnotRepeat/daily/weekly/monthly/custom
-			db.taskRepeat.Add(repeatModel);
+			updateDatabase();
 			finish();
 		}
+	}
 
+	public void updateDatabase() {
+
+		DatabaseHelper db = new DatabaseHelper(mContext);
+
+		task.title = et_title.getText().toString();
+		task.details = et_details.getText().toString();
+		task.notes = et_notes.getText().toString();
+		db.tasks.Edit(task);
+
+		RepeatTaskModel repeatModel = new RepeatTaskModel();
+		repeatModel.task_id = task._id;
+
+		String getTag = (String) tv_repeat.getTag();
+		repeatModel.interval_type = Integer.parseInt(getTag);
+		// interval_type returns 0-5
+		// doesnotRepeat/daily/weekly/monthly/custom
+
+		// SwitchOff=withTime else withoutTime
+		if (!isSwitchChecked) { // if switch is OFF
+			repeatModel.allDay = 0;
+			repeatModel.startDateTime = tv_dateStart.getText().toString() + " "
+					+ tv_timeStart.getText().toString();
+			// format this date time if needed
+			repeatModel.endDateTime = tv_dateEnd.getText().toString() + " "
+					+ tv_timeStart.getText().toString();
+			// format this date time if needed
+			// we need to add time as well we are missing time at moment
+
+		} else if (isSwitchChecked) {// if switch is ON
+			repeatModel.allDay = 1;
+			repeatModel.startDate = tv_dateStart.getText().toString();
+			// format this date time if needed
+			repeatModel.endDate = tv_dateEnd.getText().toString();
+			// format this date time if needed
+		}
+		db.taskRepeat.Add(repeatModel);
 	}
 
 	public void notificationDialog() {
 		View view = this.getLayoutInflater().inflate(
 				R.layout.dialog_notifications_details, null);
+		final String myString = null;
+		final EditText nTimes = (EditText) view
+				.findViewById(R.id.et_numberOfNotifications);
+		final RadioGroup radioGroup = (RadioGroup) view
+				.findViewById(R.id.myRadioGroup);
+		final RadioGroup radioGroup2 = (RadioGroup) view
+				.findViewById(R.id.myRadioGroup2);
+
 		DialogInterface.OnClickListener posListener = new DialogInterface.OnClickListener() {
 			@Override
 			public void onClick(DialogInterface dialog, int which) {
 				dialog.cancel();
+				String nTimesString = nTimes.getText().toString();
+				if (radioGroup.getCheckedRadioButtonId() != -1) {
+					int id = radioGroup.getCheckedRadioButtonId();
+					View radioButton = radioGroup.findViewById(id);
+					int radioId = radioGroup.indexOfChild(radioButton);
+					RadioButton btn = (RadioButton) radioGroup
+							.getChildAt(radioId);
+					String selection = (String) btn.getText();
+					v = " " + selection;
+				}
+				if (radioGroup2.getCheckedRadioButtonId() != -1) {
+					int id = radioGroup2.getCheckedRadioButtonId();
+					View radioButton = radioGroup2.findViewById(id);
+					int radioId = radioGroup2.indexOfChild(radioButton);
+					RadioButton btn = (RadioButton) radioGroup2
+							.getChildAt(radioId);
+					String selection = (String) btn.getText();
+					nE = " " + selection;
+				}
+
+				tv_notification.setText(nTimesString + v + " before" + nE);
 			}
 		};
 

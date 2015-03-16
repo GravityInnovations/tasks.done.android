@@ -99,14 +99,14 @@ public class TaskAdapter extends RecyclerView.Adapter {// <TaskAdapter.ViewHolde
 		}
 
 	}
- 
 
 	// Replace the contents of a view (invoked by the layout manager)
 	@Override
 	public void onBindViewHolder(
-			android.support.v7.widget.RecyclerView.ViewHolder arg0, final int position) {
+			android.support.v7.widget.RecyclerView.ViewHolder arg0,
+			final int position) {
 		if (getItemViewType(position) == 0) {
-			try {				
+			try {
 				ViewHolder viewHolder = (ViewHolder) arg0;
 				// - get data from your itemsData at this position
 				// - replace the contents of the view with that itemsData
@@ -124,22 +124,24 @@ public class TaskAdapter extends RecyclerView.Adapter {// <TaskAdapter.ViewHolde
 				if (task.relativeTime == "" || task.relativeTime == null)
 					task.updateRelativeTime(currentTimeMills);
 				viewHolder.tv_updatedAt.setText(task.relativeTime);
-				//viewHolder.iv_doneToggle.setBackgroundColor(Color.parseColor(mTaskListModel.fragmentColor));
+				// viewHolder.iv_doneToggle.setBackgroundColor(Color.parseColor(mTaskListModel.fragmentColor));
 				try {
-					//viewHolder.iv_doneToggle.setBackgroundColor(Color.parseColor(mTaskListModel.fragmentColor));
+					// viewHolder.iv_doneToggle.setBackgroundColor(Color.parseColor(mTaskListModel.fragmentColor));
 					float alpha = 0;
 					if (task.completed == 1) {
 						alpha = 1.0f;
-//						viewHolder.iv_doneToggle
-//								.setImageResource(R.drawable.task_row_done_bg);
-						//v//iewHolder.iv_doneToggle.setb
+						// viewHolder.iv_doneToggle
+						// .setImageResource(R.drawable.task_row_done_bg);
+						// v//iewHolder.iv_doneToggle.setb
 					} else if (task.completed == 0) {
-//						viewHolder.iv_doneToggle
-//								.setImageResource(R.drawable.task_row_bg);
+						// viewHolder.iv_doneToggle
+						// .setImageResource(R.drawable.task_row_bg);
 						alpha = 0.10f;
 					}
-					viewHolder.iv_doneToggle.setBackgroundColor(adjustAlpha(Color.parseColor(mTaskListModel.fragmentColor), alpha));
-					
+					viewHolder.iv_doneToggle.setBackgroundColor(adjustAlpha(
+							Color.parseColor(mTaskListModel.fragmentColor),
+							alpha));
+
 				} catch (Exception e) {
 					Log.e("TaskAdapter", "iv_doneToggle");
 				}
@@ -153,84 +155,81 @@ public class TaskAdapter extends RecyclerView.Adapter {// <TaskAdapter.ViewHolde
 				} catch (Exception e) {
 					Log.e("TaskAdapter", "iv_alarmToggle");
 				}
-				
-				
-				if (HighlightTask !=-1 && task._id == HighlightTask){
-				
-					Animation animationFadeIn = AnimationUtils
-						.loadAnimation(this.mContext, R.anim.fade_in);
+
+				if (HighlightTask != -1 && task._id == HighlightTask) {
+
+					Animation animationFadeIn = AnimationUtils.loadAnimation(
+							this.mContext, R.anim.fade_in);
 					viewHolder.taskRowLayout.startAnimation(animationFadeIn);
 					mRecyclerView.scrollToPosition(position);
-					
+
 				}
-				
+
 				// Assigning task data to the holder finish
 
 				// mark as dne and undone start
 
-				//final int pos = position;
+				// final int pos = position;
 				viewHolder.iv_doneToggle
 						.setOnClickListener(new OnClickListener() {
 
 							@Override
 							public void onClick(View v) {
-								//int position = pos;
+								// int position = pos;
 								final int pos_final = calculatePos(position);
-						
+
 								TaskModel temp = task_data.get(position);
-								if(temp.completed ==0)
-								{
+								if (temp.completed == 0) {
 									temp.completed = 1;
 									temp.updateTimeNow();
 									boolean flag = mNavigationDrawerFragment
-											.MarkDoneTask(mTaskListModel,
-													temp);
-									if (!flag){
-										Log.e("TaskAdapter ", "NotMarkedAs Done");
+											.MarkDoneTask(mTaskListModel, temp);
+									if (!flag) {
+										Log.e("TaskAdapter ",
+												"NotMarkedAs Done");
 									}
-								}
-								else
-								{
+								} else {
 									temp.completed = 0;
 									temp.updateTimeNow();
 									boolean flag = mNavigationDrawerFragment
-											.MarkDoneTask(mTaskListModel,
-													temp);
-									if (!flag){
-										Log.e("TaskAdapter ", "NotMarkedAs UnDone");
-										}
+											.MarkDoneTask(mTaskListModel, temp);
+									if (!flag) {
+										Log.e("TaskAdapter ",
+												"NotMarkedAs UnDone");
+									}
 								}
-								
-//								if (temp.completed == 0) {
-//									if ((Integer) v.getTag() == R.drawable.task_row_bg) {
-//
-//										temp.updateTimeNow();
-//										temp.completed = 1;
-//										boolean flag = mNavigationDrawerFragment
-//												.MarkDoneTask(mTaskListModel,
-//														temp);
-//										if (flag) {
-//											((ImageView) v)
-//													.setImageResource(R.drawable.task_row_done_bg);
-//											v.setTag(R.drawable.task_row_done_bg);
-//											temp.title = temp.title;
-//										}
-//									}
-//
-//								} else { 
-//									if (temp.completed == 1) {
-//										temp.completed = 0;
-//										temp.updateTimeNow();
-//										boolean flag = mNavigationDrawerFragment
-//												.MarkDoneTask(mTaskListModel,
-//														temp);
-//										if (flag) {
-//											((ImageView) v)
-//													.setImageResource(R.drawable.task_row_bg);
-//											v.setTag(R.drawable.task_row_bg);
-//										}
-//									}
-//								}
+
+								// if (temp.completed == 0) {
+								// if ((Integer) v.getTag() ==
+								// R.drawable.task_row_bg) {
+								//
+								// temp.updateTimeNow();
+								// temp.completed = 1;
+								// boolean flag = mNavigationDrawerFragment
+								// .MarkDoneTask(mTaskListModel,
+								// temp);
+								// if (flag) {
+								// ((ImageView) v)
+								// .setImageResource(R.drawable.task_row_done_bg);
+								// v.setTag(R.drawable.task_row_done_bg);
+								// temp.title = temp.title;
+								// }
+								// }
+								//
+								// } else {
+								// if (temp.completed == 1) {
+								// temp.completed = 0;
+								// temp.updateTimeNow();
+								// boolean flag = mNavigationDrawerFragment
+								// .MarkDoneTask(mTaskListModel,
+								// temp);
+								// if (flag) {
+								// ((ImageView) v)
+								// .setImageResource(R.drawable.task_row_bg);
+								// v.setTag(R.drawable.task_row_bg);
+								// }
+								// }
+								// }
 
 								int pos1 = position;
 								int pos2 = pos_final;
@@ -240,12 +239,10 @@ public class TaskAdapter extends RecyclerView.Adapter {// <TaskAdapter.ViewHolde
 								// notifyDataSetChanged();
 								task_data.add(pos2, rem);
 
-								
-								for(int i=0;i<getItemCount()-1;i++)
-								{
+								for (int i = 0; i < getItemCount() - 1; i++) {
 									TaskModel M = getItem(i);
 									notifyItemChanged(i);
-									
+
 								}
 								mRecyclerView.scrollToPosition(pos_final);
 
@@ -288,14 +285,16 @@ public class TaskAdapter extends RecyclerView.Adapter {// <TaskAdapter.ViewHolde
 			}
 		}
 	}
+
 	public int adjustAlpha(int color, float alpha) {
-		//float f = alpha/100;
-		int a =Math.round(255 * alpha);//( 255 * (float)());
-	    int red = Color.red(color);
-	    int green = Color.green(color);
-	    int blue = Color.blue(color);
-	    return Color.argb(a, red, green, blue);
+		// float f = alpha/100;
+		int a = Math.round(255 * alpha);// ( 255 * (float)());
+		int red = Color.red(color);
+		int green = Color.green(color);
+		int blue = Color.blue(color);
+		return Color.argb(a, red, green, blue);
 	}
+
 	private int calculatePos(int pos) {
 		int pos_final = pos;
 		boolean completedExists = false;
@@ -303,8 +302,8 @@ public class TaskAdapter extends RecyclerView.Adapter {// <TaskAdapter.ViewHolde
 		if (task.completed == 1) {
 			pos_final = 0;
 		} else {
-			int a = getItemCount()-1;
-			for (int i = 0; i < getItemCount()-1; i++) {//-1ed
+			int a = getItemCount() - 1;
+			for (int i = 0; i < getItemCount() - 1; i++) {// -1ed
 				TaskModel temp = getItem(i);
 				if (temp.completed == 1) {
 					completedExists = true;
@@ -313,10 +312,9 @@ public class TaskAdapter extends RecyclerView.Adapter {// <TaskAdapter.ViewHolde
 				}
 
 			}
-//			if (pos == pos_final)
-			if(!completedExists)
+			// if (pos == pos_final)
+			if (!completedExists)
 				pos_final = getItemCount() - 2;
-
 
 		}
 		return pos_final;
@@ -384,7 +382,8 @@ public class TaskAdapter extends RecyclerView.Adapter {// <TaskAdapter.ViewHolde
 			// menuInfo is null
 			menu.add(Menu.NONE, R.id.item_delete, Menu.NONE, "Delete");
 			menu.add(Menu.NONE, R.id.item_edit, Menu.NONE, "Edit");
-			menu.add(Menu.NONE, R.id.item_set_reminder, Menu.NONE, "Set Reminder");
+			menu.add(Menu.NONE, R.id.item_set_reminder, Menu.NONE,
+					"Set Reminder");
 		}
 
 	}
@@ -398,7 +397,7 @@ public class TaskAdapter extends RecyclerView.Adapter {// <TaskAdapter.ViewHolde
 
 	@Override
 	public int getItemViewType(int position) {
-		int i = getItemCount();//+1;
+		int i = getItemCount();// +1;
 		if (position == i - 1) {
 			return 1;
 		} else
@@ -408,7 +407,7 @@ public class TaskAdapter extends RecyclerView.Adapter {// <TaskAdapter.ViewHolde
 	// Return the size of your itemsData (invoked by the layout manager)
 	@Override
 	public int getItemCount() {
-		return task_data.size()+1;
+		return task_data.size() + 1;
 	}
 
 	public TaskModel getItem(int position) {

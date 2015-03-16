@@ -169,48 +169,47 @@ public class TaskListFragment extends Fragment {
 		btn_listSharedWith = ((ImageButton) rootView
 				.findViewById(R.id.btn_showShared));
 		if (data.user_id == mService.user_data._id) {
-			
-		
-		btn_shareList.setOnClickListener(new View.OnClickListener() {
 
-			@Override
-			public void onClick(View v) {
-				mActivity = getActivity();
-				openShareDialog();
-			}
-			
-		});
+			btn_shareList.setOnClickListener(new View.OnClickListener() {
 
-		btn_editList.setOnClickListener(new View.OnClickListener() {
+				@Override
+				public void onClick(View v) {
+					mActivity = getActivity();
+					openShareDialog();
+				}
 
-			@Override
-			public void onClick(View v) {
-				mActivity = getActivity();
-				// ((MainActivity) mActivity).listof_nameEmailPic();
-				// TODO Auto-generated method stub
-				// Toast.makeText(mActivity, "edit",Toast.LENGTH_LONG).show();
-				((MainActivity) mActivity)
-						.manuallySelectOptionMenuItem(R.id.action_edit);
+			});
 
-			}
-		});
-		btn_deleteList.setOnClickListener(new View.OnClickListener() {
+			btn_editList.setOnClickListener(new View.OnClickListener() {
 
-			@Override
-			public void onClick(View v) {
-				mActivity = getActivity();
+				@Override
+				public void onClick(View v) {
+					mActivity = getActivity();
+					// ((MainActivity) mActivity).listof_nameEmailPic();
+					// TODO Auto-generated method stub
+					// Toast.makeText(mActivity,
+					// "edit",Toast.LENGTH_LONG).show();
+					((MainActivity) mActivity)
+							.manuallySelectOptionMenuItem(R.id.action_edit);
 
-				((MainActivity) mActivity)
-						.manuallySelectOptionMenuItem(R.id.action_delete);
-			}
-		});
-		}
-		else{
+				}
+			});
+			btn_deleteList.setOnClickListener(new View.OnClickListener() {
+
+				@Override
+				public void onClick(View v) {
+					mActivity = getActivity();
+
+					((MainActivity) mActivity)
+							.manuallySelectOptionMenuItem(R.id.action_delete);
+				}
+			});
+		} else {
 			btn_shareList.setVisibility(View.GONE);
 			btn_editList.setVisibility(View.GONE);
 			btn_deleteList.setVisibility(View.GONE);
 		}
-			if (this.data.users.size() <= 0)
+		if (this.data.users.size() <= 0)
 			btn_listSharedWith.setVisibility(View.GONE);
 		btn_listSharedWith.setOnClickListener(new View.OnClickListener() {
 
@@ -222,8 +221,6 @@ public class TaskListFragment extends Fragment {
 
 			}
 		});
-		
-
 
 		if (true) {// (data.tasks != null && data.tasks.size() > 0) {
 			// header on each fragment
@@ -265,18 +262,19 @@ public class TaskListFragment extends Fragment {
 					.findViewById(R.id.grid_item_name);
 			// UserModel owner =
 			if (data.user_id == mService.user_data._id) {
-				if(mService.user_data.image!=null){
-				Bitmap b = ImageGridAdapter.getRoundedCornerBitmap(Bitmap
-						.createScaledBitmap(mService.user_data.image, 40, 40,
-								true));
-				mTextView_ownerImage.setImageBitmap(b);}
-				else{
-					Bitmap b = BitmapFactory.decodeResource(mActivity.getResources(),
-							R.drawable.catag_personal);
+				if (mService.user_data.image != null) {
+					Bitmap b = ImageGridAdapter.getRoundedCornerBitmap(Bitmap
+							.createScaledBitmap(mService.user_data.image, 40,
+									40, true));
+					mTextView_ownerImage.setImageBitmap(b);
+				} else {
+					Bitmap b = BitmapFactory
+							.decodeResource(mActivity.getResources(),
+									R.drawable.catag_personal);
 					mTextView_ownerImage.setImageBitmap(b);
 				}
-				if(mService.user_data.name != null)
-				mTextView_ownerName.setText(mService.user_data.name);
+				if (mService.user_data.name != null)
+					mTextView_ownerName.setText(mService.user_data.name);
 			} else {
 				Bitmap b = ImageGridAdapter
 						.getRoundedCornerBitmap(getUserImage(data.owner));
@@ -475,7 +473,7 @@ public class TaskListFragment extends Fragment {
 				else
 					btn_listSharedWith.setVisibility(View.VISIBLE);
 				mUsersAdapter.clear();
-				mUsersAdapter.addAll(sel_users);//(getUsersImages(sel_users));
+				mUsersAdapter.addAll(sel_users);// (getUsersImages(sel_users));
 				mUsersAdapter.notifyDataSetChanged();// = new ImageGridAdapter(,
 														// mActivity);
 				mNavigationDrawerFragment.addUserToTaskList(data, sel_users);
@@ -553,24 +551,24 @@ public class TaskListFragment extends Fragment {
 		}
 		return bmps;
 	}
+
 	public Bitmap getUserImage(UserModel user) {
-		Bitmap bmp =null;
-			if (user.image != null){
-				
-				Bitmap b = BitmapFactory.decodeByteArray(user.image, 0,
-						user.image.length);
-				b =  ImageGridAdapter.getRoundedCornerBitmap(b,user.image_alpha);
-				
-				bmp = b;
-			
-			}
-			else{
-				Bitmap b = BitmapFactory.decodeResource(mActivity.getResources(),
-						R.drawable.catag_personal);
-				b =  ImageGridAdapter.getRoundedCornerBitmap(b,user.image_alpha);
-				bmp = b;
-			}
-		
+		Bitmap bmp = null;
+		if (user.image != null) {
+
+			Bitmap b = BitmapFactory.decodeByteArray(user.image, 0,
+					user.image.length);
+			b = ImageGridAdapter.getRoundedCornerBitmap(b, user.image_alpha);
+
+			bmp = b;
+
+		} else {
+			Bitmap b = BitmapFactory.decodeResource(mActivity.getResources(),
+					R.drawable.catag_personal);
+			b = ImageGridAdapter.getRoundedCornerBitmap(b, user.image_alpha);
+			bmp = b;
+		}
+
 		return bmp;
 	}
 

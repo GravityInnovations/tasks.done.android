@@ -970,7 +970,7 @@ public class NavigationDrawerFragment extends Fragment implements
 			final TaskModel current) {
 		try {
 			DialogViewFragment dialog = new DialogViewFragment(parent, current,
-					this);
+					this, mActivity);
 			dialog.setStyle(DialogFragment.STYLE_NO_TITLE, 0);
 			dialog.show(getChildFragmentManager(), "asdf");
 
