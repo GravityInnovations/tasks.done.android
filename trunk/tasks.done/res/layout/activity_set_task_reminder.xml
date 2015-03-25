@@ -181,6 +181,7 @@
                     android:gravity="center_vertical"
                     android:text="Repeat"
                     android:textColor="@android:color/black"
+                    android:tag="0"
                     android:textSize="17sp" />
 
                 <View
@@ -218,7 +219,8 @@
                     android:gravity="center_vertical"
                     android:text="Notifications"
                     android:textColor="@android:color/black"
-                    android:textSize="17sp" />
+                    android:textSize="17sp"
+                    android:tag="0" />
 
                 <LinearLayout
                     android:id="@+id/append_btn_linearlayout"
@@ -238,9 +240,10 @@
                     android:background="@android:color/transparent"
                     android:paddingBottom="10dp"
                      android:paddingTop="8dp"
-                    android:text="Add another notificaiton"
+                    android:text="Add another notification"
                     android:textColor="@android:color/black"
-                    android:textSize="17sp" />
+                    android:textSize="17sp"
+                    android:tag="1" />
 
                 <View
                     android:id="@+id/line5"

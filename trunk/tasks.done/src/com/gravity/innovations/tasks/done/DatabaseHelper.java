@@ -17,6 +17,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 	public Users users = new Users();
 	private UsersLists userlists = new UsersLists();
 	public TaskRepeat taskRepeat = new TaskRepeat();
+	public TaskRepeat_Notifications taskRepeat_Notifications = new TaskRepeat_Notifications();
 	// Database Version
 	private static final int DATABASE_VERSION = 1;
 
@@ -93,6 +94,10 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 	protected static final String KEY_START_DATETIME = "start_date_time";
 	protected static final String KEY_END_DATETIME = "end_date_time";
 	protected static final String KEY_All_DAY = "all_day";
+	// ******** TASK REPEAT NOTIFICATIONS *********//
+	private static final String TABLE_TASK_NOTIFICATIONS = "task_repeat_notifications";
+	private static final String KEY_SEND_NOTIFICATION_AS_EMAIL = "send_notificaiton_as_email";
+	// ******** TASK REPEAT NOTIFICATIONS *********//
 	// ******** TASK REPEAT *********//
 	// ********* SQLite Table Structure Queries *********//
 
@@ -125,29 +130,34 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 		try {
 			db.execSQL(Users.CREATE_USERS_TABLE);
 		} catch (Exception e) {
-			Log.e(_TAG, "USERS_TABLE not created");
+			Log.e(_TAG, "USERS_TABLE not created " + e.getLocalizedMessage());
 		}
 		try {
 			db.execSQL(TaskLists.CREATE_TASK_LIST_TABLE);
 		} catch (Exception e) {
-			Log.e(_TAG, "TASK_LIST_TABLE not created");
+			Log.e(_TAG, "TASK_LIST_TABLE not created "  + e.getLocalizedMessage());
 		}
 
 		try {
 			db.execSQL(Tasks.CREATE_TASKS_TABLE);
 		} catch (Exception e) {
-			Log.e(_TAG, "TASKS_TABLE not created");
+			Log.e(_TAG, "TASKS_TABLE was not created "  + e.getLocalizedMessage());
 		}
 
 		try {
 			db.execSQL(UsersLists.CREATE_USERS_LISTS_TABLE);
 		} catch (Exception e) {
-			Log.e(_TAG, "CREATE_USERS_LISTS_TABLE not created");
+			Log.e(_TAG, "USERS_LISTS_TABLE was not created "  + e.getLocalizedMessage());
 		}
 		try {
-			db.execSQL(TaskRepeat.CREATE_TASKS_TABLE);
+			db.execSQL(TaskRepeat.CREATE_TASK_REPEAT_TABLE );
 		} catch (Exception e) {
-			Log.e(_TAG, "CREATE_TASKS_TABLE not created");
+			Log.e(_TAG, "TASKSREPEAT_TABLE was not created " + e.getLocalizedMessage());
+		}
+		try {
+			db.execSQL(TaskRepeat_Notifications.CREATE_TASK_NOTIFICATIONS_TABLE);
+		} catch (Exception e) {
+			Log.e(_TAG, "TASKSREPEAT_TABLE was not created "  + e.getLocalizedMessage());
 		}
 	}
 
@@ -162,6 +172,8 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 			db.execSQL("DROP TABLE IF EXISTS " + TABLE_TASK_LIST);
 			db.execSQL("DROP TABLE IF EXISTS " + TABLE_USERS);
 			db.execSQL("DROP TABLE IF EXISTS " + TABLE_USERS_LISTS);
+			db.execSQL("DROP TABLE IF EXISTS " + TABLE_TASK_REPEAT);
+			db.execSQL("DROP TABLE IF EXISTS " + TABLE_TASK_NOTIFICATIONS);
 			onCreate(db);// create all tables again
 		} catch (Exception e) {
 			Log.e("Database onUpgrade", "not created Again");
@@ -995,9 +1007,72 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 		}
 
 	}
+	
+	protected class TaskRepeat_Notifications { 
+		protected static final String CREATE_TASK_NOTIFICATIONS_TABLE = "CREATE TABLE "
+				
+				+ TABLE_TASK_NOTIFICATIONS + "(" 
+				
+				+ KEY_TASK_ID + " INTEGER,"
+				
+				+ KEY_INTERVAL + " INTEGER," 
+				//Number of !^
+				+ KEY_INTERVAL_TYPE + " INTEGER,"
+				// values 0-3 minutes/hours/days/weeks
+				+ KEY_SEND_NOTIFICATION_AS_EMAIL + " INTEGER" 
+				//values 0-1 as Notificaiton/Email if not specifies setDefault as 0
+			
+				+ ")";
+		
+		private ContentValues setContent(RepeatTaskNotificationsModel repeatTaskNotificaitonsModel) {
+			ContentValues values = new ContentValues();
+			values.put(KEY_TASK_ID, repeatTaskNotificaitonsModel.task_id);
+			values.put(KEY_INTERVAL, repeatTaskNotificaitonsModel.interval);
+			values.put(KEY_INTERVAL_TYPE, repeatTaskNotificaitonsModel.interval_type);
+			values.put(KEY_SEND_NOTIFICATION_AS_EMAIL, repeatTaskNotificaitonsModel.send_notificaion_as_email);
+			return values;
+		}
 
+		private RepeatTaskNotificationsModel getValuesFromCursor(Cursor c) {
+			int colID = c.getColumnIndex(KEY_TASK_ID);
+			int colInterval = c.getColumnIndex(KEY_INTERVAL);
+			int colIntervalType = c.getColumnIndex(KEY_INTERVAL_TYPE);
+			int colSendNotifictionAs = c
+					.getColumnIndex(KEY_SEND_NOTIFICATION_AS_EMAIL);
+			
+			RepeatTaskNotificationsModel repeatTaskNotificaitonsModel = new RepeatTaskNotificationsModel();
+			repeatTaskNotificaitonsModel.task_id = c.getInt(colID);
+			repeatTaskNotificaitonsModel.interval = c.getInt(colInterval);
+			repeatTaskNotificaitonsModel.interval_type = c.getInt(colIntervalType);
+			repeatTaskNotificaitonsModel.send_notificaion_as_email = c
+					.getInt(colSendNotifictionAs);
+			return repeatTaskNotificaitonsModel;
+		}
+
+		public int Add(RepeatTaskNotificationsModel repeatTaskNotificaitonsModel) {
+			SQLiteDatabase db = getWritableDatabase();
+			ContentValues values = setContent(repeatTaskNotificaitonsModel);
+			int id = (int) db.insert(TABLE_TASK_NOTIFICATIONS, null, values);
+			db.close();
+			return id;
+		}
+
+		public boolean Delete(int id) { 
+			SQLiteDatabase db = getWritableDatabase();
+			if (db.delete(TABLE_TASK_NOTIFICATIONS, KEY_PK + " = ?",
+					new String[] { String.valueOf(id) }) > 0) {
+				db.close();
+				return true;
+			}
+			db.close();
+			return false;
+		}
+
+		
+	}
+	
 	protected class TaskRepeat {
-		protected static final String CREATE_TASKS_TABLE = "CREATE TABLE "
+		protected static final String CREATE_TASK_REPEAT_TABLE = "CREATE TABLE "
 				+ TABLE_TASK_REPEAT + "(" + KEY_TASK_ID + " INTEGER,"
 				+ KEY_INTERVAL + " INTEGER," 
 				+ KEY_INTERVAL_TYPE + " INTEGER,"
@@ -1016,7 +1091,6 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
 		private ContentValues setContent(RepeatTaskModel repeatModel) {
 			ContentValues values = new ContentValues();
-
 			values.put(KEY_TASK_ID, repeatModel.task_id);
 			values.put(KEY_INTERVAL, repeatModel.interval);
 			values.put(KEY_INTERVAL_TYPE, repeatModel.interval_type);
@@ -1025,6 +1099,8 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 			values.put(KEY_WEEK_OF_MONTH, repeatModel.week_of_month);
 			values.put(KEY_DAY_OF_MONTH, repeatModel.day_of_month);
 			values.put(KEY_All_DAY, repeatModel.allDay);
+			values.put(KEY_START_DATETIME, repeatModel.startDateTime);
+			values.put(KEY_END_DATETIME, repeatModel.endDateTime);
 			return values;
 		}
 
@@ -1038,6 +1114,9 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 			int colWeekOfMonth = c.getColumnIndex(KEY_WEEK_OF_MONTH);
 			int colDayOfMonth = c.getColumnIndex(KEY_DAY_OF_MONTH);
 			int colAllDay = c.getColumnIndex(KEY_All_DAY);
+			int colStartDate = c.getColumnIndex(KEY_START_DATETIME);
+			int colEndDate = c.getColumnIndex(KEY_END_DATETIME);
+			
 			RepeatTaskModel repeatModel = new RepeatTaskModel();
 			repeatModel.task_id = c.getInt(colID);
 			repeatModel.interval = c.getInt(colInterval);
@@ -1048,6 +1127,8 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 			repeatModel.week_of_month = c.getInt(colWeekOfMonth);
 			repeatModel.day_of_month = c.getInt(colDayOfMonth);
 			repeatModel.allDay = c.getInt(colAllDay);
+			repeatModel.startDateTime = c.getString(colStartDate);
+			repeatModel.startDateTime = c.getString(colEndDate);
 			return repeatModel;
 		}
 

@@ -300,9 +300,9 @@ public class MainActivity extends ActionBarActivity implements
 
 	public void displayAds() {
 		try {
-			 AdView mAdView = (AdView) findViewById(R.id.adView);
-			 //mAdView.setAdSize(AdSize.SMART_BANNER);
-			 mAdView.setAdListener(new AdListener() {
+			AdView mAdView = (AdView) findViewById(R.id.adView);
+			// mAdView.setAdSize(AdSize.SMART_BANNER);
+			mAdView.setAdListener(new AdListener() {
 
 				@Override
 				public void onAdClosed() {
@@ -314,8 +314,7 @@ public class MainActivity extends ActionBarActivity implements
 				public void onAdFailedToLoad(int errorCode) {
 					// TODO Auto-generated method stub
 					super.onAdFailedToLoad(errorCode);
-					switch(errorCode)
-					{
+					switch (errorCode) {
 					case AdRequest.ERROR_CODE_INTERNAL_ERROR:
 						break;
 					case AdRequest.ERROR_CODE_INVALID_REQUEST:
@@ -344,10 +343,10 @@ public class MainActivity extends ActionBarActivity implements
 					// TODO Auto-generated method stub
 					super.onAdOpened();
 				}
-				 
+
 			});
 			AdRequest adRequest = new AdRequest.Builder().build();
-			 mAdView.loadAd(adRequest);
+			mAdView.loadAd(adRequest);
 		} catch (Exception e) {
 			Log.e("displayAd:MainActivity", e.getLocalizedMessage());
 		}
@@ -469,7 +468,8 @@ public class MainActivity extends ActionBarActivity implements
 
 		if (id == R.id.action_settings) {
 			Intent i = new Intent(MainActivity.this, SettingsActivity.class);
-			//overridePendingTransition(R.anim.abc_fade_in, R.anim.abc_fade_out);
+			// overridePendingTransition(R.anim.abc_fade_in,
+			// R.anim.abc_fade_out);
 			startActivity(i);
 		} else if (id == R.id.action_dashboard) {
 			onDashboardSelected();
@@ -675,11 +675,20 @@ public class MainActivity extends ActionBarActivity implements
 
 	}
 
-	// chg
 	@Override
 	public void onTimeReceive(Context mContext, Intent intent) {
 		// mNavigationDrawerFragment.onTimeReceive(mContext, intent);
 		mTaskListFragment.updateRelativeTime();// .mTaskAdapter.notifyDataSetChanged();
+	}
+
+	public void updateCurrentTask() {
+		// for marking the task as done from detailsDial
+		try { 
+			mTaskListFragment.updateCurrentTask();
+			//mTaskListFragment.mTaskAdapter.notifyItemChanged(mTaskListFragment.mTaskAdapter.getPosition());
+		} catch (Exception e) {
+			Log.e("updateCurrentTask:MainActivity", e.getLocalizedMessage());
+		}
 	}
 
 	public ArrayList<UserModel> getUsers() {
@@ -695,4 +704,5 @@ public class MainActivity extends ActionBarActivity implements
 		// TODO Auto-generated method stub
 
 	}
+
 }

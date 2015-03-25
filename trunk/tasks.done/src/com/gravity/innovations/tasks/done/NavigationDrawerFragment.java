@@ -563,10 +563,23 @@ public class NavigationDrawerFragment extends Fragment implements
 	 * @Override public void onPause() { super.onPause();
 	 * mContext.unregisterReceiver(mTimeReciever); }
 	 * 
-	 * @Override public void onResume() { super.onResume();
+	 * @Override public void ume() { super.ume();
 	 * mContext.registerReceiver(mTimeReciever, new IntentFilter(
 	 * "android.intent.action.TIME_TICK")); }
 	 */
+	@Override
+	public void onResume() {
+		// TODO Auto-generated method stub
+		super.onResume();
+		mAdapter.notifyDataSetChanged();
+	}
+
+	@Override
+	public void onPause() {
+		// TODO Auto-generated method stub
+		super.onPause();
+	}
+
 	public void openNavigationDrawer(int id) {
 		if (id == -1) {
 			// NOTE: it does not need the
@@ -972,7 +985,7 @@ public class NavigationDrawerFragment extends Fragment implements
 			DialogViewFragment dialog = new DialogViewFragment(parent, current,
 					this, mActivity);
 			dialog.setStyle(DialogFragment.STYLE_NO_TITLE, 0);
-			dialog.show(getChildFragmentManager(), "asdf");
+			dialog.show(getChildFragmentManager(), null); //send null or any string because @overide
 
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -1681,27 +1694,18 @@ public class NavigationDrawerFragment extends Fragment implements
 	}
 
 	public boolean MarkDoneTask(TaskListModel parent, TaskModel temp) {
-		if (temp.completed == 1) {
-			// temp.completed = 1;
-			if (db.tasks.Edit(temp) != -1) {
-				int position = mAdapter.getPosition(parent);
-				this.mAdapter.getItem(position).GetTask(temp._id).set(temp);
-				this.mAdapter.notifyDataSetChanged();
-				return true;
-			} else
-				return false;
-		} else {
-			// temp.completed = 0;
-
-			// temp.updated = currentDateTime;
-			if (db.tasks.Edit(temp) != -1) {
-				int position = mAdapter.getPosition(parent);
-				this.mAdapter.getItem(position).GetTask(temp._id).set(temp);
-				this.mAdapter.notifyDataSetChanged();
-				return true;
-			} else
-				return false;
+		if (db.tasks.Edit(temp) <= 0) {
+			return false;
 		}
+
+		else {
+			int position = mAdapter.getPosition(parent);
+			this.mAdapter.getItem(position).GetTask(temp._id).set(temp);
+			this.mAdapter.notifyDataSetChanged();
+			((MainActivity) mActivity).updateCurrentTask();
+			return true;
+		}
+
 	}
 
 	public void deleteTaskList(final TaskListModel tasklist) {
@@ -1844,6 +1848,7 @@ public class NavigationDrawerFragment extends Fragment implements
 		void onNavigationDrawerItemSelected(TaskListModel temp, int selectTaskId);
 
 		void onDashboardSelected();
+
 	}
 
 	@Override
@@ -2039,7 +2044,9 @@ public class NavigationDrawerFragment extends Fragment implements
 			public void run() {
 				try {
 					Intent intent = new Intent(mActivity,
-							SetTaskReminderActivity.class);// "com.gravity.innovations.tasks.done.SetTaskReminderActivity");
+					/* SetTaskReminderActivity */
+							SetTaskReminderActivity.class);
+					// "com.gravity.innovations.tasks.done.SetTaskReminderActivity");
 					// TaskModel newtask = task;
 					// TaskListModel newlist = new TaskListModel();
 					// newlist = list;

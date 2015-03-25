@@ -155,13 +155,14 @@ public class TaskAdapter extends RecyclerView.Adapter {// <TaskAdapter.ViewHolde
 				} catch (Exception e) {
 					Log.e("TaskAdapter", "iv_alarmToggle");
 				}
-
+				int highlightPostition = position;
 				if (HighlightTask != -1 && task._id == HighlightTask) {
-
+					highlightPostition++;
 					Animation animationFadeIn = AnimationUtils.loadAnimation(
 							this.mContext, R.anim.fade_in);
 					viewHolder.taskRowLayout.startAnimation(animationFadeIn);
-					mRecyclerView.scrollToPosition(position);
+					mRecyclerView.scrollToPosition(highlightPostition);
+					//something is wrong with postion on zeroth item no position is being sent
 
 				}
 
@@ -170,6 +171,7 @@ public class TaskAdapter extends RecyclerView.Adapter {// <TaskAdapter.ViewHolde
 				// mark as dne and undone start
 
 				// final int pos = position;
+				
 				viewHolder.iv_doneToggle
 						.setOnClickListener(new OnClickListener() {
 
@@ -260,6 +262,7 @@ public class TaskAdapter extends RecyclerView.Adapter {// <TaskAdapter.ViewHolde
 						.setOnLongClickListener(new View.OnLongClickListener() {
 							@Override
 							public boolean onLongClick(View v) {
+								int pos = vH.getPosition();
 								setPosition(vH.getPosition());
 								return false;
 							}
@@ -271,6 +274,7 @@ public class TaskAdapter extends RecyclerView.Adapter {// <TaskAdapter.ViewHolde
 							@Override
 							public void onClick(View v) {
 								// open details dialog
+								int pos = vH.getPosition();
 								setPosition(vH.getPosition());
 								mNavigationDrawerFragment
 										.openTaskDetailsDialog(mTaskListModel,

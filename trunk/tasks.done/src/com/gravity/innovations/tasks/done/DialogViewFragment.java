@@ -8,6 +8,7 @@ import com.gravity.innovations.custom.views.CalendarView;
 
 import android.annotation.SuppressLint;
 import android.app.Activity;
+import android.app.FragmentManager.OnBackStackChangedListener;
 import android.graphics.Color;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -153,7 +154,7 @@ public class DialogViewFragment extends DialogFragment {
 		}
 		markDoneToggle.setBackgroundColor(adjustAlpha(
 				Color.parseColor(listModel.fragmentColor), alpha));
-
+		
 		// taskDelete: to delete the task
 		taskDelete.setOnClickListener(new OnClickListener() {
 
@@ -220,6 +221,7 @@ public class DialogViewFragment extends DialogFragment {
 				} catch (Exception e) {
 					Log.e("markDoneToggle", e.getLocalizedMessage());
 				}
+
 				mNavigationDrawerFragment.MarkDoneTask(listModel, taskModel);
 
 			}
@@ -252,6 +254,12 @@ public class DialogViewFragment extends DialogFragment {
 
 	}
 
+	@Override
+    public void onDetach() {
+        super.onDetach();
+    	mNavigationDrawerFragment.mAdapter.notifyDataSetChanged();
+    }
+	
 	public int adjustAlpha(int color, float alpha) {
 		// float f = alpha/100;
 		int a = Math.round(255 * alpha);// ( 255 * (float)());

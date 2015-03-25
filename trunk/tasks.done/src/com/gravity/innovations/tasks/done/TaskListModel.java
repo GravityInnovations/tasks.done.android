@@ -19,7 +19,8 @@ public class TaskListModel implements Serializable {
 	public int icon_identifier;
 
 	public ArrayList<TaskModel> tasks = new ArrayList<TaskModel>(); // task_data;
-	public ArrayList<UserModel> users = new ArrayList<UserModel>(); // task_data;
+	public ArrayList<UserModel> users = new ArrayList<UserModel>(); // user_data;
+ 
 	public String fragmentColor;
 
 	// ********* Constructors *********//

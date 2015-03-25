@@ -76,15 +76,8 @@ public class TaskListFragment extends Fragment {
 		this.selectedTaskID = _selectTaskId;
 		// this.mThumbIds= mThumbIds;
 		this.mService = mService;
-	}
 
-	/*
-	 * public void newInstance(TaskListModel temp, NavigationDrawerFragment
-	 * navigationDrawerFragment) { this.data = temp; // updateRelativeTime();
-	 * this.mNavigationDrawerFragment = navigationDrawerFragment;
-	 * 
-	 * }
-	 */
+	}
 
 	public Fragment getFragment() {
 		return this;
@@ -95,6 +88,11 @@ public class TaskListFragment extends Fragment {
 		for (TaskModel m : this.data.tasks)
 			m.updateRelativeTime(currentTimeMills);
 		mTaskAdapter.notifyDataSetChanged();
+	}
+
+	public void updateCurrentTask() {
+		int id = mTaskAdapter.getPosition();
+		mTaskAdapter.notifyItemChanged(mTaskAdapter.getPosition());
 	}
 
 	@Override
@@ -317,7 +315,7 @@ public class TaskListFragment extends Fragment {
 					R.layout.task_listview_row, data,
 					mNavigationDrawerFragment, /* data.tasks, */
 					selectedTaskID, lv_footer, mRecyclerView);
-
+			// mTaskAdapter.notifyDataSetChanged();
 			mRecyclerView.setAdapter(mTaskAdapter);
 			try {
 				// RecyclerViewAdapter.ViewHolder viewHolder = new

@@ -78,12 +78,14 @@
     <string name="attl">Add The Task List</string>
     <string name="share">Share</string>
     <string name="set_reminder">Set Reminder</string>
-    <string name="minutes">Minutes</string>
-    <string name="hours">Hours</string>
-    <string name="days">Days</string>
-    <string name="weeks">Weeks</string>
+    <string name="minutes">Minute</string>
+    <string name="hours">Hour</string>
+    <string name="days">Day</string>
+    <string name="weeks">Week</string>
+     <string name="custom_notification">Custom Notifications</string>
     <string name="as_notification">As Notification</string>
     <string name="as_email">As Email</string>
+    <string name="digitOne">1</string>
 
     <string-array name="weekdays_array">
         <item>Sunday</item>

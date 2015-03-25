@@ -9,12 +9,12 @@
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_marginLeft="10dp"
         android:paddingBottom="10dp"
         android:paddingLeft="10dp"
-        android:layout_marginLeft="10dp"
-        android:text="Custom Notifications"
-        android:textStyle="bold" 
-        android:textAppearance="?android:attr/textAppearanceMedium" />
+        android:text="@string/custom_notification"
+        android:textAppearance="?android:attr/textAppearanceMedium"
+        android:textStyle="bold" />
 
     <View
         android:id="@+id/line_notification"
@@ -24,21 +24,19 @@
 
     <EditText
         android:id="@+id/et_numberOfNotifications"
-        android:layout_width="40dp"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_alignBottom="@+id/tv1"
-        android:layout_alignParentTop="true"
+        android:layout_alignParentRight="true"
         android:layout_centerVertical="true"
+        android:layout_marginLeft="10dp"
         android:layout_marginTop="10dp"
-        android:layout_toRightOf="@+id/tv1"
         android:background="#00000000"
-        android:text="01"
         android:inputType="number"
         android:paddingBottom="10dp"
         android:paddingLeft="10dp"
-        android:layout_marginLeft="10dp"
         android:paddingTop="10dp"
-         android:selectAllOnFocus="true" />
+        android:selectAllOnFocus="true"
+        android:text="@string/digitOne" />
 
     <View
         android:id="@+id/line_numberOfNotifications"
@@ -125,13 +123,5 @@
             android:paddingTop="10dp"
             android:text="@string/as_email" />
     </RadioGroup>
-
-<!--     <View -->
-<!--         android:id="@+id/line_radioGroup2" -->
-<!--         android:layout_width="fill_parent" -->
-<!--         android:layout_height="1dp" -->
-<!--         android:background="@color/line_divider" -->
-<!--         android:paddingBottom="10dp" -->
-<!--         android:paddingTop="10dp" /> -->
 
 </LinearLayout>

@@ -1,11 +1,10 @@
 package com.gravity.innovations.tasks.done;
 
-import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.Date;
 import java.util.Locale;
-
+import java.util.StringTokenizer;
 import android.annotation.SuppressLint;
 import android.app.AlertDialog;
 import android.content.Context;
@@ -13,26 +12,22 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
-import android.opengl.Visibility;
-import android.os.Build;
 import android.os.Bundle;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBarActivity;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.text.format.DateFormat;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.View.OnClickListener;
 import android.widget.AdapterView;
-import android.widget.AdapterView.OnItemSelectedListener;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.CalendarView;
 import android.widget.CompoundButton;
-import android.widget.CompoundButton.OnCheckedChangeListener;
 import android.widget.EditText;
-import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
@@ -41,56 +36,75 @@ import android.widget.Spinner;
 import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.TimePicker;
-import android.widget.Toast;
+import android.widget.AdapterView.OnItemSelectedListener;
+import android.widget.CompoundButton.OnCheckedChangeListener;
+import android.widget.TimePicker.OnTimeChangedListener;
 
 public class SetTaskReminderActivity extends ActionBarActivity {
 	private TaskModel task;
 	private TaskListModel list;
-	private ImageButton ib_Save, ib_Cancel;
-	private TextView tv_title, tv_details, tv_notes;
-	// ,tv_notification;// change tv_repeat to button
-
-	private EditText et_title, et_details, et_notes;
 	private Switch _switch;
-	private TextView tv_repeat, tv_timeStart, tv_timeEnd, tv_dateStart,
-			tv_dateEnd, tv_notification, tv_notification_addAnother;
-
+	private boolean isSwitchChecked = false, is24HourFormat = false;
 	private Context mContext;
-	private ActionBar actionBar;
-	private Calendar c;
-	boolean isSwitchChecked = false;
-	String v, nE = null;
+	private ActionBar mActionBar;
+	private EditText et_title, et_details, et_notes;
+	private DatabaseHelper db;
+	private SimpleDateFormat formatter;
+	private TextView tv_timeStart, tv_timeEnd, tv_dateStart, tv_dateEnd,
+			tv_repeat, tv_notification2, tv_notification3, tv_notification4,
+			tv_notification, tv_notification_addAnother;
+	private int doesNotRepeat = 0, daily = 1, weekly = 2, monthly = 3,
+			yearly = 4, custom = 5;
+	private int globalInterval;
+	private String globalRepeatValueString, globalNumberOfEvents;
+	private Calendar calendar_StartDateOnly, calendar_EndDateOnly,
+			calendar_StartTimeOnly, calendar_EndTimeOnly, calendar_DateTime,
+			calendar_RepeatDialogDateOnly;
+	private int resourceID_tvDateStart, resourceID_tvDateEnd,
+			resourceID_tvTimeStart, resourceID_tvTimeEnd,
+			resourceID_tvDateRepeatDialog;
 
-	View.OnClickListener mListener;
-	String dateStart, dateEnd, timeStart, timeEnd;// , dateTimeStart,
-													// dateTimeEnd;
+	private boolean isMonday = false, isTuesday = false, isWednesday = false,
+			isThursday = false, isFriday = false, isSaturday = false,
+			isSunday = false, isDaily = true/* default */, isWeekly = false,
+			isMonthly = false, isYearly = false, isForever = true/* default */,
+			isUntilAtime = false, isForAFixedNumberOfEvents = false;
 
-	// String v = null;
+	private String weekdays;
 
-	// private Button time1_btn, time2_btn;
-	// private Button date1_btn;
+	private ArrayList<TextView> arrayList_TextView = new ArrayList<TextView>();
+	// get Custom String and assign and update db when needed
+	private ArrayList<String> notificationDetailsList = new ArrayList<String>();
+	// id for the new textViews
+	private int textViewTag = 2;// was 3 before
+	// textView stoping condition
+	private int textViewFlag = 5;
 
-	@SuppressLint("NewApi")
+	private String timeUnit = null, notificationAsEmail = null,
+			checkAsEmail = null;
+
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_set_task_reminder);
 		mContext = getApplicationContext();
-
+		is24HourFormat = DateFormat.is24HourFormat(mContext);
 		Intent intent = getIntent();
 		Bundle mBundle = intent.getExtras();
 		mBundle.getSerializable("key_list");
 		mBundle.getSerializable("key_task");
-
 		list = (TaskListModel) intent.getSerializableExtra("key_list");
 		task = (TaskModel) intent.getSerializableExtra("key_task");
 		// widgets declaration
+		setUpViewsWithData();
+	}
+
+	@SuppressLint("NewApi")
+	private void setUpViewsWithData() {
 		et_title = (EditText) findViewById(R.id.textViewTitle);
 		et_title.setText(task.title);
-
 		et_details = (EditText) findViewById(R.id.textViewDetails);
 		et_details.setText(task.details);
-
 		et_notes = (EditText) findViewById(R.id.textViewNotes);
 		et_notes.setText(task.notes);
 
@@ -98,6 +112,17 @@ public class SetTaskReminderActivity extends ActionBarActivity {
 		tv_dateStart = (TextView) findViewById(R.id.btn_date_1);
 		tv_timeEnd = (TextView) findViewById(R.id.btn_time_2);
 		tv_dateEnd = (TextView) findViewById(R.id.btn_date_2);
+
+		resourceID_tvTimeStart = tv_timeStart.getId();
+		resourceID_tvTimeEnd = tv_timeEnd.getId();
+		resourceID_tvDateEnd = tv_dateEnd.getId();
+		resourceID_tvDateStart = tv_dateStart.getId();
+
+		long currentTimeMillis = System.currentTimeMillis();
+		tv_dateStart.setText(getCurrentDate(currentTimeMillis));
+		tv_dateEnd.setText(getCurrentDate(currentTimeMillis));
+		tv_timeStart.setText(getCurrentTime(currentTimeMillis));
+		tv_timeEnd.setText(getCurrentTimePlusOneHour(currentTimeMillis));
 
 		_switch = (Switch) findViewById(R.id.onOFF);
 		_switch.setChecked(false);
@@ -118,26 +143,14 @@ public class SetTaskReminderActivity extends ActionBarActivity {
 					tv_timeEnd.setVisibility(View.VISIBLE);
 					isSwitchChecked = false;
 				}
-
 			}
 		});
+		tv_repeat = (TextView) findViewById(R.id.repeat_tv);
 
-		tv_timeStart.setOnClickListener(new View.OnClickListener() {
-
+		tv_repeat.setOnClickListener(new View.OnClickListener() {
 			@Override
 			public void onClick(View v) {
-				// open openCustomTimepickerDialog dialog
-				openCustomTimepickerDialog();
-
-			}
-		});
-		tv_timeEnd.setOnClickListener(new View.OnClickListener() {
-
-			@Override
-			public void onClick(View v) {
-				// open openCustomTimepickerDialog dialog
-				openCustomTimepickerDialog();
-
+				repeatDialog(tv_repeat);
 			}
 		});
 
@@ -146,7 +159,8 @@ public class SetTaskReminderActivity extends ActionBarActivity {
 			@Override
 			public void onClick(View v) {
 				// open openCustomTimepickerDialog dialog
-				openCalenderViewDialogStartDate();
+				// openCalenderViewDialogStartDate();
+				getDate(tv_dateStart);// openGetSetDateDialog()
 
 			}
 		});
@@ -154,18 +168,27 @@ public class SetTaskReminderActivity extends ActionBarActivity {
 
 			@Override
 			public void onClick(View v) {
+				// openCalenderViewDialogEndDate();
+				getDate(tv_dateEnd);// openGetSetDateDialog()
+			}
+		});
+
+		tv_timeStart.setOnClickListener(new View.OnClickListener() {
+
+			@Override
+			public void onClick(View v) {
 				// open openCustomTimepickerDialog dialog
-				openCalenderViewDialogEndDate();
+				openCustomTimepickerDialog(tv_timeStart);
 
 			}
 		});
 
-		tv_repeat = (TextView) findViewById(R.id.repeat_tv);
-		tv_repeat.setOnClickListener(new View.OnClickListener() {
+		tv_timeEnd.setOnClickListener(new View.OnClickListener() {
 
 			@Override
 			public void onClick(View v) {
-				repeatDialog(tv_repeat);
+				// open openCustomTimepickerDialog dialog
+				openCustomTimepickerDialog(tv_timeEnd);
 			}
 		});
 
@@ -173,1099 +196,55 @@ public class SetTaskReminderActivity extends ActionBarActivity {
 		tv_notification_addAnother = (TextView) findViewById(R.id.add_another_notification_btn);
 
 		tv_notification.setOnClickListener(new View.OnClickListener() {
-
 			@Override
 			public void onClick(View v) {
-				// notificationDialog();
-				radioDialog();
+				notificationTimeSelectionDialog(0);
 			}
 		});
 
-		final ArrayList<TextView> notificaitonBtnList = new ArrayList<TextView>();
-		notificaitonBtnList.add(tv_notification);
-		notificaitonBtnList.add(tv_notification_addAnother);
+		arrayList_TextView = new ArrayList<TextView>();
+		// tags are assigned in xml
+		arrayList_TextView.add(tv_notification);
+		arrayList_TextView.add(tv_notification_addAnother);
 
 		tv_notification_addAnother
 				.setOnClickListener(new View.OnClickListener() {
-
 					@Override
 					public void onClick(View v) {
-						if (notificaitonBtnList.size() < 5) {
-							// Button newButton = new
-							// Button(getApplicationContext());
-							TextView newButton = new TextView(
+						if (textViewFlag == 6) {
+							notificationTimeSelectionDialog(1);
+						}
+						if (arrayList_TextView.size() < 5) {
+							final TextView newTextView = new TextView(
 									getApplicationContext());
-							newButton
+							newTextView
 									.setOnClickListener(new View.OnClickListener() {
 										@Override
 										public void onClick(View v) {
-											radioDialog();
+											notificationTimeSelectionDialog(Integer
+													.valueOf(v.getTag()
+															.toString()));
+											/*
+											 * newTextView.setText(
+											 * radioDialog_GetText());
+											 */
 										}
 									});
-							addANewButton(newButton);
-							notificaitonBtnList.add(newButton);
+							addANewTextView(newTextView);
+							arrayList_TextView.add(newTextView);
+						}
+						if (arrayList_TextView.size() == 5 && textViewFlag == 5) {
+							tv_notification_addAnother
+									.setText("Notification Time");
+							textViewFlag++;
 						}
 					}
 				});
 
 	}
 
-	@SuppressLint({ "ResourceAsColor", "NewApi" })
-	public void addANewButton(TextView button) {
-		try {
-			LinearLayout layout = (LinearLayout) findViewById(R.id.append_btn_linearlayout);
-			// set the properties for button
-			// Button btnTag = new Button(this);
-
-			RelativeLayout.LayoutParams lp = new RelativeLayout.LayoutParams(
-					RelativeLayout.LayoutParams.WRAP_CONTENT,
-					RelativeLayout.LayoutParams.WRAP_CONTENT);
-			// lp.setMargins(0, 10, 0, 10);
-			// lp.setMargins(0, 0, 0, 10);
-
-			// lp.addRule(RelativeLayout.BELOW, R.id.add_notification_btn);
-			// lp.addRule(RelativeLayout.ALIGN_LEFT, R.id.add_notification_btn);
-
-			// button.setLayoutParams(new
-			// LayoutParams(RelativeLayout.LayoutParams.WRAP_CONTENT,
-			// RelativeLayout.LayoutParams.WRAP_CONTENT));
-			button.setText("Notification Time");
-			button.setTextSize(17);
-			float scale = getResources().getDisplayMetrics().density;
-			int dpAsPixels = (int) (10 * scale + 0.5f);
-
-			button.setPadding(0, dpAsPixels, 0, dpAsPixels);
-			button.setTextColor(getResources().getColor(R.color.black));// Color.parseColor("#bdbdbd"));
-			button.setBackground(getResources().getDrawable(
-					android.R.color.transparent));
-			button.setLayoutParams(lp);
-			// button.setPadding("0", "0", "0", "5");
-			// add button to the layout
-			layout.addView(button);
-			// return btnTag;
-		} catch (Exception e) {
-			Log.e("Button createion error", e.getLocalizedMessage());
-		}
-
-	}
-
-	@SuppressLint("NewApi")
-	public void openCalenderViewDialogStartDate() {
-		View dialog_headerView = this.getLayoutInflater().inflate(
-				R.layout.dialog_calenderview_header, null);
-		View dialog_detailsView = this.getLayoutInflater().inflate(
-				R.layout.dialog_calenderview, null);
-
-		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-			DialogInterface.OnClickListener posListener = new DialogInterface.OnClickListener() {
-				@Override
-				public void onClick(DialogInterface dialog, int which) {
-					dialog.cancel();
-					// save the new task title
-				}
-			};
-			Common.CustomDialog.CustomDialog(this, dialog_detailsView,
-					posListener, R.string.dialog_done);
-
-		} else if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP
-				&& Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
-
-			final TextView tv_year, tv_date, tv_month, tv_weekday;
-
-			tv_weekday = (TextView) dialog_headerView.findViewById(R.id.tv_day);
-
-			tv_date = (TextView) dialog_headerView.findViewById(R.id.tv_date);
-			tv_month = (TextView) dialog_headerView.findViewById(R.id.tv_month);
-			tv_year = (TextView) dialog_headerView.findViewById(R.id.tv_year);
-			c = Calendar.getInstance();
-			// tv_year_final = tv_year;
-			// tv_date_final = tv_date;
-			// tv_month_final = tv_month;
-
-			CalendarView calendarView = (CalendarView) dialog_detailsView
-					.findViewById(R.id.calenderView);
-			calendarView
-					.setOnDateChangeListener(new CalendarView.OnDateChangeListener() {
-						public void onSelectedDayChange(CalendarView view,
-								int year, int month, int dayOfMonth) {
-
-							c.set(Calendar.YEAR, year);
-							c.set(Calendar.MONTH, month);
-							c.set(Calendar.DAY_OF_MONTH, dayOfMonth);
-
-							String monthString = c.getDisplayName(
-									Calendar.MONTH, Calendar.SHORT,
-									Locale.getDefault());
-							tv_year.setText(String.valueOf(year));
-							tv_date.setText(String.valueOf(dayOfMonth));
-
-							tv_month.setText(monthString);
-
-							String weekdayString = c.getDisplayName(
-									Calendar.DAY_OF_WEEK, Calendar.LONG,
-									Locale.getDefault());
-
-							tv_weekday.setText(weekdayString);
-							dateStart = weekdayString + ", " + monthString
-									+ " " + String.valueOf(dayOfMonth) + ", "
-									+ String.valueOf(year);
-						}
-					});
-			DialogInterface.OnClickListener posListener = new DialogInterface.OnClickListener() {
-				@Override
-				public void onClick(DialogInterface dialog, int which) {
-					dialog.cancel();
-					Date newDate = c.getTime();
-					long a = c.getTimeInMillis();
-					tv_dateStart.setText(dateStart);
-				}
-			};
-
-			Common.CustomDialog.CustomDialog(this, dialog_detailsView,
-					dialog_headerView, posListener, R.string.dialog_done);
-		} else if (Build.VERSION.SDK_INT < Build.VERSION_CODES.HONEYCOMB) {
-			DialogInterface.OnClickListener posListener = new DialogInterface.OnClickListener() {
-				@Override
-				public void onClick(DialogInterface dialog, int which) {
-					dialog.cancel();
-					// save the new task title
-				}
-			};
-			View dialogView = this.getLayoutInflater().inflate(
-					R.layout.cal_view, null);
-			Common.CustomDialog.CustomDialog(this, dialogView, posListener,
-					R.string.dialog_done);
-
-		}
-	}
-
-	@SuppressLint("NewApi")
-	public void openCalenderViewDialogEndDate() {
-		View dialog_headerView = this.getLayoutInflater().inflate(
-				R.layout.dialog_calenderview_header, null);
-		View dialog_detailsView = this.getLayoutInflater().inflate(
-				R.layout.dialog_calenderview, null);
-
-		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-			DialogInterface.OnClickListener posListener = new DialogInterface.OnClickListener() {
-				@Override
-				public void onClick(DialogInterface dialog, int which) {
-					dialog.cancel();
-					// save the new task title
-				}
-			};
-			Common.CustomDialog.CustomDialog(this, dialog_detailsView,
-					posListener, R.string.dialog_done);
-
-		} else if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP
-				&& Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
-
-			final TextView tv_year, tv_date, tv_month, tv_weekday;
-
-			tv_weekday = (TextView) dialog_headerView.findViewById(R.id.tv_day);
-
-			tv_date = (TextView) dialog_headerView.findViewById(R.id.tv_date);
-			tv_month = (TextView) dialog_headerView.findViewById(R.id.tv_month);
-			tv_year = (TextView) dialog_headerView.findViewById(R.id.tv_year);
-			c = Calendar.getInstance();
-			// tv_year_final = tv_year;
-			// tv_date_final = tv_date;
-			// tv_month_final = tv_month;
-
-			CalendarView calendarView = (CalendarView) dialog_detailsView
-					.findViewById(R.id.calenderView);
-			calendarView
-					.setOnDateChangeListener(new CalendarView.OnDateChangeListener() {
-						public void onSelectedDayChange(CalendarView view,
-								int year, int month, int dayOfMonth) {
-
-							c.set(Calendar.YEAR, year);
-							c.set(Calendar.MONTH, month);
-							c.set(Calendar.DAY_OF_MONTH, dayOfMonth);
-
-							String monthString = c.getDisplayName(
-									Calendar.MONTH, Calendar.SHORT,
-									Locale.getDefault());
-							tv_year.setText(String.valueOf(year));
-							tv_date.setText(String.valueOf(dayOfMonth));
-
-							tv_month.setText(monthString);
-
-							String weekdayString = c.getDisplayName(
-									Calendar.DAY_OF_WEEK, Calendar.LONG,
-									Locale.getDefault());
-
-							tv_weekday.setText(weekdayString);
-							dateEnd = weekdayString + ", " + monthString + " "
-									+ String.valueOf(dayOfMonth) + ", "
-									+ String.valueOf(year);
-						}
-					});
-			DialogInterface.OnClickListener posListener = new DialogInterface.OnClickListener() {
-				@Override
-				public void onClick(DialogInterface dialog, int which) {
-					dialog.cancel();
-					Date newDate = c.getTime();
-					long a = c.getTimeInMillis();
-					tv_dateEnd.setText(dateEnd);
-				}
-			};
-
-			Common.CustomDialog.CustomDialog(this, dialog_detailsView,
-					dialog_headerView, posListener, R.string.dialog_done);
-		} else if (Build.VERSION.SDK_INT < Build.VERSION_CODES.HONEYCOMB) {
-			DialogInterface.OnClickListener posListener = new DialogInterface.OnClickListener() {
-				@Override
-				public void onClick(DialogInterface dialog, int which) {
-					dialog.cancel();
-					// save the new task title
-				}
-			};
-			View dialogView = this.getLayoutInflater().inflate(
-					R.layout.cal_view, null);
-			Common.CustomDialog.CustomDialog(this, dialogView, posListener,
-					R.string.dialog_done);
-
-		}
-	}
-
-	@SuppressLint("NewApi")
-	public void openCustomTimepickerDialog() {
-		View dialog_detailsView = this.getLayoutInflater().inflate(
-				R.layout.dialog_timepicker, null);
-		final TimePicker timePicker = (TimePicker) dialog_detailsView
-				.findViewById(R.id.timepicker);
-
-		DialogInterface.OnClickListener posListener = new DialogInterface.OnClickListener() {
-			@Override
-			public void onClick(DialogInterface dialog, int which) {
-				dialog.cancel();
-				// save the new task title
-				int hour, minute = 0;
-				hour = timePicker.getCurrentHour();
-				minute = timePicker.getCurrentMinute();
-//				timeStart = (String.valueOf(hour) + ":" + String
-//						.valueOf(minute));			
-				if (hour <= 12) { //for am time
-					if(minute < 10){//appends 0 if time and hour are single digits
-						String mins =  String.valueOf(minute);
-						tv_timeStart.setText("0" + hour + ":" + "0" + mins + " AM");
-					}
-				} 
-				else if (hour > 12) {
-					if (hour == 13) {
-						hour = 1;
-					} else if (hour == 14) {
-						hour = 2;
-					} else if (hour == 15) {
-						hour = 3;
-					} else if (hour == 16) {
-						hour = 4;
-					} else if (hour == 17) {
-						hour = 5;
-					} else if (hour == 18) {
-						hour = 6;
-					} else if (hour == 19) {
-						hour = 7;
-					} else if (hour == 20) {
-						hour = 8;
-					} else if (hour == 21) {
-						hour = 9;
-					} else if (hour == 22) {
-						hour = 10;
-					} else if (hour == 23) {
-						hour = 11;
-					} else if (hour == 24) {
-						hour = 12;
-					}
-					timeStart = ("0" + String.valueOf(hour) + ":"
-							+ String.valueOf(minute) + " PM");
-					tv_timeStart.setText(timeStart);
-				}
-				// tv_timeStart.setText(timeStart);
-			}
-		};
-		Common.CustomDialog.CustomDialog(this, dialog_detailsView, posListener,
-				R.string.dialog_done);
-
-	}
-
-	@SuppressLint("NewApi")
-	public void openCustomTimepickerDialogEndTime() {
-		View dialog_detailsView = this.getLayoutInflater().inflate(
-				R.layout.dialog_timepicker, null);
-		final TimePicker timePicker = (TimePicker) dialog_detailsView
-				.findViewById(R.id.timepicker);
-
-		DialogInterface.OnClickListener posListener = new DialogInterface.OnClickListener() {
-			@Override
-			public void onClick(DialogInterface dialog, int which) {
-				dialog.cancel();
-				// save the new task title
-				int hour, minute = 0;
-				hour = timePicker.getCurrentHour();
-				minute = timePicker.getCurrentMinute();
-				timeEnd = (String.valueOf(hour) + String.valueOf(minute));
-				tv_timeEnd.setText(timeEnd);
-
-			}
-		};
-		Common.CustomDialog.CustomDialog(this, dialog_detailsView, posListener,
-				R.string.dialog_done);
-
-	}
-
-	@SuppressLint("NewApi")
-	public void openCustomTimepickerDialogCustom() {
-		Boolean is24HourFormat = DateFormat.is24HourFormat(mContext);
-
-		if (is24HourFormat) {
-
-			View dialog_detailsView = this.getLayoutInflater().inflate(
-					R.layout.dialog_custom_timepicker, null);
-
-			final TextView tv_ampm = (TextView) dialog_detailsView
-					.findViewById(R.id.tv_chrnonometer_am_pm);
-			tv_ampm.setVisibility(View.GONE);
-
-			TextView hour_zeroth = (TextView) dialog_detailsView
-					.findViewById(R.id.tv_hours_zero_index);
-
-			TextView hour_oneth = (TextView) dialog_detailsView
-					.findViewById(R.id.tv_hours_one_index);
-
-			TextView minutes_oneth = (TextView) dialog_detailsView
-					.findViewById(R.id.tv_minutes_one_index);
-
-			TextView minutes_zeroth = (TextView) dialog_detailsView
-					.findViewById(R.id.tv_minutes_zero_index);
-
-			final TextView final_hour_zeroth = hour_zeroth, final_hour_oneth = hour_oneth;
-
-			final TextView final_minutes_zeroth = minutes_zeroth, final_minutes_oneth = minutes_oneth;
-
-			Button amOrPmButton, button_1, button_2, button_3, button_4, button_5, button_6, button_7, button_8, button_9, button_0, button_backspace;
-			button_1 = (Button) dialog_detailsView.findViewById(R.id.tv_1);
-			button_2 = (Button) dialog_detailsView.findViewById(R.id.tv_2);
-			button_3 = (Button) dialog_detailsView.findViewById(R.id.tv_3);
-			button_4 = (Button) dialog_detailsView.findViewById(R.id.tv_4);
-			button_5 = (Button) dialog_detailsView.findViewById(R.id.tv_5);
-			button_6 = (Button) dialog_detailsView.findViewById(R.id.tv_6);
-			button_7 = (Button) dialog_detailsView.findViewById(R.id.tv_7);
-			button_8 = (Button) dialog_detailsView.findViewById(R.id.tv_8);
-			button_9 = (Button) dialog_detailsView.findViewById(R.id.tv_9);
-			button_0 = (Button) dialog_detailsView.findViewById(R.id.tv_0);
-
-			amOrPmButton = (Button) dialog_detailsView.findViewById(R.id.tv_am);
-
-			final Button final_amOrPmButton = amOrPmButton;
-			// final_amOrPmButton.setAlpha(0);
-			final_amOrPmButton.setText(":00");
-			final_amOrPmButton.setEnabled(false);
-
-			button_backspace = (Button) dialog_detailsView
-					.findViewById(R.id.backspace);
-
-			View.OnClickListener listener = new View.OnClickListener() {
-				public void onClick(View v) {
-					String currentText_zeroIndex_hours = final_hour_zeroth
-							.getText().toString();
-					String currentText_oneIndex_hours = final_hour_oneth
-							.getText().toString();
-					String currentText_zeroIndex_minutes = final_minutes_zeroth
-							.getText().toString();
-					String currentText_oneIndex_minutes = final_minutes_oneth
-							.getText().toString();
-
-					String pressed_key = (String) v.getTag();
-					if (v.getTag() == "0" || v.getTag() == "1"
-							|| v.getTag() == "2" || v.getTag() == "3"
-							|| v.getTag() == "4" || v.getTag() == "5"
-							|| v.getTag() == "6" || v.getTag() == "7"
-							|| v.getTag() == "8" || v.getTag() == "9")
-					// != "")
-					{
-
-						if (currentText_zeroIndex_hours.contains("0")
-								&& currentText_oneIndex_hours.contains("0")
-								&& currentText_oneIndex_minutes.contains("0")
-								&& currentText_zeroIndex_minutes.contains("0")) {
-							final_minutes_zeroth.setText(pressed_key);
-						}
-
-						else if (currentText_zeroIndex_hours.contains("0")
-								&& currentText_oneIndex_hours.contains("0")
-								&& currentText_oneIndex_minutes.contains("0")
-								&& !currentText_zeroIndex_minutes.isEmpty()) {
-							final_minutes_oneth
-									.setText(currentText_zeroIndex_minutes);
-							final_minutes_zeroth.setText(pressed_key);
-
-						}
-
-						else if (currentText_zeroIndex_hours.contains("0")
-								&& currentText_oneIndex_hours.contains("0")
-								&& !currentText_oneIndex_minutes.isEmpty()
-								&& !currentText_zeroIndex_minutes.isEmpty())
-
-						{
-							final_hour_zeroth
-									.setText(currentText_oneIndex_minutes);
-							final_minutes_oneth
-									.setText(currentText_zeroIndex_minutes);
-							final_minutes_zeroth.setText(pressed_key);
-
-						}
-
-						else if (!currentText_zeroIndex_hours.isEmpty()
-								&& currentText_oneIndex_hours.contains("0")
-								&& !currentText_oneIndex_minutes.isEmpty()
-								&& !currentText_zeroIndex_minutes.isEmpty())
-
-						{
-							final_hour_oneth
-									.setText(currentText_zeroIndex_hours);
-							final_hour_zeroth
-									.setText(currentText_oneIndex_minutes);
-							final_minutes_oneth
-									.setText(currentText_zeroIndex_minutes);
-							final_minutes_zeroth.setText(pressed_key);
-
-						}
-					}
-
-					else if (v.getTag() == "bs") {
-						if (!currentText_zeroIndex_hours.isEmpty()
-								&& !currentText_oneIndex_hours.isEmpty()
-								&& !currentText_oneIndex_minutes.isEmpty()
-								&& !currentText_zeroIndex_minutes.isEmpty()) {
-
-							final_hour_zeroth
-									.setText(currentText_oneIndex_hours);
-							final_minutes_zeroth
-									.setText(currentText_oneIndex_minutes);
-							final_minutes_oneth
-									.setText(currentText_zeroIndex_hours);
-
-							final_hour_oneth.setText("0");
-
-						}
-					}
-
-				}
-			};
-
-			amOrPmButton.setOnClickListener(new OnClickListener() {
-
-				boolean flag = false;
-
-				@Override
-				public void onClick(View v) {
-					if (!flag) {
-						final_amOrPmButton.setText("PM");
-						tv_ampm.setText("AM");
-						flag = true;
-
-					} else {
-						final_amOrPmButton.setText("AM");
-						tv_ampm.setText("PM");
-						flag = false;
-					}
-
-				}
-			});
-
-			button_1.setTag("1");
-			button_1.setOnClickListener(listener);
-			button_2.setTag("2");
-			button_2.setOnClickListener(listener);
-			button_3.setTag("3");
-			button_3.setOnClickListener(listener);
-			button_4.setTag("4");
-			button_4.setOnClickListener(listener);
-			button_5.setTag("5");
-			button_5.setOnClickListener(listener);
-			button_6.setTag("6");
-			button_6.setOnClickListener(listener);
-			button_7.setTag("7");
-			button_7.setOnClickListener(listener);
-			button_8.setTag("8");
-			button_8.setOnClickListener(listener);
-			button_9.setTag("9");
-			button_9.setOnClickListener(listener);
-			button_0.setTag("0");
-			button_0.setOnClickListener(listener);
-			button_backspace.setTag("bs");
-			button_backspace.setOnClickListener(listener);
-
-			DialogInterface.OnClickListener posListener = new DialogInterface.OnClickListener() {
-				@Override
-				public void onClick(DialogInterface dialog, int which) {
-					dialog.cancel();
-					// save the new task title
-				}
-			};
-			Common.CustomDialog.CustomDialog(this, dialog_detailsView,
-					posListener, R.string.dialog_done);
-
-		} else {
-			View dialog_detailsView = this.getLayoutInflater().inflate(
-					R.layout.rewamp_custom_time_picker, null);
-
-			final TextView tv_ampm = (TextView) dialog_detailsView
-					.findViewById(R.id.tv_chrnonometer_am_pm);
-
-			TextView hour_zeroth = (TextView) dialog_detailsView
-					.findViewById(R.id.tv_hours_zero_index);
-
-			TextView hour_oneth = (TextView) dialog_detailsView
-					.findViewById(R.id.tv_hours_one_index);
-
-			TextView minutes_oneth = (TextView) dialog_detailsView
-					.findViewById(R.id.tv_minutes_one_index);
-
-			TextView minutes_zeroth = (TextView) dialog_detailsView
-					.findViewById(R.id.tv_minutes_zero_index);
-
-			final TextView final_hour_zeroth = hour_zeroth, final_hour_oneth = hour_oneth;
-
-			final TextView final_minutes_zeroth = minutes_zeroth, final_minutes_oneth = minutes_oneth;
-
-			final Button amOrPmButton, button_1, button_2, button_3, button_4, button_5, button_6, button_7, button_8, button_9, button_0, button_backspace;
-			button_1 = (Button) dialog_detailsView.findViewById(R.id.tv_1);
-			button_2 = (Button) dialog_detailsView.findViewById(R.id.tv_2);
-			button_3 = (Button) dialog_detailsView.findViewById(R.id.tv_3);
-			button_4 = (Button) dialog_detailsView.findViewById(R.id.tv_4);
-			button_5 = (Button) dialog_detailsView.findViewById(R.id.tv_5);
-			button_6 = (Button) dialog_detailsView.findViewById(R.id.tv_6);
-			button_7 = (Button) dialog_detailsView.findViewById(R.id.tv_7);
-			button_8 = (Button) dialog_detailsView.findViewById(R.id.tv_8);
-			button_9 = (Button) dialog_detailsView.findViewById(R.id.tv_9);
-			button_0 = (Button) dialog_detailsView.findViewById(R.id.tv_0);
-			button_0.setEnabled(false);
-
-			amOrPmButton = (Button) dialog_detailsView.findViewById(R.id.tv_am);
-
-			final Button final_amOrPmButton = amOrPmButton;
-
-			button_backspace = (Button) dialog_detailsView
-					.findViewById(R.id.backspace);
-
-			View.OnClickListener listener = new View.OnClickListener() {
-				public void onClick(View v) {
-
-					String currentText_zeroIndex_hours = final_hour_zeroth
-							.getText().toString();
-
-					String currentText_oneIndex_hours = final_hour_oneth
-							.getText().toString();
-
-					String currentText_zeroIndex_minutes = final_minutes_zeroth
-							.getText().toString();
-
-					String currentText_oneIndex_minutes = final_minutes_oneth
-							.getText().toString();
-
-					// ///////////////////////////////////////////////////////////////////////////////
-					/*
-					 * if (currentText_zeroIndex_hours == "-" &&
-					 * currentText_oneIndex_hours == "-" &&
-					 * currentText_oneIndex_minutes == "-" &&
-					 * currentText_zeroIndex_minutes == "-") { // enable all
-					 * keys button_0.setEnabled(false);
-					 * button_1.setEnabled(true); button_2.setEnabled(true);
-					 * button_3.setEnabled(true); button_4.setEnabled(true);
-					 * button_5.setEnabled(true); button_6.setEnabled(true);
-					 * button_7.setEnabled(true); button_8.setEnabled(true);
-					 * button_9.setEnabled(true); } else if
-					 * (currentText_oneIndex_hours == "-" &&
-					 * currentText_zeroIndex_hours != "-" &&
-					 * currentText_oneIndex_minutes != "-" &&
-					 * currentText_zeroIndex_minutes != "-") {
-					 * button_0.setEnabled(false); button_1.setEnabled(false);
-					 * button_2.setEnabled(false); button_3.setEnabled(false);
-					 * button_4.setEnabled(false); button_5.setEnabled(false);
-					 * button_6.setEnabled(false); button_7.setEnabled(false);
-					 * button_8.setEnabled(false); button_9.setEnabled(false);
-					 * 
-					 * }
-					 * 
-					 * else if (currentText_oneIndex_hours == "-" &&
-					 * currentText_zeroIndex_hours == "-" &&
-					 * currentText_oneIndex_minutes != "-" &&
-					 * currentText_zeroIndex_minutes != "-") {
-					 * button_0.setEnabled(true); button_1.setEnabled(true);
-					 * button_2.setEnabled(true); button_3.setEnabled(true);
-					 * button_4.setEnabled(true); button_5.setEnabled(true);
-					 * button_6.setEnabled(true); button_7.setEnabled(true);
-					 * button_8.setEnabled(true); button_9.setEnabled(true); }
-					 * else if (currentText_oneIndex_hours == "-" &&
-					 * currentText_zeroIndex_hours == "-" &&
-					 * currentText_oneIndex_minutes == "-" &&
-					 * currentText_zeroIndex_minutes != "-") {
-					 * button_0.setEnabled(true); button_1.setEnabled(true);
-					 * button_2.setEnabled(true); button_3.setEnabled(true);
-					 * button_4.setEnabled(true); button_5.setEnabled(true);
-					 * button_6.setEnabled(false); button_7.setEnabled(false);
-					 * button_8.setEnabled(false); button_9.setEnabled(false); }
-					 */
-					// ////////////////////////////////////////////////////////////////////////////////////////////////
-
-					String pressed_key = (String) v.getTag();
-					if (v.getTag() == "0" || v.getTag() == "1"
-							|| v.getTag() == "2" || v.getTag() == "3"
-							|| v.getTag() == "4" || v.getTag() == "5"
-							|| v.getTag() == "6" || v.getTag() == "7"
-							|| v.getTag() == "8" || v.getTag() == "9")
-					// != "")
-					{
-
-						if (currentText_zeroIndex_hours.contains("-")
-								&& currentText_oneIndex_hours.contains("-")
-								&& currentText_oneIndex_minutes.contains("-")
-								&& currentText_zeroIndex_minutes.contains("-")) {
-							final_minutes_zeroth.setText(pressed_key);
-							button_0.setEnabled(true);
-							button_1.setEnabled(true);
-							button_2.setEnabled(true);
-							button_3.setEnabled(true);
-							button_4.setEnabled(true);
-							button_5.setEnabled(true);
-							button_6.setEnabled(false);
-							button_7.setEnabled(false);
-							button_8.setEnabled(false);
-							button_9.setEnabled(false);
-
-						}
-
-						else if (currentText_zeroIndex_hours.contains("-")
-								&& currentText_oneIndex_hours.contains("-")
-								&& currentText_oneIndex_minutes.contains("-")
-								&& !currentText_zeroIndex_minutes.isEmpty()) {
-							final_minutes_oneth
-									.setText(currentText_zeroIndex_minutes);
-							final_minutes_zeroth.setText(pressed_key);
-							button_0.setEnabled(true);
-							button_1.setEnabled(true);
-							button_2.setEnabled(true);
-							button_3.setEnabled(true);
-							button_4.setEnabled(true);
-							button_5.setEnabled(true);
-							button_6.setEnabled(true);
-							button_7.setEnabled(true);
-							button_8.setEnabled(true);
-							button_9.setEnabled(true);
-
-						}
-
-						else if (currentText_zeroIndex_hours.contains("-")
-								&& currentText_oneIndex_hours.contains("-")
-								&& !currentText_oneIndex_minutes.isEmpty()
-								&& !currentText_zeroIndex_minutes.isEmpty())
-
-						{
-							if (pressed_key == "0" || pressed_key == "1"
-									|| pressed_key == "2" || pressed_key == "3"
-									|| pressed_key == "4" || pressed_key == "5") {
-								button_0.setEnabled(true);
-								button_1.setEnabled(true);
-								button_2.setEnabled(true);
-								button_3.setEnabled(true);
-								button_4.setEnabled(true);
-								button_5.setEnabled(true);
-								button_6.setEnabled(true);
-								button_7.setEnabled(true);
-								button_8.setEnabled(true);
-								button_9.setEnabled(true);
-							} else if (pressed_key == "6" || pressed_key == "7"
-									|| pressed_key == "8" || pressed_key == "9") {
-								button_0.setEnabled(false);
-								button_1.setEnabled(false);
-								button_2.setEnabled(false);
-								button_3.setEnabled(false);
-								button_4.setEnabled(false);
-								button_5.setEnabled(false);
-								button_6.setEnabled(false);
-								button_7.setEnabled(false);
-								button_8.setEnabled(false);
-								button_9.setEnabled(false);
-							}
-							final_hour_zeroth
-									.setText(currentText_oneIndex_minutes);
-							final_minutes_oneth
-									.setText(currentText_zeroIndex_minutes);
-							final_minutes_zeroth.setText(pressed_key);
-						}
-
-						else if (!currentText_zeroIndex_hours.isEmpty()
-								&& currentText_oneIndex_hours.contains("-")
-								&& !currentText_oneIndex_minutes.isEmpty()
-								&& !currentText_zeroIndex_minutes.isEmpty())
-
-						{
-							final_hour_oneth
-									.setText(currentText_zeroIndex_hours);
-							final_hour_zeroth
-									.setText(currentText_oneIndex_minutes);
-							final_minutes_oneth
-									.setText(currentText_zeroIndex_minutes);
-							final_minutes_zeroth.setText(pressed_key);
-
-						}
-					}
-
-					else if (v.getTag() == "bs") {
-						if (!currentText_zeroIndex_hours.isEmpty()
-								&& !currentText_oneIndex_hours.isEmpty()
-								&& !currentText_oneIndex_minutes.isEmpty()
-								&& !currentText_zeroIndex_minutes.isEmpty()) {
-							final_hour_zeroth
-									.setText(currentText_oneIndex_hours);
-							final_minutes_zeroth
-									.setText(currentText_oneIndex_minutes);
-							final_minutes_oneth
-									.setText(currentText_zeroIndex_hours);
-
-							final_hour_oneth.setText("-");
-
-							// ////////////////////////////////////////////////////////////////////////////////
-							if (currentText_zeroIndex_hours == "-"
-									&& currentText_oneIndex_hours == "-"
-									&& currentText_oneIndex_minutes == "-"
-									&& currentText_zeroIndex_minutes == "-") {
-								// enable all keys
-								button_0.setEnabled(false);
-								button_1.setEnabled(true);
-								button_2.setEnabled(true);
-								button_3.setEnabled(true);
-								button_4.setEnabled(true);
-								button_5.setEnabled(true);
-								button_6.setEnabled(true);
-								button_7.setEnabled(true);
-								button_8.setEnabled(true);
-								button_9.setEnabled(true);
-							}
-
-							else if (currentText_oneIndex_hours == "-"
-									&& currentText_zeroIndex_hours != "-"
-									&& currentText_oneIndex_minutes != "-"
-									&& currentText_zeroIndex_minutes != "-") {
-								// enable some and disable some on some basis
-								button_0.setEnabled(false);
-								button_1.setEnabled(false);
-								button_2.setEnabled(false);
-								button_3.setEnabled(false);
-								button_4.setEnabled(false);
-								button_5.setEnabled(false);
-								button_6.setEnabled(false);
-								button_7.setEnabled(false);
-								button_8.setEnabled(false);
-								button_9.setEnabled(false);
-
-							}
-
-							else if (currentText_oneIndex_hours == "-"
-									&& currentText_zeroIndex_hours == "-"
-									&& currentText_oneIndex_minutes != "-"
-									&& currentText_zeroIndex_minutes != "-") {
-								button_0.setEnabled(true);
-								button_1.setEnabled(true);
-								button_2.setEnabled(true);
-								button_3.setEnabled(true);
-								button_4.setEnabled(true);
-								button_5.setEnabled(true);
-								button_6.setEnabled(true);
-								button_7.setEnabled(true);
-								button_8.setEnabled(true);
-								button_9.setEnabled(true);
-							} else if (currentText_oneIndex_hours == "-"
-									&& currentText_zeroIndex_hours == "-"
-									&& currentText_oneIndex_minutes == "-"
-									&& currentText_zeroIndex_minutes != "-") {
-								button_0.setEnabled(true);
-								button_1.setEnabled(true);
-								button_2.setEnabled(true);
-								button_3.setEnabled(true);
-								button_4.setEnabled(true);
-								button_5.setEnabled(true);
-								button_6.setEnabled(false);
-								button_7.setEnabled(false);
-								button_8.setEnabled(false);
-								button_9.setEnabled(false);
-							}
-							// /////////////////////////////////////////////////////////////////////////////////////////////////
-
-						}
-					}
-
-				}
-			};
-
-			amOrPmButton.setOnClickListener(new OnClickListener() {
-
-				boolean flag = false;
-
-				@Override
-				public void onClick(View v) {
-					if (!flag) {
-						final_amOrPmButton.setText("PM");
-						tv_ampm.setText("AM");
-						flag = true;
-
-					} else {
-						final_amOrPmButton.setText("AM");
-						tv_ampm.setText("PM");
-						flag = false;
-					}
-
-				}
-			});
-
-			button_1.setTag("1");
-			button_1.setOnClickListener(listener);
-			button_2.setTag("2");
-			button_2.setOnClickListener(listener);
-			button_3.setTag("3");
-			button_3.setOnClickListener(listener);
-			button_4.setTag("4");
-			button_4.setOnClickListener(listener);
-			button_5.setTag("5");
-			button_5.setOnClickListener(listener);
-			button_6.setTag("6");
-			button_6.setOnClickListener(listener);
-			button_7.setTag("7");
-			button_7.setOnClickListener(listener);
-			button_8.setTag("8");
-			button_8.setOnClickListener(listener);
-			button_9.setTag("9");
-			button_9.setOnClickListener(listener);
-			button_0.setTag("0");
-			button_0.setOnClickListener(listener);
-			button_backspace.setTag("bs");
-			button_backspace.setOnClickListener(listener);
-
-			DialogInterface.OnClickListener posListener = new DialogInterface.OnClickListener() {
-				@Override
-				public void onClick(DialogInterface dialog, int which) {
-					dialog.cancel();
-					// save the new task title
-				}
-			};
-			Common.CustomDialog.CustomDialog(this, dialog_detailsView,
-					posListener, R.string.dialog_done);
-		}
-
-	}
-
-	@SuppressLint("NewApi")
-	public void openCustomTimepickerDialog12() {
-		View dialog_detailsView = this.getLayoutInflater().inflate(
-				R.layout.dialog_custom_timepicker, null);
-
-		final TextView tv_ampm = (TextView) dialog_detailsView
-				.findViewById(R.id.tv_chrnonometer_am_pm);
-
-		TextView hour_zeroth = (TextView) dialog_detailsView
-				.findViewById(R.id.tv_hours_zero_index);
-
-		TextView hour_oneth = (TextView) dialog_detailsView
-				.findViewById(R.id.tv_hours_one_index);
-
-		TextView minutes_oneth = (TextView) dialog_detailsView
-				.findViewById(R.id.tv_minutes_one_index);
-
-		TextView minutes_zeroth = (TextView) dialog_detailsView
-				.findViewById(R.id.tv_minutes_zero_index);
-
-		final TextView final_hour_zeroth = hour_zeroth, final_hour_oneth = hour_oneth;
-
-		final TextView final_minutes_zeroth = minutes_zeroth, final_minutes_oneth = minutes_oneth;
-
-		Button amOrPmButton, button_1, button_2, button_3, button_4, button_5, button_6, button_7, button_8, button_9, button_0, button_backspace;
-		button_1 = (Button) dialog_detailsView.findViewById(R.id.tv_1);
-		button_2 = (Button) dialog_detailsView.findViewById(R.id.tv_2);
-		button_3 = (Button) dialog_detailsView.findViewById(R.id.tv_3);
-		button_4 = (Button) dialog_detailsView.findViewById(R.id.tv_4);
-		button_5 = (Button) dialog_detailsView.findViewById(R.id.tv_5);
-		button_6 = (Button) dialog_detailsView.findViewById(R.id.tv_6);
-		button_7 = (Button) dialog_detailsView.findViewById(R.id.tv_7);
-		button_8 = (Button) dialog_detailsView.findViewById(R.id.tv_8);
-		button_9 = (Button) dialog_detailsView.findViewById(R.id.tv_9);
-		button_0 = (Button) dialog_detailsView.findViewById(R.id.tv_0);
-
-		amOrPmButton = (Button) dialog_detailsView.findViewById(R.id.tv_am);
-
-		final Button final_amOrPmButton = amOrPmButton;
-
-		button_backspace = (Button) dialog_detailsView
-				.findViewById(R.id.backspace);
-
-		View.OnClickListener listener = new View.OnClickListener() {
-			public void onClick(View v) {
-				String currentText_zeroIndex_hours = final_hour_zeroth
-						.getText().toString();
-				String currentText_oneIndex_hours = final_hour_oneth.getText()
-						.toString();
-				String currentText_zeroIndex_minutes = final_minutes_zeroth
-						.getText().toString();
-				String currentText_oneIndex_minutes = final_minutes_oneth
-						.getText().toString();
-
-				String pressed_key = (String) v.getTag();
-				if (v.getTag() == "0" || v.getTag() == "1" || v.getTag() == "2"
-						|| v.getTag() == "3" || v.getTag() == "4"
-						|| v.getTag() == "5" || v.getTag() == "6"
-						|| v.getTag() == "7" || v.getTag() == "8"
-						|| v.getTag() == "9")
-				// != "")
-				{
-
-					if (currentText_zeroIndex_hours.contains("0")
-							&& currentText_oneIndex_hours.contains("0")
-							&& currentText_oneIndex_minutes.contains("0")
-							&& currentText_zeroIndex_minutes.contains("0")) {
-						final_minutes_zeroth.setText(pressed_key);
-					}
-
-					else if (currentText_zeroIndex_hours.contains("0")
-							&& currentText_oneIndex_hours.contains("0")
-							&& currentText_oneIndex_minutes.contains("0")
-							&& !currentText_zeroIndex_minutes.isEmpty()) {
-						final_minutes_oneth
-								.setText(currentText_zeroIndex_minutes);
-						final_minutes_zeroth.setText(pressed_key);
-
-					}
-
-					else if (currentText_zeroIndex_hours.contains("0")
-							&& currentText_oneIndex_hours.contains("0")
-							&& !currentText_oneIndex_minutes.isEmpty()
-							&& !currentText_zeroIndex_minutes.isEmpty())
-
-					{
-						final_hour_zeroth.setText(currentText_oneIndex_minutes);
-						final_minutes_oneth
-								.setText(currentText_zeroIndex_minutes);
-						final_minutes_zeroth.setText(pressed_key);
-
-					}
-
-					else if (!currentText_zeroIndex_hours.isEmpty()
-							&& currentText_oneIndex_hours.contains("0")
-							&& !currentText_oneIndex_minutes.isEmpty()
-							&& !currentText_zeroIndex_minutes.isEmpty())
-
-					{
-						final_hour_oneth.setText(currentText_zeroIndex_hours);
-						final_hour_zeroth.setText(currentText_oneIndex_minutes);
-						final_minutes_oneth
-								.setText(currentText_zeroIndex_minutes);
-						final_minutes_zeroth.setText(pressed_key);
-
-					}
-				}
-
-				else if (v.getTag() == "bs") {
-					if (!currentText_zeroIndex_hours.isEmpty()
-							&& !currentText_oneIndex_hours.isEmpty()
-							&& !currentText_oneIndex_minutes.isEmpty()
-							&& !currentText_zeroIndex_minutes.isEmpty()) {
-
-						final_hour_zeroth.setText(currentText_oneIndex_hours);
-						final_minutes_zeroth
-								.setText(currentText_oneIndex_minutes);
-						final_minutes_oneth
-								.setText(currentText_zeroIndex_hours);
-
-						final_hour_oneth.setText("0");
-
-					}
-				}
-
-			}
-		};
-
-		amOrPmButton.setOnClickListener(new OnClickListener() {
-
-			boolean flag = false;
-
-			@Override
-			public void onClick(View v) {
-				if (!flag) {
-					final_amOrPmButton.setText("PM");
-					tv_ampm.setText("AM");
-					flag = true;
-
-				} else {
-					final_amOrPmButton.setText("AM");
-					tv_ampm.setText("PM");
-					flag = false;
-				}
-
-			}
-		});
-
-		button_1.setTag("1");
-		button_1.setOnClickListener(listener);
-		button_2.setTag("2");
-		button_2.setOnClickListener(listener);
-		button_3.setTag("3");
-		button_3.setOnClickListener(listener);
-		button_4.setTag("4");
-		button_4.setOnClickListener(listener);
-		button_5.setTag("5");
-		button_5.setOnClickListener(listener);
-		button_6.setTag("6");
-		button_6.setOnClickListener(listener);
-		button_7.setTag("7");
-		button_7.setOnClickListener(listener);
-		button_8.setTag("8");
-		button_8.setOnClickListener(listener);
-		button_9.setTag("9");
-		button_9.setOnClickListener(listener);
-		button_0.setTag("0");
-		button_0.setOnClickListener(listener);
-		button_backspace.setTag("bs");
-		button_backspace.setOnClickListener(listener);
-
-		DialogInterface.OnClickListener posListener = new DialogInterface.OnClickListener() {
-			@Override
-			public void onClick(DialogInterface dialog, int which) {
-				dialog.cancel();
-				// save the new task title
-			}
-		};
-		Common.CustomDialog.CustomDialog(this, dialog_detailsView, posListener,
-				R.string.dialog_done);
-	}
-
-	// public void listViewInflate(){
-	// final ListView listView = (ListView)
-	// findViewById(R.id.add_notificaiton_list);
-	// final ArrayList<String> notificaitonList = new ArrayList<String>();
-	// notificaitonList.add("Add Notification");
-	// notificaitonList.add("Add Another");
-	// notificaitonList.add("Add Another");
-	//
-	// final ArrayAdapter<String> adapter = new ArrayAdapter<String>(this,
-	// android.R.layout.simple_list_item_1, notificaitonList);
-	// listView.setScrollContainer(false);
-	// listView.setAdapter(adapter);
-	//
-	// listView.setTextFilterEnabled(true);
-	// listView.setOnItemClickListener(new OnItemClickListener() {
-	// public void onItemClick(AdapterView<?> parent, View view,
-	// int position, long id) {
-	// int notificationArraySize = notificaitonList.size();
-	// if (position == notificaitonList.size()-1)
-	// notificaitonList.add("XXXXXXXXXXX");
-	//
-	// listView.setAdapter(adapter);
-	// }
-	// });
-	// }
-
-	public void radioDialog() {
+	private void notificationTimeSelectionDialog(final int tag) {
+		// it has to be radio dialog try think on that as well
 		AlertDialog.Builder builder = new AlertDialog.Builder(this);
 		String[] list_items = { "No notification", "At time of event",
 				"10 minutes before", "30 minutes before", "1 hour before",
@@ -1274,35 +253,216 @@ public class SetTaskReminderActivity extends ActionBarActivity {
 
 			@Override
 			public void onClick(DialogInterface dialog, int which) {
-				// Toast.makeText(getApplicationContext(),
-				// "RepeatDialog " + which, Toast.LENGTH_LONG).show();
 				if (which == 0) {
-					tv_notification.setText("No Notification");
+					if (tag == 0) {
+						tv_notification.setText("No Notification");
+					} else if (tag == 1) {
+						tv_notification_addAnother.setText("No Notification");
+					} else if (tag == 2) {
+						tv_notification2.setText("No Notification");
+					} else if (tag == 3) {
+						tv_notification3.setText("No Notification");
+					} else if (tag == 4) {
+						tv_notification4.setText("No Notification");
+					}
 				} else if (which == 1) {
-					tv_notification.setText("At time of event");
+					if (tag == 0) {
+						tv_notification.setText("At time of event");
+					} else if (tag == 1) {
+						tv_notification_addAnother.setText("At time of event");
+					} else if (tag == 2) {
+						tv_notification2.setText("At time of event");
+					} else if (tag == 3) {
+						tv_notification3.setText("At time of event");
+					} else if (tag == 4) {
+						tv_notification4.setText("At time of event");
+					}
 				} else if (which == 2) {
-					tv_notification.setText("10 minutes before");
+					if (tag == 0) {
+						tv_notification.setText("10 minutes before");
+					} else if (tag == 1) {
+						tv_notification_addAnother.setText("10 minutes before");
+					} else if (tag == 2) {
+						tv_notification2.setText("10 minutes before");
+					} else if (tag == 3) {
+						tv_notification3.setText("10 minutes before");
+					} else if (tag == 4) {
+						tv_notification4.setText("10 minutes before");
+					}
+					// tv_notification.setText("10 minutes before");
 				} else if (which == 3) {
-					tv_notification.setText("30 minutes before");
+					if (tag == 0) {
+						tv_notification.setText("30 minutes before");
+					} else if (tag == 1) {
+						tv_notification_addAnother.setText("30 minutes before");
+					} else if (tag == 2) {
+						tv_notification2.setText("30 minutes before");
+					} else if (tag == 3) {
+						tv_notification3.setText("30 minutes before");
+					} else if (tag == 4) {
+						tv_notification4.setText("30 minutes before");
+					}
+					// tv_notification.setText("30 minutes before");
 				} else if (which == 4) {
-					tv_notification.setText("1 hour before");
+					if (tag == 0) {
+						tv_notification.setText("1 hour before");
+					} else if (tag == 1) {
+						tv_notification_addAnother.setText("1 hour before");
+					} else if (tag == 2) {
+						tv_notification2.setText("1 hour before");
+					} else if (tag == 3) {
+						tv_notification3.setText("1 hour before");
+					} else if (tag == 4) {
+						tv_notification4.setText("1 hour before");
+					}
+					// tv_notification.setText("1 hour before");
 				} else if (which == 5) {
-					notificationDialog();// it should return a string that shall
-											// be used as setText
+					// notificationDialog();
+					// it should return a string that shall be used as setText
+					customNotificationTimeSelectionDialog(tag);
 				}
 			}
 		});
 		builder.show();
 	}
 
-	public void repeatDialog(final TextView tv) {// final TaskListModel
-													// tasklist, final TaskModel
-		// temp) {
+	private void customNotificationTimeSelectionDialog(final int tag) {
+		View view = this.getLayoutInflater().inflate(
+				R.layout.dialog_notifications_details, null);
+		final EditText nTimes = (EditText) view
+				.findViewById(R.id.et_numberOfNotifications);
+		final RadioGroup rg_TimeUnit = (RadioGroup) view
+				.findViewById(R.id.myRadioGroup);
+		final RadioGroup rg_NotificationOrEmail = (RadioGroup) view
+				.findViewById(R.id.myRadioGroup2);
+
+		nTimes.addTextChangedListener(new TextWatcher() {
+
+			@Override
+			public void onTextChanged(CharSequence s, int start, int before,
+					int count) {
+
+				RadioButton btn0 = (RadioButton) rg_TimeUnit.getChildAt(0);
+				RadioButton btn1 = (RadioButton) rg_TimeUnit.getChildAt(1);
+				RadioButton btn2 = (RadioButton) rg_TimeUnit.getChildAt(2);
+				RadioButton btn3 = (RadioButton) rg_TimeUnit.getChildAt(3);
+
+				if ((nTimes.getText().toString()).isEmpty()
+						|| (nTimes.getText().toString()) == ""
+						|| (nTimes.getText().toString()) == " ") {
+					btn0.setText("Minute");
+					btn1.setText("Hour");
+					btn2.setText("Day");
+					btn3.setText("Week");
+
+				} else if (!(nTimes.getText().toString()).isEmpty()) {
+					int num = Integer.valueOf((nTimes.getText().toString()));
+
+					if (num == 0) {
+						btn0.setText("Minute");
+						btn1.setText("Hour");
+						btn2.setText("Day");
+						btn3.setText("Week");
+					} else if (num == 1) {
+						btn0.setText("Minute");
+						btn1.setText("Hour");
+						btn2.setText("Day");
+						btn3.setText("Week");
+					} else if (num > 1) {
+						btn0.setText("Minutes");
+						btn1.setText("Hours");
+						btn2.setText("Days");
+						btn3.setText("Weeks");
+					}
+				}
+			}
+
+			@Override
+			public void beforeTextChanged(CharSequence s, int start, int count,
+					int after) {
+				// TODO Auto-generated method stub
+			}
+
+			@Override
+			public void afterTextChanged(Editable s) {
+				// TODO Auto-generated method stub
+
+			}
+		});
+
+		DialogInterface.OnClickListener posListener = new DialogInterface.OnClickListener() {
+			@Override
+			public void onClick(DialogInterface dialog, int which) {
+				dialog.cancel();
+				String nTimesString = nTimes.getText().toString();
+				if (rg_TimeUnit.getCheckedRadioButtonId() != -1) {
+					int id = rg_TimeUnit.getCheckedRadioButtonId();
+					View radioButton = rg_TimeUnit.findViewById(id);
+					int radioId = rg_TimeUnit.indexOfChild(radioButton);
+					RadioButton btn = (RadioButton) rg_TimeUnit
+							.getChildAt(radioId);
+					String selection = (String) btn.getText();
+					timeUnit = " " + selection;
+				}
+				if (rg_NotificationOrEmail.getCheckedRadioButtonId() != -1) {
+					int id = rg_NotificationOrEmail.getCheckedRadioButtonId();
+					View radioButton = rg_NotificationOrEmail.findViewById(id);
+					int radioId = rg_NotificationOrEmail
+							.indexOfChild(radioButton);
+					RadioButton btn = (RadioButton) rg_NotificationOrEmail
+							.getChildAt(radioId);
+					String selection = (String) btn.getText();
+					notificationAsEmail = selection;
+				}
+				if (notificationAsEmail == "As Email"
+						|| notificationAsEmail.contains("As Email")) {
+					if (tag == 0) {
+						tv_notification.setText(nTimesString + timeUnit
+								+ " before " + "as email");
+					} else if (tag == 1) {
+						tv_notification_addAnother.setText(nTimesString
+								+ timeUnit + " before " + "as email");
+					} else if (tag == 2) {
+						tv_notification2.setText(nTimesString + timeUnit
+								+ " before " + "as email");
+					} else if (tag == 3) {
+						tv_notification3.setText(nTimesString + timeUnit
+								+ " before " + "as email");
+					} else if (tag == 4) {
+						tv_notification4.setText(nTimesString + timeUnit
+								+ " before " + "as email");
+					}
+
+				} else if (notificationAsEmail != "Email") {
+					if (tag == 0) {
+						tv_notification.setText(nTimesString + timeUnit
+								+ " before");
+					} else if (tag == 1) {
+						tv_notification_addAnother.setText(nTimesString
+								+ timeUnit + " before");
+					} else if (tag == 2) {
+						tv_notification2.setText(nTimesString + timeUnit
+								+ " before");
+					} else if (tag == 3) {
+						tv_notification3.setText(nTimesString + timeUnit
+								+ " before");
+					} else if (tag == 4) {
+						tv_notification4.setText(nTimesString + timeUnit
+								+ " before");
+					}
+				}
+			}
+		};
+		Common.CustomDialog.CustomDialogWithRadio(this, view, posListener,
+				R.string.dialog_done);
+	}
+
+	private void repeatDialog(final TextView tv) {
+		// final TaskListModel tasklist, final TaskModel temp) {
 		AlertDialog.Builder builder = new AlertDialog.Builder(this);
 		String[] list_items = { "Does not repeat", "Every day", "Every week",
 				"Every month", "Every year", "Custom..." };
 		builder.setItems(list_items, new DialogInterface.OnClickListener() {
-
 			@Override
 			public void onClick(DialogInterface dialog, int which) {
 				if (which == 0) {
@@ -1321,127 +481,143 @@ public class SetTaskReminderActivity extends ActionBarActivity {
 					tv.setText("Every year");
 					tv.setTag("4");
 				} else if (which == 5) {
-					repeatDetailsDialog();
 					tv.setTag("5");
+					repeatDetailsDialog();
 				}
-
 			}
 		});
 		builder.setTitle("Reminder");
 		builder.show();
-
-		// final ListView modeList = new ListView(mContext);
-		//
-		// String[] list_item = { "Once", "Once a Day", "Once a Week",
-		// "Once a Month", "Once a Year" };
-		//
-		// ArrayAdapter<String> itemsAdapter = new
-		// ArrayAdapter<String>(mContext,
-		// android.R.layout.simple_list_item_1, list_item);
-		//
-		// modeList.setAdapter(itemsAdapter);
-		// builder.setView(modeList);
-		// builder.setCancelable(false);
-		// final Dialog dialog = builder.create();
-		// dialog.show();
-		//
-		// modeList.setOnItemClickListener(new OnItemClickListener() {
-		// public void onItemClick(AdapterView<?> myAdapter, View myView,
-		// int myItemInt, long mylng) {
-		// // selectRepeatDialogItemId(tasklist, myItemInt, temp);//
-		// // listitemid
-		// dialog.dismiss();
-		// }
-		// });
-	}
-
-	public void addItemsToSpinner(Spinner spinner) {
-		ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(
-				this, R.array.repeatTill_array,
-				android.R.layout.simple_spinner_item);
-		// Specify the layout to use when the list of choices appears
-		adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-
-		spinner.setAdapter(adapter);
-
-	}
-
-	public void addItemsToHeaderSpinner(Spinner spinner) {
-		ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(
-				this, R.array.repeatInterval_array,
-				android.R.layout.simple_spinner_item);
-		// Specify the layout to use when the list of choices appears
-		adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-
-		spinner.setAdapter(adapter);
-
 	}
 
 	@SuppressLint("NewApi")
-	public void repeatDetailsDialog() {
-		View dialog_detailsView = this.getLayoutInflater().inflate(
+	private void repeatDetailsDialog() {
+		final View dialog_detailsView = this.getLayoutInflater().inflate(
 				R.layout.dialog_repeat_details, null);
-		final View final_dialog_detailsView = dialog_detailsView;
 		View dialog_headerView = this.getLayoutInflater().inflate(
 				R.layout.dialog_repeat_details_header, null);
-
 		// Days Buttons
-		Button sunday_btn = (Button) dialog_detailsView
-				.findViewById(R.id.btn_sunday);
-		Button monday_btn = (Button) dialog_detailsView
-				.findViewById(R.id.btn_monday);
-		Button tuesday_btn = (Button) dialog_detailsView
+		final Button sunday_btn, monday_btn, tuesday_btn, wednesday_btn, thursday_btn, friday_btn, saturday_btn;
+		final TextView openCalender_btn;
+
+		sunday_btn = (Button) dialog_detailsView.findViewById(R.id.btn_sunday);
+		monday_btn = (Button) dialog_detailsView.findViewById(R.id.btn_monday);
+		tuesday_btn = (Button) dialog_detailsView
 				.findViewById(R.id.btn_tuesday);
-		Button wednesday_btn = (Button) dialog_detailsView
+		wednesday_btn = (Button) dialog_detailsView
 				.findViewById(R.id.btn_wednesday);
-		Button thursday_btn = (Button) dialog_detailsView
+		thursday_btn = (Button) dialog_detailsView
 				.findViewById(R.id.btn_thursday);
-		Button friday_btn = (Button) dialog_detailsView
-				.findViewById(R.id.btn_friday);
-		Button saturday_btn = (Button) dialog_detailsView
+		friday_btn = (Button) dialog_detailsView.findViewById(R.id.btn_friday);
+		saturday_btn = (Button) dialog_detailsView
 				.findViewById(R.id.btn_saturday);
 
-		Button openCalender_btn = (Button) dialog_detailsView
+		openCalender_btn = (TextView) dialog_detailsView
 				.findViewById(R.id.tv_open_calender);
+		resourceID_tvDateRepeatDialog = openCalender_btn.getId();
+		openCalender_btn.setText(getDate(System.currentTimeMillis()));
+		calendar_RepeatDialogDateOnly = Calendar.getInstance();
+		calendar_RepeatDialogDateOnly.setTimeInMillis(System
+				.currentTimeMillis());// if the user saves with selecting a date
 
-		final Button final_sunday_btn = sunday_btn;
-		final Button final_monday_btn = monday_btn;
-		final Button final_tuesday_btn = tuesday_btn;
-		final Button final_wednesday_btn = wednesday_btn;
-		final Button final_thursday_btn = thursday_btn;
-		final Button final_friday_btn = friday_btn;
-		final Button final_saturday_btn = saturday_btn;
-		final Button final_openCalender_btn = openCalender_btn;
-		// Days Buttons
+		// repeatDialogDate = getCurrentDate(System.currentTimeMillis());
 
-		// View
-		View viewline = (View) dialog_detailsView
+		final View viewline = (View) dialog_detailsView
 				.findViewById(R.id.line_et_spinner_number_of_events);
-		final View final_viewline = viewline;
-		// View
 
-		// EditTexts
-		EditText spinnerValue_et = (EditText) dialog_detailsView
+		final EditText spinnerValue_et = (EditText) dialog_detailsView
 				.findViewById(R.id.et_spinner_number_of_events);
 
-		EditText et1 = (EditText) dialog_detailsView.findViewById(R.id.et1);
+		final EditText et1 = (EditText) dialog_detailsView
+				.findViewById(R.id.et1);
 
-		final EditText final_spinnerValue_et = spinnerValue_et;
-		final EditText final_et1 = et1;
-		// EditTexts
+		final TextView DoWoMoY = (TextView) dialog_detailsView
+				.findViewById(R.id.tv2); // DaysorWeekorMonths/Years
 
-		// TextViews
-		TextView spinnerValue_tv = (TextView) dialog_detailsView
+		et1.addTextChangedListener(new TextWatcher() {
+			@Override
+			public void onTextChanged(CharSequence s, int start, int before,
+					int count) {
+				// TODO Auto-generated method stub
+				if ((et1.getText().toString()).isEmpty()
+						|| (et1.getText().toString()) == ""
+						|| (et1.getText().toString()) == " ") {
+					DoWoMoY.setText("Day");
+				} else if (!(et1.getText().toString()).isEmpty()) {
+					int num = Integer.valueOf((et1.getText().toString()));
+
+					if (num == 0) {
+						DoWoMoY.setText("Day");
+					} else if (num == 1) {
+						DoWoMoY.setText("Day");
+					} else if (num > 1) {
+						DoWoMoY.setText("Days");
+					}
+
+				}
+			}
+
+			@Override
+			public void beforeTextChanged(CharSequence s, int start, int count,
+					int after) {
+				// TODO Auto-generated method stub
+
+			}
+
+			@Override
+			public void afterTextChanged(Editable s) {
+				// TODO Auto-generated method stub
+			}
+		});
+
+		// final EditText final_spinnerValue_et = spinnerValue_et;
+		// final EditText final_et1 = et1;
+
+		final TextView spinnerValue_tv = (TextView) dialog_detailsView
 				.findViewById(R.id.tv_spinnerValue);
-		final TextView final_spinnerValue_tv = spinnerValue_tv;
-		// TextViews
 
-		// Dialog HeaderView
+		spinnerValue_et.addTextChangedListener(new TextWatcher() {
 
-		Spinner spinner_header = (Spinner) dialog_headerView
+			@Override
+			public void onTextChanged(CharSequence s, int start, int before,
+					int count) {
+				if ((spinnerValue_et.getText().toString()).isEmpty()
+						|| (spinnerValue_et.getText().toString()) == ""
+						|| (spinnerValue_et.getText().toString()) == " ") {
+					spinnerValue_tv.setText("event");
+				} else if (!(spinnerValue_et.getText().toString()).isEmpty()) {
+					int num = Integer.valueOf((spinnerValue_et.getText()
+							.toString()));
+
+					if (num == 0) {
+						spinnerValue_tv.setText("event");
+					} else if (num == 1) {
+						spinnerValue_tv.setText("event");
+					} else if (num > 1) {
+						spinnerValue_tv.setText("events");
+					}
+
+				}
+
+			}
+
+			@Override
+			public void beforeTextChanged(CharSequence s, int start, int count,
+					int after) {
+				// TODO Auto-generated method stub
+
+			}
+
+			@Override
+			public void afterTextChanged(Editable s) {
+				// TODO Auto-generated method stub
+
+			}
+		});
+
+		final Spinner spinner_header = (Spinner) dialog_headerView
 				.findViewById(R.id.repeatInterval_spinner);
 		addItemsToHeaderSpinner(spinner_header);
-		final Spinner final_spinner_header = spinner_header;
 
 		spinner_header.setOnItemSelectedListener(new OnItemSelectedListener() {
 			public void onItemSelected(AdapterView<?> parent, View view,
@@ -1450,40 +626,62 @@ public class SetTaskReminderActivity extends ActionBarActivity {
 				// parent.getItemAtPosition(position).toString();
 				if (position == 0) {
 					// daily
-					final_sunday_btn.setVisibility(View.GONE);
-					final_monday_btn.setVisibility(View.GONE);
-					final_tuesday_btn.setVisibility(View.GONE);
-					final_wednesday_btn.setVisibility(View.GONE);
-					final_thursday_btn.setVisibility(View.GONE);
-					final_friday_btn.setVisibility(View.GONE);
-					final_saturday_btn.setVisibility(View.GONE);
+					sunday_btn.setVisibility(View.GONE);
+					monday_btn.setVisibility(View.GONE);
+					tuesday_btn.setVisibility(View.GONE);
+					wednesday_btn.setVisibility(View.GONE);
+					thursday_btn.setVisibility(View.GONE);
+					friday_btn.setVisibility(View.GONE);
+					saturday_btn.setVisibility(View.GONE);
+					// DoWoMoY.setText("Day(s)");
+					isDaily = true;
+					isWeekly = false;
+					isMonthly = false;
+					isYearly = false;
+
 				} else if (position == 1) {
 					// weekly
-					final_sunday_btn.setVisibility(View.VISIBLE);
-					final_monday_btn.setVisibility(View.VISIBLE);
-					final_tuesday_btn.setVisibility(View.VISIBLE);
-					final_wednesday_btn.setVisibility(View.VISIBLE);
-					final_thursday_btn.setVisibility(View.VISIBLE);
-					final_friday_btn.setVisibility(View.VISIBLE);
-					final_saturday_btn.setVisibility(View.VISIBLE);
+					sunday_btn.setVisibility(View.VISIBLE);
+					monday_btn.setVisibility(View.VISIBLE);
+					tuesday_btn.setVisibility(View.VISIBLE);
+					wednesday_btn.setVisibility(View.VISIBLE);
+					thursday_btn.setVisibility(View.VISIBLE);
+					friday_btn.setVisibility(View.VISIBLE);
+					saturday_btn.setVisibility(View.VISIBLE);
+					// DoWoMoY.setText("Week(s)");
+
+					isDaily = false;
+					isWeekly = true;
+					isMonthly = false;
+					isYearly = false;
 				} else if (position == 2) {
 					// monthly
-					final_sunday_btn.setVisibility(View.GONE);
-					final_monday_btn.setVisibility(View.GONE);
-					final_tuesday_btn.setVisibility(View.GONE);
-					final_wednesday_btn.setVisibility(View.GONE);
-					final_thursday_btn.setVisibility(View.GONE);
-					final_friday_btn.setVisibility(View.GONE);
-					final_saturday_btn.setVisibility(View.GONE);
+					sunday_btn.setVisibility(View.GONE);
+					monday_btn.setVisibility(View.GONE);
+					tuesday_btn.setVisibility(View.GONE);
+					wednesday_btn.setVisibility(View.GONE);
+					thursday_btn.setVisibility(View.GONE);
+					friday_btn.setVisibility(View.GONE);
+					saturday_btn.setVisibility(View.GONE);
+					// DoWoMoY.setText("Month(s)");
+					isDaily = false;
+					isWeekly = false;
+					isMonthly = true;
+					isYearly = false;
 				} else if (position == 3) {
 					// yearly
-					final_sunday_btn.setVisibility(View.GONE);
-					final_monday_btn.setVisibility(View.GONE);
-					final_tuesday_btn.setVisibility(View.GONE);
-					final_wednesday_btn.setVisibility(View.GONE);
-					final_thursday_btn.setVisibility(View.GONE);
-					final_friday_btn.setVisibility(View.GONE);
-					final_saturday_btn.setVisibility(View.GONE);
+					sunday_btn.setVisibility(View.GONE);
+					monday_btn.setVisibility(View.GONE);
+					tuesday_btn.setVisibility(View.GONE);
+					wednesday_btn.setVisibility(View.GONE);
+					thursday_btn.setVisibility(View.GONE);
+					friday_btn.setVisibility(View.GONE);
+					saturday_btn.setVisibility(View.GONE);
+					// DoWoMoY.setText("Year(s)");
+					isDaily = false;
+					isWeekly = false;
+					isMonthly = false;
+					isYearly = true;
 				}
 			}
 
@@ -1494,10 +692,10 @@ public class SetTaskReminderActivity extends ActionBarActivity {
 		// Dialog HeaderView
 
 		// Spinner dialog_detailsView
-		Spinner spinner = (Spinner) dialog_detailsView
+		final Spinner spinner = (Spinner) dialog_detailsView
 				.findViewById(R.id.spinner_repeatTimes);
 		addItemsToSpinner(spinner);
-		final Spinner final_spinner = spinner;
+		// final Spinner final_spinner = spinner;
 		// addListenerOnSpinnerItemSelection(spinner);
 		spinner.setOnItemSelectedListener(new OnItemSelectedListener() {
 			public void onItemSelected(AdapterView<?> parent, View view,
@@ -1506,20 +704,29 @@ public class SetTaskReminderActivity extends ActionBarActivity {
 				// parent.getItemAtPosition(position).toString();
 
 				if (position == 0) {
-					final_openCalender_btn.setVisibility(View.GONE);
-					final_viewline.setVisibility(View.GONE);
-					final_spinnerValue_tv.setVisibility(View.GONE);
-					final_spinnerValue_et.setVisibility(View.GONE);
+					openCalender_btn.setVisibility(View.GONE);
+					viewline.setVisibility(View.GONE);
+					spinnerValue_tv.setVisibility(View.GONE);
+					spinnerValue_et.setVisibility(View.GONE);
+					isForever = true;
+					isUntilAtime = false;
+					isForAFixedNumberOfEvents = false;
 				} else if (position == 1) {
-					final_openCalender_btn.setVisibility(View.VISIBLE);
-					final_viewline.setVisibility(View.GONE);
-					final_spinnerValue_tv.setVisibility(View.GONE);
-					final_spinnerValue_et.setVisibility(View.GONE);
+					openCalender_btn.setVisibility(View.VISIBLE);
+					viewline.setVisibility(View.GONE);
+					spinnerValue_tv.setVisibility(View.GONE);
+					spinnerValue_et.setVisibility(View.GONE);
+					isForever = false;
+					isUntilAtime = true;
+					isForAFixedNumberOfEvents = false;
 				} else if (position == 2) {
-					final_openCalender_btn.setVisibility(View.GONE);
-					final_viewline.setVisibility(View.VISIBLE);
-					final_spinnerValue_tv.setVisibility(View.VISIBLE);
-					final_spinnerValue_et.setVisibility(View.VISIBLE);
+					openCalender_btn.setVisibility(View.GONE);
+					viewline.setVisibility(View.VISIBLE);
+					spinnerValue_tv.setVisibility(View.VISIBLE);
+					spinnerValue_et.setVisibility(View.VISIBLE);
+					isForever = false;
+					isUntilAtime = false;
+					isForAFixedNumberOfEvents = true;
 				}
 
 			}
@@ -1532,11 +739,11 @@ public class SetTaskReminderActivity extends ActionBarActivity {
 
 		// Buttons and Listeners
 		openCalender_btn.setOnClickListener(new View.OnClickListener() {
-
 			@Override
 			public void onClick(View v) {
-				Toast.makeText(getApplicationContext(), "What",
-						Toast.LENGTH_SHORT).show();
+				// Toast.makeText(getApplicationContext(),
+				// "open CalView here again", Toast.LENGTH_SHORT).show();
+				getDate(openCalender_btn);
 
 			}
 		});
@@ -1547,14 +754,15 @@ public class SetTaskReminderActivity extends ActionBarActivity {
 			@Override
 			public void onClick(View v) {
 				if (!flag) {
-					final_sunday_btn
+					sunday_btn
 							.setBackgroundResource(R.drawable.circle_blue_full);
 					flag = true;
+					isSunday = true;
 
 				} else {
-					final_sunday_btn
-							.setBackgroundResource(R.drawable.circle_blue);
+					sunday_btn.setBackgroundResource(R.drawable.circle_blue);
 					flag = false;
+					isSunday = false;
 				}
 
 			}
@@ -1565,14 +773,15 @@ public class SetTaskReminderActivity extends ActionBarActivity {
 			@Override
 			public void onClick(View v) {
 				if (!flag) {
-					final_monday_btn
+					monday_btn
 							.setBackgroundResource(R.drawable.circle_blue_full);
 					flag = true;
+					isMonday = true;
 
 				} else {
-					final_monday_btn
-							.setBackgroundResource(R.drawable.circle_blue);
+					monday_btn.setBackgroundResource(R.drawable.circle_blue);
 					flag = false;
+					isMonday = false;
 				}
 
 			}
@@ -1583,14 +792,15 @@ public class SetTaskReminderActivity extends ActionBarActivity {
 			@Override
 			public void onClick(View v) {
 				if (!flag) {
-					final_tuesday_btn
+					tuesday_btn
 							.setBackgroundResource(R.drawable.circle_blue_full);
 					flag = true;
+					isTuesday = true;
 
 				} else {
-					final_tuesday_btn
-							.setBackgroundResource(R.drawable.circle_blue);
+					tuesday_btn.setBackgroundResource(R.drawable.circle_blue);
 					flag = false;
+					isTuesday = false;
 				}
 			}
 		});
@@ -1600,14 +810,15 @@ public class SetTaskReminderActivity extends ActionBarActivity {
 			@Override
 			public void onClick(View v) {
 				if (!flag) {
-					final_wednesday_btn
+					wednesday_btn
 							.setBackgroundResource(R.drawable.circle_blue_full);
 					flag = true;
+					isWednesday = true;
 
 				} else {
-					final_wednesday_btn
-							.setBackgroundResource(R.drawable.circle_blue);
+					wednesday_btn.setBackgroundResource(R.drawable.circle_blue);
 					flag = false;
+					isWednesday = false;
 				}
 			}
 		});
@@ -1617,14 +828,15 @@ public class SetTaskReminderActivity extends ActionBarActivity {
 			@Override
 			public void onClick(View v) {
 				if (!flag) {
-					final_thursday_btn
+					thursday_btn
 							.setBackgroundResource(R.drawable.circle_blue_full);
 					flag = true;
+					isThursday = true;
 
 				} else {
-					final_thursday_btn
-							.setBackgroundResource(R.drawable.circle_blue);
+					thursday_btn.setBackgroundResource(R.drawable.circle_blue);
 					flag = false;
+					isThursday = false;
 				}
 			}
 		});
@@ -1634,14 +846,15 @@ public class SetTaskReminderActivity extends ActionBarActivity {
 			@Override
 			public void onClick(View v) {
 				if (!flag) {
-					final_friday_btn
+					friday_btn
 							.setBackgroundResource(R.drawable.circle_blue_full);
 					flag = true;
+					isFriday = true;
 
 				} else {
-					final_friday_btn
-							.setBackgroundResource(R.drawable.circle_blue);
+					friday_btn.setBackgroundResource(R.drawable.circle_blue);
 					flag = false;
+					isFriday = false;
 				}
 			}
 		});
@@ -1651,14 +864,15 @@ public class SetTaskReminderActivity extends ActionBarActivity {
 			@Override
 			public void onClick(View v) {
 				if (!flag) {
-					final_saturday_btn
+					saturday_btn
 							.setBackgroundResource(R.drawable.circle_blue_full);
 					flag = true;
+					isSaturday = true;
 
 				} else {
-					final_saturday_btn
-							.setBackgroundResource(R.drawable.circle_blue);
+					saturday_btn.setBackgroundResource(R.drawable.circle_blue);
 					flag = false;
+					isSaturday = false;
 				}
 			}
 		});
@@ -1673,43 +887,41 @@ public class SetTaskReminderActivity extends ActionBarActivity {
 			public void onCheckedChanged(CompoundButton buttonView,
 					boolean isChecked) {
 				if (isChecked) {
-					final_dialog_detailsView.setAlpha(1);
+					dialog_detailsView.setAlpha(1);
 					// rootView2.setBackgroundColor(Color.TRANSPARENT);
 					// rootView2.setEnabled(true);
-					final_sunday_btn.setEnabled(true);
-					final_monday_btn.setEnabled(true);
-					final_tuesday_btn.setEnabled(true);
-					final_wednesday_btn.setEnabled(true);
-					final_thursday_btn.setEnabled(true);
-					final_friday_btn.setEnabled(true);
-					final_saturday_btn.setEnabled(true);
+					sunday_btn.setEnabled(true);
+					monday_btn.setEnabled(true);
+					tuesday_btn.setEnabled(true);
+					wednesday_btn.setEnabled(true);
+					thursday_btn.setEnabled(true);
+					friday_btn.setEnabled(true);
+					saturday_btn.setEnabled(true);
 					// spinnerValue.setEnabled(true);
-					final_spinnerValue_tv.setEnabled(true);
-					final_spinnerValue_et.setEnabled(true);
-					final_et1.setEnabled(true);
-					final_spinner.setEnabled(true);
-					final_spinner_header.setEnabled(true);
-					final_openCalender_btn.setEnabled(true);
+					spinnerValue_tv.setEnabled(true);
+					spinnerValue_et.setEnabled(true);
+					et1.setEnabled(true);
+					spinner.setEnabled(true);
+					spinner_header.setEnabled(true);
+					openCalender_btn.setEnabled(true);
 
 				} else {
-					final_dialog_detailsView.setAlpha((float) 0.5); // 0 = un
-																	// visible
-					final_sunday_btn.setEnabled(false);
-					final_monday_btn.setEnabled(false);
-					final_tuesday_btn.setEnabled(false);
-					final_wednesday_btn.setEnabled(false);
-					final_thursday_btn.setEnabled(false);
-					final_friday_btn.setEnabled(false);
-					final_saturday_btn.setEnabled(false);
+					dialog_detailsView.setAlpha((float) 0.5);// 0=unvisible
+					sunday_btn.setEnabled(false);
+					monday_btn.setEnabled(false);
+					tuesday_btn.setEnabled(false);
+					wednesday_btn.setEnabled(false);
+					thursday_btn.setEnabled(false);
+					friday_btn.setEnabled(false);
+					saturday_btn.setEnabled(false);
 					// spinnerValue.setEnabled(false);
-					final_spinnerValue_tv.setEnabled(false);
-					final_spinnerValue_et.setEnabled(false);
-					final_et1.setEnabled(false);
-					final_spinner.setEnabled(false);
-					final_spinner_header.setEnabled(false);
-					final_openCalender_btn.setEnabled(false);
+					spinnerValue_tv.setEnabled(false);
+					spinnerValue_et.setEnabled(false);
+					et1.setEnabled(false);
+					spinner.setEnabled(false);
+					spinner_header.setEnabled(false);
+					openCalender_btn.setEnabled(false);
 				}
-
 			}
 		});
 		// Switch header
@@ -1718,274 +930,449 @@ public class SetTaskReminderActivity extends ActionBarActivity {
 			@Override
 			public void onClick(DialogInterface dialog, int which) {
 				dialog.cancel();
-				// save the new task title
+				int interval;
+				if (et1.getText().toString() == " "
+						|| et1.getText().toString() == ""
+						|| et1.getText().toString().isEmpty()
+						|| et1.getText().toString() == "0"
+						|| et1.getText().toString() == "00"
+						|| et1.getText().toString() == "01") {
+					// error handling
+					interval = 1;
+					globalInterval = interval;
+				} else {
+					interval = Integer.valueOf(et1.getText().toString());
+					globalInterval = interval;
+				}
+				if (isDaily) {
+					if (isForever) {
+						// make a golbal String
+						if (interval == 1) {
+							globalRepeatValueString = "Every day";
+						} else if (interval > 1) {
+							globalRepeatValueString = "Repeat every "
+									+ interval + " days";
+						}
+					} else if (isUntilAtime) {
+						if (interval == 1) {
+							globalRepeatValueString = "Repeat every day, until "
+									+ openCalender_btn.getText().toString();
+						} else {
+							globalRepeatValueString = "Repeat every "
+									+ interval + " days, until "
+									+ openCalender_btn.getText().toString();
+						}
+					} else if (isForAFixedNumberOfEvents) {
+						int numOfEvents = Integer.valueOf(spinnerValue_et
+								.getText().toString());
+						globalNumberOfEvents = String.valueOf(numOfEvents);
+						if (interval == 1 && numOfEvents == 1) {
+							globalRepeatValueString = "Repeat every day, for one time";
+						} else if (interval > 1) {
+							globalRepeatValueString = "Repeat every "
+									+ interval + " days, for " + numOfEvents
+									+ " events";
+						}
+					}
+				} else if (isWeekly) {
+					ArrayList<String> weekdaysSelected = new ArrayList<String>();
+					if (isMonday) {
+						weekdaysSelected.add("Mon");
+					}
+					if (isTuesday) {
+						weekdaysSelected.add("Tue");
+					}
+					if (isWednesday) {
+						weekdaysSelected.add("Wed");
+					}
+					if (isThursday) {
+						weekdaysSelected.add("Thu");
+					}
+					if (isFriday) {
+						weekdaysSelected.add("Fri");
+					}
+					if (isSaturday) {
+						weekdaysSelected.add("Sat");
+					}
+					if (isSunday) {
+						weekdaysSelected.add("Sun");
+					}
+
+					if (weekdaysSelected.toString() != null
+							|| !weekdaysSelected.toString().isEmpty()) {
+						StringTokenizer tokens = new StringTokenizer(
+								weekdaysSelected.toString(), "[");
+						String weekdays1 = tokens.nextToken();
+						StringTokenizer tokens2 = new StringTokenizer(
+								weekdays1, "]");
+						weekdays = tokens2.nextToken();
+						// keep one day as selected default
+					}
+					if (isForever) {
+						if (interval == 1) {
+							globalRepeatValueString = "Repeats weekly on "
+									+ weekdays;
+						} else {
+							globalRepeatValueString = "Repeats every "
+									+ globalInterval + " weeks on " + weekdays;
+						}
+					}
+					if (isUntilAtime) {
+						if (interval == 1) {
+							globalRepeatValueString = "Repeats weekly until "
+									+ openCalender_btn.getText().toString();
+						} else {
+							globalRepeatValueString = "Repeats every "
+									+ globalInterval + "weeks until "
+									+ openCalender_btn.getText().toString();
+						}
+					}
+					if (isForAFixedNumberOfEvents) {
+						if (interval == 1) {
+							globalRepeatValueString = "Repeat every week, for one time";
+						} else {
+							int numOfEvents = Integer.valueOf(spinnerValue_et
+									.getText().toString());
+							globalRepeatValueString = "Repeat every "
+									+ interval + " weeks, for " + numOfEvents
+									+ " events";
+						}
+					}
+
+				} else if (isMonthly) {
+					if (isForever) {
+						if (interval == 1) {
+							globalRepeatValueString = "Repeat every month";
+						} else {
+							globalRepeatValueString = "Repeat every "
+									+ interval + " months";
+						}
+					} else if (isUntilAtime) {
+						if (interval == 1) {
+							globalRepeatValueString = "Repeat every month, until "
+									+ openCalender_btn.getText().toString();
+						} else {
+							globalRepeatValueString = "Repeat every "
+									+ interval + " months, until "
+									+ openCalender_btn.getText().toString();
+						}
+					} else if (isForAFixedNumberOfEvents) {
+						if (interval == 1) {
+							globalRepeatValueString = "Repeat every month, for one time";
+						} else {
+							int numOfEvents = Integer.valueOf(spinnerValue_et
+									.getText().toString());
+							globalRepeatValueString = "Repeat every "
+									+ interval + " months, for " + numOfEvents
+									+ " events";
+						}
+					}
+				} else if (isYearly) {
+					if (isForever) {
+						if (interval == 1) {
+							globalRepeatValueString = "Repeat every year";
+						} else {
+							globalRepeatValueString = "Repeat every "
+									+ interval + " years";
+						}
+
+					} else if (isUntilAtime) {
+						if (interval == 1) {
+							globalRepeatValueString = "Repeat every year, until "
+									+ openCalender_btn.getText().toString();
+						} else {
+							globalRepeatValueString = "Repeat every "
+									+ interval + " years, until "
+									+ openCalender_btn.getText().toString();
+						}
+					} else if (isForAFixedNumberOfEvents) {
+						if (interval == 1) {
+							globalRepeatValueString = "Repeat every year, for one time";
+						} else {
+							int numOfEvents = Integer.valueOf(spinnerValue_et
+									.getText().toString());
+							globalRepeatValueString = "Repeat every "
+									+ interval + " years, for " + numOfEvents
+									+ " events";
+						}
+					}
+				}
+
+				tv_repeat.setText(globalRepeatValueString);
 			}
 		};
 		Common.CustomDialog.CustomDialog(this, dialog_detailsView,
 				dialog_headerView, posListener, R.string.dialog_done);
 	}
 
-	// @SuppressLint("NewApi")
-	// public void repeatDetailsDialogOLD() {
-	// View rootView = this.getLayoutInflater().inflate(
-	// R.layout.dialog_repeat_details, null);
-	//
-	// final Button openCalender_btn = (Button) rootView
-	// .findViewById(R.id.tv_open_calender);
-	//
-	// final View viewline = (View) rootView
-	// .findViewById(R.id.line_et_spinner_number_of_events);
-	//
-	// final TextView spinnerValue_tv = (TextView) rootView
-	// .findViewById(R.id.tv_spinnerValue);
-	//
-	// final EditText spinnerValue_et = (EditText) rootView
-	// .findViewById(R.id.et_spinner_number_of_events);
-	//
-	// final EditText et1 = (EditText) rootView.findViewById(R.id.et1);
-	//
-	// openCalender_btn.setVisibility(View.GONE);
-	// viewline.setVisibility(View.GONE);
-	// spinnerValue_tv.setVisibility(View.GONE);
-	// spinnerValue_et.setVisibility(View.GONE);
-	//
-	// final Button sunday_btn = (Button) rootView
-	// .findViewById(R.id.btn_sunday);
-	// final Button monday_btn = (Button) rootView
-	// .findViewById(R.id.btn_monday);
-	// final Button tuesday_btn = (Button) rootView
-	// .findViewById(R.id.btn_tuesday);
-	// final Button wednesday_btn = (Button) rootView
-	// .findViewById(R.id.btn_wednesday);
-	// final Button thursday_btn = (Button) rootView
-	// .findViewById(R.id.btn_thursday);
-	// final Button friday_btn = (Button) rootView
-	// .findViewById(R.id.btn_friday);
-	// final Button saturday_btn = (Button) rootView
-	// .findViewById(R.id.btn_saturday);
-	//
-	// openCalender_btn.setOnClickListener(new View.OnClickListener() {
-	//
-	// @Override
-	// public void onClick(View v) {
-	// Toast.makeText(getApplicationContext(), "What",
-	// Toast.LENGTH_SHORT).show();
-	//
-	// }
-	// });
-	//
-	// sunday_btn.setOnClickListener(new View.OnClickListener() {
-	// boolean flag = false;
-	//
-	// @Override
-	// public void onClick(View v) {
-	// if (!flag) {
-	// sunday_btn
-	// .setBackgroundResource(R.drawable.circle_blue_full);
-	// flag = true;
-	//
-	// } else {
-	// sunday_btn.setBackgroundResource(R.drawable.circle_blue);
-	// flag = false;
-	// }
-	//
-	// }
-	// });
-	// monday_btn.setOnClickListener(new View.OnClickListener() {
-	// boolean flag = false;
-	//
-	// @Override
-	// public void onClick(View v) {
-	// if (!flag) {
-	// monday_btn
-	// .setBackgroundResource(R.drawable.circle_blue_full);
-	// flag = true;
-	//
-	// } else {
-	// monday_btn.setBackgroundResource(R.drawable.circle_blue);
-	// flag = false;
-	// }
-	//
-	// }
-	// });
-	// tuesday_btn.setOnClickListener(new View.OnClickListener() {
-	// boolean flag = false;
-	//
-	// @Override
-	// public void onClick(View v) {
-	// if (!flag) {
-	// tuesday_btn
-	// .setBackgroundResource(R.drawable.circle_blue_full);
-	// flag = true;
-	//
-	// } else {
-	// tuesday_btn.setBackgroundResource(R.drawable.circle_blue);
-	// flag = false;
-	// }
-	// }
-	// });
-	// wednesday_btn.setOnClickListener(new View.OnClickListener() {
-	// boolean flag = false;
-	//
-	// @Override
-	// public void onClick(View v) {
-	// if (!flag) {
-	// wednesday_btn
-	// .setBackgroundResource(R.drawable.circle_blue_full);
-	// flag = true;
-	//
-	// } else {
-	// wednesday_btn.setBackgroundResource(R.drawable.circle_blue);
-	// flag = false;
-	// }
-	// }
-	// });
-	// thursday_btn.setOnClickListener(new View.OnClickListener() {
-	// boolean flag = false;
-	//
-	// @Override
-	// public void onClick(View v) {
-	// if (!flag) {
-	// thursday_btn
-	// .setBackgroundResource(R.drawable.circle_blue_full);
-	// flag = true;
-	//
-	// } else {
-	// thursday_btn.setBackgroundResource(R.drawable.circle_blue);
-	// flag = false;
-	// }
-	// }
-	// });
-	// friday_btn.setOnClickListener(new View.OnClickListener() {
-	// boolean flag = false;
-	//
-	// @Override
-	// public void onClick(View v) {
-	// if (!flag) {
-	// friday_btn
-	// .setBackgroundResource(R.drawable.circle_blue_full);
-	// flag = true;
-	//
-	// } else {
-	// friday_btn.setBackgroundResource(R.drawable.circle_blue);
-	// flag = false;
-	// }
-	// }
-	// });
-	// saturday_btn.setOnClickListener(new View.OnClickListener() {
-	// boolean flag = false;
-	//
-	// @Override
-	// public void onClick(View v) {
-	// if (!flag) {
-	// saturday_btn
-	// .setBackgroundResource(R.drawable.circle_blue_full);
-	// flag = true;
-	//
-	// } else {
-	// saturday_btn.setBackgroundResource(R.drawable.circle_blue);
-	// flag = false;
-	// }
-	// }
-	// });
-	//
-	// // Dialog HeaderView
-	// View headerView = this.getLayoutInflater().inflate(
-	// R.layout.dialog_repeat_details_header, null);
-	// Spinner spinnerHeader = (Spinner) headerView
-	// .findViewById(R.id.repeatInterval_spinner);
-	// addItemsToHeaderSpinner(spinnerHeader);
-	// Switch switchOn = (Switch) headerView.findViewById(R.id.onOFF);
-	// switchOn.setChecked(true);
-	// // Dialog HeaderView
-	//
-	// final View rootView2 = rootView;
-	// switchOn.setOnCheckedChangeListener(new OnCheckedChangeListener() {
-	// @Override
-	// public void onCheckedChanged(CompoundButton buttonView,
-	// boolean isChecked) {
-	// if (isChecked) {
-	// rootView2.setAlpha(1);
-	// // rootView2.setBackgroundColor(Color.TRANSPARENT);
-	// // rootView2.setEnabled(true);
-	// sunday_btn.setEnabled(true);
-	// monday_btn.setEnabled(true);
-	// tuesday_btn.setEnabled(true);
-	// wednesday_btn.setEnabled(true);
-	// thursday_btn.setEnabled(true);
-	// friday_btn.setEnabled(true);
-	// saturday_btn.setEnabled(true);
-	// // spinnerValue.setEnabled(true);
-	//
-	// } else {
-	// rootView2.setAlpha((float) 0.5); // 0 = un visible
-	// sunday_btn.setEnabled(false);
-	// monday_btn.setEnabled(false);
-	// tuesday_btn.setEnabled(false);
-	// wednesday_btn.setEnabled(false);
-	// thursday_btn.setEnabled(false);
-	// friday_btn.setEnabled(false);
-	// saturday_btn.setEnabled(false);
-	// // spinnerValue.setEnabled(false);
-	// //
-	// rootView2.getWindow().addFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE);
-	// }
-	//
-	// }
-	// });
-	// // Dialog HeaderView
-	// Spinner spinner = (Spinner) rootView
-	// .findViewById(R.id.spinner_repeatTimes);
-	// addItemsToSpinner(spinner);
-	// // addListenerOnSpinnerItemSelection(spinner);
-	// spinner.setOnItemSelectedListener(new OnItemSelectedListener() {
-	// public void onItemSelected(AdapterView<?> parent, View view,
-	// int position, long id) {
-	// // String selectedItem =
-	// // parent.getItemAtPosition(position).toString();
-	//
-	// if (position == 0) {
-	// openCalender_btn.setVisibility(View.GONE);
-	// viewline.setVisibility(View.GONE);
-	// spinnerValue_tv.setVisibility(View.GONE);
-	// spinnerValue_et.setVisibility(View.GONE);
-	// } else if (position == 1) {
-	// openCalender_btn.setVisibility(View.VISIBLE);
-	// viewline.setVisibility(View.GONE);
-	// spinnerValue_tv.setVisibility(View.GONE);
-	// spinnerValue_et.setVisibility(View.GONE);
-	// } else if (position == 2) {
-	// openCalender_btn.setVisibility(View.GONE);
-	// viewline.setVisibility(View.VISIBLE);
-	// spinnerValue_tv.setVisibility(View.VISIBLE);
-	// spinnerValue_et.setVisibility(View.VISIBLE);
-	// }
-	//
-	// }
-	//
-	// public void onNothingSelected(AdapterView<?> parent) {
-	//
-	// }
-	// });
-	//
-	// DialogInterface.OnClickListener posListener = new
-	// DialogInterface.OnClickListener() {
-	// @Override
-	// public void onClick(DialogInterface dialog, int which) {
-	// dialog.cancel();
-	// // save the new task title
-	// }
-	// };
-	//
-	// Common.CustomDialog.CustomDialog(this, rootView, headerView,
-	// posListener, R.string.dialog_done);
-	//
-	// }
+	private void addItemsToSpinner(Spinner spinner) {
+		ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(
+				this, R.array.repeatTill_array,
+				android.R.layout.simple_spinner_item);
+		// Specify the layout to use when the list of choices appears
+		adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+		spinner.setAdapter(adapter);
+	}
 
-	// private void addListenerOnSpinnerItemSelection(Spinner spinner) {
-	//
-	// spinner.setOnItemSelectedListener(new CustomOnItemSelectedListener());
-	// }
+	private void addItemsToHeaderSpinner(Spinner spinner) {
+		ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(
+				this, R.array.repeatInterval_array,
+				android.R.layout.simple_spinner_item);
+		// Specify the layout to use when the list of choices appears
+		adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+		spinner.setAdapter(adapter);
+	}
+
+	@SuppressLint("NewApi")
+	public void openCustomTimepickerDialog(final TextView currentTextView) {
+
+		View dialog_detailsView = this.getLayoutInflater().inflate(
+				R.layout.dialog_timepicker, null);
+		final TimePicker timePicker = (TimePicker) dialog_detailsView
+				.findViewById(R.id.timepicker);
+		// c_StartTimeOnly = Calendar.getInstance();
+		// c_EndTimeOnly = Calendar.getInstance();
+		if (is24HourFormat) {
+			timePicker.setIs24HourView(true);
+		}
+		timePicker.setOnTimeChangedListener(new OnTimeChangedListener() {
+			@Override
+			public void onTimeChanged(TimePicker view, int hourOfDay, int minute) {
+
+				if (currentTextView.getId() == resourceID_tvTimeStart) {
+					calendar_StartTimeOnly.set(Calendar.HOUR_OF_DAY, hourOfDay);
+					calendar_StartTimeOnly.set(Calendar.MINUTE, minute);
+				} else if (currentTextView.getId() == resourceID_tvTimeEnd) {
+					calendar_EndTimeOnly.set(Calendar.HOUR_OF_DAY, hourOfDay);
+					calendar_EndTimeOnly.set(Calendar.MINUTE, minute);
+				}
+
+			}
+		});
+		DialogInterface.OnClickListener posListener = new DialogInterface.OnClickListener() {
+			@Override
+			public void onClick(DialogInterface dialog, int which) {
+				dialog.cancel();
+				if (currentTextView.getId() == resourceID_tvTimeStart) {
+					currentTextView.setText(geTime(calendar_StartTimeOnly
+							.getTimeInMillis()));
+				} else if (currentTextView.getId() == resourceID_tvTimeEnd) {
+					currentTextView.setText(geTime(calendar_EndTimeOnly
+							.getTimeInMillis()));
+				}
+
+			}
+		};
+		Common.CustomDialog.CustomDialog(this, dialog_detailsView, posListener,
+				R.string.dialog_done);
+	}
+
+	@SuppressLint("NewApi")
+	private void getDate(final TextView currentTextView) {
+		View dialog_headerView = this.getLayoutInflater().inflate(
+				R.layout.dialog_calenderview_header, null);
+		View dialog_detailsView = this.getLayoutInflater().inflate(
+				R.layout.dialog_calenderview, null);
+		// "EEEE, MMM dd, yyyy"
+		StringTokenizer tokens = new StringTokenizer(
+				getDate(System.currentTimeMillis()), ",");
+		String weekday = tokens.nextToken();
+		String monthAndDay = tokens.nextToken();
+		String year = tokens.nextToken();
+		StringTokenizer token2 = new StringTokenizer(monthAndDay, " ");
+		String month = token2.nextToken();
+		String day = token2.nextToken();
+		final TextView tv_year, tv_date, tv_month, tv_weekday;
+
+		tv_weekday = (TextView) dialog_headerView.findViewById(R.id.tv_day);
+		tv_weekday.setText(weekday);
+		tv_date = (TextView) dialog_headerView.findViewById(R.id.tv_date);
+		tv_date.setText(day);
+		tv_month = (TextView) dialog_headerView.findViewById(R.id.tv_month);
+		tv_month.setText(month);
+		tv_year = (TextView) dialog_headerView.findViewById(R.id.tv_year);
+		tv_year.setText(year);
+
+		Long today = System.currentTimeMillis();
+		CalendarView calendarView = (CalendarView) dialog_detailsView
+				.findViewById(R.id.calenderView);
+		calendar_RepeatDialogDateOnly = Calendar.getInstance();
+		calendarView.setDate(today, true, true);// we can set cal object here
+		calendarView
+				.setOnDateChangeListener(new CalendarView.OnDateChangeListener() {
+					public void onSelectedDayChange(CalendarView view,
+							int year, int month, int dayOfMonth) {
+
+						if (currentTextView.getId() == resourceID_tvDateStart) {
+							calendar_StartDateOnly.set(Calendar.YEAR, year);
+							calendar_StartDateOnly.set(Calendar.MONTH, month);
+							calendar_StartDateOnly.set(Calendar.DAY_OF_MONTH,
+									dayOfMonth);
+							calendar_StartDateOnly.set(Calendar.HOUR, 00);
+							calendar_StartDateOnly.set(Calendar.MINUTE, 00);
+							// c_StartDateOnly = c;
+
+							String monthString = calendar_StartDateOnly.getDisplayName(
+									Calendar.MONTH, Calendar.SHORT,
+									Locale.getDefault());
+							tv_year.setText(String.valueOf(year));
+							tv_date.setText(String.valueOf(dayOfMonth));
+
+							tv_month.setText(monthString);
+
+							String weekdayString = calendar_StartDateOnly
+									.getDisplayName(Calendar.DAY_OF_WEEK,
+											Calendar.LONG, Locale.getDefault());
+
+							tv_weekday.setText(weekdayString);
+
+						} else if (currentTextView.getId() == resourceID_tvDateEnd) {
+							calendar_EndDateOnly.set(Calendar.YEAR, year);
+							calendar_EndDateOnly.set(Calendar.MONTH, month);
+							calendar_EndDateOnly.set(Calendar.DAY_OF_MONTH,
+									dayOfMonth);
+							calendar_EndDateOnly.set(Calendar.HOUR, 00);
+							calendar_EndDateOnly.set(Calendar.MINUTE, 00);
+
+							// c_EndDateOnly = c;
+							String monthString = calendar_EndDateOnly.getDisplayName(
+									Calendar.MONTH, Calendar.SHORT,
+									Locale.getDefault());
+							tv_year.setText(String.valueOf(year));
+							tv_date.setText(String.valueOf(dayOfMonth));
+
+							tv_month.setText(monthString);
+
+							String weekdayString = calendar_EndDateOnly
+									.getDisplayName(Calendar.DAY_OF_WEEK,
+											Calendar.LONG, Locale.getDefault());
+
+							tv_weekday.setText(weekdayString);
+
+						} else if (currentTextView.getId() == resourceID_tvDateRepeatDialog) {
+							calendar_RepeatDialogDateOnly.set(Calendar.YEAR,
+									year);
+							calendar_RepeatDialogDateOnly.set(Calendar.MONTH,
+									month);
+							calendar_RepeatDialogDateOnly.set(
+									Calendar.DAY_OF_MONTH, dayOfMonth);
+							calendar_RepeatDialogDateOnly
+									.set(Calendar.HOUR, 00);
+							calendar_RepeatDialogDateOnly.set(Calendar.MINUTE,
+									00);
+
+							String monthString = calendar_RepeatDialogDateOnly.getDisplayName(
+									Calendar.MONTH, Calendar.SHORT,
+									Locale.getDefault());
+							tv_year.setText(String.valueOf(year));
+							tv_date.setText(String.valueOf(dayOfMonth));
+							tv_month.setText(monthString);
+							String weekdayString = calendar_RepeatDialogDateOnly
+									.getDisplayName(Calendar.DAY_OF_WEEK,
+											Calendar.LONG, Locale.getDefault());
+
+							tv_weekday.setText(weekdayString);
+						}
+
+					}
+				});
+		DialogInterface.OnClickListener posListener = new DialogInterface.OnClickListener() {
+			@Override
+			public void onClick(DialogInterface dialog, int which) {
+				dialog.cancel();
+				if (currentTextView.getId() == resourceID_tvDateStart) {
+					calendar_StartDateOnly
+							.setTimeInMillis(calendar_StartDateOnly
+									.getTimeInMillis());
+					currentTextView.setText(getDate(calendar_StartDateOnly
+							.getTimeInMillis()));
+				} else if (currentTextView.getId() == resourceID_tvDateEnd) {
+					calendar_EndDateOnly.setTimeInMillis(calendar_EndDateOnly
+							.getTimeInMillis());
+					currentTextView.setText(getDate(calendar_EndDateOnly
+							.getTimeInMillis()));
+				} else if (currentTextView.getId() == resourceID_tvDateRepeatDialog) {
+					currentTextView
+							.setText(getDate(calendar_RepeatDialogDateOnly
+									.getTimeInMillis()));
+				}
+
+			}
+		};
+		Common.CustomDialog.CustomDialog(this, dialog_detailsView,
+				dialog_headerView, posListener, R.string.dialog_done);
+		// long longDate = c_RepeatDialogDateOnly.getTimeInMillis();
+		// return Long.toString(longDate);
+	}
+
+	private String geTime(long millis) {
+		String currentTime = null, formateStyle = null;
+		if (is24HourFormat) {
+			formateStyle = "HH:mm";// 24 hours
+		} else if (!is24HourFormat) {
+			formateStyle = "hh:mm aa";// 12 hours
+		}
+		formatter = new SimpleDateFormat(formateStyle);
+		currentTime = formatter.format(millis);
+		return currentTime;
+	}
+
+	private String getDate(long millis) {
+		String currentDate = null;
+		formatter = new SimpleDateFormat("EEEE, MMM dd, yyyy");
+		currentDate = formatter.format(millis);
+		return currentDate;
+	}
+
+	// Setting up initial time ontextViews//
+	private String getCurrentDate(long millis) {
+		// this will run only first time
+		String currentDate = null;
+		formatter = new SimpleDateFormat("EEEE, MMM dd, yyyy");
+		currentDate = formatter.format(millis);
+		// initializing because if the user directly saves then
+		calendar_StartDateOnly = Calendar.getInstance();
+		calendar_StartDateOnly.setTimeInMillis(millis);
+		calendar_EndDateOnly = Calendar.getInstance();
+		calendar_EndDateOnly.setTimeInMillis(millis);
+		// initializing because if the user directly saves then
+		return currentDate;
+	}
+
+	private String getCurrentTime(long millis) {
+		String currentTime = null, formateStyle = null;
+		if (is24HourFormat) {
+			formateStyle = "HH:mm";// 24 hours
+		} else if (!is24HourFormat) {
+			formateStyle = "hh:mm aa";// 12 hours
+		}
+		formatter = new SimpleDateFormat(formateStyle);
+		currentTime = formatter.format(millis);
+
+		// initializing because if the user directly saves then
+		calendar_StartTimeOnly = Calendar.getInstance();
+		calendar_StartTimeOnly.setTimeInMillis(millis);
+		// initializing because if the user directly saves then
+
+		return currentTime;
+	}
+
+	private String getCurrentTimePlusOneHour(long millis) {
+		millis = millis + (3600000); // currentTime plusOneHour
+		String currentTime = null, formateStyle = null;
+		if (is24HourFormat) {
+			formateStyle = "HH:mm";// 24 hours
+		} else if (!is24HourFormat) {
+			formateStyle = "hh:mm aa";// 12 hours
+		}
+		formatter = new SimpleDateFormat(formateStyle);
+		currentTime = formatter.format(millis);
+		// initializing because if the user directly saves then
+		calendar_EndTimeOnly = Calendar.getInstance();
+		calendar_EndTimeOnly.setTimeInMillis(millis);
+		// initializing because if the user directly saves then
+		return currentTime;
+	}
 
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
@@ -1998,15 +1385,15 @@ public class SetTaskReminderActivity extends ActionBarActivity {
 	}
 
 	public void restoreActionBar() {
-		actionBar = getSupportActionBar();
-		actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_STANDARD);
-		actionBar.setDisplayShowTitleEnabled(true);
+		mActionBar = getSupportActionBar();
+		mActionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_STANDARD);
+		mActionBar.setDisplayShowTitleEnabled(true);
 
-		actionBar.setBackgroundDrawable(new ColorDrawable(Color
+		mActionBar.setBackgroundDrawable(new ColorDrawable(Color
 				.parseColor(list.fragmentColor)));
 
-		actionBar.setTitle("Task Details");
-		actionBar.show();
+		mActionBar.setTitle("Task Details");
+		mActionBar.show();
 		/***********/
 	}
 
@@ -2017,161 +1404,356 @@ public class SetTaskReminderActivity extends ActionBarActivity {
 		// automatically handle clicks on the Home/Up button, so long
 		// as you specify a parent activity in AndroidManifest.xml.
 		int id = item.getItemId();
-		manuallySelectOptionMenuItem(id);
-		return super.onOptionsItemSelected(item);
-	}
-
-	public void manuallySelectOptionMenuItem(int id) {
 		if (id == R.id.action_save) {
 			updateDatabase();
 			finish();
 		}
+		return super.onOptionsItemSelected(item);
 	}
 
-	public void updateDatabase() {
+	private void updateDatabase() {
+		db = new DatabaseHelper(mContext);
+		db.tasks.Edit(getTaskModel());
+		/******** Task edit ************/
+		db.taskRepeat.Add(getRepeatTaskModel());
+		/******** RepeatModel ************/
+		ArrayList<RepeatTaskNotificationsModel> list = getNotificaitonsModelsList(task._id);
+		for (RepeatTaskNotificationsModel temp : list) {
+			db.taskRepeat_Notifications.Add(temp);
+		}
+		/******** RepeatTaskNotificationsModel ************/
+	}
 
-		DatabaseHelper db = new DatabaseHelper(mContext);
-
+	private TaskModel getTaskModel() {
 		task.title = et_title.getText().toString();
 		task.details = et_details.getText().toString();
 		task.notes = et_notes.getText().toString();
-		db.tasks.Edit(task);
+		return task;
+	}
 
+	private RepeatTaskModel getRepeatTaskModel() {
+		int tag = getTag();
 		RepeatTaskModel repeatModel = new RepeatTaskModel();
 		repeatModel.task_id = task._id;
+		if (tag == doesNotRepeat) {
+			repeatModel.interval_type = doesNotRepeat;
+			repeatModel.interval = doesNotRepeat;
+			// remaing all null
+		} else if (tag == daily) {
+			repeatModel.interval = 1;
+			repeatModel.interval_type = daily;
+			// remaing all null
+		} else if (tag == weekly) {
+			repeatModel.interval = 1;
+			repeatModel.interval_type = weekly;
+			// remaing all null
+		} else if (tag == monthly) {
+			repeatModel.interval = 1;
+			repeatModel.interval_type = monthly;
+			// remaing all null
+		} else if (tag == yearly) {
+			repeatModel.interval = 1;
+			repeatModel.interval_type = yearly;
+			// remaing all null
+		} else if (tag == custom) {
+			if (globalInterval == 1) {
+				if (isDaily) {
+					repeatModel.interval = 1;
+					repeatModel.interval_type = daily;
+					if (isForever) {
+						repeatModel.interval_expiration = null;// forever
+					} else if (isUntilAtime) {
+						repeatModel.interval_expiration = (String
+								.valueOf(calendar_RepeatDialogDateOnly
+										.getTimeInMillis()));// date
+					} else if (isForAFixedNumberOfEvents) {
+						repeatModel.interval_expiration = globalNumberOfEvents;
+						// no. of events
+					}
+				} else if (isWeekly) {
+					repeatModel.interval = 1;
+					repeatModel.interval_type = weekly;
+					repeatModel.interval_week = weekdays.toLowerCase();
+					if (isForever) {
+						repeatModel.interval_expiration = null;// forever
+					} else if (isUntilAtime) {
+						repeatModel.interval_expiration = (String
+								.valueOf(calendar_RepeatDialogDateOnly
+										.getTimeInMillis()));// date
+					} else if (isForAFixedNumberOfEvents) {
+						repeatModel.interval_expiration = globalNumberOfEvents;
+						// no. of events
+					}
+				} else if (isMonthly) {
+					repeatModel.interval = 1;
+					repeatModel.interval_type = monthly;
+					if (isForever) {
+						repeatModel.interval_expiration = null;// forever
+					} else if (isUntilAtime) {
+						repeatModel.interval_expiration = (String
+								.valueOf(calendar_RepeatDialogDateOnly
+										.getTimeInMillis()));// date
+					} else if (isForAFixedNumberOfEvents) {
+						repeatModel.interval_expiration = globalNumberOfEvents;
+						// no. of events
+					}
+				} else if (isYearly) {
+					repeatModel.interval = 1;
+					repeatModel.interval_type = yearly;
+					if (isForever) {
+						repeatModel.interval_expiration = null;// forever
+					} else if (isUntilAtime) {
+						repeatModel.interval_expiration = (String
+								.valueOf(calendar_RepeatDialogDateOnly
+										.getTimeInMillis()));// date
+					} else if (isForAFixedNumberOfEvents) {
+						repeatModel.interval_expiration = globalNumberOfEvents;
+						// no. of events
+					}
+				}
+			} else if (globalInterval > 1) {
+				repeatModel.interval = globalInterval;
+				if (isDaily) {
+					repeatModel.interval_type = daily;
+					if (isForever) {
+						repeatModel.interval_expiration = null;// forever
+					} else if (isUntilAtime) {
+						repeatModel.interval_expiration = (String
+								.valueOf(calendar_RepeatDialogDateOnly
+										.getTimeInMillis()));// date
+					} else if (isForAFixedNumberOfEvents) {
+						repeatModel.interval_expiration = globalNumberOfEvents;
+						// no. of events
+					}
+				} else if (isWeekly) {
+					repeatModel.interval_type = weekly;
 
-		String getTag = (String) tv_repeat.getTag();
-		repeatModel.interval_type = Integer.parseInt(getTag);
-		// interval_type returns 0-5
-		// doesnotRepeat/daily/weekly/monthly/custom
+				} else if (isMonthly) {
+					repeatModel.interval_type = monthly;
+					if (isForever) {
+						repeatModel.interval_expiration = null;// forever
+					} else if (isUntilAtime) {
+						repeatModel.interval_expiration = (String
+								.valueOf(calendar_RepeatDialogDateOnly
+										.getTimeInMillis()));// date
+					} else if (isForAFixedNumberOfEvents) {
+						repeatModel.interval_expiration = globalNumberOfEvents;
+						// no. of events
+					}
+				} else if (isYearly) {
+					repeatModel.interval_type = yearly;
+					if (isForever) {
+						repeatModel.interval_expiration = null;// forever
+					} else if (isUntilAtime) {
+						repeatModel.interval_expiration = (String
+								.valueOf(calendar_RepeatDialogDateOnly
+										.getTimeInMillis()));// date
+					} else if (isForAFixedNumberOfEvents) {
+						repeatModel.interval_expiration = globalNumberOfEvents;
+						// no. of events
+					}
+				}
+			}
+
+		}
 
 		// SwitchOff=withTime else withoutTime
 		if (!isSwitchChecked) { // if switch is OFF
-			repeatModel.allDay = 0;
-			repeatModel.startDateTime = tv_dateStart.getText().toString() + " "
-					+ tv_timeStart.getText().toString();
-			// format this date time if needed
-			repeatModel.endDateTime = tv_dateEnd.getText().toString() + " "
-					+ tv_timeStart.getText().toString();
-			// format this date time if needed
-			// we need to add time as well we are missing time at moment
-
+			repeatModel.allDay = doesNotRepeat;
+			repeatModel.startDateTime = getLongDateTime(calendar_StartDateOnly,
+					calendar_StartTimeOnly);
+			repeatModel.endDateTime = getLongDateTime(calendar_EndDateOnly,
+					calendar_EndTimeOnly);
 		} else if (isSwitchChecked) {// if switch is ON
-			repeatModel.allDay = 1;
-			repeatModel.startDate = tv_dateStart.getText().toString();
-			// format this date time if needed
-			repeatModel.endDate = tv_dateEnd.getText().toString();
-			// format this date time if needed
+			repeatModel.allDay = daily;
+			repeatModel.startDateTime = getLongDate(calendar_StartDateOnly);
+			repeatModel.endDateTime = getLongDate(calendar_EndDateOnly);
 		}
-		db.taskRepeat.Add(repeatModel);
+		return repeatModel;
 	}
 
-	public void notificationDialog() {
-		View view = this.getLayoutInflater().inflate(
-				R.layout.dialog_notifications_details, null);
-		final String myString = null;
-		final EditText nTimes = (EditText) view
-				.findViewById(R.id.et_numberOfNotifications);
-		final RadioGroup radioGroup = (RadioGroup) view
-				.findViewById(R.id.myRadioGroup);
-		final RadioGroup radioGroup2 = (RadioGroup) view
-				.findViewById(R.id.myRadioGroup2);
+	private int getTag() {
+		// interval_type returns 0-5
+		// doesnotRepeat/daily/weekly/monthly/custom
+		String getTag = (String) tv_repeat.getTag();
+		return Integer.parseInt(getTag);
+	}
 
-		DialogInterface.OnClickListener posListener = new DialogInterface.OnClickListener() {
-			@Override
-			public void onClick(DialogInterface dialog, int which) {
-				dialog.cancel();
-				String nTimesString = nTimes.getText().toString();
-				if (radioGroup.getCheckedRadioButtonId() != -1) {
-					int id = radioGroup.getCheckedRadioButtonId();
-					View radioButton = radioGroup.findViewById(id);
-					int radioId = radioGroup.indexOfChild(radioButton);
-					RadioButton btn = (RadioButton) radioGroup
-							.getChildAt(radioId);
-					String selection = (String) btn.getText();
-					v = " " + selection;
-				}
-				if (radioGroup2.getCheckedRadioButtonId() != -1) {
-					int id = radioGroup2.getCheckedRadioButtonId();
-					View radioButton = radioGroup2.findViewById(id);
-					int radioId = radioGroup2.indexOfChild(radioButton);
-					RadioButton btn = (RadioButton) radioGroup2
-							.getChildAt(radioId);
-					String selection = (String) btn.getText();
-					nE = " " + selection;
+	private String getLongDate(Calendar calendar) {
+		long time = calendar.getTimeInMillis();
+		return String.valueOf(time);
+	}
+
+	private String getLongDateTime(Calendar date, Calendar time) {
+		int c_startDate = date.get(Calendar.DAY_OF_MONTH);
+		int c_startMonth = date.get(Calendar.MONTH);
+		int c_startYear = date.get(Calendar.YEAR);
+
+		int c_startHour = time.get(Calendar.HOUR);
+		int c_startMinute = time.get(Calendar.MINUTE);
+
+		calendar_DateTime = Calendar.getInstance();
+		calendar_DateTime.set(c_startYear, c_startMonth, c_startDate,
+				c_startHour, c_startMinute);
+
+		long timeLong = calendar_DateTime.getTimeInMillis();
+		return String.valueOf(timeLong);
+
+	}
+
+	private ArrayList<RepeatTaskNotificationsModel> getNotificaitonsModelsList(
+			int taskID) {
+		ArrayList<RepeatTaskNotificationsModel> arrayList_RepeatTaskNotificationsModel = new ArrayList<RepeatTaskNotificationsModel>();
+		notificationDetailsList = getNotifications();
+		String intervalString, intervalTypeString;
+		Boolean isEmail = false, isNotification = false, isMinute = false, isHour = false, isDay = false, isWeek = false;
+		for (String notification : notificationDetailsList) {
+			if (notification.contains("as email")) {
+				// if the string contains as email
+				StringTokenizer tokens = new StringTokenizer(notification, " ");
+				String before, as, email; // use less
+				intervalString = tokens.nextToken();
+				intervalTypeString = tokens.nextToken().toLowerCase();
+				if (intervalTypeString.contains("minute")
+						|| intervalTypeString.contains("minutes")) {
+					isMinute = true;
+					isDay = false;
+					isHour = false;
+					isWeek = false;
+				} else if (intervalTypeString.contains("hour")
+						|| intervalTypeString.contains("hours")) {
+					isMinute = false;
+					isDay = false;
+					isHour = true;
+					isWeek = false;
+				} else if (intervalTypeString.contains("day")
+						|| intervalTypeString.contains("days")) {
+					isMinute = false;
+					isDay = true;
+					isHour = false;
+					isWeek = false;
+				} else if (intervalTypeString.contains("week")
+						|| intervalTypeString.contains("weeks")) {
+					isMinute = false;
+					isDay = false;
+					isHour = false;
+					isWeek = true;
 				}
 
-				tv_notification.setText(nTimesString + v + " before" + nE);
+				before = tokens.nextToken();// use less
+				as = tokens.nextToken();
+				email = tokens.nextToken();
+				isEmail = true;
+				isNotification = false;
+			} else {
+				// if the string does not contain as email
+				StringTokenizer tokens = new StringTokenizer(notification, " ");
+				String before;// use less
+				intervalString = tokens.nextToken();
+				intervalTypeString = tokens.nextToken().toLowerCase();
+				if (intervalTypeString.contains("minute")
+						|| intervalTypeString.contains("minutes")) {
+					isMinute = true;
+					isDay = false;
+					isHour = false;
+					isWeek = false;
+				} else if (intervalTypeString.contains("hour")
+						|| intervalTypeString.contains("hours")) {
+					isMinute = false;
+					isDay = false;
+					isHour = true;
+					isWeek = false;
+				} else if (intervalTypeString.contains("day")
+						|| intervalTypeString.contains("days")) {
+					isMinute = false;
+					isDay = true;
+					isHour = false;
+					isWeek = false;
+				} else if (intervalTypeString.contains("week")
+						|| intervalTypeString.contains("weeks")) {
+					isMinute = false;
+					isDay = false;
+					isHour = false;
+					isWeek = true;
+				}
+				before = tokens.nextToken();// use lessF
+				isNotification = true;
+				isEmail = false;
 			}
-		};
+			RepeatTaskNotificationsModel model = new RepeatTaskNotificationsModel();
+			model.task_id = taskID;
+			model.interval = Integer.valueOf(intervalString);
+			if (isMinute) {
+				model.interval_type = 0;
+			} else if (isHour) {
+				model.interval_type = 1;
+			} else if (isDay) {
+				model.interval_type = 2;
+			} else if (isWeek) {
+				model.interval_type = 3;
+			}
+			if (isEmail) {
+				model.send_notificaion_as_email = 1; // for email
+			} else if (isNotification) {
+				model.send_notificaion_as_email = 0; // default notification
 
-		Common.CustomDialog.CustomDialogWithRadio(this, view, posListener,
-				R.string.dialog_done);
+			}
+			arrayList_RepeatTaskNotificationsModel.add(model);
+		}
+		return arrayList_RepeatTaskNotificationsModel;
+
 	}
 
-	// {// final TaskListModel tasklist, final
-	// TaskModel
-	// temp) {
-	// AlertDialog.Builder builder = new AlertDialog.Builder(this);
-	// String[] list_items = { "No Notification", "At defined time",
-	// "10 minutes before", "30 minutes before", "1 hour before",
-	// "Custom..." };
-	// builder.setItems(list_items, new DialogInterface.OnClickListener() {
-	//
-	// @Override
-	// public void onClick(DialogInterface dialog, int which) {
-	// // TODO Auto-generated method stub
-	// }
-	// });
-	// builder.setTitle("Reminder");
-	// builder.show();
-	// public class CustomOnItemSelectedListener implements
-	// OnItemSelectedListener {
-	//
-	// public void onItemSelected(AdapterView<?> parent, View view, int pos,
-	// long id) {
-	// // Toast.makeText(parent.getContext(),
-	// // "OnItemSelectedListener : " +
-	// // parent.getItemAtPosition(pos).toString(),
-	// // Toast.LENGTH_SHORT).show();
-	//
-	// }
-	//
-	// @Override
-	// public void onNothingSelected(AdapterView<?> arg0) {
-	// // TODO Auto-generated method stub
-	// }
-	//
-	// }
+	private ArrayList<String> getNotifications() {
+		int size = arrayList_TextView.size();
+		for (TextView textView : arrayList_TextView) {
+			String check = textView.getText().toString().toLowerCase();
+			if (check == "add another notification"
+					|| check.contains("add another notification")
+					|| check == "no notification"
+					|| check.contains("no notification")
+					|| check == "notifications"
+					|| check.contains("notifications")
+					|| check == "notification time"
+					|| check.contains("notification time")) {
+				// if any of the above string are found
+				// Do Nothing
+			} else
+				notificationDetailsList.add(textView.getText().toString());
+		}
+		return notificationDetailsList;
+	}
 
-	// public void titleDialog(final TaskModel task) {
-	// View view = this.getLayoutInflater().inflate(R.layout.edittext, null);
-	// final EditText et_title = (EditText) view.findViewById(R.id.edit_text);
-	// et_title.setText(task.title);
-	// DialogInterface.OnClickListener posListener = new
-	// DialogInterface.OnClickListener() {
-	// @Override
-	// public void onClick(DialogInterface dialog, int which) {
-	// dialog.cancel();
-	// // save the new task title
-	// String title = et_title.getText().toString();
-	// task.title = title;
-	// }
-	// };
-	// DialogInterface.OnClickListener negListener = new
-	// DialogInterface.OnClickListener() {
-	// @Override
-	// public void onClick(DialogInterface dialog, int which) {
-	// dialog.cancel();
-	// }
-	// };
-	// Common.CustomDialog.CustomDialog(this, view, negListener, posListener,
-	// R.string.dialog_save, R.string.dialog_cancel);
-	//
-	// // Common.CustomDialog.CustomDialog(this, view);
-	// // AlertDialog.Builder builder = new AlertDialog.Builder(this);
-	// // builder.setTitle("Reminder");
-	// // builder.show();
-	// }
+	@SuppressLint({ "ResourceAsColor", "NewApi" })
+	private void addANewTextView(TextView textView) {
+		try {
+
+			LinearLayout layout = (LinearLayout) findViewById(R.id.append_btn_linearlayout);
+			RelativeLayout.LayoutParams lp = new RelativeLayout.LayoutParams(
+					RelativeLayout.LayoutParams.WRAP_CONTENT,
+					RelativeLayout.LayoutParams.WRAP_CONTENT);
+			textView.setText("Notification Time");
+			textView.setTag(textViewTag);
+			textView.setTextSize(17);
+			float scale = getResources().getDisplayMetrics().density;
+			int dpAsPixels = (int) (10 * scale + 0.5f);
+			textView.setPadding(0, dpAsPixels, 0, dpAsPixels);
+			textView.setTextColor(getResources().getColor(R.color.black));
+			textView.setBackground(getResources().getDrawable(
+					android.R.color.transparent));
+			textView.setLayoutParams(lp);
+			layout.addView(textView);
+			if (textViewTag == 2) {
+				tv_notification2 = textView;
+			} else if (textViewTag == 3) {
+				tv_notification3 = textView;
+			} else if (textViewTag == 4) {
+				tv_notification4 = textView;
+			}
+			textViewTag++;
+		} catch (Exception e) {
+			Log.e("New TextView createion error", e.getLocalizedMessage());
+		}
+	}
 
 }

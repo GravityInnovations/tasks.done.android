@@ -62,7 +62,7 @@
                 android:layout_alignParentLeft="true"
                 android:layout_alignParentTop="true"
                 android:background="@drawable/default_button_selector"
-                android:clickable="true" 
+                android:clickable="true"
                 android:src="@drawable/ic_action_overflow_white" />
         </RelativeLayout>
         <!-- <Button -->
@@ -195,16 +195,14 @@
             android:layout_height="match_parent"
             layout="@layout/fragment_main_footer" />
     </LinearLayout>
- -->
+    -->
+
     <android.support.v7.widget.RecyclerView
-        
         android:id="@+id/recyclerView"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_below="@+id/header"
-      
         android:layout_alignParentBottom="true"
-        />
+        android:layout_below="@+id/header" />
 
     <!-- android:layout_height="wrap_content" -->
     <!-- android:layout_below="@+id/header" -->
