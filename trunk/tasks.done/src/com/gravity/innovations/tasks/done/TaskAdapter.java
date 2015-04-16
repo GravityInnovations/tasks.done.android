@@ -14,6 +14,7 @@ import android.graphics.Color;
 import android.support.v7.appcompat.R.color;
 import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.RecyclerView.AdapterDataObserver;
 import android.util.Log;
 import android.view.ContextMenu;
 import android.view.ContextMenu.ContextMenuInfo;
@@ -46,7 +47,7 @@ public class TaskAdapter extends RecyclerView.Adapter {// <TaskAdapter.ViewHolde
 	private RecyclerView mRecyclerView;
 	public DefaultItemAnimator anim;
 	private static final int TYPE_FOOTER = Integer.MIN_VALUE + 1;
-
+	
 	public TaskAdapter(Activity act, int layoutResourceId,
 			TaskListModel parentTaskList, NavigationDrawerFragment NavDrawer,
 			/* ArrayList<TaskModel> data, */int _selectedTaskId, View footer,
@@ -147,7 +148,9 @@ public class TaskAdapter extends RecyclerView.Adapter {// <TaskAdapter.ViewHolde
 				}
 
 				try {
-					if (task.remind_interval == 0) {
+					if (task.rep_interval == 0) {
+						//old condition before db rewamp
+						//if (task.remind_interval == 0)
 						viewHolder.iv_alarmToggle.setVisibility(View.INVISIBLE);
 					} else {
 						viewHolder.iv_alarmToggle.setVisibility(View.VISIBLE);
@@ -386,8 +389,8 @@ public class TaskAdapter extends RecyclerView.Adapter {// <TaskAdapter.ViewHolde
 			// menuInfo is null
 			menu.add(Menu.NONE, R.id.item_delete, Menu.NONE, "Delete");
 			menu.add(Menu.NONE, R.id.item_edit, Menu.NONE, "Edit");
-			menu.add(Menu.NONE, R.id.item_set_reminder, Menu.NONE,
-					"Set Reminder");
+			//menu.add(Menu.NONE, R.id.item_set_reminder, Menu.NONE,
+					//"Set Reminder");
 		}
 
 	}
@@ -426,70 +429,5 @@ public class TaskAdapter extends RecyclerView.Adapter {// <TaskAdapter.ViewHolde
 	public void setPosition(int position) {
 		this.position = position;
 	}
-
-	// // for swapping call swapWithNextITem
-	// public void swapItemsQ(int p1, int p2) {
-	// int pos1 = 1;
-	// int pos2 = 2;
-	// notifyItemMoved(pos1, pos2);
-	// TaskModel temp = task_data.remove(pos1);
-	// // notifyItemRemoved(pos1);
-	// // notifyDataSetChanged();
-	// task_data.add(pos2, temp);
-	//
-	// //
-	//
-	// // TaskModel task = getItem(pos1);
-	// // for(int i=0;i<getItemCount();i++)
-	// // {
-	// // TaskModel temp = getItem(i);
-	// // task_data.set(i, task_data.get(i+1));
-	// // //notifyItemMoved(i,i+1);
-	// // task_data.set(i+1, temp);
-	// // notifyItemMoved(i,i+1);
-	// // notifyItemChanged(i);
-	// // notifyItemChanged(i+1);
-	// //
-	// // //notifyItemMoved(pos1,pos2);
-	// // if(i+1==pos2)
-	// // break;
-	// // }
-	// // if(pos1>pos2)
-	// // notifyItemMoved(pos1,pos2);
-	// // else
-	// // notifyItemMoved(pos2,pos1);
-	// // String temp = task_data.get(pos2);
-	// // task_data.set(pos2, task_data.get(pos1));
-	// //
-	// // task_data.set(pos1, temp);
-	// // notifyItemChanged(pos1);
-	// // notifyItemChanged(pos2);
-	// // notifyDataSetChanged();
-	// //
-	// //
-	//
-	// // int pos1 = 0, pos2 = 1;
-	// // notifyItemMoved(pos2, pos1);
-	// // notifyItemChanged(pos2);
-	// // boolean flag = false;
-	// // try {
-	// //
-	// // TaskModel temp = getItem(pos2);
-	// // // String temp = task_data.get(pos2);
-	// // task_data.set(pos2, task_data.get(pos1));
-	// //
-	// // task_data.set(pos1, temp);
-	// //
-	// // flag= true;
-	// // // new Runnable(new ).run();
-	// //
-	// // } catch (Exception e) {
-	// // flag= false;
-	// // }
-	// // if(flag)
-	// // for (int i = 0; i < getItemCount(); i++)
-	// // notifyItemChanged(i);
-	//
-	// }
 
 }

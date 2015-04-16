@@ -4,6 +4,7 @@ import java.io.Serializable;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.StringTokenizer;
 import java.util.TimeZone;
@@ -22,11 +23,18 @@ import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
+import android.os.Build;
 import android.provider.ContactsContract;
 import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView.OnItemClickListener;
+import android.widget.ArrayAdapter;
+import android.widget.Button;
+import android.widget.LinearLayout;
 import android.widget.ListView;
+import android.widget.RelativeLayout;
+import android.widget.Spinner;
+import android.widget.TextView;
 
 //This class will include common keys used in application
 
@@ -120,6 +128,7 @@ public class Common {
 	// google urls
 	public static final String USER_INFO_URL = "https://www.googleapis.com/oauth2/v1/userinfo?alt=json&access_token=";// require
 																														// token
+
 	// request codes
 
 	public class RequestCodes {
@@ -523,6 +532,63 @@ public class Common {
 			// builder//.create().show();
 
 		}
+
+		// new dailogs for TaskReminderActivity
+		public static final void calenderDialog(final Context context,
+				View view, View headerView,
+				DialogInterface.OnClickListener posListener, int posText) {
+			// editText task edit Activity
+			AlertDialog.Builder builder = new AlertDialog.Builder(context);
+
+			builder.setView(view);
+			if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB
+					&& Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) {
+				builder.setCustomTitle(headerView);
+			}
+			// builder.setTitle(dialogTitle);
+			if (posListener != null) {
+				builder.setPositiveButton(posText, posListener);
+			}
+
+			builder.create().show();
+
+		}
+
+		public static final void timePickerDialog(final Context context,
+				View view, DialogInterface.OnClickListener posListener,
+				int posText) {
+			// editText task edit Activity
+			AlertDialog.Builder builder = new AlertDialog.Builder(context);
+
+			builder.setView(view);
+
+			// builder.setTitle(dialogTitle);
+			if (posListener != null) {
+				builder.setPositiveButton(posText, posListener);
+			}
+
+			builder.create().show();
+		}
+
+		public static final void listDialog(Context context,
+				String[] list_items, DialogInterface.OnClickListener listener) {
+
+			AlertDialog.Builder builder = new AlertDialog.Builder(context);
+
+			builder.setItems(list_items, listener);
+
+			// builder.setTitle(dialogTitle);
+			if (listener != null) {
+				// builder.setOnItemSelectedListener(listener);
+				// builder.setSingleChoiceItems(cursor, checkedItem,
+				// labelColumn, listener)
+				// .setPositiveButton(posText, posListener);
+			}
+
+			builder.create().show();
+
+		}
+
 	}
 
 	public static class AlertData implements Serializable {
@@ -753,6 +819,247 @@ public class Common {
 			// long CurrentDeviceTime = System.currentTimeMillis();
 			// String dateString = format1.format(new Date(CurrentDeviceTime));
 			// Log.e("CurrentDeviceTime", " ///" + dateString);
+		}
+	}
+
+	public static class CalenderToMillis {
+		public static String getTimeInMillis(Calendar date, Calendar time) {
+			int c_startDate = date.get(Calendar.DAY_OF_MONTH);
+			int c_startMonth = date.get(Calendar.MONTH);
+			int c_startYear = date.get(Calendar.YEAR);
+			int c_startHour = time.get(Calendar.HOUR);
+			int c_startMinute = time.get(Calendar.MINUTE);
+			Calendar calendar_DateTime;
+			calendar_DateTime = Calendar.getInstance();
+			calendar_DateTime.set(c_startYear, c_startMonth, c_startDate,
+					c_startHour, c_startMinute);
+			long timeLong = calendar_DateTime.getTimeInMillis();
+			return String.valueOf(timeLong);
+		}
+
+		public static String getTimeInMillis(Calendar calendar) {
+			// test this one
+			calendar.set(Calendar.HOUR, 00);
+			calendar.set(Calendar.MINUTE, 00);
+			long time = calendar.getTimeInMillis();
+			return String.valueOf(time);
+		}
+
+	}
+
+	public static class datetimeHelper {
+		public static String getDate(Calendar calendar) {
+			// this will run only first time
+			String currentDate = null;
+			SimpleDateFormat formatter = new SimpleDateFormat(
+					"EEEE, MMM dd, yyyy");
+			currentDate = formatter.format(calendar.getTimeInMillis());
+			return currentDate;
+		}
+
+		public static String getDateInMs(Calendar calendar) {
+			// this will run only first time
+			return String.valueOf(calendar.getTimeInMillis());
+		}
+
+		public static Calendar mergeCalendars(Calendar date, Calendar time) {
+			int c_startDate = date.get(Calendar.DAY_OF_MONTH);
+			int c_startMonth = date.get(Calendar.MONTH);
+			int c_startYear = date.get(Calendar.YEAR);
+			int c_startHour = time.get(Calendar.HOUR);
+			int c_startMinute = time.get(Calendar.MINUTE);
+			Calendar calendar_DateTime;
+			calendar_DateTime = Calendar.getInstance();
+			calendar_DateTime.set(c_startYear, c_startMonth, c_startDate,
+					c_startHour, c_startMinute);
+
+			return calendar_DateTime;
+		}
+
+		public static String getDate_repeat(Calendar calendar) {
+			// this will run only first time
+			String currentDate = null;
+			SimpleDateFormat formatter = new SimpleDateFormat("MM/dd/yyyy");
+			currentDate = formatter.format(calendar.getTimeInMillis());
+			return currentDate;
+		}
+	}
+
+	public static class SetAdapter {
+		public static void simpleSpinner(Spinner spinner, int arrayResource,
+				Context context) {
+			ArrayAdapter<CharSequence> adapter = ArrayAdapter
+					.createFromResource(context, arrayResource,
+							android.R.layout.simple_spinner_item);
+			// Specify the layout to use when the list of choices appears
+			adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+			spinner.setAdapter(adapter);
+		}
+	}
+
+	public static class Snippets {
+		public static void setBackgroundResource(Button _button, boolean _flag) {
+			if (_flag) {
+				_button.setBackgroundResource(R.drawable.circle_blue_full);
+			} else if (!_flag) {
+				_button.setBackgroundResource(R.drawable.circle_blue);
+			}
+		}
+	}
+
+	public static class Set_RepeatModel {
+		public static TaskModel DoesNotRepeat(TaskModel task) {
+			task.rep_interval = 0;
+			task.rep_intervalType = 0;
+			task.rep_intervalExpiration = null;
+			task.rep_startDateTime = null;
+			task.rep_endDateTime = null;
+			task.rep_createdDateTime = null;
+			task.rep_value = null;
+			return task;
+		}
+
+		public static TaskModel RepeatEveryDay(TaskModel task) {
+			task.rep_interval = 1;
+			task.rep_intervalType = 1;
+			task.rep_intervalExpiration = null;
+			// task.rep_startDateTime = Notnull;
+			// task.rep_endDateTime = Notnull;
+			// task.rep_createdDateTime = Notnull;
+			task.rep_value = null;
+			return task;
+		}
+
+		public static TaskModel RepeatEveryWeek(TaskModel task) {
+			task.rep_interval = 1;
+			task.rep_intervalType = 2;
+			task.rep_intervalExpiration = null;
+			// task.rep_startDateTime = Notnull;
+			// task.rep_endDateTime = Notnull;
+			// task.rep_createdDateTime = Notnull;
+			task.rep_value = null;
+			return task;
+		}
+
+		public static TaskModel RepeatEveryMonth(TaskModel task) {
+			task.rep_interval = 1;
+			task.rep_intervalType = 3;
+			task.rep_intervalExpiration = null;
+			// task.rep_startDateTime = Notnull;
+			// task.rep_endDateTime = Notnull;
+			// task.rep_createdDateTime = Notnull;
+			task.rep_value = null;
+			return task;
+		}
+
+		public static TaskModel RepeatEveryYear(TaskModel task) {
+			task.rep_interval = 1;
+			task.rep_intervalType = 4;
+			task.rep_intervalExpiration = null;
+			// task.rep_startDateTime = Notnull;
+			// task.rep_endDateTime = Notnull;
+			// task.rep_createdDateTime = Notnull;
+			task.rep_value = null;
+			return task;
+		}
+
+	}
+
+	public static class GetNotificaitonModel {
+		public static TaskNotificationsModel atTimeOfEvent(
+				TaskNotificationsModel model) {
+			model.interval = 0; // 0
+			model.interval_type = 1; // mins
+			model.send_notificaion_as_email = 0;
+			return model;
+		}
+
+		public static TaskNotificationsModel ten_minsBefore(
+				TaskNotificationsModel model) {
+			model.interval = 10; // 10
+			model.interval_type = 1; // mins
+			model.send_notificaion_as_email = 0;
+			return model;
+		}
+
+		public static TaskNotificationsModel thirty_minsBefore(
+				TaskNotificationsModel model) {
+			model.interval = 30; // 30
+			model.interval_type = 1;// mins
+			model.send_notificaion_as_email = 0;
+			return model;
+		}
+
+		public static TaskNotificationsModel one_hrBefore(
+				TaskNotificationsModel model) {
+			model.interval = 1; // 1
+			model.interval_type = 2;// 1 hour
+			model.send_notificaion_as_email = 0;
+			return model;
+		}
+
+		// ////////////////new models
+		public static TaskNotificationsModel atTimeOfEvent() {
+			TaskNotificationsModel model = new TaskNotificationsModel();
+			model.interval = 0; // 0
+			model.interval_type = 1; // mins
+			model.send_notificaion_as_email = 0;
+			return model;
+		}
+
+		public static TaskNotificationsModel ten_minsBefore() {
+			TaskNotificationsModel model = new TaskNotificationsModel();
+			model.interval = 10; // 10
+			model.interval_type = 1; // mins
+			model.send_notificaion_as_email = 0;
+			return model;
+		}
+
+		public static TaskNotificationsModel thirty_minsBefore() {
+			TaskNotificationsModel model = new TaskNotificationsModel();
+			model.interval = 30; // 30
+			model.interval_type = 1;// mins
+			model.send_notificaion_as_email = 0;
+			return model;
+		}
+
+		public static TaskNotificationsModel one_hrBefore() {
+			TaskNotificationsModel model = new TaskNotificationsModel();
+			model.interval = 1; // 1
+			model.interval_type = 2;// 1 hour
+			model.send_notificaion_as_email = 0;
+			return model;
+		}
+
+		// setUpTime
+		public static TaskNotificationsModel onDayAtOnePM() {
+			// onDayAtOnePM() setTime Find solution
+			TaskNotificationsModel model = new TaskNotificationsModel();
+			model.interval = 1; // 1
+			model.interval_type = 1;// 1 hour
+			model.send_notificaion_as_email = 0;
+			return model;
+		}
+
+		public static TaskNotificationsModel onDayAtTenAM() {
+			// onDayAtTenAM() setTime
+			TaskNotificationsModel model = new TaskNotificationsModel();
+			model.send_notificaion_as_email = 0;
+			return model;
+		}
+
+		public static TaskNotificationsModel onDayAtNineAM() {
+			// onDayAtNineAM() setTime
+			TaskNotificationsModel model = new TaskNotificationsModel();
+			model.send_notificaion_as_email = 0;
+			return model;
+		}
+
+		public static TaskNotificationsModel onDayBeforeAtElevenThirtyPM() {
+			// onDayBeforeAtElevenThirtyPM() setTime
+			TaskNotificationsModel model = new TaskNotificationsModel();
+			model.send_notificaion_as_email = 0;
+			return model;
 		}
 	}
 }

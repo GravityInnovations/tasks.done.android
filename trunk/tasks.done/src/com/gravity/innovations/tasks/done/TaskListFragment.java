@@ -1,5 +1,6 @@
 package com.gravity.innovations.tasks.done;
 
+import java.io.Serializable;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -7,6 +8,7 @@ import java.util.Date;
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.content.DialogInterface.OnClickListener;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
@@ -108,7 +110,8 @@ public class TaskListFragment extends Fragment {
 		circle.getPaint().setColor(Color.parseColor(hex));
 		return circle;
 	}
-
+	
+	
 	@SuppressLint("NewApi")
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -132,8 +135,22 @@ public class TaskListFragment extends Fragment {
 
 				@Override
 				public void onClick(View v) {
-					mNavigationDrawerFragment.addOrEditTask(data,
-							new TaskModel());
+					//* mNavigationDrawerFragment.addOrEditTask(data,
+					//* new TaskModel());
+					
+//						Intent intent = new Intent(getActivity(),
+//								TaskActivity.class);
+//						Serializable s = (Serializable) data;
+//						intent.putExtra("key_list", s);
+//						Serializable t = (Serializable) new TaskModel();
+//						intent.putExtra("key_task", t); 
+					try {
+						//getActivity().startActivityForResult(intent, 12345);
+						mNavigationDrawerFragment.setReminder(data, new TaskModel());
+					} catch (Exception e) {
+						Log.e("TLF: onClick new Task", e.getLocalizedMessage());
+
+					}
 				}
 			});
 
@@ -274,10 +291,14 @@ public class TaskListFragment extends Fragment {
 				if (mService.user_data.name != null)
 					mTextView_ownerName.setText(mService.user_data.name);
 			} else {
+			try{
 				Bitmap b = ImageGridAdapter
 						.getRoundedCornerBitmap(getUserImage(data.owner));
 				mTextView_ownerImage.setImageBitmap(b);
 				mTextView_ownerName.setText(data.owner.name);
+			}catch(Exception e){
+				Log.e("TLF: getUserImage: data.owener",e.getLocalizedMessage());
+			}
 			}
 			/********************/
 
@@ -356,13 +377,14 @@ public class TaskListFragment extends Fragment {
 						mTaskAdapter.getItem(position));
 				break;
 			case R.id.item_edit:
-				mNavigationDrawerFragment.addOrEditTask(data,
-						mTaskAdapter.getItem(position));
-				break;
-			case R.id.item_set_reminder:
+				//ZZ**ZZ mNavigationDrawerFragment.addOrEditTask(data, mTaskAdapter.getItem(position));
 				mNavigationDrawerFragment.setReminder(data,
 						mTaskAdapter.getItem(position));
 				break;
+//			case R.id.item_set_reminder:
+//				mNavigationDrawerFragment.setReminder(data,
+//						mTaskAdapter.getItem(position));
+//				break;
 			}
 		} catch (Exception e) {
 			Log.d("onContextITemSelect", e.getLocalizedMessage(), e);
@@ -489,7 +511,7 @@ public class TaskListFragment extends Fragment {
 		};
 		Common.CustomDialog.MultiChoiceDialog(mActivity, adapter,
 				onItemClickListener, negListener, posListener,
-				R.string.dialog_ok, R.string.dialog_cancel, "Share");
+				R.string.ok, R.string.cancel, "Share");
 
 	}
 
@@ -537,15 +559,19 @@ public class TaskListFragment extends Fragment {
 			}
 		};
 		Common.CustomDialog.MultiChoiceDialog(mActivity, adapter,
-				onItemClickListener, null, posListener, R.string.dialog_ok,
-				R.string.dialog_cancel, "Sharing With");
+				onItemClickListener, null, posListener, R.string.ok,
+				R.string.cancel, "Sharing With");
 
 	}
 
 	public ArrayList<Bitmap> getUsersImages(ArrayList<UserModel> users) {
 		ArrayList<Bitmap> bmps = new ArrayList<Bitmap>();
 		for (UserModel user : users) {
-			bmps.add(getUserImage(user));
+			try{
+				bmps.add(getUserImage(user));
+			}catch(Exception e){
+				Log.e("TLF: getUserImage",e.getLocalizedMessage());
+			}
 		}
 		return bmps;
 	}

@@ -48,7 +48,7 @@ public class AlarmBroadcastReciever extends WakefulBroadcastReceiver {
 							| Intent.FILL_IN_DATA);
 
 			// DatabaseHelper db = new DatabaseHelper(context);
-			currentTask.alarm_id = alarm_id;// currentTask._id;;
+			//ZZ**ZZ currentTask.alarm_id = alarm_id;// currentTask._id;;
 			db.tasks.Edit(currentTask);//.Task_Edit(currentTask);
 
 			Calendar calendar = Calendar.getInstance();
@@ -96,7 +96,7 @@ public class AlarmBroadcastReciever extends WakefulBroadcastReceiver {
 				PendingIntent.FLAG_UPDATE_CURRENT | Intent.FILL_IN_DATA);
 
 		DatabaseHelper db = new DatabaseHelper(context);
-		currentTask.alarm_id = alarm_id;// currentTask._id;;
+		//ZZ**ZZ currentTask.alarm_id = alarm_id;// currentTask._id;;
 		db.tasks.Edit(currentTask);//.Task_Edit(currentTask);
 
 		Calendar calendar = Calendar.getInstance();
@@ -140,7 +140,7 @@ public class AlarmBroadcastReciever extends WakefulBroadcastReceiver {
 				PendingIntent.FLAG_UPDATE_CURRENT | Intent.FILL_IN_DATA);
 
 		DatabaseHelper db = new DatabaseHelper(context);
-		currentTask.alarm_id = alarm_id;// currentTask._id;;
+		//ZZ**ZZ currentTask.alarm_id = alarm_id;// currentTask._id;;
 		db.tasks.Edit(currentTask);//.Task_Edit(currentTask);
 
 		Calendar calendar = Calendar.getInstance();
@@ -192,7 +192,7 @@ public class AlarmBroadcastReciever extends WakefulBroadcastReceiver {
 				PendingIntent.FLAG_UPDATE_CURRENT | Intent.FILL_IN_DATA);
 
 		DatabaseHelper db = new DatabaseHelper(context);
-		currentTask.alarm_id = alarm_id;// currentTask._id;;
+		//ZZ**ZZ currentTask.alarm_id = alarm_id;// currentTask._id;;
 		db.tasks.Edit(currentTask);//.Task_Edit(currentTask);
 
 		Calendar calendar = Calendar.getInstance();
@@ -266,7 +266,7 @@ public class AlarmBroadcastReciever extends WakefulBroadcastReceiver {
 				PendingIntent.FLAG_UPDATE_CURRENT | Intent.FILL_IN_DATA);
 
 		DatabaseHelper db = new DatabaseHelper(context);
-		currentTask.alarm_id = alarm_id;// currentTask._id;;
+		//ZZ**ZZ currentTask.alarm_id = alarm_id;// currentTask._id;;
 		db.tasks.Edit(currentTask);//.Task_Edit(currentTask);
 
 		Calendar calendar = Calendar.getInstance();

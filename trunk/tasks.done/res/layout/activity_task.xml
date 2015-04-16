@@ -4,7 +4,7 @@
     android:layout_height="match_parent" >
 
     <EditText
-        android:id="@+id/textViewTitle"
+        android:id="@+id/txt_title"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentLeft="true"
@@ -21,7 +21,7 @@
         android:id="@+id/line1"
         android:layout_width="fill_parent"
         android:layout_height="1dp"
-        android:layout_below="@+id/textViewTitle"
+        android:layout_below="@+id/txt_title"
         android:background="@color/line_divider" />
 
     <ScrollView
@@ -35,7 +35,7 @@
             android:layout_height="wrap_content" >
 
             <EditText
-                android:id="@+id/textViewDetails"
+                android:id="@+id/txt_details"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_alignParentLeft="true"
@@ -55,7 +55,7 @@
                 android:id="@+id/line2"
                 android:layout_width="fill_parent"
                 android:layout_height="1dp"
-                android:layout_below="@+id/textViewDetails"
+                android:layout_below="@+id/txt_details"
                 android:background="@color/line_divider" />
 
             <RelativeLayout
@@ -93,7 +93,7 @@
                     android:background="@android:color/transparent"
                     android:paddingBottom="10dp"
                     android:paddingTop="10dp"
-                    android:text="Tuesday, Feb 17 2015"
+                    android:text="Friday, Apr 3 2015"
                     android:textColor="@android:color/black"
                     android:textSize="17sp" />
 
@@ -108,7 +108,7 @@
                     android:background="@android:color/transparent"
                     android:paddingBottom="10dp"
                     android:paddingTop="10dp"
-                    android:text="Tuesday, Feb 17 2015"
+                    android:text="Friday, Apr 3 2015"
                     android:textColor="@android:color/black"
                     android:textSize="17sp" />
 
@@ -219,8 +219,7 @@
                     android:gravity="center_vertical"
                     android:text="Notifications"
                     android:textColor="@android:color/black"
-                    android:textSize="17sp"
-                    android:tag="0" />
+                    android:textSize="17sp"/>
 
                 <LinearLayout
                     android:id="@+id/append_btn_linearlayout"
@@ -240,10 +239,9 @@
                     android:background="@android:color/transparent"
                     android:paddingBottom="10dp"
                      android:paddingTop="8dp"
-                    android:text="Add another notification"
+                    android:text="@string/addAnotherNotification"
                     android:textColor="@android:color/black"
-                    android:textSize="17sp"
-                    android:tag="1" />
+                    android:textSize="17sp"/>
 
                 <View
                     android:id="@+id/line5"
@@ -266,7 +264,7 @@
                     android:src="@drawable/ic_action_sort_by_size" />
 
                 <EditText
-                    android:id="@+id/textViewNotes"
+                    android:id="@+id/txt_notes"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_alignParentRight="true"

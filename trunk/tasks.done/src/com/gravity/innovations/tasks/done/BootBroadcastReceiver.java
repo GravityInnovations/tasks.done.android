@@ -17,7 +17,9 @@ import android.util.Log;
  */
 
 public class BootBroadcastReceiver extends BroadcastReceiver {
-
+	//ZZ**ZZ String remindAt 
+	String remindAt;
+	//ZZ**ZZ String remindAt
 	AlarmBroadcastReciever mAlarmBroadcastReciever = new AlarmBroadcastReciever();
 	DatabaseHelper db;
 	@Override
@@ -34,9 +36,9 @@ public class BootBroadcastReceiver extends BroadcastReceiver {
 		ArrayList<TaskModel> tasks = new ArrayList<TaskModel>();
 		tasks = db.tasks.Get();
 		for (TaskModel temp : tasks) {
-			if (temp.remind_interval == 1) {// repeat once
+			if (temp.rep_intervalType/*remind_interval*/ == 1) {// repeat once
 
-				String remindAt = temp.remind_at;
+				//ZZ**ZZ String remindAt = temp.remind_at;
 
 				StringTokenizer tokens = new StringTokenizer(remindAt, "/");
 				String year_string = tokens.nextToken();
@@ -56,9 +58,9 @@ public class BootBroadcastReceiver extends BroadcastReceiver {
 					Log.e("Assigning Alarm", "Once:AlarmBootBroadcastReciever");
 				}
 
-			} else if (temp.remind_interval == 2) {// repeat Daily
+			} else if (temp.rep_intervalType/*remind_interval*/ == 2) {// repeat Daily
 
-				String remindAt = temp.remind_at;
+				//ZZ**ZZ String remindAt = temp.remind_at;
 
 				StringTokenizer tokens = new StringTokenizer(remindAt, "/");
 				String year_string = tokens.nextToken();
@@ -78,9 +80,9 @@ public class BootBroadcastReceiver extends BroadcastReceiver {
 					Log.e("Assigning Alarm", "Daily:AlarmBootBroadcastReciever");
 				}
 
-			} else if (temp.remind_interval == 3) {// repeat Weekly
+			} else if (temp.rep_intervalType/*remind_interval*/ == 3) {// repeat Weekly
 
-				String remindAt = temp.remind_at;
+				//ZZ**ZZ  String remindAt = temp.remind_at;
 
 				StringTokenizer tokens = new StringTokenizer(remindAt, "/");
 				String year_string = tokens.nextToken();
@@ -101,9 +103,9 @@ public class BootBroadcastReceiver extends BroadcastReceiver {
 							"Weekly:AlarmBootBroadcastReciever");
 				}
 
-			} else if (temp.remind_interval == 4) {// repeat Monthly
+			} else if (temp.rep_intervalType/*remind_interval*/ == 4) {// repeat Monthly
 
-				String remindAt = temp.remind_at;
+				//ZZ**ZZ String remindAt = temp.remind_at;
 
 				StringTokenizer tokens = new StringTokenizer(remindAt, "/");
 				String year_string = tokens.nextToken();
@@ -124,9 +126,9 @@ public class BootBroadcastReceiver extends BroadcastReceiver {
 							"Monthly:AlarmBootBroadcastReciever");
 				}
 
-			} else if (temp.remind_interval == 5) {// repeat Yearly
+			} else if (temp.rep_intervalType/*remind_interval*/ == 5) {// repeat Yearly
 
-				String remindAt = temp.remind_at;
+				//ZZ**ZZ String remindAt = temp.remind_at;
 
 				StringTokenizer tokens = new StringTokenizer(remindAt, "/");
 				String year_string = tokens.nextToken();

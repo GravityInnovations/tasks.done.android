@@ -1,5 +1,6 @@
 package com.gravity.innovations.tasks.done;
 
+import java.io.Serializable;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.text.ParseException;
@@ -29,6 +30,8 @@ import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.ShapeDrawable;
 import android.graphics.drawable.shapes.OvalShape;
+import android.net.wifi.WifiInfo;
+import android.net.wifi.WifiManager;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.ActionBarDrawerToggle;
@@ -37,6 +40,7 @@ import android.support.v4.app.FragmentManager;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBarActivity;
+import android.telephony.TelephonyManager;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -122,12 +126,13 @@ public class MainActivity extends ActionBarActivity implements
 		if (service != null)
 			service.onActivityOpen(null, null);
 
-		try {
-			mContext.unregisterReceiver(mTimeReciever);
-		} catch (Exception e) {
-			Log.e(this.toString() + ": onDestroy", e.getLocalizedMessage());
-		}
-
+		// Commented by Mushahid 12April2014 on Testing for exception
+		// <<<<<<<<<<<<<<<<
+		// try {
+		// mContext.unregisterReceiver(mTimeReciever);
+		// } catch (Exception e) {
+		// Log.e(this.toString() + ": onDestroy", e.getLocalizedMessage());
+		// }
 	}
 
 	@Override
@@ -296,6 +301,7 @@ public class MainActivity extends ActionBarActivity implements
 			};
 			t.execute();
 		}
+
 	}
 
 	public void displayAds() {
@@ -356,6 +362,19 @@ public class MainActivity extends ActionBarActivity implements
 	protected void onActivityResult(int arg0, int arg1, Intent intent) {
 		// created for Calendar API
 		super.onActivityResult(arg0, arg1, intent);
+		if (arg0 == 12345) {
+			// intent = getIntent();
+			Bundle mBundle = intent.getExtras();
+			mBundle.getSerializable("key_list");
+			mBundle.getSerializable("key_task");
+			TaskListModel list = (TaskListModel) intent
+					.getSerializableExtra("key_list");
+			TaskModel task = (TaskModel) intent
+					.getSerializableExtra("key_task");
+
+			mNavigationDrawerFragment.addOrEditTaskDetails(list, task);
+		}
+
 	}
 
 	public void showSoftKeyboard(View view) {
@@ -486,8 +505,8 @@ public class MainActivity extends ActionBarActivity implements
 			Intent i = new Intent(MainActivity.this, StoreActivity.class);
 			startActivity(i);
 		} else if (id == R.id.action_add_task) {
-			mNavigationDrawerFragment.addOrEditTask(CurrentList,
-					new TaskModel());
+			// ZZ**ZZ mNavigationDrawerFragment.addOrEditTask(CurrentList, new
+			// TaskModel());
 		} else if (id == R.id.action_share) {
 			listof_nameEmailPic(); // for calling list of users
 		}
@@ -571,8 +590,8 @@ public class MainActivity extends ActionBarActivity implements
 			}
 		};
 		Common.CustomDialog.MultiChoiceDialog(mContext, adapter,
-				onItemClickListener, negListener, posListener,
-				R.string.dialog_ok, R.string.dialog_cancel, "Share");
+				onItemClickListener, negListener, posListener, R.string.ok,
+				R.string.cancel, "Share");
 
 		// View view = getLayoutInflater().inflate(
 		// R.layout.multiselectlist_list, null);
@@ -683,9 +702,9 @@ public class MainActivity extends ActionBarActivity implements
 
 	public void updateCurrentTask() {
 		// for marking the task as done from detailsDial
-		try { 
+		try {
 			mTaskListFragment.updateCurrentTask();
-			//mTaskListFragment.mTaskAdapter.notifyItemChanged(mTaskListFragment.mTaskAdapter.getPosition());
+			// mTaskListFragment.mTaskAdapter.notifyItemChanged(mTaskListFragment.mTaskAdapter.getPosition());
 		} catch (Exception e) {
 			Log.e("updateCurrentTask:MainActivity", e.getLocalizedMessage());
 		}

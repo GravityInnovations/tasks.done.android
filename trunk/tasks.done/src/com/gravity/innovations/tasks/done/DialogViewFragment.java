@@ -179,7 +179,7 @@ public class DialogViewFragment extends DialogFragment {
 			@Override
 			public void onClick(View v) {
 				dialog.dismiss();
-				mNavigationDrawerFragment.addOrEditTask(listModel, taskModel);
+				//ZZ**ZZ mNavigationDrawerFragment.addOrEditTask(listModel, taskModel);
 			}
 		});
 

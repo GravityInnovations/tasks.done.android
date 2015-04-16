@@ -24,6 +24,8 @@
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.WRITE_CALENDAR" />
+    <uses-permission android:name="android.permission.READ_PHONE_STATE" /> 
+    
 
     <uses-sdk
         android:minSdkVersion="9"
@@ -102,7 +104,7 @@
                 android:value="com.gravity.innovations.tasks.done.MainActivity" />
         </activity>
         <activity
-            android:name="com.gravity.innovations.tasks.done.SetTaskReminderActivity"
+            android:name="com.gravity.innovations.tasks.done.TaskActivity"
             android:label="@string/action_settings" 
             android:windowSoftInputMode="stateAlwaysHidden"
             android:parentActivityName="com.gravity.innovations.tasks.done.MainActivity" >
