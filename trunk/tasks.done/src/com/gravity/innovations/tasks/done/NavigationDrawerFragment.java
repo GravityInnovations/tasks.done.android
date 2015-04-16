@@ -101,9 +101,9 @@ public class NavigationDrawerFragment extends Fragment implements
 	private int mUserActionBarColor;
 	private OnItemClickListener TaskListItemListener;
 	private AppHandlerService mService;
-	//private Builder mDialogBuilder;
-	public TaskListModel opt_Tasklist;//=null;
-	public TaskModel opt_Task;//=null;
+	// private Builder mDialogBuilder;
+	public TaskListModel opt_Tasklist;// =null;
+	public TaskModel opt_Task;// =null;
 
 	public NavigationDrawerFragment() {
 	}
@@ -1147,7 +1147,6 @@ public class NavigationDrawerFragment extends Fragment implements
 	}
 
 	public void addOrEditTaskDetails(TaskListModel list, TaskModel task) {
-		// TODO Auto-generated method stub
 
 		for (TaskListModel temp : data) {
 			if (temp._id == opt_Tasklist._id) {

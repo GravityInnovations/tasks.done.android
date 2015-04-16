@@ -16,6 +16,7 @@ import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBarActivity;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.text.format.DateFormat;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -64,8 +65,7 @@ public class TaskActivity extends ActionBarActivity {
 			isWed = false, isThu = false, isFri = false, isDaily = false,
 			isWeekly = false, isMonthly = false, isYearly = false,
 			isForever = false, isUntilADate = false, isForFixedEvents = false;
-	private TextView tv_repeat;
-	private TextView tv_notification0, tv_notification_addAnother,
+	private TextView tv_repeat, tv_notification0, tv_notification_addAnother,
 			tv_notification1, tv_notification2, tv_notification3;
 	private int textViewFlag = 5;
 	private int textViewTag = 1;
@@ -74,16 +74,16 @@ public class TaskActivity extends ActionBarActivity {
 	// private ArrayList<TaskNotificationsModel> task.notifications = new
 	// ArrayList<TaskNotificationsModel>();// 0-4
 
-//	@Override
-//	public void onBackPressed() {
-//		// TODO Auto-generated method stub
-//		finish();
-//		overridePendingTransition(R.anim.bottom_first_from_top,
-//				R.anim.bottom_first_from_top_continue);
-//		Intent intent = new Intent(this, MainActivity.class);
-//		setResult(00000, intent);// >>>>>>>>>>>>????
-//		super.onBackPressed();
-//	}
+	// @Override
+	// public void onBackPressed() {
+	// // TODO Auto-generated method stub
+	// finish();
+	// overridePendingTransition(R.anim.bottom_first_from_top,
+	// R.anim.bottom_first_from_top_continue);
+	// Intent intent = new Intent(this, MainActivity.class);
+	// setResult(00000, intent);// >>>>>>>>>>>>????
+	// super.onBackPressed();
+	// }
 
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
@@ -156,16 +156,47 @@ public class TaskActivity extends ActionBarActivity {
 			details = (EditText) findViewById(R.id.txt_details);
 			notes = (EditText) findViewById(R.id.txt_notes);
 			time_start = (TextView) findViewById(R.id.btn_time_1);
+			date_end = (TextView) findViewById(R.id.btn_date_2);
 			time_end = (TextView) findViewById(R.id.btn_time_2);
 			date_start = (TextView) findViewById(R.id.btn_date_1);
-			date_end = (TextView) findViewById(R.id.btn_date_2);
+
+			// cal_init = setCalender(cal_init);
+
+			if (task._id == -1) {
+				cal_startdate = Common.datetimeHelper
+						.setCalender_CurrentDate(cal_startdate);
+				cal_enddate = Common.datetimeHelper
+						.setCalender_CurrentDate(cal_enddate);
+				date_start
+						.setText(Common.datetimeHelper.getDate(cal_startdate));
+				date_end.setText(Common.datetimeHelper.getDate(cal_enddate));
+				// if (task.rep_allDay == 0) {
+				cal_starttime = Common.datetimeHelper
+						.setCalender_CurrentTime(cal_starttime);
+				cal_endtime = Common.datetimeHelper
+						.setCalender_CurrentTimePlusOneHour(cal_endtime);
+				time_start
+						.setText(Common.datetimeHelper.getTime(cal_starttime));
+				time_end.setText(Common.datetimeHelper.getTime(cal_endtime));
+
+				Calendar start_datetime = Common.datetimeHelper.mergeCalendars(
+						cal_startdate, cal_starttime);
+				Calendar end_datetime = Common.datetimeHelper.mergeCalendars(
+						cal_enddate, cal_endtime);
+				task.rep_startDateTime = Common.datetimeHelper
+						.getDateInMs(start_datetime);
+				task.rep_endDateTime = Common.datetimeHelper
+						.getDateInMs(end_datetime);
+
+			}
+
+			title.setText(task.title);
+			details.setText(task.details);
+			notes.setText(task.notes);
 
 			title.addTextChangedListener(mTextWatcher);
 			details.addTextChangedListener(mTextWatcher);
 			notes.addTextChangedListener(mTextWatcher);
-			title.setText(task.title);
-			details.setText(task.details);
-			notes.setText(task.notes);
 
 			tv_repeat = (TextView) findViewById(R.id.repeat_tv);
 			// ///////////////////////////
@@ -241,13 +272,40 @@ public class TaskActivity extends ActionBarActivity {
 						time_start.setVisibility(View.GONE);
 						time_end.setVisibility(View.GONE);
 						task.rep_allDay = 1;
-						cal_endtime.set(0, 0, 0, 0, 0);
-						cal_starttime.set(0, 0, 0, 0, 0);
+						if (task._id == -1) {
+							Calendar new_cal_endtime = Calendar.getInstance();
+							Calendar new_cal_starttime = Calendar.getInstance();
+							;
+							new_cal_endtime.set(0, 0, 0, 0, 0);
+							new_cal_starttime.set(0, 0, 0, 0, 0);
+							Calendar start_datetime = Common.datetimeHelper
+									.mergeCalendars(cal_startdate,
+											new_cal_starttime);
+							Calendar end_datetime = Common.datetimeHelper
+									.mergeCalendars(cal_enddate,
+											new_cal_endtime);
+							task.rep_startDateTime = Common.datetimeHelper
+									.getDateInMs(start_datetime);
+							task.rep_endDateTime = Common.datetimeHelper
+									.getDateInMs(end_datetime);
+						}
 					} else {
 						time_start.setVisibility(View.VISIBLE);
 						time_end.setVisibility(View.VISIBLE);
 						task.rep_allDay = 0;
 						// end and start time to init cal
+						if (task._id == -1) {
+							Calendar start_datetime = Common.datetimeHelper
+									.mergeCalendars(cal_startdate,
+											cal_starttime);
+							Calendar end_datetime = Common.datetimeHelper
+									.mergeCalendars(cal_enddate, cal_endtime);
+							task.rep_startDateTime = Common.datetimeHelper
+									.getDateInMs(start_datetime);
+							task.rep_endDateTime = Common.datetimeHelper
+									.getDateInMs(end_datetime);
+						}
+
 					}
 					if (arrayList_TextView.size() > 2) {
 						if (task._id == -1) {
@@ -303,10 +361,14 @@ public class TaskActivity extends ActionBarActivity {
 									cal_startdate.set(mDatePicker.getYear(),
 											mDatePicker.getMonth() + 1,
 											mDatePicker.getDayOfMonth());
+									date_start.setText(Common.datetimeHelper
+											.getDate(cal_startdate));
 								} else if (tag.equals("end")) {
 									cal_enddate.set(mDatePicker.getYear(),
 											mDatePicker.getMonth() + 1,
 											mDatePicker.getDayOfMonth());
+									date_end.setText(Common.datetimeHelper
+											.getDate(cal_enddate));
 								}
 
 							} catch (Exception e) {
@@ -317,10 +379,15 @@ public class TaskActivity extends ActionBarActivity {
 										cal_startdate
 												.setTimeInMillis(mCalendarView
 														.getDate());
+										date_start
+												.setText(Common.datetimeHelper
+														.getDate(cal_startdate));
 									} else if (tag.equals("end")) {
 										cal_enddate
 												.setTimeInMillis(mCalendarView
 														.getDate());
+										date_end.setText(Common.datetimeHelper
+												.getDate(cal_enddate));
 									}
 
 								} catch (Exception ex) {
@@ -354,6 +421,7 @@ public class TaskActivity extends ActionBarActivity {
 					// TODO Auto-generated method stub
 					time_dialog_view = mActivity.getLayoutInflater().inflate(
 							R.layout.time_view, null);
+
 					DialogInterface.OnClickListener posListener = new DialogInterface.OnClickListener() {
 						TimePicker mTimePicker = null;
 
@@ -370,11 +438,15 @@ public class TaskActivity extends ActionBarActivity {
 											mTimePicker.getCurrentHour());
 									cal_starttime.set(Calendar.MINUTE,
 											mTimePicker.getCurrentMinute());
+									time_start.setText(Common.datetimeHelper
+											.getTime(cal_starttime));
 								} else if (tag.equals("end")) {
 									cal_endtime.set(Calendar.HOUR,
 											mTimePicker.getCurrentHour());
 									cal_endtime.set(Calendar.MINUTE,
 											mTimePicker.getCurrentMinute());
+									time_end.setText(Common.datetimeHelper
+											.getTime(cal_endtime));
 								}
 
 							} catch (Exception e) {
@@ -1644,5 +1716,7 @@ public class TaskActivity extends ActionBarActivity {
 			}
 		}
 	}
+
 	// Methods Related to Notifications
+
 }

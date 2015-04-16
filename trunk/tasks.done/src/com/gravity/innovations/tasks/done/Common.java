@@ -883,6 +883,61 @@ public class Common {
 			currentDate = formatter.format(calendar.getTimeInMillis());
 			return currentDate;
 		}
+
+		// /for initial setup only
+		public static Calendar setCalender_CurrentDate(Calendar cal) {
+			// these are for initial setup only
+			long currentTimeMillis = System.currentTimeMillis();
+			Calendar today = Calendar.getInstance();
+			today.setTimeInMillis(currentTimeMillis);
+			cal.set(Calendar.DATE, today.get(Calendar.DATE));
+			cal.set(Calendar.MONTH, today.get(Calendar.MONTH));
+			cal.set(Calendar.YEAR, today.get(Calendar.YEAR));
+			cal.set(Calendar.HOUR, 0);
+			cal.set(Calendar.MINUTE, 0);
+			return cal;
+		}
+
+		public static Calendar setCalender_CurrentTime(Calendar cal) {
+			// these are for initial setup only
+			long currentTimeMillis = System.currentTimeMillis();
+			Calendar today = Calendar.getInstance();
+			today.setTimeInMillis(currentTimeMillis);
+			cal.set(Calendar.DATE, 0);
+			cal.set(Calendar.MONTH, 0);
+			cal.set(Calendar.YEAR, 0);
+			cal.set(Calendar.HOUR, today.get(Calendar.HOUR_OF_DAY));
+			cal.set(Calendar.MINUTE, today.get(Calendar.MINUTE));
+			return cal;
+		}
+
+		public static Calendar setCalender_CurrentTimePlusOneHour(Calendar cal) {
+			// these are for initial setup only
+			long currentTimeMillis = System.currentTimeMillis();
+			currentTimeMillis = currentTimeMillis + (3600000); // currentTime
+																// plusOneHour
+			Calendar today = Calendar.getInstance();
+			today.setTimeInMillis(currentTimeMillis);
+			cal.set(Calendar.DATE, 0);
+			cal.set(Calendar.MONTH, 0);
+			cal.set(Calendar.YEAR, 0);
+			cal.set(Calendar.HOUR, today.get(Calendar.HOUR_OF_DAY));
+			cal.set(Calendar.MINUTE, today.get(Calendar.MINUTE));
+			return cal;
+		}
+
+		public static String getTime(Calendar calendar/*, Boolean is24HourFormat*/) {
+			String currentDate = null, formateStyle = "hh:mm aa";
+//			if (is24HourFormat) {
+//				formateStyle = "HH:mm";// 24 hours
+//			} else if (!is24HourFormat) {
+//				formateStyle = "hh:mm aa";// 12 hours
+//			}
+			SimpleDateFormat formatter = new SimpleDateFormat(formateStyle);
+			currentDate = formatter.format(calendar.getTimeInMillis());
+			return currentDate;
+		}
+
 	}
 
 	public static class SetAdapter {

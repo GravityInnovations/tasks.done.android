@@ -95,7 +95,8 @@
                     android:paddingTop="10dp"
                     android:text="Friday, Apr 3 2015"
                     android:textColor="@android:color/black"
-                    android:textSize="17sp" />
+                    android:textSize="17sp"
+                    android:tag="start" />
 
                 <TextView
                     android:id="@+id/btn_date_2"
@@ -110,7 +111,8 @@
                     android:paddingTop="10dp"
                     android:text="Friday, Apr 3 2015"
                     android:textColor="@android:color/black"
-                    android:textSize="17sp" />
+                    android:textSize="17sp"
+                    android:tag="end" />
 
                 <TextView
                     android:id="@+id/btn_time_2"
@@ -127,7 +129,8 @@
                     android:paddingTop="10dp"
                     android:text="11:00AM"
                     android:textColor="@android:color/black"
-                    android:textSize="17sp" />
+                    android:textSize="17sp"
+                    android:tag="end" />
 
                 <TextView
                     android:id="@+id/btn_time_1"
@@ -144,7 +147,8 @@
                     android:paddingTop="10dp"
                     android:text="11:00AM"
                     android:textColor="@android:color/black"
-                    android:textSize="17sp" />
+                    android:textSize="17sp"
+                    android:tag="start" />
 
                 <View
                     android:id="@+id/line3"
