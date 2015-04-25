@@ -93,10 +93,10 @@
                     android:background="@android:color/transparent"
                     android:paddingBottom="10dp"
                     android:paddingTop="10dp"
+                    android:tag="start"
                     android:text="Friday, Apr 3 2015"
                     android:textColor="@android:color/black"
-                    android:textSize="17sp"
-                    android:tag="start" />
+                    android:textSize="17sp" />
 
                 <TextView
                     android:id="@+id/btn_date_2"
@@ -109,10 +109,10 @@
                     android:background="@android:color/transparent"
                     android:paddingBottom="10dp"
                     android:paddingTop="10dp"
+                    android:tag="end"
                     android:text="Friday, Apr 3 2015"
                     android:textColor="@android:color/black"
-                    android:textSize="17sp"
-                    android:tag="end" />
+                    android:textSize="17sp" />
 
                 <TextView
                     android:id="@+id/btn_time_2"
@@ -122,15 +122,15 @@
                     android:layout_alignBottom="@+id/btn_date_2"
                     android:layout_alignLeft="@+id/btn_time_1"
                     android:layout_alignParentRight="true"
-                    android:gravity="right"
                     android:layout_margin="0dp"
                     android:background="@android:color/transparent"
+                    android:gravity="right"
                     android:paddingBottom="10dp"
                     android:paddingTop="10dp"
+                    android:tag="end"
                     android:text="11:00AM"
                     android:textColor="@android:color/black"
-                    android:textSize="17sp"
-                    android:tag="end" />
+                    android:textSize="17sp" />
 
                 <TextView
                     android:id="@+id/btn_time_1"
@@ -140,15 +140,15 @@
                     android:layout_alignBottom="@+id/btn_date_1"
                     android:layout_alignParentRight="true"
                     android:layout_margin="0dp"
-                    android:gravity="right"
                     android:layout_toRightOf="@+id/btn_date_1"
                     android:background="@android:color/transparent"
+                    android:gravity="right"
                     android:paddingBottom="10dp"
                     android:paddingTop="10dp"
+                    android:tag="start"
                     android:text="11:00AM"
                     android:textColor="@android:color/black"
-                    android:textSize="17sp"
-                    android:tag="start" />
+                    android:textSize="17sp" />
 
                 <View
                     android:id="@+id/line3"
@@ -183,9 +183,9 @@
                     android:background="@android:color/transparent"
                     android:clickable="false"
                     android:gravity="center_vertical"
+                    android:tag="0"
                     android:text="Repeat"
                     android:textColor="@android:color/black"
-                    android:tag="0"
                     android:textSize="17sp" />
 
                 <View
@@ -223,7 +223,7 @@
                     android:gravity="center_vertical"
                     android:text="Notifications"
                     android:textColor="@android:color/black"
-                    android:textSize="17sp"/>
+                    android:textSize="17sp" />
 
                 <LinearLayout
                     android:id="@+id/append_btn_linearlayout"
@@ -242,10 +242,10 @@
                     android:layout_below="@+id/append_btn_linearlayout"
                     android:background="@android:color/transparent"
                     android:paddingBottom="10dp"
-                     android:paddingTop="8dp"
+                    android:paddingTop="8dp"
                     android:text="@string/addAnotherNotification"
                     android:textColor="@android:color/black"
-                    android:textSize="17sp"/>
+                    android:textSize="17sp" />
 
                 <View
                     android:id="@+id/line5"
@@ -282,6 +282,14 @@
                     android:paddingTop="10dp"
                     android:singleLine="false"
                     android:textSize="17sp" />
+
+                <Button
+                   	android:id="@+id/buttON"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content" 
+                    android:text="Button"
+                    android:layout_below="@+id/txt_notes"
+                    android:visibility="gone"/>
             </RelativeLayout>
         </RelativeLayout>
     </ScrollView>

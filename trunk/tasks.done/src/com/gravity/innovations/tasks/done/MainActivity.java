@@ -363,16 +363,20 @@ public class MainActivity extends ActionBarActivity implements
 		// created for Calendar API
 		super.onActivityResult(arg0, arg1, intent);
 		if (arg0 == 12345) {
-			// intent = getIntent();
-			Bundle mBundle = intent.getExtras();
-			mBundle.getSerializable("key_list");
-			mBundle.getSerializable("key_task");
-			TaskListModel list = (TaskListModel) intent
-					.getSerializableExtra("key_list");
-			TaskModel task = (TaskModel) intent
-					.getSerializableExtra("key_task");
+			if (arg1 == RESULT_OK) {
+				// intent = getIntent();
+				Bundle mBundle = intent.getExtras();
+				mBundle.getSerializable("key_list");
+				mBundle.getSerializable("key_task");
+				TaskListModel list = (TaskListModel) intent
+						.getSerializableExtra("key_list");
+				TaskModel task = (TaskModel) intent
+						.getSerializableExtra("key_task");
 
-			mNavigationDrawerFragment.addOrEditTaskDetails(list, task);
+				mNavigationDrawerFragment.addOrEditTaskDetails(list, task);
+			} else if (arg1 == RESULT_CANCELED){
+				onDashboardSelected();
+			}
 		}
 
 	}

@@ -1147,39 +1147,65 @@ public class NavigationDrawerFragment extends Fragment implements
 	}
 
 	public void addOrEditTaskDetails(TaskListModel list, TaskModel task) {
-
+		//NOTE //PROBLEMS
+		//in edit case when a notification is added two notification gets added 
+		//TaskAdapter is not getting updated properly, problem can be viewed when editing Task 
 		for (TaskListModel temp : data) {
 			if (temp._id == opt_Tasklist._id) {
 				opt_Tasklist = data.get(data.indexOf(temp));
 				// opt_Tasklist = data.get(temp._id);
 			}
-		}
+		}// don't screw with this one
 
+		// ///////////////////////////
 		if (task._id != -1 || task._id >= 0) {
 
-			int size = opt_Task.notifications.size();
-			for (TaskNotificationsModel add_temp : task.notifications) {
-				if (add_temp._id == -1 && add_temp.interval_type != 0) {
-					mService.db.notification.Add(add_temp, task._id);
-				} else if (add_temp._id != -1 && add_temp.interval_type == 0) {
-					mService.db.notification.Delete(add_temp._id);
-				} else if (add_temp._id != -1 && add_temp.interval_type != 0) {
-					mService.db.notification.Edit(add_temp);
+			// ArrayList<TaskNotificationsModel> refrenceList =
+			// opt_Task.notifications;
+			// ArrayList<TaskNotificationsModel> newList = task.notifications;
+			for (TaskNotificationsModel newNoifications : task.notifications) {
+				if (newNoifications._id == -1
+						&& newNoifications.interval_type != 0) {
+					// Add Case
+					mService.db.notification.Add(newNoifications, task._id);
+					opt_Task.notifications.add(newNoifications);
+				} else if (newNoifications._id != -1
+						&& newNoifications.interval_type != 0) {
+					// Edit Case
+					mService.db.notification.Edit(newNoifications);
+					for (TaskNotificationsModel model : opt_Task.notifications) {
+						if (newNoifications._id == model._id) {
+							opt_Task.notifications.set(
+									opt_Task.notifications.indexOf(model),
+									newNoifications);
+						}
+					}
+
+				} else {
+					// Delete Case
+					mService.db.notification.Delete(newNoifications._id);
+					opt_Task.notifications.remove(newNoifications);
 				}
 
 			}
-			mService.db.tasks.Edit(task);
-			opt_Task = mService.db.tasks.Get(opt_Task._id);
-			editTask(opt_Tasklist, opt_Task);
+			// ArrayList<TaskNotificationsModel> newGeneratedrefrenceList =
+			// refrenceList;
 
+		 
+			mService.db.tasks.Edit(task /* opt_Task */);
+			opt_Task = null;// mService.db.tasks.Get(opt_Task._id);
+			opt_Task = mService.db.tasks.Get(task._id);// so the adapter could
+														// update properly
+			editTask(opt_Tasklist, opt_Task);
+			//MarkDoneTask(opt_Tasklist, opt_Task)
 		} else if (task._id == -1) {
 			opt_Task = task;
 			this.opt_Task.fk_tasklist_id = opt_Tasklist._id;
 			this.opt_Task._id = mService.db.tasks.Add(opt_Task);
 			// opt_Task = mService.db.tasks.Get(opt_Task._id);
 			addTask(opt_Tasklist, opt_Task);
-
+			opt_Task = mService.db.tasks.Get(opt_Task._id);
+			mAlarmBroadcastReciever.setAlarm(opt_Task, mContext);
 		}
 	}
-
 }

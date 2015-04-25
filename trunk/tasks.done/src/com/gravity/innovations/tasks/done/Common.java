@@ -854,7 +854,7 @@ public class Common {
 			SimpleDateFormat formatter = new SimpleDateFormat(
 					"EEEE, MMM dd, yyyy");
 			currentDate = formatter.format(calendar.getTimeInMillis());
-			return currentDate;
+ 			return currentDate;
 		}
 
 		public static String getDateInMs(Calendar calendar) {
@@ -866,7 +866,7 @@ public class Common {
 			int c_startDate = date.get(Calendar.DAY_OF_MONTH);
 			int c_startMonth = date.get(Calendar.MONTH);
 			int c_startYear = date.get(Calendar.YEAR);
-			int c_startHour = time.get(Calendar.HOUR);
+			int c_startHour = time.get(Calendar.HOUR_OF_DAY);
 			int c_startMinute = time.get(Calendar.MINUTE);
 			Calendar calendar_DateTime;
 			calendar_DateTime = Calendar.getInstance();
@@ -926,18 +926,34 @@ public class Common {
 			return cal;
 		}
 
-		public static String getTime(Calendar calendar/*, Boolean is24HourFormat*/) {
+		public static String getTime(Calendar calendar/* , Boolean is24HourFormat */) {
 			String currentDate = null, formateStyle = "hh:mm aa";
-//			if (is24HourFormat) {
-//				formateStyle = "HH:mm";// 24 hours
-//			} else if (!is24HourFormat) {
-//				formateStyle = "hh:mm aa";// 12 hours
-//			}
+			// if (is24HourFormat) {
+			// formateStyle = "HH:mm";// 24 hours
+			// } else if (!is24HourFormat) {
+			// formateStyle = "hh:mm aa";// 12 hours
+			// }
 			SimpleDateFormat formatter = new SimpleDateFormat(formateStyle);
 			currentDate = formatter.format(calendar.getTimeInMillis());
 			return currentDate;
 		}
 
+		public static Long calendar_ReturnDate(Calendar _calendar) {
+			Calendar calendar = Calendar.getInstance();
+			calendar.set(_calendar.get(Calendar.YEAR),
+					_calendar.get(Calendar.MONTH),
+					_calendar.get(Calendar.DAY_OF_MONTH), 0, 0);
+			return calendar.getTimeInMillis();
+
+		}
+
+		public static Long calendar_ReturnTime(Calendar _calendar) {
+			Calendar calendar = Calendar.getInstance();
+			calendar.set(0, 0, 0, _calendar.get(Calendar.HOUR_OF_DAY),
+					_calendar.get(Calendar.MINUTE));
+			return calendar.getTimeInMillis();
+
+		}
 	}
 
 	public static class SetAdapter {
@@ -967,9 +983,9 @@ public class Common {
 			task.rep_interval = 0;
 			task.rep_intervalType = 0;
 			task.rep_intervalExpiration = null;
-			task.rep_startDateTime = null;
-			task.rep_endDateTime = null;
-			task.rep_createdDateTime = null;
+			//task.rep_startDateTime = null;
+			//task.rep_endDateTime = null;
+			//task.rep_createdDateTime = null;
 			task.rep_value = null;
 			return task;
 		}

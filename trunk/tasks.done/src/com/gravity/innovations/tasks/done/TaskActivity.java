@@ -3,10 +3,14 @@ package com.gravity.innovations.tasks.done;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Calendar;
-
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.app.DatePickerDialog;
+import android.app.Dialog;
+import android.support.v4.app.DialogFragment;
+import android.app.TimePickerDialog;
+import android.app.DatePickerDialog.OnDateSetListener;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Color;
@@ -15,6 +19,7 @@ import android.os.Bundle;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBarActivity;
 import android.text.Editable;
+import android.text.InputFilter;
 import android.text.TextWatcher;
 import android.text.format.DateFormat;
 import android.util.Log;
@@ -39,8 +44,9 @@ import android.widget.Spinner;
 import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.TimePicker;
+import android.widget.Toast;
 
-public class TaskActivity extends ActionBarActivity {
+public class TaskActivity extends ActionBarActivity implements OnClickListener {
 
 	private ActionBar mActionBar;
 	private TaskListModel list;
@@ -74,16 +80,18 @@ public class TaskActivity extends ActionBarActivity {
 	// private ArrayList<TaskNotificationsModel> task.notifications = new
 	// ArrayList<TaskNotificationsModel>();// 0-4
 
-	// @Override
-	// public void onBackPressed() {
-	// // TODO Auto-generated method stub
-	// finish();
-	// overridePendingTransition(R.anim.bottom_first_from_top,
-	// R.anim.bottom_first_from_top_continue);
-	// Intent intent = new Intent(this, MainActivity.class);
-	// setResult(00000, intent);// >>>>>>>>>>>>????
-	// super.onBackPressed();
-	// }
+	@Override
+	public void onBackPressed() {
+		// TODO Auto-generated method stub
+		finish();
+		overridePendingTransition(R.anim.bottom_first_from_top,
+				R.anim.bottom_first_from_top_continue);
+		Intent intent = new Intent(this, MainActivity.class);
+		setResult(RESULT_CANCELED, intent);// >>>>>>>>>>>>????
+		finish();
+		// startActivity(intent);
+		super.onBackPressed();
+	}
 
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
@@ -118,8 +126,8 @@ public class TaskActivity extends ActionBarActivity {
 			intent.putExtra("key_list", s);
 			Serializable t = (Serializable) task;
 			intent.putExtra("key_task", t);
-			setResult(12345, intent);// >>>>>>>>>>>>????
-			finish();
+			setResult(/* 12345 */RESULT_OK, intent);// >>>>>>>>>>>>????
+			this.finish();
 		}
 		overridePendingTransition(R.anim.bottom_first_from_top,
 				R.anim.bottom_first_from_top_continue);
@@ -161,34 +169,33 @@ public class TaskActivity extends ActionBarActivity {
 			date_start = (TextView) findViewById(R.id.btn_date_1);
 
 			// cal_init = setCalender(cal_init);
-
-			if (task._id == -1) {
-				cal_startdate = Common.datetimeHelper
-						.setCalender_CurrentDate(cal_startdate);
-				cal_enddate = Common.datetimeHelper
-						.setCalender_CurrentDate(cal_enddate);
-				date_start
-						.setText(Common.datetimeHelper.getDate(cal_startdate));
-				date_end.setText(Common.datetimeHelper.getDate(cal_enddate));
-				// if (task.rep_allDay == 0) {
-				cal_starttime = Common.datetimeHelper
-						.setCalender_CurrentTime(cal_starttime);
-				cal_endtime = Common.datetimeHelper
-						.setCalender_CurrentTimePlusOneHour(cal_endtime);
-				time_start
-						.setText(Common.datetimeHelper.getTime(cal_starttime));
-				time_end.setText(Common.datetimeHelper.getTime(cal_endtime));
-
-				Calendar start_datetime = Common.datetimeHelper.mergeCalendars(
-						cal_startdate, cal_starttime);
-				Calendar end_datetime = Common.datetimeHelper.mergeCalendars(
-						cal_enddate, cal_endtime);
-				task.rep_startDateTime = Common.datetimeHelper
-						.getDateInMs(start_datetime);
-				task.rep_endDateTime = Common.datetimeHelper
-						.getDateInMs(end_datetime);
-
-			}
+			// <<<<<<<<<<<<<<<<<<<<watch out this section one more time
+			// if (task._id == -1) {
+			// cal_startdate = Common.datetimeHelper
+			// .setCalender_CurrentDate(cal_startdate);
+			// cal_enddate = Common.datetimeHelper
+			// .setCalender_CurrentDate(cal_enddate);
+			// date_start
+			// .setText(Common.datetimeHelper.getDate(cal_startdate));
+			// date_end.setText(Common.datetimeHelper.getDate(cal_enddate));
+			// // if (task.rep_allDay == 0) {
+			// cal_starttime = Common.datetimeHelper
+			// .setCalender_CurrentTime(cal_starttime);
+			// cal_endtime = Common.datetimeHelper
+			// .setCalender_CurrentTimePlusOneHour(cal_endtime);
+			// time_start
+			// .setText(Common.datetimeHelper.getTime(cal_starttime));
+			// time_end.setText(Common.datetimeHelper.getTime(cal_endtime));
+			//
+			// Calendar start_datetime = Common.datetimeHelper.mergeCalendars(
+			// cal_startdate, cal_starttime);
+			// Calendar end_datetime = Common.datetimeHelper.mergeCalendars(
+			// cal_enddate, cal_endtime);
+			// task.rep_startDateTime = Common.datetimeHelper
+			// .getDateInMs(start_datetime);
+			// task.rep_endDateTime = Common.datetimeHelper
+			// .getDateInMs(end_datetime);
+			// } // <<<<<<<<<<<<<<<<<<<<watch out this section one more time
 
 			title.setText(task.title);
 			details.setText(task.details);
@@ -263,19 +270,160 @@ public class TaskActivity extends ActionBarActivity {
 
 				}
 			});
+
+			// allDay_change_listener = new
+			// CompoundButton.OnCheckedChangeListener() {
+			// @Override
+			// public void onCheckedChanged(CompoundButton buttonView,
+			// boolean isChecked) {
+			// // TODO Auto-generated method stub
+			// if (isChecked) {
+			// time_start.setVisibility(View.GONE);
+			// time_end.setVisibility(View.GONE);
+			// task.rep_allDay = 1;
+			// if (task._id == -1) {
+			// Calendar new_cal_endtime = Calendar.getInstance();
+			// Calendar new_cal_starttime = Calendar.getInstance();
+			// new_cal_endtime.set(0, 0, 0, 0, 0);
+			// new_cal_starttime.set(0, 0, 0, 0, 0);
+			// Calendar start_datetime = Common.datetimeHelper
+			// .mergeCalendars(cal_startdate,
+			// new_cal_starttime);
+			// Calendar end_datetime = Common.datetimeHelper
+			// .mergeCalendars(cal_enddate,
+			// new_cal_endtime);
+			// task.rep_startDateTime = Common.datetimeHelper
+			// .getDateInMs(start_datetime);
+			// task.rep_endDateTime = Common.datetimeHelper
+			// .getDateInMs(end_datetime);
+			// } else if (task._id != -1 && task.rep_allDay == 1) {
+			// Calendar newCalendar = Calendar.getInstance();
+			//
+			// newCalendar.setTimeInMillis(Long
+			// .valueOf(task.rep_startDateTime));
+			//
+			// cal_startdate.setTimeInMillis(Common.datetimeHelper
+			// .calendar_ReturnDate(newCalendar));
+			//
+			// date_start.setText(Common.datetimeHelper
+			// .getDate(cal_startdate));
+			//
+			// cal_starttime.setTimeInMillis(Common.datetimeHelper
+			// .calendar_ReturnTime(newCalendar));
+			//
+			// time_start.setText(Common.datetimeHelper
+			// .getTime(cal_starttime));
+			//
+			// newCalendar = Calendar.getInstance();
+			//
+			// newCalendar.setTimeInMillis(Long
+			// .valueOf(task.rep_endDateTime));
+			//
+			// cal_enddate.setTimeInMillis(Common.datetimeHelper
+			// .calendar_ReturnDate(newCalendar));
+			// date_end.setText(Common.datetimeHelper
+			// .getDate(cal_enddate));
+			//
+			// cal_endtime.setTimeInMillis(Common.datetimeHelper
+			// .calendar_ReturnTime(newCalendar));
+			// time_end.setText(Common.datetimeHelper
+			// .getTime(cal_endtime));
+			//
+			// Calendar start_datetime = Common.datetimeHelper
+			// .mergeCalendars(cal_startdate,
+			// cal_starttime);
+			// Calendar end_datetime = Common.datetimeHelper
+			// .mergeCalendars(cal_enddate, cal_endtime);
+			// task.rep_startDateTime = (Common.datetimeHelper
+			// .getDateInMs(start_datetime));
+			// task.rep_endDateTime = (Common.datetimeHelper
+			// .getDateInMs(end_datetime));
+			//
+			// }
+			//
+			// } else { // UN-CHECKED
+			// time_start.setVisibility(View.VISIBLE);
+			// time_end.setVisibility(View.VISIBLE);
+			// task.rep_allDay = 0;
+			// // end and start time to init cal
+			// if (task._id == -1) {
+			// Calendar start_datetime = Common.datetimeHelper
+			// .mergeCalendars(cal_startdate,
+			// cal_starttime);
+			// Calendar end_datetime = Common.datetimeHelper
+			// .mergeCalendars(cal_enddate, cal_endtime);
+			// task.rep_startDateTime = Common.datetimeHelper
+			// .getDateInMs(start_datetime);
+			// task.rep_endDateTime = Common.datetimeHelper
+			// .getDateInMs(end_datetime);
+			// } else if (task._id != -1 && task.rep_allDay == 0) {
+			//
+			// cal_startdate.set(0, 0, 0, 0, 0);
+			// cal_enddate.set(0, 0, 0, 0, 0);
+			//
+			// cal_startdate.setTimeInMillis(Long
+			// .valueOf(task.rep_startDateTime));
+			//
+			// cal_enddate.setTimeInMillis(Long
+			// .valueOf(task.rep_endDateTime));
+			//
+			// date_start.setText(Common.datetimeHelper
+			// .getDate(cal_startdate));
+			// date_end.setText(Common.datetimeHelper
+			// .getDate(cal_enddate));
+			//
+			// cal_starttime.set(0, 0, 0, 0, 0);
+			// cal_endtime.set(0, 0, 0, 0, 0);
+			//
+			// cal_starttime.setTimeInMillis(Long
+			// .valueOf(task.rep_startDateTime));
+			//
+			// cal_endtime.setTimeInMillis(Long
+			// .valueOf(task.rep_endDateTime));
+			//
+			// time_start.setText(Common.datetimeHelper
+			// .getTime(cal_starttime));
+			// time_end.setText(Common.datetimeHelper
+			// .getTime(cal_endtime));
+			//
+			// Calendar start_datetime = Common.datetimeHelper
+			// .mergeCalendars(cal_startdate,
+			// cal_starttime);
+			// Calendar end_datetime = Common.datetimeHelper
+			// .mergeCalendars(cal_enddate, cal_endtime);
+			// task.rep_startDateTime = (Common.datetimeHelper
+			// .getDateInMs(start_datetime));
+			// task.rep_endDateTime = (Common.datetimeHelper
+			// .getDateInMs(end_datetime));
+			//
+			// }
+			//
+			// }
+			// if (arrayList_TextView.size() > 2) {
+			// if (task._id == -1) {
+			// try {
+			// resetNotificaionTextViews();
+			// } catch (Exception e) {
+			// Log.e("allDaySwitch", e.getLocalizedMessage());
+			// }
+			// }
+			// }
+			// }
+			// };
+
 			allDay_change_listener = new CompoundButton.OnCheckedChangeListener() {
 				@Override
 				public void onCheckedChanged(CompoundButton buttonView,
 						boolean isChecked) {
-					// TODO Auto-generated method stub
-					if (isChecked) {
+					if (isChecked) {// isAllDay
+
 						time_start.setVisibility(View.GONE);
 						time_end.setVisibility(View.GONE);
 						task.rep_allDay = 1;
+
 						if (task._id == -1) {
 							Calendar new_cal_endtime = Calendar.getInstance();
 							Calendar new_cal_starttime = Calendar.getInstance();
-							;
 							new_cal_endtime.set(0, 0, 0, 0, 0);
 							new_cal_starttime.set(0, 0, 0, 0, 0);
 							Calendar start_datetime = Common.datetimeHelper
@@ -288,13 +436,68 @@ public class TaskActivity extends ActionBarActivity {
 									.getDateInMs(start_datetime);
 							task.rep_endDateTime = Common.datetimeHelper
 									.getDateInMs(end_datetime);
+
+						} else if (task._id != -1) {
+
+							Calendar newCalendar = Calendar.getInstance();
+							newCalendar.setTimeInMillis(Long
+									.valueOf(task.rep_startDateTime));
+							cal_startdate.setTimeInMillis(Common.datetimeHelper
+									.calendar_ReturnDate(newCalendar));
+							date_start.setText(Common.datetimeHelper
+									.getDate(cal_startdate));
+							cal_starttime.setTimeInMillis(Common.datetimeHelper
+									.calendar_ReturnTime(newCalendar));
+							time_start.setText(Common.datetimeHelper
+									.getTime(cal_starttime));
+
+							newCalendar = Calendar.getInstance();
+							newCalendar.setTimeInMillis(Long
+									.valueOf(task.rep_endDateTime));
+							cal_enddate.setTimeInMillis(Common.datetimeHelper
+									.calendar_ReturnDate(newCalendar));
+							date_end.setText(Common.datetimeHelper
+									.getDate(cal_enddate));
+							cal_endtime.setTimeInMillis(Common.datetimeHelper
+									.calendar_ReturnTime(newCalendar));
+							time_end.setText(Common.datetimeHelper
+									.getTime(cal_endtime));
+
+							Calendar start_datetime = Common.datetimeHelper
+									.mergeCalendars(cal_startdate,
+											cal_starttime);
+							Calendar end_datetime = Common.datetimeHelper
+									.mergeCalendars(cal_enddate, cal_endtime);
+							task.rep_startDateTime = (Common.datetimeHelper
+									.getDateInMs(start_datetime));
+							task.rep_endDateTime = (Common.datetimeHelper
+									.getDateInMs(end_datetime));
+
 						}
-					} else {
+
+					} else {// isNotAllDay
+
 						time_start.setVisibility(View.VISIBLE);
 						time_end.setVisibility(View.VISIBLE);
 						task.rep_allDay = 0;
-						// end and start time to init cal
+
 						if (task._id == -1) {
+							cal_startdate = Common.datetimeHelper
+									.setCalender_CurrentDate(cal_startdate);
+							cal_enddate = Common.datetimeHelper
+									.setCalender_CurrentDate(cal_enddate);
+							date_start.setText(Common.datetimeHelper
+									.getDate(cal_startdate));
+							date_end.setText(Common.datetimeHelper
+									.getDate(cal_enddate));
+							cal_starttime = Common.datetimeHelper
+									.setCalender_CurrentTime(cal_starttime);
+							cal_endtime = Common.datetimeHelper
+									.setCalender_CurrentTimePlusOneHour(cal_endtime);
+							time_start.setText(Common.datetimeHelper
+									.getTime(cal_starttime));
+							time_end.setText(Common.datetimeHelper
+									.getTime(cal_endtime));
 							Calendar start_datetime = Common.datetimeHelper
 									.mergeCalendars(cal_startdate,
 											cal_starttime);
@@ -304,9 +507,44 @@ public class TaskActivity extends ActionBarActivity {
 									.getDateInMs(start_datetime);
 							task.rep_endDateTime = Common.datetimeHelper
 									.getDateInMs(end_datetime);
+						} else if (task._id != -1) {
+
+							// cal_startdate.set(0, 0, 0, 0, 0);
+							// cal_enddate.set(0, 0, 0, 0, 0);
+							cal_startdate.setTimeInMillis(Long
+									.valueOf(task.rep_startDateTime));
+							cal_enddate.setTimeInMillis(Long
+									.valueOf(task.rep_endDateTime));
+							date_start.setText(Common.datetimeHelper
+									.getDate(cal_startdate));
+							date_end.setText(Common.datetimeHelper
+									.getDate(cal_enddate));
+
+							cal_starttime.set(0, 0, 0, 0, 0);
+							cal_endtime.set(0, 0, 0, 0, 0);
+							cal_starttime.setTimeInMillis(Long
+									.valueOf(task.rep_startDateTime));
+							cal_endtime.setTimeInMillis(Long
+									.valueOf(task.rep_endDateTime));
+							time_start.setText(Common.datetimeHelper
+									.getTime(cal_starttime));
+							time_end.setText(Common.datetimeHelper
+									.getTime(cal_endtime));
+
+							Calendar start_datetime = Common.datetimeHelper
+									.mergeCalendars(cal_startdate,
+											cal_starttime);
+							Calendar end_datetime = Common.datetimeHelper
+									.mergeCalendars(cal_enddate, cal_endtime);
+							task.rep_startDateTime = (Common.datetimeHelper
+									.getDateInMs(start_datetime));
+							task.rep_endDateTime = (Common.datetimeHelper
+									.getDateInMs(end_datetime));
+
 						}
 
-					}
+					}// else isNotAllDay
+
 					if (arrayList_TextView.size() > 2) {
 						if (task._id == -1) {
 							try {
@@ -318,159 +556,194 @@ public class TaskActivity extends ActionBarActivity {
 					}
 				}
 			};
+
 			try {
 				isAllDay = (Switch) findViewById(R.id.onOFF);
 				((Switch) isAllDay).setText("All Day");
 
 				((Switch) isAllDay)
 						.setOnCheckedChangeListener(allDay_change_listener);
+				if (task._id == -1) {
+					((Switch) isAllDay).setChecked(true);
+					((Switch) isAllDay).setChecked(false);
+					// put it to position first time just
+					// so the listener works properly
+				}
+				if (task._id != -1) {
+
+					if (task.rep_allDay == 1) {
+						// ((Switch) isAllDay).setChecked(false);
+						((Switch) isAllDay).setChecked(true);
+					} else if (task.rep_allDay == 0) {
+						((Switch) isAllDay).setChecked(true);
+						((Switch) isAllDay).setChecked(false);
+					}
+				}
 			} catch (Exception e) {
 				isAllDay = (CheckBox) findViewById(R.id.onOFF);
 				((CheckBox) isAllDay)
 						.setOnCheckedChangeListener(allDay_change_listener);
 				((TextView) findViewById(R.id.txt_onOFF)).setText("All Day");
 
+				if (task._id != -1) {
+
+					if (task.rep_allDay == 1) {
+						((CheckBox) isAllDay).setChecked(true);
+					} else if (task.rep_allDay == 0) {
+						((CheckBox) isAllDay).setChecked(false);
+					}
+				}
 			}
-			mActivity = this;
-			OnClickListener dateListener = new OnClickListener() {
-				View calendar_dialog_view = null;
 
-				@Override
-				public void onClick(final View v) {
-					// TODO Auto-generated method stub
-					calendar_dialog_view = mActivity.getLayoutInflater()
-							.inflate(R.layout.calendar_view, null);
-					DialogInterface.OnClickListener posListener = new DialogInterface.OnClickListener() {
-						DatePicker mDatePicker = null;
-						// TimePicker mTimePicker = null;
-						CalendarView mCalendarView = null;
+			// mActivity = this;
+			// OnClickListener dateListener = new OnClickListener() {
+			// View calendar_dialog_view = null;
+			//
+			// @Override
+			// public void onClick(final View v) {
+			// // TODO Auto-generated method stub
+			// calendar_dialog_view = mActivity.getLayoutInflater()
+			// .inflate(R.layout.calendar_view, null);
+			// DialogInterface.OnClickListener posListener = new
+			// DialogInterface.OnClickListener() {
+			// DatePicker mDatePicker = null;
+			// // TimePicker mTimePicker = null;
+			// CalendarView mCalendarView = null;
+			//
+			// // Calendar cal = Calendar.getInstance();
+			//
+			// @Override
+			// public void onClick(DialogInterface dialog, int which) {
+			// // TODO Auto-generated method stub
+			// String tag = "";
+			// try {
+			// mDatePicker = (DatePicker) calendar_dialog_view
+			// .findViewById(R.id.datepicker);
+			// // mTimePicker = (TimePicker) time_dialog_view
+			// // .findViewById(R.id.timepicker);
+			// tag = (String) v.getTag();
+			// if (tag.equals("start")) {
+			// cal_startdate.set(mDatePicker.getYear(),
+			// mDatePicker.getMonth() + 1,
+			// mDatePicker.getDayOfMonth());
+			// date_start.setText(Common.datetimeHelper
+			// .getDate(cal_startdate));
+			// } else if (tag.equals("end")) {
+			// cal_enddate.set(mDatePicker.getYear(),
+			// mDatePicker.getMonth() + 1,
+			// mDatePicker.getDayOfMonth());
+			// date_end.setText(Common.datetimeHelper
+			// .getDate(cal_enddate));
+			// }
+			//
+			// } catch (Exception e) {
+			// try {
+			// mCalendarView = (CalendarView) calendar_dialog_view
+			// .findViewById(R.id.calenderView);
+			// if (tag.equals("start")) {
+			// cal_startdate
+			// .setTimeInMillis(mCalendarView
+			// .getDate());
+			// date_start
+			// .setText(Common.datetimeHelper
+			// .getDate(cal_startdate));
+			// } else if (tag.equals("end")) {
+			// cal_enddate
+			// .setTimeInMillis(mCalendarView
+			// .getDate());
+			// date_end.setText(Common.datetimeHelper
+			// .getDate(cal_enddate));
+			// }
+			//
+			// } catch (Exception ex) {
+			// // tell this to user <unsupported>
+			// }
+			// }
+			//
+			// Calendar start_datetime = Common.datetimeHelper
+			// .mergeCalendars(cal_startdate,
+			// cal_starttime);
+			// Calendar end_datetime = Common.datetimeHelper
+			// .mergeCalendars(cal_enddate, cal_endtime);
+			// task.rep_startDateTime = Common.datetimeHelper
+			// .getDateInMs(start_datetime);
+			// task.rep_endDateTime = Common.datetimeHelper
+			// .getDateInMs(end_datetime);
+			//
+			// }
+			// };
+			// Common.CustomDialog.CustomDialog(mActivity,
+			// calendar_dialog_view, posListener, R.string.done);// *
+			// }
+			// };
+			// date_start.setOnClickListener(dateListener);
+			// date_end.setOnClickListener(dateListener);
+			//
+			// OnClickListener timeListener = new OnClickListener() {
+			// View time_dialog_view = null;
+			//
+			// @Override
+			// public void onClick(final View v) {
+			// // TODO Auto-generated method stub
+			// time_dialog_view = mActivity.getLayoutInflater().inflate(
+			// R.layout.time_view, null);
+			//
+			// DialogInterface.OnClickListener posListener = new
+			// DialogInterface.OnClickListener() {
+			// TimePicker mTimePicker = null;
+			//
+			// @Override
+			// public void onClick(DialogInterface dialog, int which) {
+			// // TODO Auto-generated method stub
+			// String tag = "";
+			// try {
+			// mTimePicker = (TimePicker) time_dialog_view
+			// .findViewById(R.id.timepicker);
+			// tag = (String) v.getTag();
+			// if (tag.equals("start")) {
+			// cal_starttime.set(Calendar.HOUR,
+			// mTimePicker.getCurrentHour());
+			// cal_starttime.set(Calendar.MINUTE,
+			// mTimePicker.getCurrentMinute());
+			// time_start.setText(Common.datetimeHelper
+			// .getTime(cal_starttime));
+			// } else if (tag.equals("end")) {
+			// cal_endtime.set(Calendar.HOUR,
+			// mTimePicker.getCurrentHour());
+			// cal_endtime.set(Calendar.MINUTE,
+			// mTimePicker.getCurrentMinute());
+			// time_end.setText(Common.datetimeHelper
+			// .getTime(cal_endtime));
+			// }
+			//
+			// } catch (Exception e) {
+			//
+			// }
+			// Calendar start_datetime = Common.datetimeHelper
+			// .mergeCalendars(cal_startdate,
+			// cal_starttime);
+			// Calendar end_datetime = Common.datetimeHelper
+			// .mergeCalendars(cal_enddate, cal_endtime);
+			//
+			// task.rep_startDateTime = Common.datetimeHelper
+			// .getDateInMs(start_datetime);
+			// task.rep_endDateTime = Common.datetimeHelper
+			// .getDateInMs(end_datetime);
+			//
+			// }
+			// };
+			// Common.CustomDialog.CustomDialog(mActivity,
+			// time_dialog_view, posListener, R.string.done);// *
+			// }
+			// };
 
-						// Calendar cal = Calendar.getInstance();
+			time_start.setOnClickListener(this);
+			time_end.setOnClickListener(this);
+			date_start.setOnClickListener(this);
+			date_end.setOnClickListener(this);
 
-						@Override
-						public void onClick(DialogInterface dialog, int which) {
-							// TODO Auto-generated method stub
-							String tag = "";
-							try {
-								mDatePicker = (DatePicker) calendar_dialog_view
-										.findViewById(R.id.datepicker);
-								// mTimePicker = (TimePicker) time_dialog_view
-								// .findViewById(R.id.timepicker);
-								tag = (String) v.getTag();
-								if (tag.equals("start")) {
-									cal_startdate.set(mDatePicker.getYear(),
-											mDatePicker.getMonth() + 1,
-											mDatePicker.getDayOfMonth());
-									date_start.setText(Common.datetimeHelper
-											.getDate(cal_startdate));
-								} else if (tag.equals("end")) {
-									cal_enddate.set(mDatePicker.getYear(),
-											mDatePicker.getMonth() + 1,
-											mDatePicker.getDayOfMonth());
-									date_end.setText(Common.datetimeHelper
-											.getDate(cal_enddate));
-								}
-
-							} catch (Exception e) {
-								try {
-									mCalendarView = (CalendarView) calendar_dialog_view
-											.findViewById(R.id.calenderView);
-									if (tag.equals("start")) {
-										cal_startdate
-												.setTimeInMillis(mCalendarView
-														.getDate());
-										date_start
-												.setText(Common.datetimeHelper
-														.getDate(cal_startdate));
-									} else if (tag.equals("end")) {
-										cal_enddate
-												.setTimeInMillis(mCalendarView
-														.getDate());
-										date_end.setText(Common.datetimeHelper
-												.getDate(cal_enddate));
-									}
-
-								} catch (Exception ex) {
-									// tell this to user <unsupported>
-								}
-							}
-							Calendar start_datetime = Common.datetimeHelper
-									.mergeCalendars(cal_startdate,
-											cal_starttime);
-							Calendar end_datetime = Common.datetimeHelper
-									.mergeCalendars(cal_enddate, cal_endtime);
-							task.rep_startDateTime = Common.datetimeHelper
-									.getDateInMs(start_datetime);
-							task.rep_endDateTime = Common.datetimeHelper
-									.getDateInMs(end_datetime);
-
-						}
-					};
-					Common.CustomDialog.CustomDialog(mActivity,
-							calendar_dialog_view, posListener, R.string.done);// *
-				}
-			};
-			date_start.setOnClickListener(dateListener);
-			date_end.setOnClickListener(dateListener);
-
-			OnClickListener timeListener = new OnClickListener() {
-				View time_dialog_view = null;
-
-				@Override
-				public void onClick(final View v) {
-					// TODO Auto-generated method stub
-					time_dialog_view = mActivity.getLayoutInflater().inflate(
-							R.layout.time_view, null);
-
-					DialogInterface.OnClickListener posListener = new DialogInterface.OnClickListener() {
-						TimePicker mTimePicker = null;
-
-						@Override
-						public void onClick(DialogInterface dialog, int which) {
-							// TODO Auto-generated method stub
-							String tag = "";
-							try {
-								mTimePicker = (TimePicker) time_dialog_view
-										.findViewById(R.id.timepicker);
-								tag = (String) v.getTag();
-								if (tag.equals("start")) {
-									cal_starttime.set(Calendar.HOUR,
-											mTimePicker.getCurrentHour());
-									cal_starttime.set(Calendar.MINUTE,
-											mTimePicker.getCurrentMinute());
-									time_start.setText(Common.datetimeHelper
-											.getTime(cal_starttime));
-								} else if (tag.equals("end")) {
-									cal_endtime.set(Calendar.HOUR,
-											mTimePicker.getCurrentHour());
-									cal_endtime.set(Calendar.MINUTE,
-											mTimePicker.getCurrentMinute());
-									time_end.setText(Common.datetimeHelper
-											.getTime(cal_endtime));
-								}
-
-							} catch (Exception e) {
-
-							}
-							Calendar start_datetime = Common.datetimeHelper
-									.mergeCalendars(cal_startdate,
-											cal_starttime);
-							Calendar end_datetime = Common.datetimeHelper
-									.mergeCalendars(cal_enddate, cal_endtime);
-
-							task.rep_startDateTime = Common.datetimeHelper
-									.getDateInMs(start_datetime);
-							task.rep_endDateTime = Common.datetimeHelper
-									.getDateInMs(end_datetime);
-
-						}
-					};
-					Common.CustomDialog.CustomDialog(mActivity,
-							time_dialog_view, posListener, R.string.done);// *
-				}
-			};
-			time_start.setOnClickListener(timeListener);
-			time_end.setOnClickListener(timeListener);
+			// time_start.setOnClickListener(timeListener);
+			// time_end.setOnClickListener(timeListener);
 
 		} catch (Exception e) {
 
@@ -488,17 +761,6 @@ public class TaskActivity extends ActionBarActivity {
 			// initNotificaitonsMdoels();
 		}
 	}
-
-	// private void initRemainingNotificaitonsModels() {
-	// int size = task.notifications.size();
-	// try {
-	// for (int i = size + 1; i <= 5; i++) {
-	// task.notifications.add(size, new TaskNotificationsModel());
-	// }
-	// } catch (Exception e) {
-	// Log.e("addNotificaitonsMdoelsInTaskModels", e.getLocalizedMessage());
-	// }
-	// }
 
 	private TextWatcher mTextWatcher = new TextWatcher() {
 		@Override
@@ -633,6 +895,7 @@ public class TaskActivity extends ActionBarActivity {
 			Common.Set_RepeatModel.RepeatEveryDay(task);
 		} else if (which == 2) {
 			tv_repeat.setText("Every week");
+			Common.Set_RepeatModel.RepeatEveryWeek(task);
 		} else if (which == 3) {
 			tv_repeat.setText("Every month");
 			Common.Set_RepeatModel.RepeatEveryMonth(task);
@@ -1451,6 +1714,8 @@ public class TaskActivity extends ActionBarActivity {
 		}
 	}
 
+	Boolean isMin = false, isHrs = false, isDys = false, isWks = false;
+
 	private void customNotificationDialog_Test(final int tv_tag,
 			final TaskNotificationsModel model) {
 		View view = this.getLayoutInflater().inflate(
@@ -1463,17 +1728,170 @@ public class TaskActivity extends ActionBarActivity {
 				.findViewById(R.id.myRadioGroup_allDay);
 		if (task.rep_allDay == 0) {
 			rg_TimeUnit.setVisibility(View.VISIBLE);
+			isMin = true;
+
 		} else if (task.rep_allDay == 1) {
 			rg_TimeUnit_allDay.setVisibility(View.VISIBLE);
+			isDys = true;
+
 		}
 		final RadioGroup rg_NotificationOrEmail = (RadioGroup) view
 				.findViewById(R.id.myRadioGroup2);
+
+		android.widget.RadioGroup.OnCheckedChangeListener mListener = new android.widget.RadioGroup.OnCheckedChangeListener() {
+
+			@Override
+			public void onCheckedChanged(RadioGroup group, int checkedId) {
+				// TODO Auto-generated method stub
+				View radioButton = rg_TimeUnit.findViewById(checkedId);
+				int type = rg_TimeUnit.indexOfChild(radioButton);
+				String check = nTimes.getText().toString();
+				if (type == 0) {
+					nTimes.setFilters(new InputFilter[] { new InputFilter.LengthFilter(
+							4) });
+					isMin = true;
+					isHrs = false;
+					isDys = false;
+					isWks = false;
+					nTimes.setText(check);
+				} else if (type == 1) {
+					nTimes.setFilters(new InputFilter[] { new InputFilter.LengthFilter(
+							4) });
+					isMin = false;
+					isHrs = true;
+					isDys = false;
+					isWks = false;
+					nTimes.setText(check);
+				} else if (type == 2) {
+					nTimes.setFilters(new InputFilter[] { new InputFilter.LengthFilter(
+							3) });
+					isMin = false;
+					isHrs = false;
+					isDys = true;
+					isWks = false;
+					nTimes.setText(check);
+				} else if (type == 3) {
+					nTimes.setFilters(new InputFilter[] { new InputFilter.LengthFilter(
+							2) });
+					isMin = false;
+					isHrs = false;
+					isDys = false;
+					isWks = true;
+					nTimes.setText(check);
+				}
+			}
+		};
+
+		android.widget.RadioGroup.OnCheckedChangeListener mListener_allDay = new android.widget.RadioGroup.OnCheckedChangeListener() {
+			@Override
+			public void onCheckedChanged(RadioGroup group, int checkedId) {
+				// TODO Auto-generated method stub
+				View radioButton = rg_TimeUnit_allDay.findViewById(checkedId);
+				int type = rg_TimeUnit_allDay.indexOfChild(radioButton);
+				String check = nTimes.getText().toString();
+				if (type == 0) {
+					nTimes.setFilters(new InputFilter[] { new InputFilter.LengthFilter(
+							3) });
+					isMin = false;
+					isHrs = false;
+					isDys = true;
+					isWks = false;
+					nTimes.setText(check);
+				} else if (type == 1) {
+					nTimes.setFilters(new InputFilter[] { new InputFilter.LengthFilter(
+							2) });
+					isMin = false;
+					isHrs = false;
+					isDys = false;
+					isWks = true;
+					nTimes.setText(check);
+				}
+			}
+		};
+
+		rg_TimeUnit_allDay.setOnCheckedChangeListener(mListener_allDay);
+
+		rg_TimeUnit.setOnCheckedChangeListener(mListener);
 
 		nTimes.addTextChangedListener(new TextWatcher() {
 
 			@Override
 			public void onTextChanged(CharSequence s, int start, int before,
 					int count) {
+				if (task.rep_allDay == 0) {
+
+					int times = 0;
+					try {
+						if (nTimes.getText().toString() == ""
+								|| nTimes.getText().toString() == null
+								|| nTimes.getText().toString().isEmpty()) {
+							// Do Nothing
+						} else {
+							times = Integer
+									.valueOf(nTimes.getText().toString());
+						}
+
+					} catch (Exception e) {
+						Log.e("setting values", e.getLocalizedMessage());
+						times = 1;
+						nTimes.setText("1");
+					}
+					if (isMin) {
+						if (times > 600) {
+							nTimes.setText("600");
+						}
+					} else if (isHrs) {
+						if (times > 128) {
+							nTimes.setText("128");
+						}
+					} else if (isDys) {
+						if (times > 28) {
+							nTimes.setText("28");
+						}
+					} else if (isWks) {
+						if (times > 4) {
+							nTimes.setText("4");
+						}
+					}
+				} else if (task.rep_allDay == 1) {
+
+					int times = 0;
+					try {
+						if (nTimes.getText().toString() == ""
+								|| nTimes.getText().toString() == null
+								|| nTimes.getText().toString().isEmpty()) {
+							// Do Nothing
+						} else {
+							times = Integer
+									.valueOf(nTimes.getText().toString());
+						}
+
+					} catch (Exception e) {
+						Log.e("setting values", e.getLocalizedMessage());
+						times = 1;
+						nTimes.setText("1");
+					}
+					if (isDys) {
+						if (times > 28) {
+							nTimes.setText("28");
+						}
+					} else if (isWks) {
+						if (times > 4) {
+							nTimes.setText("4");
+						}
+					}
+				}
+
+			}
+
+			@Override
+			public void beforeTextChanged(CharSequence s, int start, int count,
+					int after) {
+				// TODO Auto-generated method stub
+			}
+
+			@Override
+			public void afterTextChanged(Editable s) {
 				if (task.rep_allDay == 0) {
 					RadioButton btn0 = (RadioButton) rg_TimeUnit.getChildAt(0);
 					RadioButton btn1 = (RadioButton) rg_TimeUnit.getChildAt(1);
@@ -1490,13 +1908,7 @@ public class TaskActivity extends ActionBarActivity {
 
 					} else if (!(nTimes.getText().toString()).isEmpty()) {
 						int num = Integer.valueOf((nTimes.getText().toString()));
-
-						if (num == 0) {
-							btn0.setText("Minute");
-							btn1.setText("Hour");
-							btn2.setText("Day");
-							btn3.setText("Week");
-						} else if (num == 1) {
+						if (num == 0 || num == 1) {
 							btn0.setText("Minute");
 							btn1.setText("Hour");
 							btn2.setText("Day");
@@ -1508,7 +1920,6 @@ public class TaskActivity extends ActionBarActivity {
 							btn3.setText("Weeks");
 						}
 					}
-
 				} else if (task.rep_allDay == 1) {
 					RadioButton btn0 = (RadioButton) rg_TimeUnit_allDay
 							.getChildAt(0);
@@ -1523,7 +1934,6 @@ public class TaskActivity extends ActionBarActivity {
 
 					} else if (!(nTimes.getText().toString()).isEmpty()) {
 						int num = Integer.valueOf((nTimes.getText().toString()));
-
 						if (num == 0) {
 							btn0.setText("Day");
 							btn1.setText("Week");
@@ -1535,26 +1945,17 @@ public class TaskActivity extends ActionBarActivity {
 							btn1.setText("Weeks");
 						}
 					}
-
 				}
-			}
-
-			@Override
-			public void beforeTextChanged(CharSequence s, int start, int count,
-					int after) {
-				// TODO Auto-generated method stub
-			}
-
-			@Override
-			public void afterTextChanged(Editable s) {
-				// TODO Auto-generated method stub
-
 			}
 		});
 
 		DialogInterface.OnClickListener posListener = new DialogInterface.OnClickListener() {
 			@Override
 			public void onClick(DialogInterface dialog, int which) {
+				isMin = false;
+				isDys = false;
+				isWks = false;
+				isHrs = false;
 				// tv_tag is refrence for arrayList
 				int id_email = rg_NotificationOrEmail.getCheckedRadioButtonId();
 				View radioButton_email = rg_NotificationOrEmail
@@ -1567,20 +1968,27 @@ public class TaskActivity extends ActionBarActivity {
 					int id = rg_TimeUnit_allDay.getCheckedRadioButtonId();
 					View radioButton_1 = rg_TimeUnit_allDay.findViewById(id);
 					intervalType_radioID = rg_TimeUnit_allDay
-							.indexOfChild(radioButton_1) + 1;
+							.indexOfChild(radioButton_1);
 				} else if (task.rep_allDay == 0) {
 					int id = rg_TimeUnit.getCheckedRadioButtonId();
 					View radioButton_0 = rg_TimeUnit.findViewById(id);
 					intervalType_radioID = rg_TimeUnit
 							.indexOfChild(radioButton_0);
 					if (intervalType_radioID == 0) {
-						intervalType_radioID = 3;// days
+						intervalType_radioID = 2;// days
 					} else if (intervalType_radioID == 1) {
-						intervalType_radioID = 4;// weeks
+						intervalType_radioID = 3;// weeks
 					}
 				}
-				model.interval = Integer.valueOf(nTimes.getText().toString());
-				model.interval_type = intervalType_radioID;
+				try {
+					model.interval = Integer.valueOf(nTimes.getText()
+							.toString());
+				} catch (Exception e) {
+					Log.e("no value for interval was enetered",
+							e.getLocalizedMessage());
+					model.interval = 1;
+				}
+				model.interval_type = intervalType_radioID + 1;
 				model.send_notificaion_as_email = isEmail;
 
 				if (task._id == -1) {
@@ -1611,7 +2019,7 @@ public class TaskActivity extends ActionBarActivity {
 		} else if (model.interval_type == 3) {
 			string_timeUnit = "day/s";
 		} else if (model.interval_type == 4) {
-			string_timeUnit = "month/s";
+			string_timeUnit = "week/s";
 		}
 		if (model.send_notificaion_as_email == 1) {
 			string_asEmail = "as email";
@@ -1717,6 +2125,187 @@ public class TaskActivity extends ActionBarActivity {
 		}
 	}
 
-	// Methods Related to Notifications
+	public static class TimePickerFragment extends DialogFragment implements
+			TimePickerDialog.OnTimeSetListener {
 
+		Calendar calendar;
+		TaskActivity mTaskActivity;
+		Boolean isStart = false;
+		Boolean isEnd = false;
+		Boolean isDate = false;
+		Boolean isTime = false;
+
+		public TimePickerFragment(Calendar _calendar,
+				TaskActivity _mTaskActivity, Boolean _isDate, Boolean _isTime,
+				Boolean _isStart, Boolean _isEnd) {
+			calendar = _calendar;
+			mTaskActivity = _mTaskActivity;
+			isStart = _isStart;
+			isEnd = _isEnd;
+			isDate = _isDate;
+			isTime = _isTime;
+		}
+
+		@Override
+		public Dialog onCreateDialog(Bundle savedInstanceState) {
+			// Use the current time as the default values for the picker
+			int hour = calendar.get(Calendar.HOUR_OF_DAY);
+			int minute = calendar.get(Calendar.MINUTE);
+
+			// Create a new instance of TimePickerDialog and return it
+			return new TimePickerDialog(getActivity(), this, hour, minute,
+					DateFormat.is24HourFormat(getActivity()));
+		}
+
+		@Override
+		public void onTimeSet(android.widget.TimePicker view, int hourOfDay,
+				int minute) {
+			// TODO Auto-generated method stub
+			calendar = Calendar.getInstance();
+			calendar.set(0, 0, 0, 0, 0);
+			calendar.set(Calendar.HOUR_OF_DAY, hourOfDay);
+			calendar.set(Calendar.MINUTE, minute);
+			((TaskActivity) mTaskActivity).doSomethingWithCalender(calendar,
+					isDate, isTime, isStart, isEnd);
+
+		}
+	}
+
+	public static class DatePickerFragment extends DialogFragment implements
+			DatePickerDialog.OnDateSetListener {
+
+		Calendar calendar;
+		TaskActivity mTaskActivity;
+		Boolean isStart = false;
+		Boolean isEnd = false;
+		Boolean isDate = false;
+		Boolean isTime = false;
+
+		public DatePickerFragment(Calendar _calendar,
+				TaskActivity _mTaskActivity, Boolean _isDate, Boolean _isTime,
+				Boolean _isStart, Boolean _isEnd) {
+			calendar = _calendar;
+			mTaskActivity = _mTaskActivity;
+			isStart = _isStart;
+			isEnd = _isEnd;
+			isDate = _isDate;
+			isTime = _isTime;
+		}
+
+		@Override
+		public Dialog onCreateDialog(Bundle savedInstanceState) {
+			// Use the current date as the default date in the picker
+			// final Calendar c = Calendar.getInstance();
+			int year = calendar.get(Calendar.YEAR);
+			int month = calendar.get(Calendar.MONTH);
+			int day = calendar.get(Calendar.DAY_OF_MONTH);
+			// Create a new instance of DatePickerDialog and return it
+			return new DatePickerDialog(getActivity(), this, year, month, day);
+		}
+
+		@Override
+		public void onDateSet(DatePicker view, int year, int monthOfYear,
+				int dayOfMonth) {
+			calendar = Calendar.getInstance();
+			calendar.set(0, 0, 0, 0, 0);
+			calendar.set(Calendar.YEAR, year);
+			calendar.set(Calendar.DAY_OF_MONTH, dayOfMonth);
+			calendar.set(Calendar.MONTH, monthOfYear);
+			((TaskActivity) mTaskActivity).doSomethingWithCalender(calendar,
+					isDate, isTime, isStart, isEnd);
+		}
+	}
+
+	public void doSomethingWithCalender(Calendar calendar, Boolean isDate,
+			Boolean isTime, Boolean isStart, Boolean isEnd) {
+
+		if (isDate) {
+			if (isStart) {
+				cal_startdate = calendar;
+				date_start
+						.setText(Common.datetimeHelper.getDate(cal_startdate));
+			} else if (isEnd) {
+				cal_enddate = calendar;
+				date_end.setText(Common.datetimeHelper.getDate(cal_enddate));
+			}
+		} else if (isTime) {
+			if (isStart) {
+				cal_starttime = calendar;
+				time_start
+						.setText(Common.datetimeHelper.getTime(cal_starttime));
+			} else if (isEnd) {
+				cal_endtime = calendar;
+				time_end.setText(Common.datetimeHelper.getTime(cal_endtime));
+
+			}
+
+		}
+
+		Calendar start_datetime = Common.datetimeHelper.mergeCalendars(
+				cal_startdate, cal_starttime);
+		Calendar end_datetime = Common.datetimeHelper.mergeCalendars(
+				cal_enddate, cal_endtime);
+		task.rep_startDateTime = Common.datetimeHelper
+				.getDateInMs(start_datetime);
+		task.rep_endDateTime = Common.datetimeHelper.getDateInMs(end_datetime);
+
+	}
+
+	// reset();
+	// private static void reset() {
+	// isEnd = false;
+	// isStart = false;
+	// isTime = false;
+	// isDate = false;
+	// }
+
+	@Override
+	public void onClick(View v) {
+		if (v == time_start) {
+
+			Boolean isStart = true;
+			Boolean isTime = true;
+
+			Boolean isEnd = false;
+			Boolean isDate = false;
+
+			DialogFragment newFragment = new TimePickerFragment(cal_starttime,
+					TaskActivity.this, isDate, isTime, isStart, isEnd);
+			newFragment.show(getSupportFragmentManager(), "timePicker");
+
+		} else if (v == time_end) {
+			Boolean isEnd = true;
+			Boolean isTime = true;
+
+			Boolean isDate = false;
+			Boolean isStart = false;
+
+			DialogFragment newFragment = new TimePickerFragment(cal_endtime,
+					TaskActivity.this, isDate, isTime, isStart, isEnd);
+			newFragment.show(getSupportFragmentManager(), "timePicker");
+		} else if (v == date_start) {
+			Boolean isStart = true;
+			Boolean isDate = true;
+
+			Boolean isEnd = false;
+			Boolean isTime = false;
+
+			DialogFragment newFragment = new DatePickerFragment(cal_startdate,
+					TaskActivity.this, isDate, isTime, isStart, isEnd);
+			newFragment.show(getSupportFragmentManager(), "datePicker");
+
+		} else if (v == date_end) {
+			Boolean isEnd = true;
+			Boolean isDate = true;
+
+			Boolean isStart = false;
+			Boolean isTime = false;
+
+			DialogFragment newFragment = new DatePickerFragment(cal_enddate,
+					TaskActivity.this, isDate, isTime, isStart, isEnd);
+			newFragment.show(getSupportFragmentManager(), "datePicker");
+
+		}
+
+	}
 }

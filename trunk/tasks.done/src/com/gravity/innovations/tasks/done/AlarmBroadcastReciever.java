@@ -2,19 +2,25 @@ package com.gravity.innovations.tasks.done;
 
 import java.util.Calendar;
 import java.util.GregorianCalendar;
+import java.util.concurrent.TimeUnit;
+
 import android.annotation.SuppressLint;
 import android.app.AlarmManager;
 import android.app.PendingIntent;
+import android.app.Service;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.os.Build;
 import android.support.v4.content.WakefulBroadcastReceiver;
+import android.text.format.Time;
+import android.util.Log;
 
 public class AlarmBroadcastReciever extends WakefulBroadcastReceiver {
 	// The app's AlarmManager, which provides access to the system alarm
 	// services.
-	//isNothing
+	// isNothing
 	private AlarmManager alarmMgr;
 	// The pending intent that is triggered when the alarm fires.
 	private PendingIntent alarmIntent;
@@ -30,276 +36,66 @@ public class AlarmBroadcastReciever extends WakefulBroadcastReceiver {
 		startWakefulService(context, service);
 	}
 
-	@SuppressLint("NewApi")
-	public void setAlarm_RepeatOnce(Context context, int year, int month,
-			int date, int hours, int minutes, /* int task_id */
-			TaskModel currentTask) {
-		try {
-			alarmMgr = (AlarmManager) context
+	public void setAlarm(TaskModel task, Context _context) {
+
+		for (TaskNotificationsModel model : task.notifications) {
+
+			alarmMgr = (AlarmManager) _context
 					.getSystemService(Context.ALARM_SERVICE);
+			Intent intent = new Intent(_context, AlarmBroadcastReciever.class);
+			int alarm_id = model._id;
+			intent.setAction(String.valueOf(alarm_id));
 
-			DatabaseHelper db = new DatabaseHelper(context);
-
-			int alarm_id = currentTask._id;
-			Intent intent = new Intent(context, AlarmBroadcastReciever.class);
-			intent.setAction(String.valueOf(alarm_id)); 
-			alarmIntent = PendingIntent.getBroadcast(context, alarm_id,
+			alarmIntent = PendingIntent.getBroadcast(_context, alarm_id,
 					intent, PendingIntent.FLAG_UPDATE_CURRENT
 							| Intent.FILL_IN_DATA);
 
-			// DatabaseHelper db = new DatabaseHelper(context);
-			//ZZ**ZZ currentTask.alarm_id = alarm_id;// currentTask._id;;
-			db.tasks.Edit(currentTask);//.Task_Edit(currentTask);
-
-			Calendar calendar = Calendar.getInstance();
-			calendar.setTimeInMillis(System.currentTimeMillis());
-			calendar.set(Calendar.DATE, date);
-			calendar.set(Calendar.MONTH, month);
-			calendar.set(Calendar.YEAR, year);
-			calendar.set(Calendar.HOUR_OF_DAY, hours);
-			calendar.set(Calendar.MINUTE, minutes);
-
-			alarmMgr = (AlarmManager) context
+			alarmMgr = (AlarmManager) _context
 					.getSystemService(Context.ALARM_SERVICE);
-			alarmMgr.set(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(),
-					alarmIntent);
 
-			// Enable {@code AlarmBootBroadCastReceiver} to automatically
-			// restart the alarm
-			// when the
-			// device is rebooted.
-			ComponentName receiver = new ComponentName(context,
-					BootBroadcastReceiver.class);
-			PackageManager pm = context.getPackageManager();
+			if (model.interval_type != 0) {
+				Long adjustableTime = (long) 0;
+				Long notificationTime = (long) 0;
+				if (model.interval_type == 1) {
+					// mins
+					if (model.interval == 0) {
+						// at the time of the event
+						notificationTime = Long.valueOf(task.rep_startDateTime);
+					} else {
+						// set interval
+						adjustableTime = TimeUnit.MINUTES.toMillis(Integer
+								.valueOf(model.interval));
+						notificationTime = notificationTime - adjustableTime;
+					}
+				} else if (model.interval_type == 2) {
+					// hrs
+					adjustableTime = TimeUnit.HOURS.toMillis(Integer
+							.valueOf(model.interval));
+					notificationTime = notificationTime - adjustableTime;
+				} else if (model.interval_type == 3) {
+					// days
+					adjustableTime = TimeUnit.DAYS.toMillis(Integer
+							.valueOf(model.interval));
+					notificationTime = notificationTime - adjustableTime;
+				} else if (model.interval_type == 4) {
+					// weeks
+					adjustableTime = ((Long.valueOf(model.interval)) * 604800000);
+					// 604800000 = week in millis
+					notificationTime = notificationTime - adjustableTime;
+				}
 
-			pm.setComponentEnabledSetting(receiver,
-					PackageManager.COMPONENT_ENABLED_STATE_ENABLED,
-					PackageManager.DONT_KILL_APP);
-		} catch (Exception ex) {
-			String e = ex.getLocalizedMessage();
-		}
-	}
+				alarmMgr.set(AlarmManager.RTC_WAKEUP, notificationTime,
+						alarmIntent);
+				ComponentName receiver = new ComponentName(_context,
+						BootBroadcastReceiver.class);
+				PackageManager pm = _context.getPackageManager();
 
-	/*
-	 * alarm for daily repetition, needs time
-	 */
-
-	public void setAlarm_repeatDaily(Context context, int year, int month,
-			int date, int hours, int minutes, TaskModel currentTask) {
-		alarmMgr = (AlarmManager) context
-				.getSystemService(Context.ALARM_SERVICE);
-		int alarm_id = currentTask._id;
-		Intent intent = new Intent(context, AlarmBroadcastReciever.class);
-		intent.setAction(String.valueOf(alarm_id));
-		// alarmIntent = PendingIntent.getBroadcast(context, 0, intent, 0);
-		alarmIntent = PendingIntent.getBroadcast(context, alarm_id, intent,
-				PendingIntent.FLAG_UPDATE_CURRENT | Intent.FILL_IN_DATA);
-
-		DatabaseHelper db = new DatabaseHelper(context);
-		//ZZ**ZZ currentTask.alarm_id = alarm_id;// currentTask._id;;
-		db.tasks.Edit(currentTask);//.Task_Edit(currentTask);
-
-		Calendar calendar = Calendar.getInstance();
-		calendar.setTimeInMillis(System.currentTimeMillis());
-
-		calendar.set(Calendar.DATE, date);
-		calendar.set(Calendar.MONTH, month);
-		calendar.set(Calendar.YEAR, year);
-
-		calendar.set(Calendar.HOUR_OF_DAY, hours);
-		calendar.set(Calendar.MINUTE, minutes);
-
-		alarmMgr.setRepeating(AlarmManager.RTC_WAKEUP,
-				calendar.getTimeInMillis(), AlarmManager.INTERVAL_DAY * 1,
-				alarmIntent);
-
-		// Enable {@code SampleBootReceiver} to automatically restart the alarm
-		// when the device is rebooted.
-		ComponentName receiver = new ComponentName(context,
-				BootBroadcastReceiver.class);
-		PackageManager pm = context.getPackageManager();
-
-		pm.setComponentEnabledSetting(receiver,
-				PackageManager.COMPONENT_ENABLED_STATE_ENABLED,
-				PackageManager.DONT_KILL_APP);
-	}
-
-	/*
-	 * this will repeat at the weekdays and hours and minute
-	 */
-
-	public void setAlarm_RepeatWeekly(Context context, int year, int month,
-			int date, int hours, int minutes, TaskModel currentTask) {
-		alarmMgr = (AlarmManager) context
-				.getSystemService(Context.ALARM_SERVICE);
-		int alarm_id = currentTask._id;
-		Intent intent = new Intent(context, AlarmBroadcastReciever.class);
-		intent.setAction(String.valueOf(alarm_id));
-		// alarmIntent = PendingIntent.getBroadcast(context, 0, intent, 0);
-		alarmIntent = PendingIntent.getBroadcast(context, alarm_id, intent,
-				PendingIntent.FLAG_UPDATE_CURRENT | Intent.FILL_IN_DATA);
-
-		DatabaseHelper db = new DatabaseHelper(context);
-		//ZZ**ZZ currentTask.alarm_id = alarm_id;// currentTask._id;;
-		db.tasks.Edit(currentTask);//.Task_Edit(currentTask);
-
-		Calendar calendar = Calendar.getInstance();
-		calendar.setTimeInMillis(System.currentTimeMillis());
-		calendar.set(Calendar.DATE, date);
-		calendar.set(Calendar.MONTH, month);
-		calendar.set(Calendar.YEAR, year);
-		// calender.set(Calendar.DAY_OF_WEEK, Calendar.SATURDAY);
-		// SimpleDateFormat d = new SimpleDateFormat();
-		// d.
-		// SimpleDateFormat dayFormat = new SimpleDateFormat("EEEE", Locale.US);
-		// String weekDay = dayFormat.format(calendar.getTime());
-
-		calendar.set(Calendar.HOUR_OF_DAY, hours);
-		calendar.set(Calendar.MINUTE, minutes);
-
-		alarmMgr.setRepeating(AlarmManager.RTC_WAKEUP,
-				calendar.getTimeInMillis(), AlarmManager.INTERVAL_DAY * 7,
-				alarmIntent);
-
-		// Enable {@code SampleBootReceiver} to automatically restart the alarm
-		// when the
-		// device is rebooted.
-		ComponentName receiver = new ComponentName(context,
-				BootBroadcastReceiver.class);
-		PackageManager pm = context.getPackageManager();
-
-		pm.setComponentEnabledSetting(receiver,
-				PackageManager.COMPONENT_ENABLED_STATE_ENABLED,
-				PackageManager.DONT_KILL_APP);
-	}
-
-	/*
-	 * this will repeat on the same date of the month at specific time date
-	 * value will range form 1-31
-	 */
-
-	@SuppressLint("NewApi")
-	public void setAlarm_RepeatMonthly(Context context, int year,
-			int currentMonth, int date, int hours, int minutes,
-			TaskModel currentTask) {
-		alarmMgr = (AlarmManager) context
-				.getSystemService(Context.ALARM_SERVICE);
-		int alarm_id = currentTask._id;
-		Intent intent = new Intent(context, AlarmBroadcastReciever.class);
-		intent.setAction(String.valueOf(alarm_id));
-		// alarmIntent = PendingIntent.getBroadcast(context, 0, intent, 0);
-		alarmIntent = PendingIntent.getBroadcast(context, alarm_id, intent,
-				PendingIntent.FLAG_UPDATE_CURRENT | Intent.FILL_IN_DATA);
-
-		DatabaseHelper db = new DatabaseHelper(context);
-		//ZZ**ZZ currentTask.alarm_id = alarm_id;// currentTask._id;;
-		db.tasks.Edit(currentTask);//.Task_Edit(currentTask);
-
-		Calendar calendar = Calendar.getInstance();
-		calendar.setTimeInMillis(System.currentTimeMillis());
-
-		calendar.set(Calendar.DATE, date);
-		calendar.set(Calendar.HOUR_OF_DAY, hours);
-		calendar.set(Calendar.MINUTE, minutes);
-		calendar.set(Calendar.YEAR, year);
-		calendar.set(Calendar.MONTH, currentMonth);
-		if (currentMonth == 0/* Calendar.JANUARY */
-				|| currentMonth == 2/* Calendar.MARCH */
-				|| currentMonth == 4/* Calendar.MAY */
-				|| currentMonth == 6/* Calendar.JULY */
-				|| currentMonth == 7/* Calendar.AUGUST */
-				|| currentMonth == 9/* Calendar.OCTOBER */
-				|| currentMonth == 11/* Calendar.DECEMBER */) {
-			alarmMgr.setRepeating(AlarmManager.RTC_WAKEUP,
-					calendar.getTimeInMillis(), AlarmManager.INTERVAL_DAY * 31,
-					alarmIntent);
-		}
-		if (currentMonth == 3/* Calendar.APRIL */
-				|| currentMonth == 5/* Calendar.JUNE */
-				|| currentMonth == 8/* Calendar.SEPTEMBER */
-				|| currentMonth == 10/* Calendar.NOVEMBER */) {
-			alarmMgr.setRepeating(AlarmManager.RTC_WAKEUP,
-					calendar.getTimeInMillis(), AlarmManager.INTERVAL_DAY * 30,
-					alarmIntent);
-		}
-
-		if (currentMonth == 1/* Calendar.FEBRUARY */) {// for feburary month)
-			GregorianCalendar cal = (GregorianCalendar) GregorianCalendar
-					.getInstance();
-			if (cal.isLeapYear(year)) {// for leap year feburary month
-				alarmMgr.setRepeating(AlarmManager.RTC_WAKEUP,
-						calendar.getTimeInMillis(),
-						AlarmManager.INTERVAL_DAY * 29, alarmIntent);
-			} else { // for non leap year feburary month
-				alarmMgr.setRepeating(AlarmManager.RTC_WAKEUP,
-						calendar.getTimeInMillis(),
-						AlarmManager.INTERVAL_DAY * 28, alarmIntent);
+				pm.setComponentEnabledSetting(receiver,
+						PackageManager.COMPONENT_ENABLED_STATE_ENABLED,
+						PackageManager.DONT_KILL_APP);
 			}
-		}
+		}// foreach
 
-		// Enable {@code SampleBootReceiver} to automatically restart the
-		// alarm when the device is rebooted.
-
-		ComponentName receiver = new ComponentName(context,
-				BootBroadcastReceiver.class);
-		PackageManager pm = context.getPackageManager();
-
-		pm.setComponentEnabledSetting(receiver,
-				PackageManager.COMPONENT_ENABLED_STATE_ENABLED,
-				PackageManager.DONT_KILL_APP);
-
-	}
-
-	/*
-	 * this will repeat once a year date month hours and minutes
-	 */
-
-	public void setAlarm_RepeatYearly(Context context, int year, int month,
-			int date, int hours, int minutes, TaskModel currentTask) {
-		alarmMgr = (AlarmManager) context
-				.getSystemService(Context.ALARM_SERVICE);
-		int alarm_id = currentTask._id;
-		Intent intent = new Intent(context, AlarmBroadcastReciever.class);
-		intent.setAction(String.valueOf(alarm_id));
-
-		alarmIntent = PendingIntent.getBroadcast(context, alarm_id, intent,
-				PendingIntent.FLAG_UPDATE_CURRENT | Intent.FILL_IN_DATA);
-
-		DatabaseHelper db = new DatabaseHelper(context);
-		//ZZ**ZZ currentTask.alarm_id = alarm_id;// currentTask._id;;
-		db.tasks.Edit(currentTask);//.Task_Edit(currentTask);
-
-		Calendar calendar = Calendar.getInstance();
-		calendar.setTimeInMillis(System.currentTimeMillis());
-		// Set the alarm's trigger time to 8:30 a.m.
-		calendar.set(Calendar.YEAR, year);
-		calendar.set(Calendar.DATE, date);
-		calendar.set(Calendar.MONTH, month);
-		calendar.set(Calendar.HOUR_OF_DAY, hours);
-		calendar.set(Calendar.MINUTE, minutes);
-
-		GregorianCalendar cal = (GregorianCalendar) GregorianCalendar
-				.getInstance();
-		if (cal.isLeapYear(year)) {
-			alarmMgr.setRepeating(AlarmManager.RTC_WAKEUP,
-					calendar.getTimeInMillis(), 60 * 60 * 24 * 366 * 1000,
-					alarmIntent);
-		} else {
-			alarmMgr.setRepeating(AlarmManager.RTC_WAKEUP,
-					calendar.getTimeInMillis(), 60 * 60 * 24 * 365 * 1000,
-					alarmIntent);
-		}
-
-		// Enable {@code BootReceiver} to automatically restart the alarm
-		// when the device is rebooted.
-
-		ComponentName receiver = new ComponentName(context,
-				BootBroadcastReceiver.class);
-		PackageManager pm = context.getPackageManager();
-
-		pm.setComponentEnabledSetting(receiver,
-				PackageManager.COMPONENT_ENABLED_STATE_ENABLED,
-				PackageManager.DONT_KILL_APP);
 	}
 
 	/**

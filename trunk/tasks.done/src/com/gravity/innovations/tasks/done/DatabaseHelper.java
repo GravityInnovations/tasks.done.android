@@ -1101,7 +1101,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 				+ " INTEGER,"
 				// values 0-1 as Notificaiton/Email if not specifies setDefault
 				// as 0
-
+				//we may add time here for allDay
 				+ KEY_SERVER_ID
 				+ " TEXT,"
 
@@ -1242,6 +1242,22 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 			return data;
 		}
 
+		public TaskNotificationsModel Get(int notificationID) {
+			TaskNotificationsModel model = new TaskNotificationsModel();
+			//ArrayList<TaskNotificationsModel> data = new ArrayList<TaskNotificationsModel>();
+			String selectQuery = "SELECT  * FROM " + TABLE_TASK_NOTIFICATIONS
+					+ " WHERE " + KEY_PK + " = " + notificationID;
+			SQLiteDatabase db = getWritableDatabase();
+
+			Cursor cursor = db.rawQuery(selectQuery, null);
+			if (cursor.moveToFirst()) {
+				do {
+					model = getValuesFromCursor(cursor);
+				} while (cursor.moveToNext());
+			}
+			return model;
+		}
+		
 		public int Edit(TaskNotificationsModel temp) {
 			int row = 0;
 			SQLiteDatabase db = getWritableDatabase();

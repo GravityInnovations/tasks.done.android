@@ -154,7 +154,7 @@ public class DialogViewFragment extends DialogFragment {
 		}
 		markDoneToggle.setBackgroundColor(adjustAlpha(
 				Color.parseColor(listModel.fragmentColor), alpha));
-		
+
 		// taskDelete: to delete the task
 		taskDelete.setOnClickListener(new OnClickListener() {
 
@@ -179,7 +179,8 @@ public class DialogViewFragment extends DialogFragment {
 			@Override
 			public void onClick(View v) {
 				dialog.dismiss();
-				//ZZ**ZZ mNavigationDrawerFragment.addOrEditTask(listModel, taskModel);
+				// ZZ**ZZ mNavigationDrawerFragment.addOrEditTask(listModel,
+				// taskModel);
 			}
 		});
 
@@ -255,11 +256,11 @@ public class DialogViewFragment extends DialogFragment {
 	}
 
 	@Override
-    public void onDetach() {
-        super.onDetach();
-    	mNavigationDrawerFragment.mAdapter.notifyDataSetChanged();
-    }
-	
+	public void onDetach() {
+		super.onDetach();
+		mNavigationDrawerFragment.mAdapter.notifyDataSetChanged();
+	}
+
 	public int adjustAlpha(int color, float alpha) {
 		// float f = alpha/100;
 		int a = Math.round(255 * alpha);// ( 255 * (float)());
