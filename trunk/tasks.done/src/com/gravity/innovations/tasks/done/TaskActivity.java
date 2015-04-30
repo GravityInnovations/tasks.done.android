@@ -3,6 +3,10 @@ package com.gravity.innovations.tasks.done;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.StringTokenizer;
+
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -11,6 +15,7 @@ import android.app.Dialog;
 import android.support.v4.app.DialogFragment;
 import android.app.TimePickerDialog;
 import android.app.DatePickerDialog.OnDateSetListener;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Color;
@@ -34,6 +39,7 @@ import android.widget.CalendarView;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.CompoundButton.OnCheckedChangeListener;
+import android.widget.ArrayAdapter;
 import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.LinearLayout;
@@ -595,7 +601,7 @@ public class TaskActivity extends ActionBarActivity implements OnClickListener {
 				}
 			}
 
-			// mActivity = this;
+			mActivity = this;
 			// OnClickListener dateListener = new OnClickListener() {
 			// View calendar_dialog_view = null;
 			//
@@ -907,6 +913,18 @@ public class TaskActivity extends ActionBarActivity implements OnClickListener {
 		}
 	}
 
+	// public static ArrayAdapter<CharSequence> simpleSpinner(Spinner spinner,
+	// int arrayResource,
+	// Context context) {
+	// ArrayAdapter<CharSequence> adapter = ArrayAdapter
+	// .createFromResource(context, arrayResource,
+	// android.R.layout.simple_spinner_item);
+	// // Specify the layout to use when the list of choices appears
+	// adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+	// return adapter;
+	// //spinner.setAdapter(adapter);
+	// }
+
 	@SuppressLint("NewApi")
 	private void customRepeatDialog() {
 		View dialogView = this.getLayoutInflater().inflate(
@@ -927,13 +945,14 @@ public class TaskActivity extends ActionBarActivity implements OnClickListener {
 
 		spinner_repeatInterval = (Spinner) dialogView
 				.findViewById(R.id.spinner_repeatInterval);
-		Common.SetAdapter.simpleSpinner(spinner_repeatInterval,
-				R.array.array_repeatInterval, mActivity);
+		spinner_repeatInterval.setTextAlignment(R.color.black);
+		spinner_repeatInterval.setAdapter(Common.SetAdapter.simpleSpinner(
+				spinner_repeatInterval, R.array.array_repeatInterval, this));
 
 		spinner_repeatTimes = (Spinner) dialogView
 				.findViewById(R.id.spinner_repeatTimes);
-		Common.SetAdapter.simpleSpinner(spinner_repeatTimes,
-				R.array.array_repeatTimes, mActivity);
+		spinner_repeatTimes.setAdapter(Common.SetAdapter.simpleSpinner(
+				spinner_repeatTimes, R.array.array_repeatTimes, this));
 
 		tv_setDate = (TextView) dialogView.findViewById(R.id.tv_setDate);
 
@@ -1391,8 +1410,9 @@ public class TaskActivity extends ActionBarActivity implements OnClickListener {
 					task.rep_interval = Integer.valueOf(et_spinnerInterval
 							.getText().toString());
 					// weekdaysIntValue to be inserted in db
-					// getWeekDayArrayList(); to be used for display at TextView
-
+					task.rep_value = getWeekDayArrayListForDB();
+				
+					// getWeekDayArrayList();
 					if (isForever) {
 						task.rep_intervalExpiration = null;
 						tv_repeat.setText("Repeat Weekly "
@@ -1482,65 +1502,73 @@ public class TaskActivity extends ActionBarActivity implements OnClickListener {
 				R.string.done);
 	}
 
-	private ArrayList<Integer> getWeekDayArrayListForDB() {
+	private String getWeekDayArrayListForDB() {
 		// it is currently un used but it will be used in customRepeat so dont
 		// delete this one
-		ArrayList<Integer> weekdaysIntValue = new ArrayList<Integer>();
+		ArrayList<String> weekdaysIntValue = new ArrayList<String>();
+		if (isSun) {
+			weekdaysIntValue.add("1");
+		}
 		if (isMon) {
-			weekdaysIntValue.add(0);
+			weekdaysIntValue.add("2");
 		}
 		if (isTue) {
-			weekdaysIntValue.add(1);
+			weekdaysIntValue.add("3");
 		}
 		if (isWed) {
-			weekdaysIntValue.add(2);
+			weekdaysIntValue.add("4");
 		}
 		if (isThu) {
-			weekdaysIntValue.add(3);
+			weekdaysIntValue.add("5");
 		}
 		if (isFri) {
-			weekdaysIntValue.add(4);
+			weekdaysIntValue.add("6");
 		}
 		if (isSat) {
-			weekdaysIntValue.add(5);
+			weekdaysIntValue.add("7");
 		}
-		if (isSun) {
-			weekdaysIntValue.add(6);
+		// return weekdaysIntValue;
+
+		String indexOfDays = "";
+
+		for (String s : weekdaysIntValue) {
+			indexOfDays += s + ",";
 		}
-		return weekdaysIntValue;
+		return indexOfDays;
 	}
 
 	private ArrayList<String> getWeekDayArrayList() {
 		ArrayList<String> weekdaysSelected = new ArrayList<String>();
 		ArrayList<Integer> weekdaysIntValue = new ArrayList<Integer>();
+		if (isSun) {
+			weekdaysSelected.add("Sun");
+			weekdaysIntValue.add(1);
+		}
 		if (isMon) {
 			weekdaysSelected.add("Mon");
-			weekdaysIntValue.add(0);
+			weekdaysIntValue.add(2);
 		}
 		if (isTue) {
 			weekdaysSelected.add("Tue");
-			weekdaysIntValue.add(1);
+			weekdaysIntValue.add(3);
 		}
 		if (isWed) {
 			weekdaysSelected.add("Wed");
-			weekdaysIntValue.add(2);
+			weekdaysIntValue.add(4);
 		}
 		if (isThu) {
 			weekdaysSelected.add("Thu");
-			weekdaysIntValue.add(3);
+			weekdaysIntValue.add(5);
 		}
 		if (isFri) {
 			weekdaysSelected.add("Fri");
-			weekdaysIntValue.add(4);
+			weekdaysIntValue.add(6);
 		}
 		if (isSat) {
 			weekdaysSelected.add("Sat");
-			weekdaysIntValue.add(5);
+			weekdaysIntValue.add(7);
 		}
-		if (isSun) {
-			weekdaysSelected.add("Sun");
-			weekdaysIntValue.add(6);
-		}
+
 		return weekdaysSelected;
 	}
 

@@ -433,6 +433,18 @@ public class Common {
 			builder.create().show();
 		}
 
+		public static final void CustomDialog_rewamp(final Context context,
+				View view, DialogInterface.OnClickListener posListener,
+				int posText) {
+
+			AlertDialog.Builder builder = new AlertDialog.Builder(context);
+			builder.setView(view);
+			if (posListener != null) {
+				builder.setPositiveButton(posText, posListener);
+			}
+			builder.create().show();
+		}
+
 		public static final void CustomDialog(final Context context, View view,
 				DialogInterface.OnClickListener negListener,
 				DialogInterface.OnClickListener posListener, int posText,
@@ -854,7 +866,7 @@ public class Common {
 			SimpleDateFormat formatter = new SimpleDateFormat(
 					"EEEE, MMM dd, yyyy");
 			currentDate = formatter.format(calendar.getTimeInMillis());
- 			return currentDate;
+			return currentDate;
 		}
 
 		public static String getDateInMs(Calendar calendar) {
@@ -957,14 +969,15 @@ public class Common {
 	}
 
 	public static class SetAdapter {
-		public static void simpleSpinner(Spinner spinner, int arrayResource,
-				Context context) {
+		public static ArrayAdapter<CharSequence> simpleSpinner(Spinner spinner,
+				int arrayResource, Context context) {
 			ArrayAdapter<CharSequence> adapter = ArrayAdapter
 					.createFromResource(context, arrayResource,
 							android.R.layout.simple_spinner_item);
 			// Specify the layout to use when the list of choices appears
 			adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-			spinner.setAdapter(adapter);
+			return adapter;
+			// spinner.setAdapter(adapter);
 		}
 	}
 
@@ -976,6 +989,40 @@ public class Common {
 				_button.setBackgroundResource(R.drawable.circle_blue);
 			}
 		}
+
+		public static void setBackgroundResource_buttonColor(Button _button,
+				boolean _flag) {
+			if (_flag) {
+				if (_button.getId() == R.id.btn_caramel) {
+					_button.setBackgroundResource(R.drawable.circle_caramel_full);
+				} else if (_button.getId() == R.id.btn_jazz_orange) {
+					_button.setBackgroundResource(R.drawable.circle_orange_jazz_full);
+				} else if (_button.getId() == R.id.btn_seagreen) {
+					_button.setBackgroundResource(R.drawable.circle_seagreen_full);
+				} else if (_button.getId() == R.id.btn_moonlightblue) {
+					_button.setBackgroundResource(R.drawable.circle_moonlightblue_full);
+				} else if (_button.getId() == R.id.btn_yellow) {
+					_button.setBackgroundResource(R.drawable.circle_yellow_full);
+				} else if (_button.getId() == R.id.btn_pink) {
+					_button.setBackgroundResource(R.drawable.circle_pink_full);
+				}
+
+			} else if (!_flag) {
+				if (_button.getId() == R.id.btn_caramel) {
+					_button.setBackgroundResource(R.drawable.circle_caramel);
+				} else if (_button.getId() == R.id.btn_jazz_orange) {
+					_button.setBackgroundResource(R.drawable.circle_orange_jazz);
+				} else if (_button.getId() == R.id.btn_seagreen) {
+					_button.setBackgroundResource(R.drawable.circle_seagreen);
+				} else if (_button.getId() == R.id.btn_moonlightblue) {
+					_button.setBackgroundResource(R.drawable.circle_moonlightblue);
+				} else if (_button.getId() == R.id.btn_yellow) {
+					_button.setBackgroundResource(R.drawable.circle_yellow);
+				} else if (_button.getId() == R.id.btn_pink) {
+					_button.setBackgroundResource(R.drawable.circle_pink);
+				}
+			}
+		}
 	}
 
 	public static class Set_RepeatModel {
@@ -983,9 +1030,9 @@ public class Common {
 			task.rep_interval = 0;
 			task.rep_intervalType = 0;
 			task.rep_intervalExpiration = null;
-			//task.rep_startDateTime = null;
-			//task.rep_endDateTime = null;
-			//task.rep_createdDateTime = null;
+			// task.rep_startDateTime = null;
+			// task.rep_endDateTime = null;
+			// task.rep_createdDateTime = null;
 			task.rep_value = null;
 			return task;
 		}

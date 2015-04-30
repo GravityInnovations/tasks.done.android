@@ -37,6 +37,7 @@ import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.GridView;
 import android.widget.ImageButton;
@@ -677,9 +678,15 @@ public class NavigationDrawerFragment extends Fragment implements
 		}
 	}
 
+	Boolean isSeagreen = false, isCaramel = false, isJazzOrange = false,
+			isPink = false, isYellow = false, isMoonlightblue = false;
+
 	public void addOrEditTaskList(final TaskListModel tasklist) {
-		View view = getActivity().getLayoutInflater().inflate(
-				R.layout.addoredit_tasklist_dialog, null);
+		View view = getActivity()
+				.getLayoutInflater()
+				.inflate(
+						R.layout.dialog_add_edit_tasklist/* addoredit_tasklist_dialog */,
+						null);
 		final EditText et_title = (EditText) view.findViewById(R.id.et_title);
 		// new add//
 		final GridView list_image_grid = (GridView) view
@@ -701,7 +708,129 @@ public class NavigationDrawerFragment extends Fragment implements
 
 					}
 				});
+
+		final Button seagreen_btn, caramel_btn, jazz_orange_btn, moonlightblue_btn, yellow_btn, pink_btn;
+
+		seagreen_btn = (Button) view.findViewById(R.id.btn_seagreen);
+		caramel_btn = (Button) view.findViewById(R.id.btn_caramel);
+		jazz_orange_btn = (Button) view.findViewById(R.id.btn_jazz_orange);
+
+		moonlightblue_btn = (Button) view.findViewById(R.id.btn_moonlightblue);
+		yellow_btn = (Button) view.findViewById(R.id.btn_yellow);
+		pink_btn = (Button) view.findViewById(R.id.btn_pink);
+
+		moonlightblue_btn.setOnClickListener(new OnClickListener() {
+			boolean flag = false;
+
+			@Override
+			public void onClick(View v) {
+				if (!flag) {
+					flag = true;
+					Common.Snippets.setBackgroundResource_buttonColor(
+							moonlightblue_btn, flag);
+					isMoonlightblue = true;
+				} else {
+					flag = false;
+					Common.Snippets.setBackgroundResource_buttonColor(
+							moonlightblue_btn, flag);
+					isMoonlightblue = false;
+				}
+			}
+		});
+		yellow_btn.setOnClickListener(new OnClickListener() {
+			boolean flag = false;
+
+			@Override
+			public void onClick(View v) {
+				if (!flag) {
+					flag = true;
+					Common.Snippets.setBackgroundResource_buttonColor(
+							yellow_btn, flag);
+					isYellow = true;
+				} else {
+					flag = false;
+					Common.Snippets.setBackgroundResource_buttonColor(
+							yellow_btn, flag);
+					isYellow = false;
+				}
+			}
+		});
+		pink_btn.setOnClickListener(new OnClickListener() {
+			boolean flag = false;
+
+			@Override
+			public void onClick(View v) {
+				if (!flag) {
+					flag = true;
+					Common.Snippets.setBackgroundResource_buttonColor(pink_btn,
+							flag);
+					isPink = true;
+				} else {
+					flag = false;
+					Common.Snippets.setBackgroundResource_buttonColor(pink_btn,
+							flag);
+					isPink = false;
+				}
+			}
+		});
+
+		seagreen_btn.setOnClickListener(new OnClickListener() {
+			boolean flag = false;
+
+			@Override
+			public void onClick(View v) {
+				if (!flag) {
+					flag = true;
+					Common.Snippets.setBackgroundResource_buttonColor(
+							seagreen_btn, flag);
+					isSeagreen = true;
+				} else {
+					flag = false;
+					Common.Snippets.setBackgroundResource_buttonColor(
+							seagreen_btn, flag);
+					isSeagreen = false;
+				}
+			}
+		});
+		caramel_btn.setOnClickListener(new OnClickListener() {
+			boolean flag = false;
+
+			@Override
+			public void onClick(View v) {
+				if (!flag) {
+					flag = true;
+					Common.Snippets.setBackgroundResource_buttonColor(
+							caramel_btn, flag);
+					isCaramel = true;
+				} else {
+					flag = false;
+					Common.Snippets.setBackgroundResource_buttonColor(
+							caramel_btn, flag);
+					isCaramel = false;
+				}
+			}
+		});
+		jazz_orange_btn.setOnClickListener(new OnClickListener() {
+			boolean flag = false;
+
+			@Override
+			public void onClick(View v) {
+				if (!flag) {
+					flag = true;
+					Common.Snippets.setBackgroundResource_buttonColor(
+							jazz_orange_btn, flag);
+					isJazzOrange = true;
+				} else {
+					flag = false;
+					Common.Snippets.setBackgroundResource_buttonColor(
+							jazz_orange_btn, flag);
+					isJazzOrange = false;
+				}
+			}
+		});
+		final EditText et_hex = (EditText) view.findViewById(R.id.et_hex);
 		// new add//
+
 		et_title.setText(tasklist.title);
 		String dialogTitle = "";
 		if (tasklist._id == -1) {
@@ -718,15 +847,43 @@ public class NavigationDrawerFragment extends Fragment implements
 						String title = et_title.getText().toString();
 						if (title.length() != 0) {
 							try {
-								String[] colorsArray = { "#7FFFD4", "#B0B3B6",
-										"#F4D05E", "#F46C5E", "#34495e",
-										"#e67e22", "#95a5a6", "#00A5A6",
-										"#5AADAD", "#C1A79A", "#FF982F",
-										"#FFC182" };
-								Random rand = new Random();
-								int fragment_color = rand
-										.nextInt(colorsArray.length) + 1;
-								String colorHEX = colorsArray[fragment_color];
+								String colorHEX = null;
+								try {
+									colorHEX = et_hex.getText().toString();
+
+								} catch (Exception e) {
+
+									if (isSeagreen || isCaramel || isJazzOrange
+											|| isPink || isYellow
+											|| isMoonlightblue) {
+										if (isSeagreen) {
+											colorHEX = "#00A5A6";
+										} else if (isCaramel) {
+											colorHEX = "#FFC182";
+										} else if (isJazzOrange) {
+											colorHEX = "#FF982F";
+										} else if (isPink) {
+											colorHEX = "#F46C5E";
+										} else if (isYellow) {
+											colorHEX = "#F4D05E";
+										} else if (isMoonlightblue) {
+											colorHEX = "#34495e";
+										}
+
+									} else {
+										String[] colorsArray = { "#7FFFD4",
+												"#B0B3B6", "#F4D05E",
+												"#F46C5E", "#34495e",
+												"#e67e22", "#95a5a6",
+												"#00A5A6", "#5AADAD",
+												"#C1A79A", "#FF982F", "#FFC182" };
+										Random rand = new Random();
+										int fragment_color = rand
+												.nextInt(colorsArray.length) + 1;
+										colorHEX = colorsArray[fragment_color];
+									}
+								}
+
 								TaskListModel temp = new TaskListModel(title,
 										list_type, colorHEX);
 								temp.user_id = user_data._id;
@@ -783,20 +940,34 @@ public class NavigationDrawerFragment extends Fragment implements
 						int position = mAdapter.getPosition(tasklist);
 						mAdapter.setSelection(position);
 						// setSelection for item
+						resetAllColorBools();
 					}
 				} catch (Exception e) {
 					Log.d("MainActivity", "addOrEditTaskList");
 				}
 			}
 		};
-		DialogInterface.OnClickListener negListener = new DialogInterface.OnClickListener() {
-			@Override
-			public void onClick(DialogInterface dialog, int which) {
-				dialog.cancel();
-			}
-		};
-		Common.CustomDialog.CustomDialog(mContext, view, negListener,
-				posListener, R.string.save, R.string.cancel, dialogTitle);
+		// DialogInterface.OnClickListener negListener = new
+		// DialogInterface.OnClickListener() {
+		// @Override
+		// public void onClick(DialogInterface dialog, int which) {
+		// dialog.cancel();
+		// }
+		// };
+		// Common.CustomDialog.CustomDialog(mContext, view, negListener,
+		// posListener, R.string.save, R.string.cancel, dialogTitle);
+		//
+		Common.CustomDialog.CustomDialog_rewamp(mContext, view, posListener,
+				R.string.save);
+	}
+
+	private void resetAllColorBools() {
+		isSeagreen = false;
+		isCaramel = false;
+		isJazzOrange = false;
+		isPink = false;
+		isYellow = false;
+		isMoonlightblue = false;
 	}
 
 	private void editTaskList(TaskListModel Old) {
@@ -1147,9 +1318,10 @@ public class NavigationDrawerFragment extends Fragment implements
 	}
 
 	public void addOrEditTaskDetails(TaskListModel list, TaskModel task) {
-		//NOTE //PROBLEMS
-		//in edit case when a notification is added two notification gets added 
-		//TaskAdapter is not getting updated properly, problem can be viewed when editing Task 
+		// NOTE //PROBLEMS
+		// in edit case when a notification is added two notification gets added
+		// TaskAdapter is not getting updated properly, problem can be viewed
+		// when editing Task
 		for (TaskListModel temp : data) {
 			if (temp._id == opt_Tasklist._id) {
 				opt_Tasklist = data.get(data.indexOf(temp));
@@ -1191,13 +1363,12 @@ public class NavigationDrawerFragment extends Fragment implements
 			// ArrayList<TaskNotificationsModel> newGeneratedrefrenceList =
 			// refrenceList;
 
-		 
 			mService.db.tasks.Edit(task /* opt_Task */);
 			opt_Task = null;// mService.db.tasks.Get(opt_Task._id);
 			opt_Task = mService.db.tasks.Get(task._id);// so the adapter could
 														// update properly
 			editTask(opt_Tasklist, opt_Task);
-			//MarkDoneTask(opt_Tasklist, opt_Task)
+			// MarkDoneTask(opt_Tasklist, opt_Task)
 		} else if (task._id == -1) {
 			opt_Task = task;
 			this.opt_Task.fk_tasklist_id = opt_Tasklist._id;
@@ -1208,4 +1379,55 @@ public class NavigationDrawerFragment extends Fragment implements
 			mAlarmBroadcastReciever.setAlarm(opt_Task, mContext);
 		}
 	}
+	// Boolean flag = false;
+	// @Override
+	// public void onClick(View v) {
+	// // TODO Auto-generated method stub
+	//
+	// if (v == caramel_btn){
+	//
+	// if (!flag) {
+	// flag = true;
+	// Common.Snippets.setBackgroundResource_buttonColor(
+	// caramel_btn, flag);
+	// isfull = true;
+	// } else {
+	// flag = false;
+	// Common.Snippets.setBackgroundResource_buttonColor(
+	// caramel_btn, flag);
+	// isfull = false;
+	// }
+	//
+	// }
+	// else if (v == jazz_orange_btn){
+	//
+	// if (!flag) {
+	// flag = true;
+	// Common.Snippets.setBackgroundResource_buttonColor(
+	// jazz_orange_btn, flag);
+	// isfull = true;
+	// } else {
+	// flag = false;
+	// Common.Snippets.setBackgroundResource_buttonColor(
+	// jazz_orange_btn, flag);
+	// isfull = false;
+	// }
+	//
+	// }
+	// else if (v == seagreen_btn){
+	// if (!flag) {
+	// flag = true;
+	// Common.Snippets.setBackgroundResource_buttonColor(
+	// seagreen_btn, flag);
+	// isfull = true;
+	// } else {
+	// flag = false;
+	// Common.Snippets.setBackgroundResource_buttonColor(
+	// seagreen_btn, flag);
+	// isfull = false;
+	// }
+	//
+	// }
+	//
+	// }
 }

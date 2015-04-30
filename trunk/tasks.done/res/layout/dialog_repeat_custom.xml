@@ -80,33 +80,6 @@
             android:text="@string/sun" />
 
         <Button
-            android:id="@+id/btn_monday"
-            android:layout_width="50dp"
-            android:layout_height="50dp"
-            android:layout_gravity="center_horizontal"
-            android:layout_margin="10dp"
-            android:background="@drawable/day_button_selector"
-            android:text="@string/mon" />
-
-        <Button
-            android:id="@+id/btn_tuesday"
-            android:layout_width="50dp"
-            android:layout_height="50dp"
-            android:layout_gravity="center_horizontal"
-            android:layout_margin="10dp"
-            android:background="@drawable/day_button_selector"
-            android:text="@string/tue" />
-
-        <Button
-            android:id="@+id/btn_wednesday"
-            android:layout_width="50dp"
-            android:layout_height="50dp"
-            android:layout_gravity="center_horizontal"
-            android:layout_margin="10dp"
-            android:background="@drawable/day_button_selector"
-            android:text="@string/mon" />
-
-        <Button
             android:id="@+id/btn_thursday"
             android:layout_width="50dp"
             android:layout_height="50dp"
@@ -114,6 +87,15 @@
             android:layout_margin="10dp"
             android:background="@drawable/day_button_selector"
             android:text="@string/thr" />
+
+        <Button
+            android:id="@+id/btn_monday"
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            android:layout_gravity="center_horizontal"
+            android:layout_margin="10dp"
+            android:background="@drawable/day_button_selector"
+            android:text="@string/mon" />
 
         <Button
             android:id="@+id/btn_friday"
@@ -125,6 +107,15 @@
             android:text="@string/fri" />
 
         <Button
+            android:id="@+id/btn_tuesday"
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            android:layout_gravity="center_horizontal"
+            android:layout_margin="10dp"
+            android:background="@drawable/day_button_selector"
+            android:text="@string/tue" />
+
+        <Button
             android:id="@+id/btn_saturday"
             android:layout_width="50dp"
             android:layout_height="50dp"
@@ -132,6 +123,15 @@
             android:layout_margin="10dp"
             android:background="@drawable/day_button_selector"
             android:text="@string/sat" />
+
+        <Button
+            android:id="@+id/btn_wednesday"
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            android:layout_gravity="center_horizontal"
+            android:layout_margin="10dp"
+            android:background="@drawable/day_button_selector"
+            android:text="@string/wed" />
     </GridLayout>
 
     <LinearLayout
