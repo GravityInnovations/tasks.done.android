@@ -9,7 +9,6 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.util.Log;
 
-//FAIK malik
 public class DatabaseHelper extends SQLiteOpenHelper {
 
 	public Tasks tasks = new Tasks();
@@ -110,6 +109,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 	// ******** TASK REPEAT NOTIFICATIONS *********//
 
 	private static final String KEY_SEND_NOTIFICATION_AS_EMAIL = "send_notificaiton_as_email";
+	private static final String KEY_INTERVAL_EXPIRATION = "interval_expiration";
 	// ******** Columns Entries *********//
 
 	// ********* SQLite Table Structure Queries *********//
@@ -1102,6 +1102,10 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 				// values 0-1 as Notificaiton/Email if not specifies setDefault
 				// as 0
 				//we may add time here for allDay
+
+				+ KEY_INTERVAL_EXPIRATION
+				+ " DATETIME,"
+				
 				+ KEY_SERVER_ID
 				+ " TEXT,"
 
@@ -1124,6 +1128,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 			values.put(KEY_NOT_TYPE, model.interval_type);
 			values.put(KEY_SEND_NOTIFICATION_AS_EMAIL,
 					model.send_notificaion_as_email);
+			values.put(KEY_INTERVAL_EXPIRATION, model.interval_expiration);
 			values.put(KEY_SERVER_ID, model.server_id);
 			values.put(KEY_FK_TASK_ID, model.fk_task_id);
 			return values;
@@ -1135,6 +1140,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 			int colIntervalType = c.getColumnIndex(KEY_NOT_TYPE);
 			int colSendNotifictionAs = c
 					.getColumnIndex(KEY_SEND_NOTIFICATION_AS_EMAIL);
+			int colIntervalExpiration = c.getColumnIndex(KEY_INTERVAL_EXPIRATION);
 			int colServerID = c.getColumnIndex(KEY_SERVER_ID);
 			int colFKtaskid = c.getColumnIndex(KEY_FK_TASK_ID);
 
@@ -1143,6 +1149,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 			model.interval = c.getInt(colInterval);
 			model.interval_type = c.getInt(colIntervalType);
 			model.send_notificaion_as_email = c.getInt(colSendNotifictionAs);
+			model.interval_expiration = c.getString(colIntervalExpiration);
 			model.fk_task_id = c.getInt(colFKtaskid);
 			model.server_id = c.getString(colServerID);
 			return model;

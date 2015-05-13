@@ -682,11 +682,11 @@ public class NavigationDrawerFragment extends Fragment implements
 			isPink = false, isYellow = false, isMoonlightblue = false;
 
 	public void addOrEditTaskList(final TaskListModel tasklist) {
-		View view = getActivity()
-				.getLayoutInflater()
-				.inflate(
-						R.layout.dialog_add_edit_tasklist/* addoredit_tasklist_dialog */,
-						null);
+		View view = getActivity().getLayoutInflater().inflate(
+				R.layout.dialog_add_edit_tasklist/*
+												 * dialog_add_edit_tasklist
+												 * addoredit_tasklist_dialog
+												 */, null);
 		final EditText et_title = (EditText) view.findViewById(R.id.et_title);
 		// new add//
 		final GridView list_image_grid = (GridView) view
@@ -828,6 +828,7 @@ public class NavigationDrawerFragment extends Fragment implements
 				}
 			}
 		});
+
 		final EditText et_hex = (EditText) view.findViewById(R.id.et_hex);
 		// new add//
 
@@ -848,11 +849,13 @@ public class NavigationDrawerFragment extends Fragment implements
 						if (title.length() != 0) {
 							try {
 								String colorHEX = null;
-								try {
-									colorHEX = et_hex.getText().toString();
+								// try {
+								colorHEX = et_hex.getText().toString();
+								// colorHEX = "#fefefe";
 
-								} catch (Exception e) {
-
+								// } catch (Exception e) {
+								if // (colorHEX == null|| )
+								(colorHEX.isEmpty()) {
 									if (isSeagreen || isCaramel || isJazzOrange
 											|| isPink || isYellow
 											|| isMoonlightblue) {
@@ -882,6 +885,10 @@ public class NavigationDrawerFragment extends Fragment implements
 												.nextInt(colorsArray.length) + 1;
 										colorHEX = colorsArray[fragment_color];
 									}
+									// }exception
+								}// null
+								else {
+									colorHEX = et_hex.getText().toString();
 								}
 
 								TaskListModel temp = new TaskListModel(title,
@@ -1376,6 +1383,9 @@ public class NavigationDrawerFragment extends Fragment implements
 			// opt_Task = mService.db.tasks.Get(opt_Task._id);
 			addTask(opt_Tasklist, opt_Task);
 			opt_Task = mService.db.tasks.Get(opt_Task._id);
+
+			//this.mAdapter.notifyDataSetChanged();
+
 			mAlarmBroadcastReciever.setAlarm(opt_Task, mContext);
 		}
 	}

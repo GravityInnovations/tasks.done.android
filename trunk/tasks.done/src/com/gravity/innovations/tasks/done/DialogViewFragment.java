@@ -101,24 +101,25 @@ public class DialogViewFragment extends DialogFragment {
 				.findViewById(R.id.btn_delete_task_detail_dialog);
 
 		// ********************AssigningTextViews*********************//
-		// assigning title
-		tv_title.setText(taskModel.title.toString());
-		// assigning details
-		String details = taskModel.details.toString();
-		if (details.isEmpty()) {
-			details = "no details yet";
-			tv_details.setText(details);
-		} else {
-			tv_details.setText(details);
+		try{
+			// assigning title
+			tv_title.setText( taskModel.title.toString() );
+		}catch(Exception e){
+			tv_title.setText( "title" );
 		}
-		// assigning notes
-		String notes = taskModel.notes.toString();
-		if (notes.isEmpty()) {
-			notes = "no details yet";
-			tv_notes.setText(notes);
-		} else {
-			tv_notes.setText(notes);
+		try{
+			// assigning details 
+			tv_details.setText( taskModel.details.toString() );
+		}catch(Exception e){
+			tv_details.setText( "has no details yet" );
 		}
+		try{
+			// assigning notes
+			tv_notes.setText( taskModel.notes.toString() );
+		}catch(Exception e){
+			tv_notes.setText( "has no notes yet" );
+		}
+
 		// long to string time formatting
 		SimpleDateFormat formatter = new SimpleDateFormat("yyyy/MM/dd " + " "
 				+ "hh:MM:ss");
@@ -141,7 +142,7 @@ public class DialogViewFragment extends DialogFragment {
 				tv_sync_time.setText("Last Synced: " + syncString);
 			}
 		} catch (Exception e) {
-			Log.e("AssigningSycedTimeStamp", "NDF openTaskDetailsDialog");
+			Log.e("AssigningSyFcedTimeStamp", "NDF openTaskDetailsDialog");
 		}
 		// ********************ImageViews*********************//
 		float alpha = 0;

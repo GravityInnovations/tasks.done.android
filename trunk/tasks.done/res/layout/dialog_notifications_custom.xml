@@ -2,16 +2,14 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
-    android:paddingBottom="10dp"
-    android:paddingTop="10dp" >
+    android:orientation="vertical" >
 
     <TextView
-        android:layout_width="wrap_content"
+        android:layout_width="fill_parent"
         android:layout_height="wrap_content"
-        android:layout_marginLeft="10dp"
         android:paddingBottom="10dp"
-        android:paddingLeft="10dp"
+        android:paddingLeft="15dp"
+        android:paddingTop="10dp"
         android:text="@string/custom_notification"
         android:textAppearance="?android:attr/textAppearanceMedium"
         android:textStyle="bold" />
@@ -26,14 +24,10 @@
         android:id="@+id/et_numberOfNotifications"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_alignParentRight="true"
-        android:layout_centerVertical="true"
-        android:layout_marginLeft="10dp"
-        android:layout_marginTop="10dp"
         android:background="#00000000"
         android:inputType="number"
         android:paddingBottom="10dp"
-        android:paddingLeft="10dp"
+        android:paddingLeft="15dp"
         android:paddingTop="10dp"
         android:selectAllOnFocus="true"
         android:text="@string/digitOne" />
@@ -50,7 +44,7 @@
         android:layout_height="wrap_content"
         android:checkedButton="@+id/minutes"
         android:paddingBottom="10dp"
-        android:paddingLeft="15dp"
+        android:paddingLeft="10dp"
         android:paddingTop="10dp"
         android:visibility="gone" >
 
@@ -59,7 +53,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:paddingBottom="10dp"
-            android:paddingLeft="15dp"
+            android:paddingLeft="10dp"
             android:paddingTop="10dp"
             android:text="@string/minutes" />
 
@@ -68,7 +62,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:paddingBottom="10dp"
-            android:paddingLeft="15dp"
+            android:paddingLeft="10dp"
             android:paddingTop="10dp"
             android:text="@string/hours" />
 
@@ -77,7 +71,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:paddingBottom="10dp"
-            android:paddingLeft="15dp"
+            android:paddingLeft="10dp"
             android:paddingTop="10dp"
             android:text="@string/days" />
 
@@ -86,36 +80,36 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:paddingBottom="10dp"
-            android:paddingLeft="15dp"
+            android:paddingLeft="10dp"
             android:paddingTop="10dp"
             android:text="@string/weeks" />
     </RadioGroup>
 
     <RadioGroup
         android:id="@+id/myRadioGroup_allDay"
-        android:layout_width="wrap_content"
+        android:layout_width="fill_parent"
         android:layout_height="wrap_content"
         android:checkedButton="@+id/days_allDay"
         android:paddingBottom="10dp"
-        android:paddingLeft="15dp"
+        android:paddingLeft="10dp"
         android:paddingTop="10dp"
         android:visibility="gone" >
 
         <RadioButton
             android:id="@+id/days_allDay"
-            android:layout_width="wrap_content"
+            android:layout_width="fill_parent"
             android:layout_height="wrap_content"
             android:paddingBottom="10dp"
-            android:paddingLeft="15dp"
+            android:paddingLeft="10dp"
             android:paddingTop="10dp"
             android:text="@string/days" />
 
         <RadioButton
             android:id="@+id/weeks_allDay"
-            android:layout_width="wrap_content"
+            android:layout_width="fill_parent"
             android:layout_height="wrap_content"
             android:paddingBottom="10dp"
-            android:paddingLeft="15dp"
+            android:paddingLeft="10dp"
             android:paddingTop="10dp"
             android:text="@string/weeks" />
     </RadioGroup>
@@ -126,13 +120,33 @@
         android:layout_height="1dp"
         android:background="@color/line_divider" />
 
+    <TextView
+        android:id="@+id/tv_time_picker"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:background="@android:color/transparent"
+        android:paddingBottom="10dp"
+        android:paddingLeft="15dp"
+        android:paddingTop="10dp"
+        android:text="11:00AM"
+        android:textColor="@android:color/black"
+        android:textSize="17sp"
+        android:visibility="gone" />
+
+    <View
+        android:id="@+id/line_time_picker"
+        android:layout_width="fill_parent"
+        android:layout_height="1dp"
+        android:background="@color/line_divider"
+        android:visibility="gone" />
+
     <RadioGroup
         android:id="@+id/myRadioGroup2"
-        android:layout_width="wrap_content"
+        android:layout_width="fill_parent"
         android:layout_height="wrap_content"
         android:checkedButton="@+id/notifications"
         android:paddingBottom="10dp"
-        android:paddingLeft="15dp"
+        android:paddingLeft="10dp"
         android:paddingTop="10dp" >
 
         <RadioButton
@@ -140,7 +154,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:paddingBottom="10dp"
-            android:paddingLeft="15dp"
+            android:paddingLeft="10dp"
             android:paddingTop="10dp"
             android:text="@string/as_notification" />
 
@@ -149,7 +163,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:paddingBottom="10dp"
-            android:paddingLeft="15dp"
+            android:paddingLeft="10dp"
             android:paddingTop="10dp"
             android:text="@string/as_email" />
     </RadioGroup>

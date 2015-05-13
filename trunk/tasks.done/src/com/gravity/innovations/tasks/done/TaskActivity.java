@@ -27,6 +27,7 @@ import android.text.Editable;
 import android.text.InputFilter;
 import android.text.TextWatcher;
 import android.text.format.DateFormat;
+import android.text.format.DateUtils;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -73,6 +74,8 @@ public class TaskActivity extends ActionBarActivity implements OnClickListener {
 	private Calendar cal_starttime;
 	private Calendar cal_endtime;
 	private Calendar cal_repeatdate;
+	private Calendar mTime;
+
 	private Boolean isSat = false, isSun = false, isMon = false, isTue = false,
 			isWed = false, isThu = false, isFri = false, isDaily = false,
 			isWeekly = false, isMonthly = false, isYearly = false,
@@ -157,15 +160,15 @@ public class TaskActivity extends ActionBarActivity implements OnClickListener {
 		try {
 			Calendar cal_init = Calendar.getInstance();
 			cal_startdate = Calendar.getInstance();
-			cal_startdate.set(0, 0, 0, 0, 0);
+			cal_startdate.set(0, 0, 0, 0, 0, 0);
 			cal_enddate = Calendar.getInstance();
-			cal_enddate.set(0, 0, 0, 0, 0);
+			cal_enddate.set(0, 0, 0, 0, 0, 0);
 			cal_starttime = Calendar.getInstance();
-			cal_starttime.set(0, 0, 0, 0, 0);
+			cal_starttime.set(0, 0, 0, 0, 0, 0);
 			cal_endtime = Calendar.getInstance();
-			cal_endtime.set(0, 0, 0, 0, 0);
+			cal_endtime.set(0, 0, 0, 0, 0, 0);
 			cal_repeatdate = Calendar.getInstance();
-			cal_repeatdate.set(0, 0, 0, 0, 0);
+			cal_repeatdate.set(0, 0, 0, 0, 0, 0);
 			title = (EditText) findViewById(R.id.txt_title);
 			details = (EditText) findViewById(R.id.txt_details);
 			notes = (EditText) findViewById(R.id.txt_notes);
@@ -430,11 +433,14 @@ public class TaskActivity extends ActionBarActivity implements OnClickListener {
 						if (task._id == -1) {
 							Calendar new_cal_endtime = Calendar.getInstance();
 							Calendar new_cal_starttime = Calendar.getInstance();
-							new_cal_endtime.set(0, 0, 0, 0, 0);
-							new_cal_starttime.set(0, 0, 0, 0, 0);
+							
+							new_cal_endtime.set(0, 0, 0, 0, 0, 0);
+							new_cal_starttime.set(0, 0, 0, 0, 0, 0);
+							
 							Calendar start_datetime = Common.datetimeHelper
 									.mergeCalendars(cal_startdate,
 											new_cal_starttime);
+							
 							Calendar end_datetime = Common.datetimeHelper
 									.mergeCalendars(cal_enddate,
 											new_cal_endtime);
@@ -760,11 +766,13 @@ public class TaskActivity extends ActionBarActivity implements OnClickListener {
 				setRepeatTextView();
 				// initRemainingNotificaitonsModels();
 				setNotificationTextViews();
+				// mTime = getTime fromDB
 			} catch (Exception e) {
 				e.getLocalizedMessage();
 			}
 		} else if (task._id == -1) {
 			// initNotificaitonsMdoels();
+			mTime = Calendar.getInstance();
 		}
 	}
 
@@ -1411,7 +1419,7 @@ public class TaskActivity extends ActionBarActivity implements OnClickListener {
 							.getText().toString());
 					// weekdaysIntValue to be inserted in db
 					task.rep_value = getWeekDayArrayListForDB();
-				
+
 					// getWeekDayArrayList();
 					if (isForever) {
 						task.rep_intervalExpiration = null;
@@ -1754,6 +1762,10 @@ public class TaskActivity extends ActionBarActivity implements OnClickListener {
 				.findViewById(R.id.myRadioGroup);
 		final RadioGroup rg_TimeUnit_allDay = (RadioGroup) view
 				.findViewById(R.id.myRadioGroup_allDay);
+		final TextView tv_timepicker = (TextView) view
+				.findViewById(R.id.tv_time_picker);
+		final View line_timepicker = (View) view
+				.findViewById(R.id.line_time_picker);
 		if (task.rep_allDay == 0) {
 			rg_TimeUnit.setVisibility(View.VISIBLE);
 			isMin = true;
@@ -1761,6 +1773,10 @@ public class TaskActivity extends ActionBarActivity implements OnClickListener {
 		} else if (task.rep_allDay == 1) {
 			rg_TimeUnit_allDay.setVisibility(View.VISIBLE);
 			isDys = true;
+			tv_timepicker.setVisibility(View.VISIBLE);
+			line_timepicker.setVisibility(View.VISIBLE);
+			tv_timepicker.setText(DateUtils.formatDateTime(TaskActivity.this,
+					mTime.getTimeInMillis(), DateUtils.FORMAT_SHOW_TIME));
 
 		}
 		final RadioGroup rg_NotificationOrEmail = (RadioGroup) view
@@ -1977,6 +1993,33 @@ public class TaskActivity extends ActionBarActivity implements OnClickListener {
 			}
 		});
 
+		tv_timepicker.setOnClickListener(new OnClickListener() {
+
+			@Override
+			public void onClick(View v) {
+				TimePickerDialog.OnTimeSetListener mTimeListener = new TimePickerDialog.OnTimeSetListener() {
+					public void onTimeSet(TimePicker view, int hourOfDay,
+							int minute) {
+						mTime.set(Calendar.HOUR_OF_DAY, hourOfDay);
+						mTime.set(Calendar.MINUTE, minute);
+
+						// updateDateAndTimeDisplay();
+
+						tv_timepicker.setText(DateUtils.formatDateTime(
+								TaskActivity.this, mTime.getTimeInMillis(),
+								DateUtils.FORMAT_SHOW_TIME));
+
+					}
+				};
+				// TimePickerDialog.
+
+				new TimePickerDialog(TaskActivity.this, mTimeListener, mTime
+						.get(Calendar.HOUR_OF_DAY), mTime.get(Calendar.MINUTE),
+						true).show();
+
+			}
+		});
+
 		DialogInterface.OnClickListener posListener = new DialogInterface.OnClickListener() {
 			@Override
 			public void onClick(DialogInterface dialog, int which) {
@@ -1994,19 +2037,27 @@ public class TaskActivity extends ActionBarActivity implements OnClickListener {
 				int intervalType_radioID = 0;
 				if (task.rep_allDay == 1) {
 					int id = rg_TimeUnit_allDay.getCheckedRadioButtonId();
+
 					View radioButton_1 = rg_TimeUnit_allDay.findViewById(id);
+
 					intervalType_radioID = rg_TimeUnit_allDay
 							.indexOfChild(radioButton_1);
-				} else if (task.rep_allDay == 0) {
-					int id = rg_TimeUnit.getCheckedRadioButtonId();
-					View radioButton_0 = rg_TimeUnit.findViewById(id);
-					intervalType_radioID = rg_TimeUnit
-							.indexOfChild(radioButton_0);
+
 					if (intervalType_radioID == 0) {
 						intervalType_radioID = 2;// days
 					} else if (intervalType_radioID == 1) {
 						intervalType_radioID = 3;// weeks
 					}
+
+					model.interval_expiration = String.valueOf((mTime
+							.getTimeInMillis()));
+
+				} else if (task.rep_allDay == 0) {
+					int id = rg_TimeUnit.getCheckedRadioButtonId();
+					View radioButton_0 = rg_TimeUnit.findViewById(id);
+					intervalType_radioID = rg_TimeUnit
+							.indexOfChild(radioButton_0);
+
 				}
 				try {
 					model.interval = Integer.valueOf(nTimes.getText()
@@ -2193,8 +2244,8 @@ public class TaskActivity extends ActionBarActivity implements OnClickListener {
 			calendar.set(0, 0, 0, 0, 0);
 			calendar.set(Calendar.HOUR_OF_DAY, hourOfDay);
 			calendar.set(Calendar.MINUTE, minute);
-			((TaskActivity) mTaskActivity).doSomethingWithCalender(calendar,
-					isDate, isTime, isStart, isEnd);
+			((TaskActivity) mTaskActivity).setCalender(calendar, isDate,
+					isTime, isStart, isEnd);
 
 		}
 	}
@@ -2239,13 +2290,13 @@ public class TaskActivity extends ActionBarActivity implements OnClickListener {
 			calendar.set(Calendar.YEAR, year);
 			calendar.set(Calendar.DAY_OF_MONTH, dayOfMonth);
 			calendar.set(Calendar.MONTH, monthOfYear);
-			((TaskActivity) mTaskActivity).doSomethingWithCalender(calendar,
-					isDate, isTime, isStart, isEnd);
+			((TaskActivity) mTaskActivity).setCalender(calendar, isDate,
+					isTime, isStart, isEnd);
 		}
 	}
 
-	public void doSomethingWithCalender(Calendar calendar, Boolean isDate,
-			Boolean isTime, Boolean isStart, Boolean isEnd) {
+	public void setCalender(Calendar calendar, Boolean isDate, Boolean isTime,
+			Boolean isStart, Boolean isEnd) {
 
 		if (isDate) {
 			if (isStart) {
@@ -2336,4 +2387,41 @@ public class TaskActivity extends ActionBarActivity implements OnClickListener {
 		}
 
 	}
+
+	// public static class TimePickerFragment_Test extends DialogFragment
+	// implements TimePickerDialog.OnTimeSetListener {
+	//
+	// Calendar calendar;
+	// TaskActivity mTaskActivity;
+	//
+	// public TimePickerFragment_Test(Calendar _calendar,
+	// TaskActivity _mTaskActivity) {
+	// calendar = _calendar;
+	// mTaskActivity = _mTaskActivity;
+	// }
+	//
+	// @Override
+	// public Dialog onCreateDialog(Bundle savedInstanceState) {
+	// // Use the current time as the default values for the picker
+	// int hour = calendar.get(Calendar.HOUR_OF_DAY);
+	// int minute = calendar.get(Calendar.MINUTE);
+	//
+	// // Create a new instance of TimePickerDialog and return it
+	// return new TimePickerDialog(getActivity(), this, hour, minute,
+	// DateFormat.is24HourFormat(getActivity()));
+	// }
+	//
+	// @Override
+	// public void onTimeSet(android.widget.TimePicker view, int hourOfDay,
+	// int minute) {
+	// // TODO Auto-generated method stub
+	// calendar = Calendar.getInstance();
+	// calendar.set(0, 0, 0, 0, 0);
+	// calendar.set(Calendar.HOUR_OF_DAY, hourOfDay);
+	// calendar.set(Calendar.MINUTE, minute);
+	// //((TaskActivity) mTaskActivity).doSomethingWithCalender(calendar);
+	//
+	// }
+	// }
+
 }

@@ -1,8 +1,12 @@
 package com.gravity.innovations.tasks.done;
 
+import java.nio.channels.AlreadyConnectedException;
 import java.util.Calendar;
+import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.concurrent.TimeUnit;
+
+import javax.xml.transform.Templates;
 
 import android.annotation.SuppressLint;
 import android.app.AlarmManager;
@@ -14,6 +18,7 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Build;
 import android.support.v4.content.WakefulBroadcastReceiver;
+import android.text.format.DateUtils;
 import android.text.format.Time;
 import android.util.Log;
 
@@ -34,12 +39,13 @@ public class AlarmBroadcastReciever extends WakefulBroadcastReceiver {
 		service.putExtra("alarmMgr_id", alarm_id);
 		// Start the service, keeping the device awake while it is launching.
 		startWakefulService(context, service);
+
 	}
 
+	@SuppressLint("NewApi")
 	public void setAlarm(TaskModel task, Context _context) {
 
 		for (TaskNotificationsModel model : task.notifications) {
-
 			alarmMgr = (AlarmManager) _context
 					.getSystemService(Context.ALARM_SERVICE);
 			Intent intent = new Intent(_context, AlarmBroadcastReciever.class);
@@ -52,21 +58,123 @@ public class AlarmBroadcastReciever extends WakefulBroadcastReceiver {
 
 			alarmMgr = (AlarmManager) _context
 					.getSystemService(Context.ALARM_SERVICE);
-
+			// notification classification by type
+			Long adjustableTime = (long) 0;
+			Long notificationTime = (long) 0;
+			notificationTime = Long.valueOf(task.rep_startDateTime);
 			if (model.interval_type != 0) {
-				Long adjustableTime = (long) 0;
-				Long notificationTime = (long) 0;
-				if (model.interval_type == 1) {
-					// mins
-					if (model.interval == 0) {
-						// at the time of the event
-						notificationTime = Long.valueOf(task.rep_startDateTime);
-					} else {
-						// set interval
+				if (task.rep_allDay == 0) {
+					if (model.interval_type == 1) {
+						// mins
 						adjustableTime = TimeUnit.MINUTES.toMillis(Integer
 								.valueOf(model.interval));
 						notificationTime = notificationTime - adjustableTime;
+					} else if (model.interval_type == 2) {
+						// hrs
+						adjustableTime = TimeUnit.HOURS.toMillis(Integer
+								.valueOf(model.interval));
+						notificationTime = notificationTime - adjustableTime;
+					} else if (model.interval_type == 3) {
+						// days
+
+						adjustableTime = TimeUnit.DAYS.toMillis(Integer
+								.valueOf(model.interval));
+						notificationTime = notificationTime - adjustableTime;
+					} else if (model.interval_type == 4) {
+						// weeks
+						adjustableTime = ((Long.valueOf(model.interval)) * 604800000);
+						// 604800000 = week in millis
+						notificationTime = notificationTime - adjustableTime;
 					}
+				} else if (task.rep_allDay == 1) {
+
+					Calendar dateCal = Calendar.getInstance();
+					dateCal.setTimeInMillis(Long
+							.valueOf(task.rep_startDateTime));
+					Calendar timeCal = Calendar.getInstance();
+					timeCal.setTimeInMillis(Long
+							.valueOf(model.interval_expiration));
+
+					Calendar newDateTimecal = Common.datetimeHelper
+							.mergeCalendars(dateCal, timeCal);
+					notificationTime = newDateTimecal.getTimeInMillis();
+
+					if (model.interval_type == 3) {
+						// days
+						adjustableTime = TimeUnit.DAYS.toMillis(Integer
+								.valueOf(model.interval));
+						notificationTime = notificationTime - adjustableTime;
+
+					} else if (model.interval_type == 4) {
+						// weeks
+						adjustableTime = ((Long.valueOf(model.interval)) * 604800000);
+						// 604800000 = week in millis
+						notificationTime = notificationTime - adjustableTime;
+
+					} else if (model.interval_type == 6) {
+						notificationTime = notificationTime;
+					}
+				}
+
+			}
+			Calendar newD = Calendar.getInstance();
+			newD.setTimeInMillis(notificationTime);
+			Date date = newD.getTime();
+			// if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
+			// alarmMgr.setExact(AlarmManager.RTC_WAKEUP, notificationTime,
+			// alarmIntent);
+			// } else {
+			alarmMgr.set(AlarmManager.RTC_WAKEUP, notificationTime, alarmIntent);
+			// }
+
+			ComponentName receiver = new ComponentName(_context,
+					BootBroadcastReceiver.class);
+			PackageManager pm = _context.getPackageManager();
+
+			pm.setComponentEnabledSetting(receiver,
+					PackageManager.COMPONENT_ENABLED_STATE_ENABLED,
+					PackageManager.DONT_KILL_APP);
+
+		}
+	}
+
+	private TaskNotificationsModel getModel(TaskModel task, int alarmID) {
+		TaskNotificationsModel model = null;
+		for (TaskNotificationsModel temp : task.notifications) {
+			if (temp._id == alarmID) {
+				model = temp;
+			}
+		}
+		return model;
+	}
+
+	@SuppressLint("NewApi")
+	public void setNextAlarm(TaskModel task, Context _context, int alarmID) {
+
+		TaskNotificationsModel model = getModel(task, alarmID);
+
+		alarmMgr = (AlarmManager) _context
+				.getSystemService(Context.ALARM_SERVICE);
+		Intent intent = new Intent(_context, AlarmBroadcastReciever.class);
+		int alarm_id = model._id;
+		intent.setAction(String.valueOf(alarm_id));
+
+		alarmIntent = PendingIntent.getBroadcast(_context, alarm_id, intent,
+				PendingIntent.FLAG_UPDATE_CURRENT | Intent.FILL_IN_DATA);
+
+		alarmMgr = (AlarmManager) _context
+				.getSystemService(Context.ALARM_SERVICE);
+		// ////////////////////////////////////////////////////
+		Long adjustableTime = (long) 0;
+		Long notificationTime = (long) 0;
+		notificationTime = Long.valueOf(task.rep_startDateTime);
+		if (model.interval_type != 0) {
+			if (task.rep_allDay == 0) {
+				if (model.interval_type == 1) {
+					// mins
+					adjustableTime = TimeUnit.MINUTES.toMillis(Integer
+							.valueOf(model.interval));
+					notificationTime = notificationTime - adjustableTime;
 				} else if (model.interval_type == 2) {
 					// hrs
 					adjustableTime = TimeUnit.HOURS.toMillis(Integer
@@ -74,6 +182,7 @@ public class AlarmBroadcastReciever extends WakefulBroadcastReceiver {
 					notificationTime = notificationTime - adjustableTime;
 				} else if (model.interval_type == 3) {
 					// days
+
 					adjustableTime = TimeUnit.DAYS.toMillis(Integer
 							.valueOf(model.interval));
 					notificationTime = notificationTime - adjustableTime;
@@ -83,18 +192,52 @@ public class AlarmBroadcastReciever extends WakefulBroadcastReceiver {
 					// 604800000 = week in millis
 					notificationTime = notificationTime - adjustableTime;
 				}
+			} else if (task.rep_allDay == 1) {
 
-				alarmMgr.set(AlarmManager.RTC_WAKEUP, notificationTime,
-						alarmIntent);
-				ComponentName receiver = new ComponentName(_context,
-						BootBroadcastReceiver.class);
-				PackageManager pm = _context.getPackageManager();
+				Calendar dateCal = Calendar.getInstance();
+				dateCal.setTimeInMillis(Long.valueOf(task.rep_startDateTime));
+				Calendar timeCal = Calendar.getInstance();
+				timeCal.setTimeInMillis(Long.valueOf(model.interval_expiration));
 
-				pm.setComponentEnabledSetting(receiver,
-						PackageManager.COMPONENT_ENABLED_STATE_ENABLED,
-						PackageManager.DONT_KILL_APP);
+				Calendar newDateTimecal = Common.datetimeHelper.mergeCalendars(
+						dateCal, timeCal);
+				notificationTime = newDateTimecal.getTimeInMillis();
+
+				if (model.interval_type == 3) {
+					// days
+					adjustableTime = TimeUnit.DAYS.toMillis(Integer
+							.valueOf(model.interval));
+					notificationTime = notificationTime - adjustableTime;
+
+				} else if (model.interval_type == 4) {
+					// weeks
+					adjustableTime = ((Long.valueOf(model.interval)) * 604800000);
+					// 604800000 = week in millis
+					notificationTime = notificationTime - adjustableTime;
+
+				} else if (model.interval_type == 6) {
+					notificationTime = notificationTime;
+				}
 			}
-		}// foreach
+
+		}
+		Calendar newD = Calendar.getInstance();
+		newD.setTimeInMillis(notificationTime);
+		Date date = newD.getTime();
+		// if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
+		// alarmMgr.setExact(AlarmManager.RTC_WAKEUP, notificationTime,
+		// alarmIntent);
+		// } else {
+		alarmMgr.set(AlarmManager.RTC_WAKEUP, notificationTime, alarmIntent);
+		// }
+
+		ComponentName receiver = new ComponentName(_context,
+				BootBroadcastReceiver.class);
+		PackageManager pm = _context.getPackageManager();
+
+		pm.setComponentEnabledSetting(receiver,
+				PackageManager.COMPONENT_ENABLED_STATE_ENABLED,
+				PackageManager.DONT_KILL_APP);
 
 	}
 

@@ -875,16 +875,11 @@ public class Common {
 		}
 
 		public static Calendar mergeCalendars(Calendar date, Calendar time) {
-			int c_startDate = date.get(Calendar.DAY_OF_MONTH);
-			int c_startMonth = date.get(Calendar.MONTH);
-			int c_startYear = date.get(Calendar.YEAR);
-			int c_startHour = time.get(Calendar.HOUR_OF_DAY);
-			int c_startMinute = time.get(Calendar.MINUTE);
-			Calendar calendar_DateTime;
-			calendar_DateTime = Calendar.getInstance();
-			calendar_DateTime.set(c_startYear, c_startMonth, c_startDate,
-					c_startHour, c_startMinute);
-
+			Calendar calendar_DateTime = Calendar.getInstance();
+			calendar_DateTime.set(date.get(Calendar.YEAR),
+					date.get(Calendar.MONTH), date.get(Calendar.DAY_OF_MONTH),
+					time.get(Calendar.HOUR_OF_DAY), time.get(Calendar.MINUTE));
+			Long millis = calendar_DateTime.getTimeInMillis();
 			return calendar_DateTime;
 		}
 
@@ -899,27 +894,20 @@ public class Common {
 		// /for initial setup only
 		public static Calendar setCalender_CurrentDate(Calendar cal) {
 			// these are for initial setup only
-			long currentTimeMillis = System.currentTimeMillis();
-			Calendar today = Calendar.getInstance();
-			today.setTimeInMillis(currentTimeMillis);
-			cal.set(Calendar.DATE, today.get(Calendar.DATE));
-			cal.set(Calendar.MONTH, today.get(Calendar.MONTH));
-			cal.set(Calendar.YEAR, today.get(Calendar.YEAR));
-			cal.set(Calendar.HOUR, 0);
+			cal = Calendar.getInstance();
+			cal.set(Calendar.HOUR_OF_DAY, 0);
 			cal.set(Calendar.MINUTE, 0);
+			cal.set(Calendar.SECOND, 0);
 			return cal;
 		}
 
 		public static Calendar setCalender_CurrentTime(Calendar cal) {
 			// these are for initial setup only
-			long currentTimeMillis = System.currentTimeMillis();
-			Calendar today = Calendar.getInstance();
-			today.setTimeInMillis(currentTimeMillis);
-			cal.set(Calendar.DATE, 0);
-			cal.set(Calendar.MONTH, 0);
+			//long currentTimeMillis = System.currentTimeMillis();
+			cal = Calendar.getInstance();
 			cal.set(Calendar.YEAR, 0);
-			cal.set(Calendar.HOUR, today.get(Calendar.HOUR_OF_DAY));
-			cal.set(Calendar.MINUTE, today.get(Calendar.MINUTE));
+			cal.set(Calendar.DAY_OF_MONTH, 0);
+			cal.set(Calendar.MONTH, 0);
 			return cal;
 		}
 
@@ -930,11 +918,8 @@ public class Common {
 																// plusOneHour
 			Calendar today = Calendar.getInstance();
 			today.setTimeInMillis(currentTimeMillis);
-			cal.set(Calendar.DATE, 0);
-			cal.set(Calendar.MONTH, 0);
-			cal.set(Calendar.YEAR, 0);
-			cal.set(Calendar.HOUR, today.get(Calendar.HOUR_OF_DAY));
-			cal.set(Calendar.MINUTE, today.get(Calendar.MINUTE));
+			cal.set(0, 0, 0, today.get(Calendar.HOUR_OF_DAY),
+					today.get(Calendar.MINUTE), today.get(Calendar.SECOND));
 			return cal;
 		}
 
@@ -1154,14 +1139,25 @@ public class Common {
 			// onDayAtOnePM() setTime Find solution
 			TaskNotificationsModel model = new TaskNotificationsModel();
 			model.interval = 1; // 1
-			model.interval_type = 1;// 1 hour
+			model.interval_type = 6;// 6 is test
+			Calendar cal = Calendar.getInstance();
+			cal.set(Calendar.HOUR_OF_DAY, 13);
+			cal.set(Calendar.MINUTE, 00);
+			model.interval_expiration = String.valueOf(cal.getTimeInMillis());
 			model.send_notificaion_as_email = 0;
+
 			return model;
 		}
 
 		public static TaskNotificationsModel onDayAtTenAM() {
 			// onDayAtTenAM() setTime
 			TaskNotificationsModel model = new TaskNotificationsModel();
+			model.interval = 1; // 1
+			model.interval_type = 6;// 6 is test
+			Calendar cal = Calendar.getInstance();
+			cal.set(Calendar.HOUR_OF_DAY, 10);
+			cal.set(Calendar.MINUTE, 00);
+			model.interval_expiration = String.valueOf(cal.getTimeInMillis());
 			model.send_notificaion_as_email = 0;
 			return model;
 		}
@@ -1169,13 +1165,27 @@ public class Common {
 		public static TaskNotificationsModel onDayAtNineAM() {
 			// onDayAtNineAM() setTime
 			TaskNotificationsModel model = new TaskNotificationsModel();
+			model.interval = 1; // 1
+			model.interval_type = 6;// 6 is test
+			Calendar cal = Calendar.getInstance();
+			cal.set(Calendar.HOUR_OF_DAY, 9);
+			cal.set(Calendar.MINUTE, 00);
+			model.interval_expiration = String.valueOf(cal.getTimeInMillis());
 			model.send_notificaion_as_email = 0;
+
 			return model;
 		}
 
 		public static TaskNotificationsModel onDayBeforeAtElevenThirtyPM() {
 			// onDayBeforeAtElevenThirtyPM() setTime
 			TaskNotificationsModel model = new TaskNotificationsModel();
+			model.interval = 1; // 1
+			model.interval_type = 3;// 1 hour
+			Calendar cal = Calendar.getInstance();
+			cal.set(Calendar.HOUR_OF_DAY, 23);
+			cal.set(Calendar.MINUTE, 30);
+			model.interval_expiration = String.valueOf(cal.getTimeInMillis());
+
 			model.send_notificaion_as_email = 0;
 			return model;
 		}
