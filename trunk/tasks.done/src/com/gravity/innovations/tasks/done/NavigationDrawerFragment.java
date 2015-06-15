@@ -69,9 +69,7 @@ public class NavigationDrawerFragment extends Fragment implements
 	private ArrayList<TaskListModel> data = new ArrayList<TaskListModel>();
 	private DatabaseHelper db;
 	private Common.userData user_data;
-
-	private View oldSelection = null;// for list icon selection
-	// alaram service
+	private View oldSelection = null;
 	AlarmBroadcastReciever mAlarmBroadcastReciever = new AlarmBroadcastReciever();
 
 	/**
@@ -1271,7 +1269,7 @@ public class NavigationDrawerFragment extends Fragment implements
 			addTask(opt_Tasklist, opt_Task);
 			opt_Task = mService.db.tasks.Get(opt_Task._id);// redundant probably
 			// Set New Alarms
-			mAlarmBroadcastReciever.setAlarm(opt_Task, mContext);
+			//mAlarmBroadcastReciever.setAlarm(opt_Task, mContext);
 		}
 	}
 

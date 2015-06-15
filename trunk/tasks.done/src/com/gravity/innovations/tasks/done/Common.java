@@ -888,6 +888,14 @@ public class Common {
 
 	public static class NotificaitonModel {
 
+		public static TaskNotificationsModel deletable(
+				TaskNotificationsModel model) {
+			model.interval = 0; // 0
+			model.interval_type = 0; // mins
+			model.send_as = 0;
+			return model;
+		}
+		
 		public static TaskNotificationsModel atTimeOfEvent(
 				TaskNotificationsModel model) {
 			model.interval = 0; // 0
