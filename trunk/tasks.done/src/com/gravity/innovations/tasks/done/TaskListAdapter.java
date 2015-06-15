@@ -139,20 +139,7 @@ public class TaskListAdapter extends ArrayAdapter<TaskListModel> {
 
 		try {
 			Resources resources = mActivity.getResources();
-			// holder.list_icon.setImageDrawable(resources
-			// .getDrawable(tasklist.icon_identifier));
-			Drawable mDrawable = mActivity.getResources().getDrawable(
-					tasklist.icon_identifier);
-			mDrawable.setColorFilter(Color.WHITE, PorterDuff.Mode.MULTIPLY);
-			int iColor = Color.GRAY;
-			int red = (iColor & 0xFF0000) / 0xFFFF;
-			int green = (iColor & 0xFF00) / 0xFF;
-			int blue = iColor & 0xFF;
-			float[] matrix = { 0, 0, 0, 0, red, 0, 0, 0, 0, green, 0, 0, 0, 0,
-					blue, 0, 0, 0, 1, 0 };
-			ColorFilter colorFilter = new ColorMatrixColorFilter(matrix);
-			mDrawable.setColorFilter(colorFilter);
-			holder.list_icon.setImageDrawable(mDrawable);
+			holder.list_icon.setImageDrawable(resources.getDrawable(tasklist.icon_identifier));
 
 		} catch (Exception e) {
 			String tag = "TasklistAdapter";

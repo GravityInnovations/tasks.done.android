@@ -215,24 +215,7 @@ public class TaskListFragment extends Fragment {
 			iv_isSynced = (ImageView) rootView.findViewById(R.id.img_sync);
 			try {
 				mActivity = getActivity();
-				Resources resources = mActivity.getResources();
-				Drawable mDrawable = mActivity.getResources().getDrawable(
-						data.icon_identifier);
-				mDrawable.setColorFilter(Color.WHITE, PorterDuff.Mode.MULTIPLY);
-				int iColor = Color.WHITE;
-
-				int red = (iColor & 0xFF0000) / 0xFFFF;
-				int green = (iColor & 0xFF00) / 0xFF;
-				int blue = iColor & 0xFF;
-
-				float[] matrix = { 0, 0, 0, 0, red, 0, 0, 0, 0, green, 0, 0, 0,
-						0, blue, 0, 0, 0, 1, 0 };
-
-				ColorFilter colorFilter = new ColorMatrixColorFilter(matrix);
-
-				mDrawable.setColorFilter(colorFilter);
-
-				iv_listIcon.setImageDrawable(mDrawable);
+				iv_listIcon.setImageDrawable(mActivity.getResources().getDrawable(Common.DrawableResouces.compareDrawable(data.icon_identifier) ));
 
 			} catch (Exception e) {
 				String tag = "TasklistFragment";

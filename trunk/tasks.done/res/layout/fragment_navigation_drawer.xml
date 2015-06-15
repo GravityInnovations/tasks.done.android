@@ -94,7 +94,7 @@
             android:layout_alignParentRight="true"
             android:layout_centerVertical="true"
             android:focusable="true"
-            android:src="@drawable/ic_action_keyboard" />
+            android:src="@drawable/ic_keyboard_variant_grey600_24dp" />
 
         <EditText
             android:id="@+id/search"

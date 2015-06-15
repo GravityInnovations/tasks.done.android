@@ -530,6 +530,7 @@ public class NavigationDrawerFragment extends Fragment implements
 		}
 		if (mDrawerLayout != null) {
 			mDrawerLayout.closeDrawer(mFragmentContainerView);
+			Common.SoftKeyboard.hide(mActivity);
 		}
 		if (mCallbacks != null) {
 			TaskListModel temp;// = mAdapter.getItem(position+1);

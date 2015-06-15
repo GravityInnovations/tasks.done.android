@@ -141,7 +141,8 @@ public class Common {
 	public static final String KEY_EXTRAS_NOTIFICATION_ID = "_notification_id";
 	public static final String KEY_EXTRAS_NOTIFICATION_ID_COMPARING = "_comparing_";
 	public static final String KEY_EXTRAS_ALARM_ID = "_alarm_id";
-	//for canceling the notification
+
+	// for canceling the notification
 
 	// request codes
 
@@ -321,9 +322,8 @@ public class Common {
 	// for dialog creation and handling
 	public static class CustomDialog {
 
-		public static final void set(final Context context,
-				int posText, int negText,
-				DialogInterface.OnClickListener negListener,
+		public static final void set(final Context context, int posText,
+				int negText, DialogInterface.OnClickListener negListener,
 				DialogInterface.OnClickListener posListener) {
 
 			AlertDialog.Builder builder = new AlertDialog.Builder(context);
@@ -384,7 +384,7 @@ public class Common {
 			builder.getListView().setOnItemClickListener(onItemClickListener);
 			builder.show();
 		}
-		
+
 		public static final void withRadioButton(final Context context,
 				View view, DialogInterface.OnClickListener posListener,
 				int posText) {
@@ -396,10 +396,9 @@ public class Common {
 			builder.create().show();
 		}
 
-
-		public static void set(Context mContext, String title,
-				String message, String posText, String negText,
-				OnClickListener posListener, OnClickListener negListener) {
+		public static void set(Context mContext, String title, String message,
+				String posText, String negText, OnClickListener posListener,
+				OnClickListener negListener) {
 			AlertDialog.Builder builder = new AlertDialog.Builder(mContext);
 			builder.setIcon(android.R.drawable.ic_popup_reminder);
 			builder.setTitle(title);
@@ -698,7 +697,7 @@ public class Common {
 	}
 
 	public static class CalenderToMillis {
-		
+
 		public static String getTimeInMillis(Calendar date, Calendar time) {
 			int c_startDate = date.get(Calendar.DAY_OF_MONTH);
 			int c_startMonth = date.get(Calendar.MONTH);
@@ -888,7 +887,7 @@ public class Common {
 	}
 
 	public static class NotificaitonModel {
-		
+
 		public static TaskNotificationsModel atTimeOfEvent(
 				TaskNotificationsModel model) {
 			model.interval = 0; // 0
@@ -1028,7 +1027,7 @@ public class Common {
 	}
 
 	public static class DrawableResouces {
-		
+
 		public static int getDrawableResouce(int position) {
 			int list_type = R.drawable.ic_assignment_grey600_24dp; // default
 			if (position == 0) {
@@ -1075,6 +1074,52 @@ public class Common {
 			return list_type;
 		}
 
+		public static int compareDrawable(int dbResource) {
+			int drawable = 0;
+			if (dbResource == R.drawable.ic_assignment_grey600_24dp) {
+				drawable = R.drawable.ic_assignment_white_24dp;
+			} else if (dbResource == R.drawable.ic_attachment_grey600_24dp) {
+				drawable = R.drawable.ic_attachment_white_24dp;
+			} else if (dbResource == R.drawable.ic_build_grey600_24dp) {
+				drawable = R.drawable.ic_build_white_24dp;
+			} else if (dbResource == R.drawable.ic_cake_grey600_24dp) {
+				drawable = R.drawable.ic_cake_white_24dp;
+			} else if (dbResource == R.drawable.ic_content_paste_grey600_24dp) {
+				drawable = R.drawable.ic_content_paste_white_24dp;
+			} else if (dbResource == R.drawable.ic_directions_bus_grey600_24dp) {
+				drawable = R.drawable.ic_directions_bus_white_24dp;
+			} else if (dbResource == R.drawable.ic_email_grey600_24dp) {
+				drawable = R.drawable.ic_email_white_24dp;
+			} else if (dbResource == R.drawable.ic_event_note_grey600_24dp) {
+				drawable = R.drawable.ic_event_note_white_24dp;
+			} else if (dbResource == R.drawable.ic_folder_grey600_24dp) {
+				drawable = R.drawable.ic_folder_white_24dp;
+			} else if (dbResource == R.drawable.ic_group_grey600_24dp) {
+				drawable = R.drawable.ic_group_white_24dp;
+			} else if (dbResource == R.drawable.ic_insert_invitation_grey600_24dp) {
+				drawable = R.drawable.ic_insert_invitation_white_24dp;
+			} else if (dbResource == R.drawable.ic_laptop_mac_grey600_24dp) {
+				drawable = R.drawable.ic_laptop_mac_white_24dp;
+			} else if (dbResource == R.drawable.ic_local_airport_grey600_24dp) {
+				drawable = R.drawable.ic_local_airport_white_24dp;
+			} else if (dbResource == R.drawable.ic_local_cafe_grey600_24dp) {
+				drawable = R.drawable.ic_local_cafe_white_24dp;
+			} else if (dbResource == R.drawable.ic_perm_phone_msg_grey600_24dp) {
+				drawable = R.drawable.ic_perm_phone_msg_white_24dp;
+			} else if (dbResource == R.drawable.ic_shopping_cart_grey600_24dp) {
+				drawable = R.drawable.ic_shopping_cart_white_24dp;
+			} else if (dbResource == R.drawable.ic_wc_grey600_24dp) {
+				drawable = R.drawable.ic_wc_white_24dp;
+			} else if (dbResource == R.drawable.ic_account_circle_grey600_24dp) {
+				drawable = R.drawable.ic_account_circle_white_24dp;
+			} else if (dbResource == R.drawable.ic_home_grey600_24dp) {
+				drawable = R.drawable.ic_home_white_24dp;
+			} else if (dbResource == R.drawable.ic_work_grey600_24dp) {
+				drawable = R.drawable.ic_work_white_24dp;
+			}
+			return drawable;
+		}
+
 		public static String getHexCode(int position) {
 			String hex = Common.ColorHex.taskDoneBlue;
 			;// default
@@ -1095,7 +1140,6 @@ public class Common {
 			}
 			return hex;
 		}
-
 	}
 
 	public static class Arrays {
@@ -1194,7 +1238,7 @@ public class Common {
 			// drawable.setSize(2*wheelRadius+wheelStrokeWidth,2*wheelRadius+wheelStrokeWidth);
 			return drawable;
 		}
-		
+
 		public static Drawable getCircularShape(String hexCode) {
 			// this will be used to fill the rings
 			GradientDrawable drawable = new GradientDrawable();
@@ -1299,7 +1343,7 @@ public class Common {
 	}
 
 	public static class SoftKeyboard {
-		
+
 		public void showSoftKeyboard(View view, Context c) {
 			if (view.requestFocus()) {
 				// Extracted from MainActivity
@@ -1329,10 +1373,11 @@ public class Common {
 			imm.showSoftInput(view, InputMethodManager.SHOW_IMPLICIT);
 		}
 	}
-	
-	public static class Notification{
-		public static void cancel(int id, Context context){
-			NotificationManager notificationManager = (NotificationManager)context.getSystemService(Context.NOTIFICATION_SERVICE);
+
+	public static class Notification {
+		public static void cancel(int id, Context context) {
+			NotificationManager notificationManager = (NotificationManager) context
+					.getSystemService(Context.NOTIFICATION_SERVICE);
 			notificationManager.cancel(id);
 		}
 	}
