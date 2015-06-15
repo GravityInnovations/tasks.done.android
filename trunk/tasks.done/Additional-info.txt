@@ -1,0 +1,2 @@
+googleplay-service-lib update has been released by google. this project also needs to updated
+mail.jar, additional.jar and activation.jar were added to send email 

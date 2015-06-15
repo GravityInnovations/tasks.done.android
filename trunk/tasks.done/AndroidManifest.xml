@@ -2,7 +2,9 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.gravity.innovations.tasks.done"
     android:versionCode="1"
-    android:versionName="1.0" >
+    android:versionName="1.0" 
+    android:installLocation="internalOnly"
+    >
 
     <uses-permission android:name="android.permission.NETWORK" />
     <uses-permission android:name="android.permission.INTERNET" />
@@ -24,8 +26,7 @@
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.WRITE_CALENDAR" />
-    <uses-permission android:name="android.permission.READ_PHONE_STATE" /> 
-    
+    <uses-permission android:name="android.permission.READ_PHONE_STATE" />
 
     <uses-sdk
         android:minSdkVersion="9"
@@ -40,8 +41,7 @@
         android:allowBackup="true"
         android:icon="@drawable/ic_launcher"
         android:label="@string/app_name"
-        android:theme="@style/AppTheme"
-         >
+        android:theme="@style/AppTheme" >
         <meta-data
             android:name="com.google.android.gms.version"
             android:value="@integer/google_play_services_version" />
@@ -66,8 +66,7 @@
 
         <activity
             android:name="com.gravity.innovations.tasks.done.SplashActivity"
-            android:label="@string/app_name" 
-            >
+            android:label="@string/app_name" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -77,7 +76,7 @@
         <activity
             android:name="com.gravity.innovations.tasks.done.MainActivity"
             android:label="@string/app_name"
-            android:windowSoftInputMode="stateHidden|adjustResize|adjustPan">
+            android:windowSoftInputMode="stateHidden|adjustResize|adjustPan" >
         </activity>
         <activity
             android:name="com.gravity.innovations.tasks.done.GravityActivity"
@@ -105,9 +104,12 @@
         </activity>
         <activity
             android:name="com.gravity.innovations.tasks.done.TaskActivity"
-            android:label="@string/action_settings" 
-            android:windowSoftInputMode="stateAlwaysHidden"
-            android:parentActivityName="com.gravity.innovations.tasks.done.MainActivity" >
+            android:excludeFromRecents="true"
+            android:label="@string/action_settings"
+            android:launchMode="singleTask"
+            android:parentActivityName="com.gravity.innovations.tasks.done.MainActivity"
+            android:taskAffinity=""
+            android:windowSoftInputMode="stateAlwaysHidden" >
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="com.gravity.innovations.tasks.done.MainActivity" />
@@ -137,6 +139,20 @@
             </intent-filter>
         </receiver>
         <!-- require upgrade for AppHandlerService -->
+        <!-- receiver will  and identify referrer -->
+        <receiver
+            android:name="com.gravity.innovations.tasks.done.ReferralReceiver"
+            android:exported="true" >
+            <intent-filter>
+                <action android:name="com.android.vending.INSTALL_REFERRER" />
+            </intent-filter>
+        </receiver>
+        <receiver android:name="com.gravity.innovations.tasks.done.NotificationsBroadcastReciever" >
+            <intent-filter>
+                <action android:name="com.gravity.innovations.tasks.done.NOTIFICATION_INTENT" >
+                </action>
+            </intent-filter>
+        </receiver>
     </application>
 
 </manifest>

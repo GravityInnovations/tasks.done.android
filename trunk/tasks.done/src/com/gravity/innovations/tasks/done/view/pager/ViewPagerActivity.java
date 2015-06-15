@@ -56,7 +56,7 @@ public class ViewPagerActivity extends FragmentActivity {
 					Toast.makeText(getApplicationContext(), "Fourth position",
 							Toast.LENGTH_LONG).show();
 					Animation animationFadeIn = AnimationUtils.loadAnimation(
-							getApplicationContext(), R.anim.fade_out);
+							getApplicationContext(), android.R.anim.fade_out);
 					_mViewPager.startAnimation(animationFadeIn);
 				}
 			}

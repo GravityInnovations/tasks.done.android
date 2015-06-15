@@ -8,12 +8,10 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.StringTokenizer;
 import java.util.TimeZone;
-
 import org.json.JSONObject;
-
-import android.animation.AnimatorSet.Builder;
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.app.NotificationManager;
 import android.content.ContentResolver;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -21,20 +19,26 @@ import android.content.DialogInterface.OnClickListener;
 import android.content.Intent;
 import android.database.Cursor;
 import android.graphics.Bitmap;
+import android.graphics.Color;
+import android.graphics.drawable.Drawable;
+import android.graphics.drawable.GradientDrawable;
+import android.graphics.drawable.ShapeDrawable;
+import android.graphics.drawable.shapes.OvalShape;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
+import android.net.Uri;
 import android.os.Build;
 import android.provider.ContactsContract;
+import android.provider.ContactsContract.CommonDataKinds;
 import android.util.Log;
 import android.view.View;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ArrayAdapter;
-import android.widget.Button;
-import android.widget.LinearLayout;
 import android.widget.ListView;
-import android.widget.RelativeLayout;
 import android.widget.Spinner;
 import android.widget.TextView;
+import android.widget.Toast;
 
 //This class will include common keys used in application
 
@@ -46,13 +50,8 @@ import android.widget.TextView;
 //pass it to switch, bundle extras, shared prefs etc 
 public class Common {
 	private static final String prefix = "com.gravity.innovations.tasks.done.";
-	public static final String USER_EMAIL = prefix + "UserEmail";// used in
-																	// shared
-																	// prefs for
-																	// io of
-																	// user
-																	// email
-																	// address
+	public static final String USER_EMAIL = prefix + "UserEmail";
+	// used in shared prefs for io of user email address
 	public static final String USER_NAME = prefix + "Username";
 	public static final String USER_IMAGE = prefix + "UserImage";
 	public static final String USER_DATA = prefix + "UserData";
@@ -128,6 +127,21 @@ public class Common {
 	// google urls
 	public static final String USER_INFO_URL = "https://www.googleapis.com/oauth2/v1/userinfo?alt=json&access_token=";// require
 																														// token
+
+	public static final String KEY_EXTRAS_NOTIFICATION_RECEPIENT = "_recipient_";
+	// store acions call/sms/email
+	public static final String KEY_EXTRAS_NOTIFICATION_ACTION_TYPE = "_actionType_";
+	// store eithernumber/emailId
+	public static final String KEY_INTENT_NOTIFICATION_SET_ACTION = "com.gravity.innovations.tasks.done.NOTIFICATION_INTENT";
+
+	public static final String KEY_EXTRAS_TASK = "_task_";
+	public static final String KEY_EXTRAS_LIST = "_list_";
+	public static final String KEY_EXTRAS_TASK_ID = "_task_id";
+	public static final String KEY_EXTRAS_LIST_ID = "_task_list_id";
+	public static final String KEY_EXTRAS_NOTIFICATION_ID = "_notification_id";
+	public static final String KEY_EXTRAS_NOTIFICATION_ID_COMPARING = "_comparing_";
+	public static final String KEY_EXTRAS_ALARM_ID = "_alarm_id";
+	//for canceling the notification
 
 	// request codes
 
@@ -306,55 +320,16 @@ public class Common {
 
 	// for dialog creation and handling
 	public static class CustomDialog {
-		public static final void CustomDialog(final Context context, View view,
-				String dialogTitle) {
 
-			AlertDialog.Builder builder = new AlertDialog.Builder(context);
-			builder.setIcon(android.R.drawable.ic_dialog_alert);
-			builder.setTitle(dialogTitle);
-			builder.setView(view);
-			builder.create().show();
-		}
-
-		public static final AlertDialog.Builder CustomDialog(
-				final Context context, View view) {
-
-			AlertDialog.Builder builder = new AlertDialog.Builder(context);
-			builder.setView(view);
-			builder.create().show();
-			builder.setCancelable(true);
-			return builder;
-		}
-
-		public static final void CustomDialog(final Context context,
+		public static final void set(final Context context,
 				int posText, int negText,
 				DialogInterface.OnClickListener negListener,
 				DialogInterface.OnClickListener posListener) {
 
 			AlertDialog.Builder builder = new AlertDialog.Builder(context);
-			builder.setIcon(android.R.drawable.ic_dialog_alert);
+			builder.setIcon(R.drawable.ic_warning_grey600_24dp);
 			builder.setTitle(R.string.delete);
 			builder.setMessage(R.string.delete_message_confirm);
-			// builder.setView(view);
-
-			if (posListener != null) {
-				builder.setPositiveButton(posText, posListener);
-			}
-			if (negListener != null) {
-				builder.setNegativeButton(negText, negListener);
-			}
-
-			builder.create().show();
-		}
-
-		public static final void CustomDialog(final Context context, View view,
-				DialogInterface.OnClickListener negListener,
-				DialogInterface.OnClickListener posListener, int posText,
-				int negText) {
-			// editText task edit Activity
-			AlertDialog.Builder builder = new AlertDialog.Builder(context);
-			builder.setView(view);
-			// builder.setTitle(dialogTitle);
 			if (posListener != null) {
 				builder.setPositiveButton(posText, posListener);
 			}
@@ -364,100 +339,12 @@ public class Common {
 			builder.create().show();
 		}
 
-		public static final void CustomDialog(final Context context, View view,
-				View headerView, DialogInterface.OnClickListener posListener,
-				int posText) {
-			// editText task edit Activity
-			AlertDialog.Builder builder = new AlertDialog.Builder(context);
-
-			builder.setView(view);
-			builder.setCustomTitle(headerView);
-
-			// builder.setTitle(dialogTitle);
-			if (posListener != null) {
-				builder.setPositiveButton(posText, posListener);
-			}
-
-			builder.create().show();
-		}
-
-		public static final void CustomDialog(final Context context, View view,
+		public static final void set(final Context context, View view,
 				DialogInterface.OnClickListener posListener, int posText) {
-			// editText task edit Activity
-			AlertDialog.Builder builder = new AlertDialog.Builder(context);
-
-			builder.setView(view);
-
-			// builder.setTitle(dialogTitle);
-			if (posListener != null) {
-				builder.setPositiveButton(posText, posListener);
-			}
-
-			builder.create().show();
-		}
-
-		public static final void CustomDialogWithRadio(final Context context,
-				View view, DialogInterface.OnClickListener posListener,
-				int posText) {
-			AlertDialog.Builder builder = new AlertDialog.Builder(context);
-			builder.setView(view);
-
-			// final CharSequence[] items = { " Minutes Before ",
-			// " Hours Before ", " Days Before ", " Weeks Before " };
-			// builder.setSingleChoiceItems(items, -1,
-			// new DialogInterface.OnClickListener() {
-			// public void onClick(DialogInterface dialog, int item) {
-			//
-			// switch (item) {
-			// case 0:
-			// // Your code when first option seletced
-			// break;
-			// case 1:
-			// // Your code when 2nd option seletced
-			//
-			// break;
-			// case 2:
-			// // Your code when 3rd option seletced
-			// break;
-			// case 3:
-			// // Your code when 4th option seletced
-			// break;
-			//
-			// }
-			// }
-			// });
-
-			if (posListener != null) {
-				builder.setPositiveButton(posText, posListener);
-			}
-			builder.create().show();
-		}
-
-		public static final void CustomDialog_rewamp(final Context context,
-				View view, DialogInterface.OnClickListener posListener,
-				int posText) {
-
 			AlertDialog.Builder builder = new AlertDialog.Builder(context);
 			builder.setView(view);
 			if (posListener != null) {
 				builder.setPositiveButton(posText, posListener);
-			}
-			builder.create().show();
-		}
-
-		public static final void CustomDialog(final Context context, View view,
-				DialogInterface.OnClickListener negListener,
-				DialogInterface.OnClickListener posListener, int posText,
-				int negText, String dialogTitle) {
-
-			AlertDialog.Builder builder = new AlertDialog.Builder(context);
-			builder.setView(view);
-			builder.setTitle(dialogTitle);
-			if (posListener != null) {
-				builder.setPositiveButton(posText, posListener);
-			}
-			if (negListener != null) {
-				builder.setNegativeButton(negText, negListener);
 			}
 			builder.create().show();
 		}
@@ -486,44 +373,48 @@ public class Common {
 				builder = new AlertDialog.Builder(context)
 						.setTitle(dialogTitle).setAdapter(adapter, null)
 						.setPositiveButton(posText, posListener).create();
-
 			// final AlertDialog dialog = new AlertDialog.Builder(context);
 			// final AlertDialog.Builder builder = new
 			// AlertDialog.Builder(context);
-
 			// builder.setMultiChoiceItems(items, "checked", "email",
 			// chooseItemListner);
-
 			builder.getListView().setItemsCanFocus(false);
 			builder.getListView().setChoiceMode(ListView.CHOICE_MODE_MULTIPLE);
 			// builder.getListView().setOnItemSelectedListener(onItemSelectedListener);//.setOnItemClickListener(itemClickListener);
 			builder.getListView().setOnItemClickListener(onItemClickListener);
 			builder.show();
 		}
+		
+		public static final void withRadioButton(final Context context,
+				View view, DialogInterface.OnClickListener posListener,
+				int posText) {
+			AlertDialog.Builder builder = new AlertDialog.Builder(context);
+			builder.setView(view);
+			if (posListener != null) {
+				builder.setPositiveButton(posText, posListener);
+			}
+			builder.create().show();
+		}
 
-		public static void CustomDialog(Context mContext, String title,
+
+		public static void set(Context mContext, String title,
 				String message, String posText, String negText,
 				OnClickListener posListener, OnClickListener negListener) {
-			// TODO Auto-generated method stub
 			AlertDialog.Builder builder = new AlertDialog.Builder(mContext);
 			builder.setIcon(android.R.drawable.ic_popup_reminder);
 			builder.setTitle(title);
 			builder.setCancelable(false);
 			builder.setMessage(message);
-			// builder.setView(view);
-
 			if (posListener != null) {
 				builder.setPositiveButton(posText, posListener);
 			}
 			if (negListener != null) {
 				builder.setNegativeButton(negText, negListener);
 			}
-
 			builder.create().show();
-
 		}
 
-		public static AlertDialog.Builder TextDialog(Context mContext,
+		public static AlertDialog.Builder textDialog(Context mContext,
 				AlertData data) {
 			// TODO Auto-generated method stub
 			AlertDialog.Builder builder = new AlertDialog.Builder(mContext);
@@ -541,8 +432,6 @@ public class Common {
 				builder.setNegativeButton(data.negText, data.negListener);
 			}
 			return builder;
-			// builder//.create().show();
-
 		}
 
 		// new dailogs for TaskReminderActivity
@@ -566,39 +455,13 @@ public class Common {
 
 		}
 
-		public static final void timePickerDialog(final Context context,
-				View view, DialogInterface.OnClickListener posListener,
-				int posText) {
-			// editText task edit Activity
-			AlertDialog.Builder builder = new AlertDialog.Builder(context);
-
-			builder.setView(view);
-
-			// builder.setTitle(dialogTitle);
-			if (posListener != null) {
-				builder.setPositiveButton(posText, posListener);
-			}
-
-			builder.create().show();
-		}
-
 		public static final void listDialog(Context context,
 				String[] list_items, DialogInterface.OnClickListener listener) {
-
 			AlertDialog.Builder builder = new AlertDialog.Builder(context);
-
 			builder.setItems(list_items, listener);
-
-			// builder.setTitle(dialogTitle);
 			if (listener != null) {
-				// builder.setOnItemSelectedListener(listener);
-				// builder.setSingleChoiceItems(cursor, checkedItem,
-				// labelColumn, listener)
-				// .setPositiveButton(posText, posListener);
 			}
-
 			builder.create().show();
-
 		}
 
 	}
@@ -835,6 +698,7 @@ public class Common {
 	}
 
 	public static class CalenderToMillis {
+		
 		public static String getTimeInMillis(Calendar date, Calendar time) {
 			int c_startDate = date.get(Calendar.DAY_OF_MONTH);
 			int c_startMonth = date.get(Calendar.MONTH);
@@ -903,7 +767,7 @@ public class Common {
 
 		public static Calendar setCalender_CurrentTime(Calendar cal) {
 			// these are for initial setup only
-			//long currentTimeMillis = System.currentTimeMillis();
+			// long currentTimeMillis = System.currentTimeMillis();
 			cal = Calendar.getInstance();
 			cal.set(Calendar.YEAR, 0);
 			cal.set(Calendar.DAY_OF_MONTH, 0);
@@ -962,55 +826,10 @@ public class Common {
 			// Specify the layout to use when the list of choices appears
 			adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
 			return adapter;
-			// spinner.setAdapter(adapter);
 		}
 	}
 
-	public static class Snippets {
-		public static void setBackgroundResource(Button _button, boolean _flag) {
-			if (_flag) {
-				_button.setBackgroundResource(R.drawable.circle_blue_full);
-			} else if (!_flag) {
-				_button.setBackgroundResource(R.drawable.circle_blue);
-			}
-		}
-
-		public static void setBackgroundResource_buttonColor(Button _button,
-				boolean _flag) {
-			if (_flag) {
-				if (_button.getId() == R.id.btn_caramel) {
-					_button.setBackgroundResource(R.drawable.circle_caramel_full);
-				} else if (_button.getId() == R.id.btn_jazz_orange) {
-					_button.setBackgroundResource(R.drawable.circle_orange_jazz_full);
-				} else if (_button.getId() == R.id.btn_seagreen) {
-					_button.setBackgroundResource(R.drawable.circle_seagreen_full);
-				} else if (_button.getId() == R.id.btn_moonlightblue) {
-					_button.setBackgroundResource(R.drawable.circle_moonlightblue_full);
-				} else if (_button.getId() == R.id.btn_yellow) {
-					_button.setBackgroundResource(R.drawable.circle_yellow_full);
-				} else if (_button.getId() == R.id.btn_pink) {
-					_button.setBackgroundResource(R.drawable.circle_pink_full);
-				}
-
-			} else if (!_flag) {
-				if (_button.getId() == R.id.btn_caramel) {
-					_button.setBackgroundResource(R.drawable.circle_caramel);
-				} else if (_button.getId() == R.id.btn_jazz_orange) {
-					_button.setBackgroundResource(R.drawable.circle_orange_jazz);
-				} else if (_button.getId() == R.id.btn_seagreen) {
-					_button.setBackgroundResource(R.drawable.circle_seagreen);
-				} else if (_button.getId() == R.id.btn_moonlightblue) {
-					_button.setBackgroundResource(R.drawable.circle_moonlightblue);
-				} else if (_button.getId() == R.id.btn_yellow) {
-					_button.setBackgroundResource(R.drawable.circle_yellow);
-				} else if (_button.getId() == R.id.btn_pink) {
-					_button.setBackgroundResource(R.drawable.circle_pink);
-				}
-			}
-		}
-	}
-
-	public static class Set_RepeatModel {
+	public static class RepeatModel {
 		public static TaskModel DoesNotRepeat(TaskModel task) {
 			task.rep_interval = 0;
 			task.rep_intervalType = 0;
@@ -1068,12 +887,13 @@ public class Common {
 
 	}
 
-	public static class GetNotificaitonModel {
+	public static class NotificaitonModel {
+		
 		public static TaskNotificationsModel atTimeOfEvent(
 				TaskNotificationsModel model) {
 			model.interval = 0; // 0
 			model.interval_type = 1; // mins
-			model.send_notificaion_as_email = 0;
+			model.send_as = 0;
 			return model;
 		}
 
@@ -1081,7 +901,7 @@ public class Common {
 				TaskNotificationsModel model) {
 			model.interval = 10; // 10
 			model.interval_type = 1; // mins
-			model.send_notificaion_as_email = 0;
+			model.send_as = 0;
 			return model;
 		}
 
@@ -1089,7 +909,7 @@ public class Common {
 				TaskNotificationsModel model) {
 			model.interval = 30; // 30
 			model.interval_type = 1;// mins
-			model.send_notificaion_as_email = 0;
+			model.send_as = 0;
 			return model;
 		}
 
@@ -1097,7 +917,7 @@ public class Common {
 				TaskNotificationsModel model) {
 			model.interval = 1; // 1
 			model.interval_type = 2;// 1 hour
-			model.send_notificaion_as_email = 0;
+			model.send_as = 0;
 			return model;
 		}
 
@@ -1106,7 +926,7 @@ public class Common {
 			TaskNotificationsModel model = new TaskNotificationsModel();
 			model.interval = 0; // 0
 			model.interval_type = 1; // mins
-			model.send_notificaion_as_email = 0;
+			model.send_as = 0;
 			return model;
 		}
 
@@ -1114,7 +934,7 @@ public class Common {
 			TaskNotificationsModel model = new TaskNotificationsModel();
 			model.interval = 10; // 10
 			model.interval_type = 1; // mins
-			model.send_notificaion_as_email = 0;
+			model.send_as = 0;
 			return model;
 		}
 
@@ -1122,7 +942,7 @@ public class Common {
 			TaskNotificationsModel model = new TaskNotificationsModel();
 			model.interval = 30; // 30
 			model.interval_type = 1;// mins
-			model.send_notificaion_as_email = 0;
+			model.send_as = 0;
 			return model;
 		}
 
@@ -1130,7 +950,7 @@ public class Common {
 			TaskNotificationsModel model = new TaskNotificationsModel();
 			model.interval = 1; // 1
 			model.interval_type = 2;// 1 hour
-			model.send_notificaion_as_email = 0;
+			model.send_as = 0;
 			return model;
 		}
 
@@ -1144,7 +964,7 @@ public class Common {
 			cal.set(Calendar.HOUR_OF_DAY, 13);
 			cal.set(Calendar.MINUTE, 00);
 			model.interval_expiration = String.valueOf(cal.getTimeInMillis());
-			model.send_notificaion_as_email = 0;
+			model.send_as = 0;
 
 			return model;
 		}
@@ -1158,7 +978,7 @@ public class Common {
 			cal.set(Calendar.HOUR_OF_DAY, 10);
 			cal.set(Calendar.MINUTE, 00);
 			model.interval_expiration = String.valueOf(cal.getTimeInMillis());
-			model.send_notificaion_as_email = 0;
+			model.send_as = 0;
 			return model;
 		}
 
@@ -1171,7 +991,7 @@ public class Common {
 			cal.set(Calendar.HOUR_OF_DAY, 9);
 			cal.set(Calendar.MINUTE, 00);
 			model.interval_expiration = String.valueOf(cal.getTimeInMillis());
-			model.send_notificaion_as_email = 0;
+			model.send_as = 0;
 
 			return model;
 		}
@@ -1186,8 +1006,334 @@ public class Common {
 			cal.set(Calendar.MINUTE, 30);
 			model.interval_expiration = String.valueOf(cal.getTimeInMillis());
 
-			model.send_notificaion_as_email = 0;
+			model.send_as = 0;
 			return model;
+		}
+	}
+
+	public class ColorHex {
+		public static final String taskDoneBlue = "#88B1C5";
+		public static final String yellow = "#F4D05E";
+		public static final String pink = "#F46C5E";
+		public static final String seaGreen = "#00A5A6";
+		public static final String moonLightBlue = "#34495e";
+		public static final String orangeJazz = "#FF982F";
+		public static final String caramel = "#FFC182";
+		public static final String teal = "#00796B";
+		public static final String indigo = "#303F9F";
+		public static final String lightGreen = "#8BC34A";
+		public static final String grey = "#9E9E9E";
+		public static final String blueGrey = "#607D8B";
+		public static final String depOrange = "#FF5722";
+	}
+
+	public static class DrawableResouces {
+		
+		public static int getDrawableResouce(int position) {
+			int list_type = R.drawable.ic_assignment_grey600_24dp; // default
+			if (position == 0) {
+				list_type = R.drawable.ic_assignment_grey600_24dp;
+			} else if (position == 1) {
+				list_type = R.drawable.ic_attachment_grey600_24dp;
+			} else if (position == 2) {
+				list_type = R.drawable.ic_build_grey600_24dp;
+			} else if (position == 3) {
+				list_type = R.drawable.ic_cake_grey600_24dp;
+			} else if (position == 4) {
+				list_type = R.drawable.ic_content_paste_grey600_24dp;
+			} else if (position == 5) {
+				list_type = R.drawable.ic_directions_bus_grey600_24dp;
+			} else if (position == 6) {
+				list_type = R.drawable.ic_email_grey600_24dp;
+			} else if (position == 7) {
+				list_type = R.drawable.ic_event_note_grey600_24dp;
+			} else if (position == 8) {
+				list_type = R.drawable.ic_folder_grey600_24dp;
+			} else if (position == 9) {
+				list_type = R.drawable.ic_group_grey600_24dp;
+			} else if (position == 10) {
+				list_type = R.drawable.ic_insert_invitation_grey600_24dp;
+			} else if (position == 11) {
+				list_type = R.drawable.ic_laptop_mac_grey600_24dp;
+			} else if (position == 12) {
+				list_type = R.drawable.ic_local_airport_grey600_24dp;
+			} else if (position == 13) {
+				list_type = R.drawable.ic_local_cafe_grey600_24dp;
+			} else if (position == 14) {
+				list_type = R.drawable.ic_perm_phone_msg_grey600_24dp;
+			} else if (position == 15) {
+				list_type = R.drawable.ic_shopping_cart_grey600_24dp;
+			} else if (position == 16) {
+				list_type = R.drawable.ic_wc_grey600_24dp;
+			} else if (position == 17) {
+				list_type = R.drawable.ic_account_circle_grey600_24dp;
+			} else if (position == 18) {
+				list_type = R.drawable.ic_home_grey600_24dp;
+			} else if (position == 19) {
+				list_type = R.drawable.ic_work_grey600_24dp;
+			}
+			return list_type;
+		}
+
+		public static String getHexCode(int position) {
+			String hex = Common.ColorHex.taskDoneBlue;
+			;// default
+			if (position == 0) {
+				hex = Common.ColorHex.taskDoneBlue;
+			} else if (position == 1) {
+				hex = Common.ColorHex.moonLightBlue;
+			} else if (position == 2) {
+				hex = Common.ColorHex.orangeJazz;
+			} else if (position == 3) {
+				hex = Common.ColorHex.pink;
+			} else if (position == 4) {
+				hex = Common.ColorHex.seaGreen;
+			} else if (position == 5) {
+				hex = Common.ColorHex.yellow;
+			} else if (position == 6) {
+				hex = Common.ColorHex.caramel;
+			}
+			return hex;
+		}
+
+	}
+
+	public static class Arrays {
+		public static Integer[] resource_icons = {
+		/*
+		 * If any resource is added, updated or removed
+		 * selectedDrawableResouce(param..) should also be updated in
+		 * Common.Snippets.selectedDrawableResouce
+		 */
+		R.drawable.ic_assignment_grey600_24dp,
+				R.drawable.ic_attachment_grey600_24dp,
+				R.drawable.ic_build_grey600_24dp,
+				R.drawable.ic_cake_grey600_24dp,
+				R.drawable.ic_content_paste_grey600_24dp,
+				R.drawable.ic_directions_bus_grey600_24dp,
+				R.drawable.ic_email_grey600_24dp,
+				R.drawable.ic_event_note_grey600_24dp,
+				R.drawable.ic_folder_grey600_24dp,
+				R.drawable.ic_group_grey600_24dp,
+				R.drawable.ic_insert_invitation_grey600_24dp,
+				R.drawable.ic_laptop_mac_grey600_24dp,
+				R.drawable.ic_local_airport_grey600_24dp,
+				R.drawable.ic_local_cafe_grey600_24dp,
+				R.drawable.ic_perm_phone_msg_grey600_24dp,
+				R.drawable.ic_shopping_cart_grey600_24dp,
+				R.drawable.ic_wc_grey600_24dp,
+				R.drawable.ic_account_circle_grey600_24dp,
+				R.drawable.ic_home_grey600_24dp,
+				R.drawable.ic_work_grey600_24dp };
+
+		public static Drawable[] colorsDrawables = {
+				/*
+				 * If anyColor is added, updated or removed the below function
+				 * also need to updated setItemBackgroundResouce(param..) in NDF
+				 * selectedColorResouce(param) in
+				 * Common.Snippets.selectedColorResouce
+				 */
+				Common.ShapesAndGraphics
+						.getRingShape(Common.ColorHex.taskDoneBlue),
+				Common.ShapesAndGraphics
+						.getRingShape(Common.ColorHex.moonLightBlue),
+				Common.ShapesAndGraphics
+						.getRingShape(Common.ColorHex.orangeJazz),
+				Common.ShapesAndGraphics.getRingShape(Common.ColorHex.pink),
+				Common.ShapesAndGraphics.getRingShape(Common.ColorHex.seaGreen),
+				Common.ShapesAndGraphics.getRingShape(Common.ColorHex.yellow),
+				Common.ShapesAndGraphics.getRingShape(Common.ColorHex.caramel),
+				Common.ShapesAndGraphics.getRingShape(Common.ColorHex.teal),
+				Common.ShapesAndGraphics
+						.getRingShape(Common.ColorHex.lightGreen),
+				Common.ShapesAndGraphics.getRingShape(Common.ColorHex.grey),
+				Common.ShapesAndGraphics.getRingShape(Common.ColorHex.blueGrey),
+				Common.ShapesAndGraphics
+						.getRingShape(Common.ColorHex.depOrange)
+
+		};
+	}
+
+	public static class ShapesAndGraphics {
+
+		public static int adjustAlpha(int color, float alpha) {
+			// float f = alpha/100;
+			int a = Math.round(255 * alpha);
+			// ( 255 * (float)());
+			int red = Color.red(color);
+			int green = Color.green(color);
+			int blue = Color.blue(color);
+			return Color.argb(a, red, green, blue);
+		}
+
+		public static ShapeDrawable getfloatingButton(String hex) {
+			ShapeDrawable circle;
+			circle = new ShapeDrawable(new OvalShape());
+			// circle.setBounds(10, 10, 20, 20);
+			// circle.setPadding(14, 15, 10, 10);// L,T,R,B
+			circle.getPaint().setColor(Color.parseColor(hex));
+			return circle;
+		}
+
+		public static Drawable getCircularShape_day(String hexCode) {
+			// this will be used to fill the rings
+			GradientDrawable drawable = new GradientDrawable();
+			drawable.setColor(Color.parseColor(hexCode));
+			drawable.setShape(GradientDrawable.OVAL);
+			drawable.setStroke(5, Color.parseColor(hexCode));
+			drawable.setSize(2 * 20 + 5, 2 * 20 + 5);
+			return drawable;
+		}
+
+		public static Drawable getRingShape_day(String hexCode) {
+			GradientDrawable drawable = new GradientDrawable();
+			drawable.setColor(Color.TRANSPARENT);
+			drawable.setShape(GradientDrawable.OVAL);
+			drawable.setStroke(5, Color.parseColor(hexCode));
+			drawable.setSize(2 * 20 + 5, 2 * 20 + 5);
+			// drawable.setSize(2*wheelRadius+wheelStrokeWidth,2*wheelRadius+wheelStrokeWidth);
+			return drawable;
+		}
+		
+		public static Drawable getCircularShape(String hexCode) {
+			// this will be used to fill the rings
+			GradientDrawable drawable = new GradientDrawable();
+			drawable.setColor(Color.parseColor(hexCode));
+			drawable.setShape(GradientDrawable.OVAL);
+			drawable.setStroke(5, Color.parseColor(hexCode));
+			drawable.setSize(2 * 10 + 5, 2 * 10 + 5);
+			return drawable;
+		}
+
+		public static Drawable getRingShape(String hexCode) {
+			GradientDrawable drawable = new GradientDrawable();
+			drawable.setColor(Color.TRANSPARENT);
+			drawable.setShape(GradientDrawable.OVAL);
+			drawable.setStroke(5, Color.parseColor(hexCode));
+			drawable.setSize(2 * 10 + 5, 2 * 10 + 5);
+			// drawable.setSize(2*wheelRadius+wheelStrokeWidth,2*wheelRadius+wheelStrokeWidth);
+			return drawable;
+		}
+	}
+
+	public static class ContactStringConversion {
+
+		public static String getDisplayName(Uri _uri, Context _context) {
+			String name = null;
+			Cursor cursor = _context.getContentResolver().query(_uri, null,
+					null, null, null);
+			if (cursor.moveToFirst()) {
+				int idx = cursor
+						.getColumnIndex(ContactsContract.Contacts.DISPLAY_NAME);
+				name = cursor.getString(idx);
+			}
+			cursor.close();
+			return name;
+		}
+
+		public static String getEmailAddress(String taskTitle, Context _context) {
+			String email = null;
+			String test = null;
+			if (taskTitle.toString().toLowerCase().contains("email")) {
+				test = taskTitle.toString().substring(6);
+				test = test.trim();
+				if (test.contains("content://com.android.contacts/data/")) {
+					// String uriString = taskTitle.toString().substring(6);
+					// uriString = uriString.trim();
+					Uri uri = Uri.parse(test);
+					Cursor cursor = _context.getContentResolver().query(uri,
+							null, null, null, null);
+					if (cursor.moveToFirst()) {
+						int idx = cursor
+								.getColumnIndex(ContactsContract.CommonDataKinds.Email.ADDRESS);
+						email = cursor.getString(idx);
+					}
+					cursor.close();
+				}
+			}
+			return email;
+		}
+
+		public static String getPhoneNumber(String taskTitle, Context _context) {
+			String phone = null;
+			String test = null;
+			if (taskTitle.toString().toLowerCase().contains("call")
+					|| taskTitle.toString().toLowerCase().contains("sms")) {
+				// test = taskTitle.toString().substring(5);
+				if (taskTitle.toString().toLowerCase().contains("call")) {
+					test = taskTitle.toString().substring(5);
+				} else if (taskTitle.toString().toLowerCase().contains("sms")) {
+					test = taskTitle.toString().substring(4);
+				}
+				test = test.trim();
+				if (test.contains("ontent://com.android.contacts/contacts/lookup")) {
+					Uri uri = Uri.parse(test);
+					Cursor cursor = _context.getContentResolver().query(uri,
+							null, null, null, null);
+
+					if (cursor.moveToFirst()) {
+						// int idx = cursor
+						// .getColumnIndex(ContactsContract.Contacts.DISPLAY_NAME);
+						// String name = cursor.getString(idx);
+						int id = cursor
+								.getColumnIndex(ContactsContract.Contacts._ID);
+						String contactID = cursor.getString(id);
+
+						Cursor cursor2 = _context.getContentResolver().query(
+								CommonDataKinds.Phone.CONTENT_URI,
+								null,
+								CommonDataKinds.Phone.CONTACT_ID + " = "
+										+ contactID, null, null);
+						if (cursor2.moveToNext()) {
+							phone = (cursor2
+									.getString(cursor2
+											.getColumnIndex(CommonDataKinds.Phone.NUMBER)));
+						}
+						cursor2.close();
+					}
+					cursor.close();
+				}
+			}
+			return phone;
+		}
+	}
+
+	public static class SoftKeyboard {
+		
+		public void showSoftKeyboard(View view, Context c) {
+			if (view.requestFocus()) {
+				// Extracted from MainActivity
+				View mEditText = view;
+				mEditText.setFocusable(true);
+				mEditText.requestFocus();
+				InputMethodManager imm = (InputMethodManager) c
+						.getSystemService(Context.INPUT_METHOD_SERVICE);
+				imm.showSoftInput(mEditText, InputMethodManager.SHOW_IMPLICIT);
+			}
+		}
+
+		public static void hide(Activity mActivity) {
+			if (mActivity.getCurrentFocus() != null) {
+				InputMethodManager inputMethodManager = (InputMethodManager) mActivity
+						.getSystemService(mActivity.INPUT_METHOD_SERVICE);
+				inputMethodManager.hideSoftInputFromWindow(mActivity
+						.getCurrentFocus().getWindowToken(), 0);
+			}
+		}
+
+		public static void show(View view, Activity mActivity) {
+			view.setFocusable(true);
+			view.requestFocus();
+			InputMethodManager imm = (InputMethodManager) mActivity
+					.getSystemService(Context.INPUT_METHOD_SERVICE);
+			imm.showSoftInput(view, InputMethodManager.SHOW_IMPLICIT);
+		}
+	}
+	
+	public static class Notification{
+		public static void cancel(int id, Context context){
+			NotificationManager notificationManager = (NotificationManager)context.getSystemService(Context.NOTIFICATION_SERVICE);
+			notificationManager.cancel(id);
 		}
 	}
 }

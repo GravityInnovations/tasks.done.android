@@ -4,35 +4,26 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.GregorianCalendar;
 import java.util.StringTokenizer;
-
-import android.annotation.SuppressLint;
 import android.app.IntentService;
 import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.v4.app.NotificationCompat;
 import android.util.Log;
 
 public class AlarmSchedulingService extends IntentService {
-
 	DatabaseHelper db;
 	Context mContext;
-
-	public int NOTIFICATION_ID;
 	private NotificationManager mNotificationManager;
 	private AlarmBroadcastReciever mAlarmBroadcastReciever = new AlarmBroadcastReciever();
-	// NotificationCompat.Builder builder;
-	// Bundle extras;
 
-	private static final String PREF_TASKLIST_ID_PRESSED = "tasklist_pressed_id";
-	private static final String PREF_TASK_ID_FOR_TASKLIST_PRESSED = "task_id";
-
-	private Boolean isSat = false, isSun = false, isMon = false, isTue = false,
-			isWed = false, isThu = false, isFri = false;
+	// private static final String PREF_TASKLIST_ID_PRESSED =
+	// "tasklist_pressed_id";
+	// private static final String PREF_TASK_ID_FOR_TASKLIST_PRESSED =
+	// "task_id";
 
 	public AlarmSchedulingService() {
 		super("SchedulingService");
@@ -43,12 +34,7 @@ public class AlarmSchedulingService extends IntentService {
 		try {
 			// Get passed values
 			Bundle extras = intent.getExtras();
-			// int uniqueID = extras.getInt("alarm_id");
-
-			String uniqueIDDsS = extras.getString("alarmMgr_id");
-			NOTIFICATION_ID = Integer.parseInt(uniqueIDDsS);// alarmMgr_id,
-															// alarmID;
-			sendNotification(Integer.parseInt(uniqueIDDsS));
+			sendNotification(extras.getInt(Common.KEY_EXTRAS_ALARM_ID));
 			// Release the wake lock provided by the BroadcastReceiver.
 			AlarmBroadcastReciever.completeWakefulIntent(intent);
 		} catch (Exception e) {
@@ -63,9 +49,10 @@ public class AlarmSchedulingService extends IntentService {
 		TaskNotificationsModel model = db.notification.Get(alarm_id);
 		TaskModel task = db.tasks.Get(model.fk_task_id);
 		String alarmTitle = task.title;
-		String alarmMessage = task.details + "Notification ID: " + model._id
-				+ " Interval: " + model.interval + "interval Type is: "
-				+ model.interval_type;
+		String alarmMessage = task.details;
+		//alarmMessage = task.details + "Notification ID: " + model._id
+				//+ " Interval: " + model.interval + "interval Type is: "
+				//+ model.interval_type;
 
 		mNotificationManager = (NotificationManager) this
 				.getSystemService(Context.NOTIFICATION_SERVICE);
@@ -73,16 +60,42 @@ public class AlarmSchedulingService extends IntentService {
 		int id = task.fk_tasklist_id;
 
 		Intent intent = new Intent(this, MainActivity.class);
-		intent.putExtra("_task_list_id", task.fk_tasklist_id);
-		intent.putExtra("_task_id", task._id);
-		PendingIntent contentIntent = PendingIntent.getActivity(this, 0,
-				intent, /* PendingIntent.FLAG_UPDATE_CURRENT| */
-				Intent.FILL_IN_DATA | Intent.FLAG_ACTIVITY_NEW_TASK);
-		// | Intent.FLAG_ACTIVITY_SINGLE_TOP);
+		intent.putExtra(Common.KEY_EXTRAS_LIST_ID, task.fk_tasklist_id);
+		intent.putExtra(Common.KEY_EXTRAS_TASK_ID, task._id);
+		intent.putExtra(Common.KEY_EXTRAS_NOTIFICATION_ID_COMPARING, alarm_id);
+
+		if (task.title.toLowerCase().contains("call")) {
+			intent.putExtra(Common.KEY_EXTRAS_NOTIFICATION_ACTION_TYPE, 1);
+			intent.putExtra(Common.KEY_EXTRAS_NOTIFICATION_RECEPIENT,
+					Common.ContactStringConversion.getPhoneNumber(task.title,
+							this));
+		} else if (task.title.toLowerCase().contains("sms")) {
+			intent.putExtra(Common.KEY_EXTRAS_NOTIFICATION_ACTION_TYPE, 2);
+			intent.putExtra(Common.KEY_EXTRAS_NOTIFICATION_RECEPIENT,
+					Common.ContactStringConversion.getPhoneNumber(task.title,
+							this));
+		} else if (task.title.toLowerCase().contains("email")) {
+			intent.putExtra(Common.KEY_EXTRAS_NOTIFICATION_ACTION_TYPE, 3);
+			intent.putExtra(Common.KEY_EXTRAS_NOTIFICATION_RECEPIENT,
+					Common.ContactStringConversion.getEmailAddress(task.title,
+							this));
+		}
+
+		intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP
+				| Intent.FLAG_ACTIVITY_SINGLE_TOP);
+		intent.setFlags(Intent.FILL_IN_DATA | Intent.FLAG_ACTIVITY_NEW_TASK); // these
+																				// two
+																				// work
+																				// the
+																				// best
+
+		PendingIntent contentIntent = PendingIntent.getActivity(this, alarm_id,
+				intent, PendingIntent.FLAG_UPDATE_CURRENT);
 
 		// use the right class it should be called from the where alarms are set
 		NotificationCompat.Builder mBuilder = new NotificationCompat.Builder(
 				this)
+				.setAutoCancel(true)
 				.setSmallIcon(R.drawable.ic_launcher)
 				.setContentTitle(alarmTitle)
 				.setStyle(
@@ -91,17 +104,25 @@ public class AlarmSchedulingService extends IntentService {
 
 				.setDefaults(
 						Notification.DEFAULT_SOUND
+								| Notification.DEFAULT_VIBRATE
 								| Notification.DEFAULT_LIGHTS
-								| Notification.FLAG_ONGOING_EVENT
-								| Notification.FLAG_FOREGROUND_SERVICE)
+								| Notification.FLAG_AUTO_CANCEL)
 
 				.setContentText(alarmMessage);
-		// mBuilder.addAction(R.drawable.ic_action_cancel, "Dismiss",
-		// contentIntent);
-		// mBuilder.addAction(R.drawable.ic_action_accept, "Done",
-		// contentIntent);
+
+		if (task.title.toLowerCase().contains("call")) {
+			mBuilder.addAction(R.drawable.ic_perm_phone_msg_grey600_24dp,
+					"Call", contentIntent);
+		} else if (task.title.toLowerCase().contains("sms")) {
+			mBuilder.addAction(R.drawable.ic_perm_phone_msg_grey600_24dp,
+					"Sms", contentIntent);
+		} else if (task.title.toLowerCase().contains("email")) {
+			mBuilder.addAction(R.drawable.ic_email_grey600_24dp, "Email",
+					contentIntent);
+		}
+
 		mBuilder.setContentIntent(contentIntent);
-		mNotificationManager.notify(NOTIFICATION_ID, mBuilder.build());
+		mNotificationManager.notify(alarm_id, mBuilder.build());
 
 		if (task.rep_intervalType != 0) {
 			// is Repeating type Alarm
@@ -131,7 +152,7 @@ public class AlarmSchedulingService extends IntentService {
 						Log.e("is a longTime", e.getLocalizedMessage());
 						Long untilADate = Long
 								.valueOf(task.rep_intervalExpiration.toString());
-						if (untilADate <= Long.valueOf(task.rep_startDateTime)) {
+						if (untilADate <= Long.valueOf(task.startDateTime)) {
 							// cancel alarm
 							mAlarmBroadcastReciever.cancelAlarm(mContext,
 									alarm_id);
@@ -145,17 +166,16 @@ public class AlarmSchedulingService extends IntentService {
 					}
 				} else {
 					// no rep_intervalExpiration exists
-					Long endDateTime = Long.valueOf(task.rep_endDateTime);
-					if (endDateTime <= Long.valueOf(task.rep_startDateTime)) {
+					Long endDateTime = Long.valueOf(task.endDateTime);
+					if (endDateTime <= Long.valueOf(task.startDateTime)) {
 						// do nothing
 						// cancel alarm
 						mAlarmBroadcastReciever.cancelAlarm(mContext, alarm_id);
-					} else if (endDateTime > Long
-							.valueOf(task.rep_startDateTime)) {
+					} else if (endDateTime > Long.valueOf(task.startDateTime)) {
 						Long addTheseDaysToExisting = (Long.valueOf(interval) * 86400000L);
 						// 1 day in millis = 86400000L
-						task.rep_startDateTime = String
-								.valueOf((Long.valueOf(task.rep_startDateTime) + addTheseDaysToExisting));
+						task.startDateTime = String
+								.valueOf((Long.valueOf(task.startDateTime) + addTheseDaysToExisting));
 
 						db.tasks.Edit(task);
 						set_NextAlarm(db.tasks.Get(task._id), mContext,
@@ -191,8 +211,7 @@ public class AlarmSchedulingService extends IntentService {
 							Long untilADate = Long
 									.valueOf(task.rep_intervalExpiration
 											.toString());
-							if (untilADate <= Long
-									.valueOf(task.rep_startDateTime)) {
+							if (untilADate <= Long.valueOf(task.startDateTime)) {
 								// cancel alarm
 								mAlarmBroadcastReciever.cancelAlarm(mContext,
 										alarm_id);
@@ -210,32 +229,29 @@ public class AlarmSchedulingService extends IntentService {
 						if (task.rep_value == null) {
 							// no days entered
 
-							Long endDateTime = Long
-									.valueOf(task.rep_endDateTime);
-							
-							
+							Long endDateTime = Long.valueOf(task.endDateTime);
+
 							Calendar _cal = Calendar.getInstance();
-							_cal.setTimeInMillis(Long.valueOf(task.rep_startDateTime));
+							_cal.setTimeInMillis(Long
+									.valueOf(task.startDateTime));
 							_cal.add(Calendar.DAY_OF_WEEK, 7);
 
 							Long newDateTime = _cal.getTimeInMillis();
 
-							task.rep_startDateTime = String.valueOf(newDateTime);
+							task.startDateTime = String.valueOf(newDateTime);
 
-						
-							
-							if (endDateTime <= Long
-									.valueOf(task.rep_startDateTime)) {
+							if (endDateTime <= Long.valueOf(task.startDateTime)) {
 								// do nothing
 								// cancel alarm
 								mAlarmBroadcastReciever.cancelAlarm(mContext,
 										alarm_id);
 							} else if (endDateTime > Long
-									.valueOf(task.rep_startDateTime)) {
+									.valueOf(task.startDateTime)) {
 
 								db.tasks.Edit(task);
 
-								// set_NextAlarm(db.tasks.Get(task._id), mContext);
+								// set_NextAlarm(db.tasks.Get(task._id),
+								// mContext);
 								set_NextAlarm(db.tasks.Get(task._id), mContext,
 										model._id);
 
@@ -250,14 +266,14 @@ public class AlarmSchedulingService extends IntentService {
 					// there doesnot exist any interval
 					if (task.rep_value != null) {
 
-						Long endDateTime = Long.valueOf(task.rep_endDateTime);
-						if (endDateTime <= Long.valueOf(task.rep_startDateTime)) {
+						Long endDateTime = Long.valueOf(task.endDateTime);
+						if (endDateTime <= Long.valueOf(task.startDateTime)) {
 							// do nothing
 							// cancel alarm
 							mAlarmBroadcastReciever.cancelAlarm(mContext,
 									alarm_id);
 						} else if (endDateTime > Long
-								.valueOf(task.rep_startDateTime)) {
+								.valueOf(task.startDateTime)) {
 
 							weeklyAlarm_calculations(task, model);
 
@@ -292,7 +308,7 @@ public class AlarmSchedulingService extends IntentService {
 						Log.e("is a longTime", e.getLocalizedMessage());
 						Long untilADate = Long
 								.valueOf(task.rep_intervalExpiration.toString());
-						if (untilADate <= Long.valueOf(task.rep_startDateTime)) {
+						if (untilADate <= Long.valueOf(task.startDateTime)) {
 							// cancel alarm
 							mAlarmBroadcastReciever.cancelAlarm(mContext,
 									alarm_id);
@@ -306,16 +322,15 @@ public class AlarmSchedulingService extends IntentService {
 					}
 
 				} else {
-					Long endDateTime = Long.valueOf(task.rep_endDateTime);
-					if (endDateTime <= Long.valueOf(task.rep_startDateTime)) {
+					Long endDateTime = Long.valueOf(task.endDateTime);
+					if (endDateTime <= Long.valueOf(task.startDateTime)) {
 						// do nothing
 						// cancel alarm
 						mAlarmBroadcastReciever.cancelAlarm(mContext, alarm_id);
-					} else if (endDateTime > Long
-							.valueOf(task.rep_startDateTime)) {
+					} else if (endDateTime > Long.valueOf(task.startDateTime)) {
 
 						Calendar c = Calendar.getInstance();
-						c.setTimeInMillis(Long.valueOf(task.rep_startDateTime));
+						c.setTimeInMillis(Long.valueOf(task.startDateTime));
 
 						// INTERVAL_DAY
 						// * c.getActualMaximum(Calendar.DAY_OF_MONTH)
@@ -324,8 +339,8 @@ public class AlarmSchedulingService extends IntentService {
 								* c.getActualMaximum(Calendar.DAY_OF_MONTH) * 86400000L);
 						// month max in millis * 1 Day in millis
 
-						task.rep_startDateTime = String
-								.valueOf((Long.valueOf(task.rep_startDateTime) + addTheseMonthsToExisting));
+						task.startDateTime = String
+								.valueOf((Long.valueOf(task.startDateTime) + addTheseMonthsToExisting));
 
 						db.tasks.Edit(task);
 						set_NextAlarm(db.tasks.Get(task._id), mContext,
@@ -359,7 +374,7 @@ public class AlarmSchedulingService extends IntentService {
 						Log.e("is a longTime", e.getLocalizedMessage());
 						Long untilADate = Long
 								.valueOf(task.rep_intervalExpiration.toString());
-						if (untilADate <= Long.valueOf(task.rep_startDateTime)) {
+						if (untilADate <= Long.valueOf(task.startDateTime)) {
 							// cancel alarm
 							mAlarmBroadcastReciever.cancelAlarm(mContext,
 									alarm_id);
@@ -372,16 +387,15 @@ public class AlarmSchedulingService extends IntentService {
 						}
 					}
 				} else {
-					Long endDateTime = Long.valueOf(task.rep_endDateTime);
-					if (endDateTime <= Long.valueOf(task.rep_startDateTime)) {
+					Long endDateTime = Long.valueOf(task.endDateTime);
+					if (endDateTime <= Long.valueOf(task.startDateTime)) {
 						// do nothing
 						// cancel alarm
 						mAlarmBroadcastReciever.cancelAlarm(mContext, alarm_id);
-					} else if (endDateTime > Long
-							.valueOf(task.rep_startDateTime)) {
+					} else if (endDateTime > Long.valueOf(task.startDateTime)) {
 
 						Calendar c = Calendar.getInstance();
-						c.setTimeInMillis(Long.valueOf(task.rep_startDateTime));
+						c.setTimeInMillis(Long.valueOf(task.startDateTime));
 
 						// INTERVAL_DAY
 						// * c.getActualMaximum(Calendar.DAY_OF_MONTH)
@@ -401,8 +415,8 @@ public class AlarmSchedulingService extends IntentService {
 																// millis * 1
 																// DAy in millis
 
-						task.rep_startDateTime = String
-								.valueOf((Long.valueOf(task.rep_startDateTime) + addTheseYearsToExisting));
+						task.startDateTime = String
+								.valueOf((Long.valueOf(task.startDateTime) + addTheseYearsToExisting));
 
 						db.tasks.Edit(task);
 						set_NextAlarm(db.tasks.Get(task._id), mContext,
@@ -420,9 +434,9 @@ public class AlarmSchedulingService extends IntentService {
 	private void weeklyAlarm_calculations(TaskModel task,
 			TaskNotificationsModel model) {
 		Calendar calendar_DB = Calendar.getInstance();
-		calendar_DB.setTimeInMillis(Long.valueOf(task.rep_startDateTime));
+		calendar_DB.setTimeInMillis(Long.valueOf(task.startDateTime));
 		String abc = task.rep_value;
-		String startTime = task.rep_startDateTime;
+		String startTime = task.startDateTime;
 
 		int occurrences = 0;// task.rep_valueString
 
@@ -521,7 +535,7 @@ public class AlarmSchedulingService extends IntentService {
 
 				i = wkDay_arrayList.size();
 
-				task.rep_startDateTime = String.valueOf(newDateTime);
+				task.startDateTime = String.valueOf(newDateTime);
 
 				db.tasks.Edit(task);
 
@@ -552,7 +566,7 @@ public class AlarmSchedulingService extends IntentService {
 
 					i = wkDay_arrayList.size();
 
-					task.rep_startDateTime = String.valueOf(newDateTime);
+					task.startDateTime = String.valueOf(newDateTime);
 
 					db.tasks.Edit(task);
 
@@ -573,7 +587,7 @@ public class AlarmSchedulingService extends IntentService {
 
 					i = wkDay_arrayList.size();
 
-					task.rep_startDateTime = String.valueOf(newDateTime);
+					task.startDateTime = String.valueOf(newDateTime);
 
 					db.tasks.Edit(task);
 
@@ -582,16 +596,6 @@ public class AlarmSchedulingService extends IntentService {
 				}
 			}
 		}
-	}
-
-	private void resetBooleans() {
-		isMon = false;
-		isTue = false;
-		isWed = false;
-		isThu = false;
-		isFri = false;
-		isSun = false;
-		isSat = false;
 	}
 
 	private void set_NextAlarm(TaskModel task, Context mContext, int alarmID) {

@@ -30,6 +30,11 @@
         android:orderInCategory="100"
         android:title="@string/action_dashboard"
         app:showAsAction="never"/>
+        <item
+        android:id="@+id/action_refer_friend"
+        android:orderInCategory="100"
+        android:title="@string/refer_friend"
+        app:showAsAction="never"/>
     <item
         android:id="@+id/action_developer"
         android:orderInCategory="98"

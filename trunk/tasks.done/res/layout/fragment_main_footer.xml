@@ -73,7 +73,7 @@
         android:background="@drawable/default_button_selector"
         android:clickable="true"
         android:padding="5dp"
-        android:src="@drawable/ic_action_settings" />
+        android:src="@drawable/ic_settings_grey600_24dp" />
 
    
 

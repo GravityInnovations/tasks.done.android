@@ -96,11 +96,24 @@
     <string name="thr">Thr</string>
     <string name="fri">Fri</string>
     <string name="sat">Sat</string>
-      <string name="event">event</string>
-      <string name="dateFormat">MM/DD/YYYY</string>
-      <string name = "addAnotherNotification">Add another notification</string>
-            <string name = "notifications">Notifications</string>
-      
+    <string name="event">event</string>
+    <string name="dateFormat">MM/DD/YYYY</string>
+    <string name="addAnotherNotification">Add another notification</string>
+    <string name="notifications">Notifications</string>
+    <string name="watch_a_video">Watch A Video</string>
+    <string name="refer_friend">Refer A Friend</string>
+    <string name="make_ad_free">Make task.done Ad Free</string>
+    <string name="dashboard">Dashboard</string>
+    <string name="tasks_pending">Tasks pending</string>
+    <string name="search_here">Search Here</string>
+    <string name="list_name">List Name</string>
+     <string name="now">Now</string>
+    
+    
+    
+    
+   
+    
 
     <string-array name="array_weekdays">
         <item>Sunday</item>

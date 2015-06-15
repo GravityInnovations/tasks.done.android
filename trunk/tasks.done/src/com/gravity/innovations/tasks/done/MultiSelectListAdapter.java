@@ -108,7 +108,7 @@ public class MultiSelectListAdapter extends
 		ViewHolder holder = null;
 		if (row == null) {
 			LayoutInflater inflater = LayoutInflater.from(mActivity);
-			row = inflater.inflate(R.layout.multiselectlist_row,parent, false);
+			row = inflater.inflate(R.layout.row_multiselectlist,parent, false);
 			holder = new ViewHolder();
 			LinearLayout l = (LinearLayout)row.findViewById(R.id.LL);
 			holder.text1 = (TextView) l.findViewById(R.id.textView1);
@@ -139,7 +139,7 @@ public class MultiSelectListAdapter extends
 				
 			//holder.icon.setImageResource(R.drawable.catag_personal);
 				
-			Bitmap b = ImageGridAdapter.getRoundedCornerBitmap(Bitmap.createScaledBitmap((BitmapFactory.decodeResource(r, R.drawable.catag_personal)),
+			Bitmap b = ImageGridAdapter.getRoundedCornerBitmap(Bitmap.createScaledBitmap((BitmapFactory.decodeResource(r, R.drawable.ic_account_circle_grey600_24dp)),
 					150, 150, true));
 			holder.icon1.setImageBitmap(b);
 			

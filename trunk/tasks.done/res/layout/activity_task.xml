@@ -2,27 +2,36 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:orientation="vertical"
     android:paddingTop="?attr/actionBarSize" >
 
     <EditText
         android:id="@+id/txt_title"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_alignParentEnd="true"
         android:layout_alignParentLeft="true"
         android:layout_alignParentRight="true"
-        android:layout_alignParentTop="true"
+        android:layout_alignParentStart="true"
+        android:layout_marginTop="5dp"
         android:background="#00000000"
         android:focusable="true"
-        android:hint="Title Here"
-        android:padding="20dp"
+        android:hint="@string/title_here"
+       
+        android:paddingBottom="20dp"
+        android:paddingLeft="20dp"
+        android:paddingRight="20dp"
+        android:paddingTop="40dp"
         android:singleLine="false"
+        android:textColor="@color/textColor"
         android:textSize="24sp" />
+    <!--   android:maxLength="20" -->
 
     <View
         android:id="@+id/line1"
         android:layout_width="fill_parent"
         android:layout_height="1dp"
-        android:layout_below="@+id/txt_title"
+        android:layout_below="@+id/counter_titleString"
         android:background="@color/line_divider" />
 
     <ScrollView
@@ -50,6 +59,7 @@
                 android:paddingRight="20dp"
                 android:paddingTop="10dp"
                 android:singleLine="false"
+                android:textColor="@color/textColor"
                 android:textSize="17sp" />
 
             <View
@@ -72,7 +82,7 @@
                     android:layout_alignBottom="@+id/switch_layout"
                     android:layout_alignParentLeft="true"
                     android:layout_alignParentTop="true"
-                    android:src="@android:drawable/btn_star" />
+                    android:src="@drawable/ic_schedule_grey600_24dp" />
 
                 <include
                     android:id="@+id/switch_layout"
@@ -96,7 +106,7 @@
                     android:paddingTop="10dp"
                     android:tag="start"
                     android:text="Friday, Apr 3 2015"
-                    android:textColor="@android:color/black"
+                    android:textColor="@color/textColor"
                     android:textSize="17sp" />
 
                 <TextView
@@ -112,7 +122,7 @@
                     android:paddingTop="10dp"
                     android:tag="end"
                     android:text="Friday, Apr 3 2015"
-                    android:textColor="@android:color/black"
+                    android:textColor="@color/textColor"
                     android:textSize="17sp" />
 
                 <TextView
@@ -130,7 +140,7 @@
                     android:paddingTop="10dp"
                     android:tag="end"
                     android:text="11:00AM"
-                    android:textColor="@android:color/black"
+                    android:textColor="@color/textColor"
                     android:textSize="17sp" />
 
                 <TextView
@@ -148,7 +158,7 @@
                     android:paddingTop="10dp"
                     android:tag="start"
                     android:text="11:00AM"
-                    android:textColor="@android:color/black"
+                    android:textColor="@color/textColor"
                     android:textSize="17sp" />
 
                 <View
@@ -171,7 +181,7 @@
                     android:layout_toLeftOf="@+id/repeat_tv"
                     android:paddingBottom="10dp"
                     android:paddingTop="10dp"
-                    android:src="@drawable/ic_action_replay" />
+                    android:src="@drawable/ic_replay_grey600_24dp" />
 
                 <TextView
                     android:id="@+id/repeat_tv"
@@ -186,7 +196,7 @@
                     android:gravity="center_vertical"
                     android:tag="0"
                     android:text="Repeat"
-                    android:textColor="@android:color/black"
+                    android:textColor="@color/textColor"
                     android:textSize="17sp" />
 
                 <View
@@ -209,7 +219,7 @@
                     android:layout_toLeftOf="@+id/add_notification_btn"
                     android:paddingBottom="0dp"
                     android:paddingTop="10dp"
-                    android:src="@drawable/ic_action_place" />
+                    android:src="@drawable/ic_notifications_grey600_24dp" />
 
                 <TextView
                     android:id="@+id/add_notification_btn"
@@ -223,7 +233,7 @@
                     android:clickable="false"
                     android:gravity="center_vertical"
                     android:text="Notifications"
-                    android:textColor="@android:color/black"
+                    android:textColor="@color/textColor"
                     android:textSize="17sp" />
 
                 <LinearLayout
@@ -245,7 +255,7 @@
                     android:paddingBottom="10dp"
                     android:paddingTop="8dp"
                     android:text="@string/addAnotherNotification"
-                    android:textColor="@android:color/black"
+                    android:textColor="@color/textColor"
                     android:textSize="17sp" />
 
                 <View
@@ -266,7 +276,9 @@
                     android:layout_below="@+id/line5"
                     android:layout_marginRight="10dp"
                     android:layout_toLeftOf="@+id/add_notification_btn"
-                    android:src="@drawable/ic_action_sort_by_size" />
+                    android:paddingBottom="10dp"
+                    android:paddingTop="10dp"
+                    android:src="@drawable/ic_content_paste_grey600_24dp" />
 
                 <EditText
                     android:id="@+id/txt_notes"
@@ -282,17 +294,30 @@
                     android:paddingRight="20dp"
                     android:paddingTop="10dp"
                     android:singleLine="false"
+                    android:textColor="@color/textColor"
                     android:textSize="17sp" />
 
                 <Button
-                   	android:id="@+id/buttON"
+                    android:id="@+id/buttON"
                     android:layout_width="wrap_content"
-                    android:layout_height="wrap_content" 
-                    android:text="Button"
+                    android:layout_height="wrap_content"
                     android:layout_below="@+id/txt_notes"
-                    android:visibility="gone"/>
+                    android:text="Button"
+                    android:visibility="gone" />
             </RelativeLayout>
         </RelativeLayout>
     </ScrollView>
+
+    <TextView
+        android:id="@+id/counter_titleString"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignBaseline="@+id/txt_title"
+        android:layout_alignBottom="@+id/txt_title"
+        android:layout_alignParentEnd="true"
+        android:layout_alignParentRight="true"
+        android:paddingRight="10dp"
+        android:text="* "
+        android:textColor="@color/pumpkin" />
 
 </RelativeLayout>

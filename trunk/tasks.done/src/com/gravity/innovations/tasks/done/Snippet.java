@@ -93,17 +93,8 @@ public class Snippet {
 			return dateToReturn;
 		}
 	}
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	///////////////////////////////////////NDF
+
+	// /////////////////////////////////////NDF
 	public long getTime() throws ParseException {
 		// SimpleDateFormat df = new SimpleDateFormat(
 		// "yyyy-MM-dd'T'HH:mm:ss.SSSSSSS'GMT'");
@@ -155,14 +146,5 @@ public class Snippet {
 			e.printStackTrace();
 		}
 	}
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
+
 }

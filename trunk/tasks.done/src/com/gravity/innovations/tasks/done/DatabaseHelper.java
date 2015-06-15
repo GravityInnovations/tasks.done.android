@@ -16,35 +16,17 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 	public Users users = new Users();
 	private UsersLists userlists = new UsersLists();
 	public Notifications notification = new Notifications();
-
-	// private Repeat repetitions = new Repeat();
 	private Notifications notifications = new Notifications();
-
-	// Database Version
+	// Database Version and Name
 	private static final int DATABASE_VERSION = 1;
-
-	// Database Name
 	private static final String DATABASE_NAME = "task_done_db";
-
-	// ******** TABLE NAMES *********//
-	// TaskModel table
-	// task has Auto inc. id, title, details and notes
+	// Table Names
 	private static final String TABLE_TASKS = "tasks";
-	// TaskListModel table
-	// task list has Auto inc. id and a title
 	private static final String TABLE_TASK_LIST = "task_lists";
-	// Users table
-	// user has Auto inc. id name and a email
 	private static final String TABLE_USERS = "users";
 	private static final String TABLE_USERS_LISTS = "users_lists";
-	// private static final String TABLE_REMINDERS = "reminders";
-
 	private static final String TABLE_TASK_NOTIFICATIONS = "task_notifications";
-	private static final String TABLE_TASK_REPEAT = "task_repeat";
-
-	// ******** TABLE NAMES *********//
-
-	// ******** Columns Entries *********//
+	// Columns Entries
 	protected static final String KEY_PK = "_id";
 	protected static final String KEY_TITLE = "title";
 	protected static final String KEY_DETAILS = "details";
@@ -56,8 +38,6 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 	protected static final String KEY_DISPLAY_NAME = "display_name";
 	protected static final String KEY_CONTACT_ID = "contact_id";
 	protected static final String KEY_IMAGE = "image";
-	// protected static final String KEY_USER_PHONE_NUM = "user_phone";
-
 	protected static final String KEY_SERVER_ID = "server_id";
 	protected static final String KEY_PARENT = "parent";
 	protected static final String KEY_STATUS = "status";
@@ -67,54 +47,26 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 	protected static final String KEY_LINKS = "links";
 	protected static final String KEY_SYNC_STATUS = "sync_status";
 	protected static final String KEY_SYNC_STATUS_DATETIMESTAMP = "sync_status_datetimestamp";
-	protected static final String KEY_REP_CREATED_DATETIMESTAMP = "rep_created_datetimestamp";
+	protected static final String KEY_CREATED_DATETIMESTAMP = "created_datetimestamp";
 	protected static final String KEY_SELF_LINK = "self_link";
-
-	// Table
-
-	protected static final String KEY_DATE_UPDATED_DATETIMESTAMP = "date_updated_datetimestamp";
-	// protected static final String KEY_DUE_AT = "due_date_tTime";
-	// protected static final String KEY_COMPLETED_AT = "completed_date_time";
-
-	// protected static final String KEY_REMIND_AT = "remind_date_time";
-	// protected static final String KEY_REMIND_INTERVAL = "remind_interval";
-
+	protected static final String KEY_UPDATED_DATETIMESTAMP = "updated_datetimestamp";
 	protected static final String KEY_ETAG = "etag";
 	protected static final String KEY_USER_ID = "user_id";
 	protected static final String KEY_KIND = "kind";
 	protected static final String KEY_LIST_TYPE = "icon_identifier";
-
-	// protected static final String KEY_ALARM_ID = "alarm_identifier";
-	// protected static final String KEY_ALARM_STATUS = "alarm_status";
-	// protected static final String KEY_ALARM_WEEKDAY = "alarm_weekday";
-
 	protected static final String KEY_ASSOCIATED_USERMODELS = "associated_usermodel";
-
-	// ******** TASK REPEAT *********//
 	protected static final String KEY_FK_TASK_ID = "fk_task_id";
 	protected static final String KEY_REP_INTERVAL = "rep_interval";
 	protected static final String KEY_REP_TYPE = "rep_type";
 	protected static final String KEY_REP_VALUE = "rep_value";
 	protected static final String KEY_REP_INTERVAL_EXPIRATION = "rep_interval_expiration";
-	// protected static final String KEY_INTERVAL_WEEK = "interval_week";
-	// protected static final String KEY_WEEK_OF_MONTH = "week_of_month";
-	// protected static final String KEY_DAY_OF_MONTH = "day_of_month";
-	protected static final String KEY_REP_START_DATETIMESTAMP = "rep_start_datetimestamp";
-	protected static final String KEY_REP_END_DATETIMESTAMP = "rep_end_datetimestamp";
-	protected static final String KEY_REP_All_DAY = "rep_all_day";
-
-	protected static final String KEY_NOT_INTERVAL = "not_interval";
-	protected static final String KEY_NOT_TYPE = "not_type";
-
-	// ******** TASK REPEAT NOTIFICATIONS *********//
-
-	private static final String KEY_SEND_NOTIFICATION_AS_EMAIL = "send_notificaiton_as_email";
-	private static final String KEY_INTERVAL_EXPIRATION = "interval_expiration";
-	// ******** Columns Entries *********//
-
-	// ********* SQLite Table Structure Queries *********//
-
-	// ********* SQLite Table Structure Queries *********//
+	protected static final String KEY_START_DATETIMESTAMP = "start_datetimestamp";
+	protected static final String KEY_END_DATETIMESTAMP = "end_datetimestamp";
+	protected static final String KEY_All_DAY = "all_day";
+	protected static final String KEY_NOT_INTERVAL = "interval";
+	protected static final String KEY_NOT_TYPE = "type";
+	protected static final String KEY_SEND_AS = "send_as";
+	protected static final String KEY_INTERVAL_EXPIRATION = "interval_expiration";
 
 	private SharedPreferences mSharedPreferences;
 	private SharedPreferences.Editor mSharedPreferencesEditor;
@@ -136,7 +88,6 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 		// mSharedPreferencesEditor = mSharedPreferences.edit();
 	}
 
-	// ********* Creating Tables *********//
 	@Override
 	public void onCreate(SQLiteDatabase db) {
 		String _TAG = "DbHelper onCreate";
@@ -172,9 +123,6 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 		}
 	}
 
-	// ********* Creating Tables *********//
-
-	// ********* Upgrading database *********//
 	@Override
 	public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
 		// Drop older table if existed
@@ -183,7 +131,6 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 			db.execSQL("DROP TABLE IF EXISTS " + TABLE_TASK_LIST);
 			db.execSQL("DROP TABLE IF EXISTS " + TABLE_USERS);
 			db.execSQL("DROP TABLE IF EXISTS " + TABLE_USERS_LISTS);
-			db.execSQL("DROP TABLE IF EXISTS " + TABLE_TASK_REPEAT);
 			db.execSQL("DROP TABLE IF EXISTS " + TABLE_TASK_NOTIFICATIONS);
 			onCreate(db);// create all tables again
 		} catch (Exception e) {
@@ -191,89 +138,78 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 		}
 	}
 
-	// ********* Upgrading database *********//
-
 	/**
 	 * All CRUD FOR TASK(Create, Read, Update, Delete) Operations
 	 */
 
 	protected class Tasks {
 		protected static final String CREATE_TASKS_TABLE = "CREATE TABLE "
-				+ TABLE_TASKS
-				+ "("
-				+ KEY_PK
-				+ " INTEGER PRIMARY KEY AUTOINCREMENT,"// 0
-				+ KEY_TITLE
-				+ " TEXT,"
-				+ KEY_DETAILS
-				+ " TEXT,"
-				+ KEY_NOTES
-				+ " TEXT,"
+				+ TABLE_TASKS + "("
 
-				+ KEY_DATE_UPDATED_DATETIMESTAMP
-				+ " DATETIME," // time long
+				+ KEY_PK + " INTEGER PRIMARY KEY AUTOINCREMENT,"
 
-				// + KEY_REMIND_AT+ " DATETIME," // time long
-				// + KEY_REMIND_INTERVAL+ " INTEGER," // values 0-3
-				/* + KEY_ALARM_ID + " INTEGER," */
-				// + KEY_ALARM_STATUS + " INTEGER,"
-				// + KEY_ALARM_WEEKDAY+ " INTEGER,"
+				+ KEY_TITLE + " TEXT,"
 
-				+ KEY_REP_INTERVAL
-				+ " INTEGER,"
-				+ KEY_REP_TYPE
-				+ " INTEGER,"
+				+ KEY_DETAILS + " TEXT,"
+
+				+ KEY_NOTES + " TEXT,"
+
+				+ KEY_UPDATED_DATETIMESTAMP + " DATETIME,"
+
+				+ KEY_REP_INTERVAL + " INTEGER,"
+
+				+ KEY_REP_TYPE + " INTEGER,"
 				// values 0-5 doesNotRepeat/daily/weekly/monthly/yearly/Custom
-				+ KEY_REP_INTERVAL_EXPIRATION
-				+ " TEXT,"
-				+ KEY_REP_VALUE
-				+ " TEXT,"
-				+ KEY_REP_All_DAY
-				+ " INTEGER,"
-				+ KEY_REP_CREATED_DATETIMESTAMP
-				+ " DATETIME,"
-				+ KEY_REP_START_DATETIMESTAMP
-				+ " DATETIME,"// TEXT change to datetime
-				+ KEY_REP_END_DATETIMESTAMP
-				+ " DATETIME,"// TEXT change to datetime
 
-				+ KEY_SERVER_ID + " TEXT," + KEY_COMPLETED + " INTEGER,"
-				+ KEY_SYNC_STATUS
-				+ " TEXT,"
-				+ KEY_SYNC_STATUS_DATETIMESTAMP
-				+ " DATETIME,"// 15
+				+ KEY_REP_INTERVAL_EXPIRATION + " TEXT,"
 
-				+ KEY_FK_TASKLIST_ID + " INTEGER," + " FOREIGN KEY ("
-				+ KEY_FK_TASKLIST_ID + ")" + "REFERENCES " + TABLE_TASK_LIST
-				+ "(" + KEY_PK + ")" + ")";
+				+ KEY_REP_VALUE + " TEXT,"
+
+				+ KEY_All_DAY + " INTEGER,"
+
+				+ KEY_CREATED_DATETIMESTAMP + " DATETIME,"
+
+				+ KEY_START_DATETIMESTAMP + " DATETIME,"
+
+				+ KEY_END_DATETIMESTAMP + " DATETIME,"
+
+				+ KEY_SERVER_ID + " TEXT,"
+
+				+ KEY_COMPLETED + " INTEGER,"
+
+				+ KEY_SYNC_STATUS + " TEXT,"
+
+				+ KEY_SYNC_STATUS_DATETIMESTAMP + " DATETIME,"
+
+				+ KEY_FK_TASKLIST_ID  + " INTEGER," 
+				
+				+ " FOREIGN KEY (" + KEY_FK_TASKLIST_ID + ")" 
+				
+				+ "REFERENCES " + TABLE_TASK_LIST + "(" + KEY_PK + ")" 
+				
+				+ ")";
 
 		private ContentValues setContent(TaskModel task) {
 			ContentValues values = new ContentValues();
-
 			values.put(KEY_TITLE, task.title);
 			values.put(KEY_DETAILS, task.details);
 			values.put(KEY_NOTES, task.notes);
-			values.put(KEY_DATE_UPDATED_DATETIMESTAMP, task.updated);
-
+			values.put(KEY_UPDATED_DATETIMESTAMP, task.updated);
 			values.put(KEY_REP_INTERVAL, task.rep_interval);
 			values.put(KEY_REP_TYPE, task.rep_intervalType);
 			values.put(KEY_REP_INTERVAL_EXPIRATION, task.rep_intervalExpiration);
 			values.put(KEY_REP_VALUE, task.rep_value);
-			values.put(KEY_REP_CREATED_DATETIMESTAMP, task.rep_createdDateTime);
-			values.put(KEY_REP_All_DAY, task.rep_allDay);
-			values.put(KEY_REP_START_DATETIMESTAMP, task.rep_startDateTime);
-			values.put(KEY_REP_END_DATETIMESTAMP, task.rep_endDateTime);
-
+			values.put(KEY_CREATED_DATETIMESTAMP, task.createdDateTime);
+			values.put(KEY_All_DAY, task.allDay);
+			values.put(KEY_START_DATETIMESTAMP, task.startDateTime);
+			values.put(KEY_END_DATETIMESTAMP, task.endDateTime);
 			values.put(KEY_SERVER_ID, task.server_id);
 			values.put(KEY_COMPLETED, task.completed);
 			values.put(KEY_SYNC_STATUS, task.syncStatus);
 			values.put(KEY_SYNC_STATUS_DATETIMESTAMP, task.syncStatusTimeStamp);
-
 			values.put(KEY_FK_TASKLIST_ID, task.fk_tasklist_id);
-
 			// values.putAll(repetitions.setContent(task.repetition));
 			// values.putAll(notifications.setContent(task.notifications));
-
 			return values;
 		}
 
@@ -282,24 +218,20 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 			int colTitle = c.getColumnIndex(KEY_TITLE);
 			int colDetails = c.getColumnIndex(KEY_DETAILS);
 			int colNotes = c.getColumnIndex(KEY_NOTES);
-			int colUpdated = c.getColumnIndex(KEY_DATE_UPDATED_DATETIMESTAMP);
-
+			int colUpdated = c.getColumnIndex(KEY_UPDATED_DATETIMESTAMP);
 			int colInterval = c.getColumnIndex(KEY_REP_INTERVAL);
 			int colIntervalType = c.getColumnIndex(KEY_REP_TYPE);
 			int colIntervalExpiration = c
 					.getColumnIndex(KEY_REP_INTERVAL_EXPIRATION);
 			int colValue = c.getColumnIndex(KEY_REP_VALUE);
-			int colDateCreated = c
-					.getColumnIndex(KEY_REP_CREATED_DATETIMESTAMP);
-			int colAllDay = c.getColumnIndex(KEY_REP_All_DAY);
-			int colStartDate = c.getColumnIndex(KEY_REP_START_DATETIMESTAMP);
-			int colEndDate = c.getColumnIndex(KEY_REP_END_DATETIMESTAMP);
-
+			int colDateCreated = c.getColumnIndex(KEY_CREATED_DATETIMESTAMP);
+			int colAllDay = c.getColumnIndex(KEY_All_DAY);
+			int colStartDate = c.getColumnIndex(KEY_START_DATETIMESTAMP);
+			int colEndDate = c.getColumnIndex(KEY_END_DATETIMESTAMP);
 			int colServerId = c.getColumnIndex(KEY_SERVER_ID);
 			int colCompleted = c.getColumnIndex(KEY_COMPLETED);
 			int colSyncStatus = c.getColumnIndex(KEY_SYNC_STATUS);
 			int colSyncTime = c.getColumnIndex(KEY_SYNC_STATUS_DATETIMESTAMP);
-
 			int colFKtasklistid = c.getColumnIndex(KEY_FK_TASKLIST_ID);
 			TaskModel task = new TaskModel();
 			task._id = c.getInt(colID);
@@ -307,23 +239,19 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 			task.details = c.getString(colDetails);
 			task.notes = c.getString(colNotes);
 			task.updated = c.getString(colUpdated);
-
 			task.rep_interval = c.getInt(colInterval);
 			task.rep_intervalType = c.getInt(colIntervalType);
 			task.rep_intervalExpiration = c.getString(colIntervalExpiration);
 			task.rep_value = c.getString(colValue);
-			task.rep_createdDateTime = c.getString(colDateCreated);
-			task.rep_allDay = c.getInt(colAllDay);
-			task.rep_startDateTime = c.getString(colStartDate);
-			task.rep_endDateTime = c.getString(colEndDate);
-
+			task.createdDateTime = c.getString(colDateCreated);
+			task.allDay = c.getInt(colAllDay);
+			task.startDateTime = c.getString(colStartDate);
+			task.endDateTime = c.getString(colEndDate);
 			task.server_id = c.getString(colServerId);
 			task.completed = c.getInt(colCompleted);
 			task.syncStatus = c.getString(colSyncStatus);
 			task.syncStatusTimeStamp = c.getString(colSyncTime);
-
 			task.fk_tasklist_id = c.getInt(colFKtasklistid);
-
 			try {
 				task.notifications = notifications.Get(task);
 			} catch (Exception e) {
@@ -336,24 +264,15 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 		public int Add(TaskModel task) {
 			SQLiteDatabase db = getWritableDatabase();
 			ContentValues values = setContent(task);
-
 			int id = (int) db.insert(TABLE_TASKS, null, values);
 			int not = notifications.Add(task.notifications, db, id);
-			// notufications here
 			db.close();
 			return id;
 		}
 
 		public int Edit(TaskModel task) {
 			SQLiteDatabase db = getWritableDatabase();
-			try {
-				int not = notifications.Edit(task/* .notifications */, db);
-			} catch (Exception e) {
-				Log.e("DBH: Task Edit notificaitons.Edit",
-						e.getLocalizedMessage());
-			}
 			ContentValues values = setContent(task);
-
 			return db.update(TABLE_TASKS, values, KEY_PK + " = ?",
 					new String[] { String.valueOf(task._id) });// updating row
 		}
@@ -366,7 +285,6 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 					new String[] { String.valueOf(id) }) > 0) {
 				db.close();
 				return true;
-
 			}
 			db.close();
 			return false;
@@ -376,20 +294,10 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 			SQLiteDatabase db = getReadableDatabase();
 			String query = "SELECT * FROM " + TABLE_TASKS + " WHERE " + KEY_PK
 					+ " = " + id;
-			Cursor cursor = db.rawQuery(query, null);// query(query);
-			// TABLE_TASKS, new String[] { KEY_PK, KEY_TITLE,
-			// KEY_DETAILS, KEY_NOTES,
-			//
-			// KEY_UPDATED_AT, KEY_REMIND_AT, KEY_ALARM_ID, KEY_ALARM_STATUS,
-			// KEY_ALARM_WEEKDAY,
-			//
-			// KEY_REMIND_INTERVAL, KEY_FK_TASKLIST_ID }, KEY_PK + "=?",
-			// new String[] { String.valueOf(id) }, null, null, null, null);
+			Cursor cursor = db.rawQuery(query, null);
 			if (cursor != null)
 				cursor.moveToFirst();
-
 			TaskModel task = getValuesFromCursor(cursor);
-			// return TaskModel
 			cursor.close();
 			db.close();
 			return task;
@@ -400,34 +308,21 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 			String query = "SELECT * FROM " + TABLE_TASKS + " WHERE "
 					+ KEY_SERVER_ID + " = " + ServerId;
 			Cursor cursor = db.rawQuery(query, null);// query(query);
-
 			if (cursor != null)
 				cursor.moveToFirst();
-
 			TaskModel task = getValuesFromCursor(cursor);
-			// return TaskModel
 			cursor.close();
 			db.close();
 			return task;
 		}
 
 		public ArrayList<TaskModel> Get(TaskListModel tasklist) {
-			// >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
-
 			ArrayList<TaskModel> data = new ArrayList<TaskModel>();
 			String selectQuery = "SELECT  * FROM " + TABLE_TASKS + " WHERE "
 					+ KEY_FK_TASKLIST_ID + " = " + tasklist._id
-					+
-					/*
-					 * " ORDER BY updated_date_time DESC"
-					 * " ORDER BY completed, "
-					 */
-					// " ORDER BY completed, updated_datetimestamp DESC";
-					" ORDER BY " + KEY_COMPLETED + " , "
-					+ KEY_DATE_UPDATED_DATETIMESTAMP + " DESC";
-
+					+ " ORDER BY " + KEY_COMPLETED + " , "
+					+ KEY_UPDATED_DATETIMESTAMP + " DESC";
 			SQLiteDatabase db = getWritableDatabase();
-
 			Cursor cursor = db.rawQuery(selectQuery, null);
 			if (cursor.moveToFirst()) {
 				do {
@@ -438,14 +333,11 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 		}
 
 		public ArrayList<TaskModel> Get() {
-			// >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
-
 			ArrayList<TaskModel> data = new ArrayList<TaskModel>();
-			String selectQuery = "SELECT  * FROM " + TABLE_TASKS
-					+ " ORDER BY completed, updated_date_time DESC";
-
+			String selectQuery = "SELECT  * FROM " + TABLE_TASKS + " ORDER BY "
+					+ KEY_COMPLETED + ", " + KEY_UPDATED_DATETIMESTAMP
+					+ " DESC";
 			SQLiteDatabase db = getWritableDatabase();
-
 			Cursor cursor = db.rawQuery(selectQuery, null);
 			if (cursor.moveToFirst()) {
 				do {
@@ -456,16 +348,13 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 		}
 
 		public ArrayList<TaskModel> GetsPendingTasks() {
-			// >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 			int id = 0;
 			ArrayList<TaskModel> data = new ArrayList<TaskModel>();
 
 			String selectQuery = "SELECT * FROM " + TABLE_TASKS + " WHERE "
-					+ KEY_COMPLETED + " = " + id
-					+ " ORDER BY updated_date_time DESC";
-
+					+ KEY_COMPLETED + " = " + id + " ORDER BY "
+					+ KEY_UPDATED_DATETIMESTAMP + " DESC";
 			SQLiteDatabase db = getWritableDatabase();
-
 			Cursor cursor = db.rawQuery(selectQuery, null);
 			if (cursor.moveToFirst()) {
 				do {
@@ -479,17 +368,32 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 	protected class TaskLists {
 		private static final String KEY_FK_USER_ID = "fk_user_id";
 		private static final String KEY_LIST_COLOR = "list_color";
-		protected static final String CREATE_TASK_LIST_TABLE = "CREATE TABLE "
-				+ TABLE_TASK_LIST + "(" + KEY_PK
-				+ " INTEGER PRIMARY KEY AUTOINCREMENT," + KEY_TITLE + " TEXT,"
-				+ KEY_SERVER_ID + " TEXT," + KEY_DATE_UPDATED_DATETIMESTAMP
-				+ " DATETIME," + KEY_SYNC_STATUS + " TEXT,"
-				+ KEY_SYNC_STATUS_DATETIMESTAMP + " DATETIME," + KEY_LIST_TYPE
-				+ " INTEGER," + KEY_LIST_COLOR + " TEXT,"
 
-				+ KEY_FK_USER_ID + " INTEGER," + " FOREIGN KEY ("
-				+ KEY_FK_USER_ID + ")" + "REFERENCES " + TABLE_USERS + "("
-				+ KEY_PK + ")"
+		protected static final String CREATE_TASK_LIST_TABLE = "CREATE TABLE "
+				
+				+ TABLE_TASK_LIST + "("
+
+				+ KEY_PK + " INTEGER PRIMARY KEY AUTOINCREMENT,"
+
+				+ KEY_TITLE + " TEXT,"
+
+				+ KEY_SERVER_ID + " TEXT,"
+
+				+ KEY_UPDATED_DATETIMESTAMP + " DATETIME,"
+
+				+ KEY_SYNC_STATUS + " TEXT,"
+
+				+ KEY_SYNC_STATUS_DATETIMESTAMP + " DATETIME,"
+
+				+ KEY_LIST_TYPE + " INTEGER,"
+
+				+ KEY_LIST_COLOR + " TEXT,"
+
+				+ KEY_FK_USER_ID + " INTEGER," 
+				
+				+ " FOREIGN KEY (" + KEY_FK_USER_ID + ")" 
+				
+				+ "REFERENCES " + TABLE_USERS + "(" + KEY_PK + ")"
 
 				+ ")";
 
@@ -497,7 +401,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 			ContentValues values = new ContentValues();
 			values.put(KEY_TITLE, temp.title);
 			values.put(KEY_SERVER_ID, temp.server_id);
-			values.put(KEY_DATE_UPDATED_DATETIMESTAMP, temp.updated);
+			values.put(KEY_UPDATED_DATETIMESTAMP, temp.updated);
 			values.put(KEY_SYNC_STATUS, temp.syncStatus);
 			values.put(KEY_SYNC_STATUS_DATETIMESTAMP, temp.syncStatusTimeStamp);
 			values.put(KEY_LIST_TYPE, temp.icon_identifier);
@@ -511,7 +415,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 			int colId = c.getColumnIndex(KEY_PK);
 			int colTitle = c.getColumnIndex(KEY_TITLE);
 			int colServerID = c.getColumnIndex(KEY_SERVER_ID);
-			int colUpdatedAt = c.getColumnIndex(KEY_DATE_UPDATED_DATETIMESTAMP);
+			int colUpdatedAt = c.getColumnIndex(KEY_UPDATED_DATETIMESTAMP);
 			int colUserID = c.getColumnIndex(KEY_FK_USER_ID);
 			int colSyncStatus = c.getColumnIndex(KEY_SYNC_STATUS);
 			int colSyncStatusTimeStamp = c
@@ -550,12 +454,10 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
 		public boolean Delete(int id) {
 			SQLiteDatabase db = getWritableDatabase();
-
 			if (db.delete(TABLE_TASK_LIST, KEY_PK + " = ?",
 					new String[] { String.valueOf(id) }) > 0) {
 				db.close();
 				return true;
-
 			}
 			db.close();
 			return false;
@@ -563,7 +465,6 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
 		public int Edit(TaskListModel tasklist) {
 			SQLiteDatabase db = getWritableDatabase();
-
 			ContentValues values = setContent(tasklist);
 			return db.update(TABLE_TASK_LIST, values, KEY_PK + " = ?",
 					new String[] { String.valueOf(tasklist._id) });
@@ -574,22 +475,17 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 			try {
 				// Select All Query
 				String selectQuery = "SELECT  * FROM " + TABLE_TASK_LIST;
-
 				SQLiteDatabase db = getWritableDatabase();
-
 				Cursor cursor = db.rawQuery(selectQuery, null);
-
 				// looping through all rows and adding to list
 				if (cursor.moveToFirst()) {
 					do {
-
 						data.add(getValuesFromCursor(cursor));
 					} while (cursor.moveToNext());
 				}
 				cursor.close();
 				db.close();
 			} catch (Exception e) {
-				// TODO: handle exception
 				Log.e("all_TaskTitleList", "DBHelper GetTaskTitleList" + e);
 			}
 			return data;
@@ -606,7 +502,6 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 				cursor.moveToFirst();
 
 			TaskListModel tasklist = getValuesFromCursor(cursor);
-			// return TaskModel
 			cursor.close();
 			db.close();
 			return tasklist;
@@ -618,19 +513,13 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 					+ " WHERE " + KEY_SERVER_ID + " = '" + ServerId + "'";
 
 			Cursor cursor = db.rawQuery(selectQuery, null);
-			// Cursor cursor = db.query(TABLE_TASK_LIST,null, KEY_SERVER_ID +
-			// "=?", new String[] { ServerId }, null, null,
-			// null, null);
-			if (cursor != null && cursor.moveToFirst())
-				;
-
+			if (cursor != null && cursor.moveToFirst());
 			TaskListModel tasklist = new TaskListModel();
 			try {
 				tasklist = getValuesFromCursor(cursor);
 			} catch (Exception e) {
 				String s = "";
 			}
-			// return TaskModel
 			cursor.close();
 			db.close();
 			return tasklist;
@@ -640,11 +529,24 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 	protected class Users {
 
 		private static final String CREATE_USERS_TABLE = "CREATE TABLE "
-				+ TABLE_USERS + "(" + KEY_PK
-				+ " INTEGER PRIMARY KEY AUTOINCREMENT," + KEY_USER_NAME
-				+ " TEXT," + KEY_EMAIL + " TEXT," + KEY_SERVER_ID + " TEXT,"
-				+ KEY_IMAGE + " BLOB," + KEY_CONTACT_ID + " TEXT,"
-				+ KEY_DISPLAY_NAME + " TEXT" + ")";
+				
+				+ TABLE_USERS + "("
+
+				+ KEY_PK + " INTEGER PRIMARY KEY AUTOINCREMENT,"
+
+				+ KEY_USER_NAME + " TEXT,"
+
+				+ KEY_EMAIL + " TEXT,"
+
+				+ KEY_SERVER_ID + " TEXT,"
+
+				+ KEY_IMAGE + " BLOB,"
+
+				+ KEY_CONTACT_ID + " TEXT,"
+
+				+ KEY_DISPLAY_NAME + " TEXT"
+
+				+ ")";
 
 		private ContentValues setContent(UserModel temp) { // UserModel
 			ContentValues values = new ContentValues();
@@ -722,10 +624,8 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
 		public int ServerValidate(UserModel user) {
 			SQLiteDatabase db = getWritableDatabase();
-
 			ContentValues values = setContent(user);
 			// values.put(KEY_USER_EMAIL, user.email);
-
 			int i = db.update(TABLE_USERS, values, KEY_PK + " = ?",
 					new String[] { String.valueOf(user._id) });// updating row
 			return i;
@@ -733,7 +633,6 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
 		public int Edit(UserModel user) {
 			SQLiteDatabase db = getWritableDatabase();
-
 			ContentValues values = setContent(user);
 			return db.update(TABLE_USERS, values, KEY_PK + " = ?",
 					new String[] { String.valueOf(user._id) });// updating row
@@ -763,22 +662,12 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 			try {
 				String selectQuery = "SELECT  * FROM " + TABLE_USERS
 						+ " WHERE " + KEY_PK + " = '" + id + "'";
-
 				cursor = db.rawQuery(selectQuery, null);
-				// .query(TABLE_USERS,null, KEY_SERVER_ID + "= ? ", new String[]
-				// { ServerId }, null, null,
-				// null, null);
-
 				if (cursor != null && cursor.moveToFirst()) {
-
 					user = getValuesFromCursor(cursor);
 				}
-
-				// return TaskModel
-
 			} catch (Exception e) {
 				String s = "";
-
 			}
 			if (cursor != null)
 				cursor.close();
@@ -793,22 +682,12 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 			try {
 				String selectQuery = "SELECT  * FROM " + TABLE_USERS
 						+ " WHERE " + KEY_SERVER_ID + " = '" + ServerId + "'";
-
 				cursor = db.rawQuery(selectQuery, null);
-				// .query(TABLE_USERS,null, KEY_SERVER_ID + "= ? ", new String[]
-				// { ServerId }, null, null,
-				// null, null);
-
 				if (cursor != null && cursor.moveToFirst()) {
-
 					user = getValuesFromCursor(cursor);
 				}
-
-				// return TaskModel
-
 			} catch (Exception e) {
 				String s = "";
-
 			}
 			if (cursor != null)
 				cursor.close();
@@ -823,9 +702,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 				String selectQuery = "SELECT  * FROM " + TABLE_USERS
 						+ " ORDER BY " + KEY_USER_NAME + " DESC, "
 						+ KEY_DISPLAY_NAME + " ASC";
-
 				SQLiteDatabase db = getWritableDatabase();
-
 				Cursor cursor = db.rawQuery(selectQuery, null);
 
 				// looping through all rows and adding to list
@@ -854,7 +731,6 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 					int tempid = user._id;// cursor.getInt(col_pk);//Integer.parseInt(cursor.getString(col_pk));
 					if (i == tempid || i.equals(tempid)) {
 						user.image_alpha = alpha;
-
 						data.add(user);
 						break;
 					}
@@ -871,7 +747,6 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 			String selectQuery = "SELECT  * FROM " + TABLE_USERS_LISTS
 					+ " WHERE " + KEY_FK_TASKLIST_ID + " = " + tasklist._id
 					+ " ORDER BY " + KEY_SYNC_STATUS + " DESC";
-
 			Cursor cursor = db.rawQuery(selectQuery, null);
 			int col_userid = cursor.getColumnIndex(KEY_FK_USER_ID);
 			int col_sync = cursor.getColumnIndex(KEY_SYNC_STATUS);
@@ -913,10 +788,8 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 				String syncStatus) {
 			// error, wrong foreign key
 			SQLiteDatabase db = getWritableDatabase();
-
 			ContentValues values = userlists.setContent(new UsersListsModel(
 					user._id, tasklist._id, syncStatus));// new ContentValues();
-
 			int id = (int) db.insert(TABLE_USERS_LISTS, null, values);
 			db.close();
 			return id;
@@ -938,21 +811,16 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 					&& service.hasInternet && service.user_data.is_sync_type) {
 				GravityController.share_tasklist(service, service.user_data,
 						tasklist, users, -1, "add");// , dataids);
-
 				// .post_tasklist(service, service.user_data, tasklist, -1);
-
 			}
-
 			return id;
 		}
 
 		public int Share_ServerValidate(int TasklistId, int UserId) {
 			// error, wrong foreign key
 			SQLiteDatabase db = getWritableDatabase();
-
 			ContentValues values = new ContentValues();
 			values.put(KEY_SYNC_STATUS, "Synced");
-
 			int i = -1;
 			try {
 				i = db.update(TABLE_USERS_LISTS, values, KEY_FK_USER_ID
@@ -994,11 +862,8 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 					&& service.hasInternet && service.user_data.is_sync_type) {
 				GravityController.share_tasklist(service, service.user_data,
 						tasklist, users, -1, "delete");// , dataids);
-
 				// .post_tasklist(service, service.user_data, tasklist, -1);
-
 			}
-
 		}
 
 		public void Share_Remove_ServerValidate(String tasklistServerId,
@@ -1008,17 +873,14 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 			if (tasklist != null && user != null) {
 				Share_Remove_ServerValidate(tasklist._id, user._id);
 			}
-
 		}
 
 		public void Share_Remove_ServerValidate(int tasklistid, int userid) {
 			SQLiteDatabase db = getWritableDatabase();
-
 			String selectQuery = "DELETE FROM " + TABLE_USERS_LISTS + " WHERE "
 					+ KEY_FK_USER_ID + " = " + userid + " AND "
 					+ KEY_FK_TASKLIST_ID + " = " + tasklistid + " ";
 			db.execSQL(selectQuery);
-
 			db.close();
 
 		}
@@ -1027,37 +889,30 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 	protected class UsersLists {
 
 		protected static final String CREATE_USERS_LISTS_TABLE = "CREATE TABLE "
-				+ TABLE_USERS_LISTS
-				+ "("
-				+ KEY_SYNC_STATUS
-				+ " TEXT,"
-				+
+				+ TABLE_USERS_LISTS + "("
 
-				KEY_FK_USER_ID
-				+ " INTEGER,"
-				+ KEY_FK_TASKLIST_ID
-				+ " INTEGER,"
-				+ "PRIMARY KEY ("
-				+ KEY_FK_USER_ID
-				+ ","
-				+ KEY_FK_TASKLIST_ID
-				+ "),"
+				+ KEY_SYNC_STATUS + " TEXT,"
 
-				/* + KEY_FK_TASKLIST_ID + " INTEGER," */
-				+ "FOREIGN KEY ("
-				+ KEY_FK_USER_ID
-				+ ")"
+				+ KEY_FK_USER_ID + " INTEGER,"
+
+				+ KEY_FK_TASKLIST_ID + " INTEGER,"
+
+				+ "PRIMARY KEY (" + KEY_FK_USER_ID + ","
+				+ KEY_FK_TASKLIST_ID + "),"
+
+				+ "FOREIGN KEY (" + KEY_FK_USER_ID + ")"
+				
+				+ "REFERENCES " 
+				
+				+ TABLE_USERS + "(" + KEY_PK + "),"
+
+				+ "FOREIGN KEY (" + KEY_FK_TASKLIST_ID + ")"
+				
 				+ "REFERENCES "
-				+ TABLE_USERS
-				+ "("
-				+ KEY_PK
-				+ "),"
-
-				+ "FOREIGN KEY ("
-				+ KEY_FK_TASKLIST_ID
-				+ ")"
-				+ "REFERENCES "
-				+ TABLE_TASK_LIST + "(" + KEY_PK + ")" + ")";
+				
+				+ TABLE_TASK_LIST + "(" + KEY_PK + ")" 
+				
+				+ ")";
 
 		private ContentValues setContent(UsersListsModel temp) { // UserModel
 			ContentValues values = new ContentValues();
@@ -1088,46 +943,36 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 				+ TABLE_TASK_NOTIFICATIONS
 				+ "("
 
-				+ KEY_PK
-				+ " INTEGER PRIMARY KEY AUTOINCREMENT,"
+				+ KEY_PK + " INTEGER PRIMARY KEY AUTOINCREMENT,"
 
-				+ KEY_NOT_INTERVAL
-				+ " INTEGER,"
-				// Number of !^
-				+ KEY_NOT_TYPE
-				+ " INTEGER,"
+				+ KEY_NOT_INTERVAL + " INTEGER,"
+
+				+ KEY_NOT_TYPE + " INTEGER,"
 				// values 0-3 minutes/hours/days/weeks
-				+ KEY_SEND_NOTIFICATION_AS_EMAIL
-				+ " INTEGER,"
+
+				+ KEY_SEND_AS + " INTEGER,"
 				// values 0-1 as Notificaiton/Email if not specifies setDefault
 				// as 0
-				//we may add time here for allDay
 
-				+ KEY_INTERVAL_EXPIRATION
-				+ " DATETIME,"
+				+ KEY_INTERVAL_EXPIRATION + " DATETIME,"
+
+				+ KEY_SERVER_ID + " TEXT,"
+
+				+ KEY_FK_TASK_ID + " INTEGER,"
 				
-				+ KEY_SERVER_ID
-				+ " TEXT,"
-
-				+ KEY_FK_TASK_ID
-				+ " INTEGER,"
-				+ " FOREIGN KEY ("
-				+ KEY_FK_TASK_ID
-				+ ")"
+				+ " FOREIGN KEY (" + KEY_FK_TASK_ID + ")"
+				
 				+ "REFERENCES "
-				+ TABLE_TASKS
-				+ "("
-				+ KEY_PK + ")"
+				
+				+ TABLE_TASKS + "(" + KEY_PK + ")"
 
 				+ ")";
 
 		private ContentValues setContent(TaskNotificationsModel model) {
 			ContentValues values = new ContentValues();
-			// values.put(KEY_PK, model._id);
 			values.put(KEY_NOT_INTERVAL, model.interval);
 			values.put(KEY_NOT_TYPE, model.interval_type);
-			values.put(KEY_SEND_NOTIFICATION_AS_EMAIL,
-					model.send_notificaion_as_email);
+			values.put(KEY_SEND_AS, model.send_as);
 			values.put(KEY_INTERVAL_EXPIRATION, model.interval_expiration);
 			values.put(KEY_SERVER_ID, model.server_id);
 			values.put(KEY_FK_TASK_ID, model.fk_task_id);
@@ -1138,17 +983,16 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 			int colID = c.getColumnIndex(KEY_PK);
 			int colInterval = c.getColumnIndex(KEY_NOT_INTERVAL);
 			int colIntervalType = c.getColumnIndex(KEY_NOT_TYPE);
-			int colSendNotifictionAs = c
-					.getColumnIndex(KEY_SEND_NOTIFICATION_AS_EMAIL);
-			int colIntervalExpiration = c.getColumnIndex(KEY_INTERVAL_EXPIRATION);
+			int colSendNotifictionAs = c.getColumnIndex(KEY_SEND_AS);
+			int colIntervalExpiration = c
+					.getColumnIndex(KEY_INTERVAL_EXPIRATION);
 			int colServerID = c.getColumnIndex(KEY_SERVER_ID);
 			int colFKtaskid = c.getColumnIndex(KEY_FK_TASK_ID);
-
 			TaskNotificationsModel model = new TaskNotificationsModel();
 			model._id = c.getInt(colID);
 			model.interval = c.getInt(colInterval);
 			model.interval_type = c.getInt(colIntervalType);
-			model.send_notificaion_as_email = c.getInt(colSendNotifictionAs);
+			model.send_as = c.getInt(colSendNotifictionAs);
 			model.interval_expiration = c.getString(colIntervalExpiration);
 			model.fk_task_id = c.getInt(colFKtaskid);
 			model.server_id = c.getString(colServerID);
@@ -1157,7 +1001,6 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
 		public int Add(ArrayList<TaskNotificationsModel> models,
 				SQLiteDatabase db, int fk) {
-			// SQLiteDatabase db = getWritableDatabase();
 			int id = 0;
 			for (TaskNotificationsModel temp : models) {
 				temp.fk_task_id = fk;
@@ -1167,7 +1010,6 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 							.insert(TABLE_TASK_NOTIFICATIONS, null, values);
 				}
 			}
-			// db.close();
 			return id;
 		}
 
@@ -1186,12 +1028,8 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 			return id;
 		}
 
-		public int Edit(TaskModel task, SQLiteDatabase db)
-		// (ArrayList<TaskNotificationsModel> models,SQLiteDatabase db,
-		// TaskModel task)
-		{
+		public int Edit(TaskModel task, SQLiteDatabase db){
 			int row = 0;
-
 			for (TaskNotificationsModel temp : task.notifications) {
 				if (temp.interval_type != 0) {
 					if (temp._id == -1 && temp.interval_type != 0) {
@@ -1208,17 +1046,13 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 				}
 			}
 			return row;
-
 		}
 
 		public boolean Delete(int id, SQLiteDatabase db) {
-			// SQLiteDatabase db = getWritableDatabase();
 			if (db.delete(TABLE_TASK_NOTIFICATIONS, KEY_PK + " = ?",
 					new String[] { String.valueOf(id) }) > 0) {
-				// db.close();
 				return true;
 			}
-			// db.close();
 			return false;
 		}
 
@@ -1234,12 +1068,10 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 		}
 
 		public ArrayList<TaskNotificationsModel> Get(TaskModel temp) {
-
 			ArrayList<TaskNotificationsModel> data = new ArrayList<TaskNotificationsModel>();
 			String selectQuery = "SELECT  * FROM " + TABLE_TASK_NOTIFICATIONS
 					+ " WHERE " + KEY_FK_TASK_ID + " = " + temp._id;
 			SQLiteDatabase db = getWritableDatabase();
-
 			Cursor cursor = db.rawQuery(selectQuery, null);
 			if (cursor.moveToFirst()) {
 				do {
@@ -1251,11 +1083,9 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
 		public TaskNotificationsModel Get(int notificationID) {
 			TaskNotificationsModel model = new TaskNotificationsModel();
-			//ArrayList<TaskNotificationsModel> data = new ArrayList<TaskNotificationsModel>();
 			String selectQuery = "SELECT  * FROM " + TABLE_TASK_NOTIFICATIONS
 					+ " WHERE " + KEY_PK + " = " + notificationID;
 			SQLiteDatabase db = getWritableDatabase();
-
 			Cursor cursor = db.rawQuery(selectQuery, null);
 			if (cursor.moveToFirst()) {
 				do {
@@ -1264,18 +1094,15 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 			}
 			return model;
 		}
-		
+
 		public int Edit(TaskNotificationsModel temp) {
 			int row = 0;
 			SQLiteDatabase db = getWritableDatabase();
-
 			ContentValues values = setContent(temp);
 			row = db.update(TABLE_TASK_NOTIFICATIONS, values, KEY_PK + " = ?",
 					new String[] { String.valueOf(temp._id) });
 			db.close();
 			return row;
 		}
-
 	}
-
 }

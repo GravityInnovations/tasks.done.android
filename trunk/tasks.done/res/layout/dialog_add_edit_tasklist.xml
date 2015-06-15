@@ -4,6 +4,12 @@
     android:layout_height="match_parent"
     android:orientation="vertical" >
 
+    <View
+        android:id="@+id/view_catagoryColor"
+        android:layout_width="fill_parent"
+        android:layout_height="14dp"
+        android:background="@color/taskDoneBlue" />
+
     <EditText
         android:id="@+id/et_title"
         android:layout_width="fill_parent"
@@ -13,222 +19,38 @@
         android:hint="@string/title_here"
         android:padding="20dp"
         android:singleLine="false"
-        android:textSize="24sp" />
+        android:textSize="24sp" 
+        android:maxLength="20"
+        />
 
     <View
         android:layout_width="fill_parent"
         android:layout_height="1dp"
         android:background="@color/line_divider" />
 
-    <GridView
-        android:id="@+id/gridview"
-        android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
-        android:gravity="center"
-        android:horizontalSpacing="10dp"
-        android:numColumns="5"
-        android:stretchMode="columnWidth"
-        android:verticalSpacing="10dp" />
+    <include layout="@layout/gridview_icons" />
 
     <View
         android:layout_width="fill_parent"
         android:layout_height="1dp"
         android:background="@color/line_divider" />
 
-    <RelativeLayout
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:paddingBottom="10dp"
-        android:paddingTop="10dp"
-        android:visibility="gone" >
+    <include layout="@layout/gridview_colors" />
 
-        <View
-            android:id="@+id/orange_theme"
-            android:layout_width="50dp"
-            android:layout_height="50dp"
-            android:layout_alignParentRight="true"
-            android:background="@drawable/circle_orange"
-            android:onClick="action_orange_theme" />
-
-        <View
-            android:id="@+id/black_theme"
-            android:layout_width="50dp"
-            android:layout_height="50dp"
-            android:layout_alignTop="@+id/orange_theme"
-            android:layout_marginRight="14dp"
-            android:layout_toLeftOf="@+id/orange_theme"
-            android:background="@drawable/circle_black"
-            android:onClick="action_black_theme" />
-
-        <View
-            android:id="@+id/turquosie_theme"
-            android:layout_width="50dp"
-            android:layout_height="50dp"
-            android:layout_alignTop="@+id/black_theme"
-            android:layout_marginRight="14dp"
-            android:layout_toLeftOf="@+id/black_theme"
-            android:background="@drawable/circle_turquosie"
-            android:onClick="action_turquosie_theme" />
-
-        <View
-            android:id="@+id/grey_theme"
-            android:layout_width="50dp"
-            android:layout_height="50dp"
-            android:layout_alignTop="@+id/turquosie_theme"
-            android:layout_marginRight="14dp"
-            android:layout_toLeftOf="@+id/turquosie_theme"
-            android:background="@drawable/circle_grey"
-            android:onClick="action_black_theme" />
-
-        <View
-            android:id="@+id/blue_theme"
-            android:layout_width="50dp"
-            android:layout_height="50dp"
-            android:layout_alignTop="@+id/grey_theme"
-            android:layout_marginRight="14dp"
-            android:layout_toLeftOf="@+id/grey_theme"
-            android:background="@drawable/circle_blue" />
-    </RelativeLayout>
-
-    <GridLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:background="#efefef"
-        android:clipChildren="false"
-        android:columnOrderPreserved="true"
-        android:orientation="vertical"
-        android:padding="10dp"
-        android:rowCount="1" >
-
-        <Button
-            android:id="@+id/btn_jazz_orange"
-            android:layout_width="25dp"
-            android:layout_height="25dp"
-            android:layout_gravity="center_horizontal"
-            android:layout_margin="10dp"
-            android:background="@drawable/color_selector_orange" />
-
-        <Button
-            android:id="@+id/btn_moonlightblue"
-            android:layout_width="25dp"
-            android:layout_height="25dp"
-            android:layout_gravity="center_horizontal"
-            android:layout_margin="10dp"
-            android:background="@drawable/color_selector_moonlightblue" />
-
-        <Button
-            android:id="@+id/btn_seagreen"
-            android:layout_width="25dp"
-            android:layout_height="25dp"
-            android:layout_gravity="center_horizontal"
-            android:layout_margin="10dp"
-            android:background="@drawable/color_selector_seagreen" />
-
-        <Button
-            android:id="@+id/btn_caramel"
-            android:layout_width="25dp"
-            android:layout_height="25dp"
-            android:layout_gravity="center_horizontal"
-            android:layout_margin="10dp"
-            android:background="@drawable/color_selector_caramel" />
-
-        <Button
-            android:id="@+id/btn_yellow"
-            android:layout_width="25dp"
-            android:layout_height="25dp"
-            android:layout_gravity="center_horizontal"
-            android:layout_margin="10dp"
-            android:background="@drawable/color_selector_yellow" />
-
-        <Button
-            android:id="@+id/btn_pink"
-            android:layout_width="25dp"
-            android:layout_height="25dp"
-            android:layout_gravity="center_horizontal"
-            android:layout_margin="10dp"
-            android:background="@drawable/color_selector_pink" />
-
-        <!-- <Button -->
-        <!-- android:id="@+id/btn_sunday" -->
-        <!-- android:layout_width="50dp" -->
-        <!-- android:layout_height="50dp" -->
-        <!-- android:layout_gravity="center_horizontal" -->
-        <!-- android:layout_margin="10dp" -->
-        <!-- android:background="@drawable/day_button_selector" -->
-        <!-- android:text="@string/sun" /> -->
-
-
-        <!-- <Button -->
-        <!-- android:id="@+id/btn_thursday" -->
-        <!-- android:layout_width="50dp" -->
-        <!-- android:layout_height="50dp" -->
-        <!-- android:layout_gravity="center_horizontal" -->
-        <!-- android:layout_margin="10dp" -->
-        <!-- android:background="@drawable/day_button_selector" -->
-        <!-- android:text="@string/thr" /> -->
-
-
-        <!-- <Button -->
-        <!-- android:id="@+id/btn_monday" -->
-        <!-- android:layout_width="50dp" -->
-        <!-- android:layout_height="50dp" -->
-        <!-- android:layout_gravity="center_horizontal" -->
-        <!-- android:layout_margin="10dp" -->
-        <!-- android:background="@drawable/day_button_selector" -->
-        <!-- android:text="@string/mon" /> -->
-
-
-        <!-- <Button -->
-        <!-- android:id="@+id/btn_friday" -->
-        <!-- android:layout_width="50dp" -->
-        <!-- android:layout_height="50dp" -->
-        <!-- android:layout_gravity="center_horizontal" -->
-        <!-- android:layout_margin="10dp" -->
-        <!-- android:background="@drawable/day_button_selector" -->
-        <!-- android:text="@string/fri" /> -->
-
-
-        <!-- <Button -->
-        <!-- android:id="@+id/btn_tuesday" -->
-        <!-- android:layout_width="50dp" -->
-        <!-- android:layout_height="50dp" -->
-        <!-- android:layout_gravity="center_horizontal" -->
-        <!-- android:layout_margin="10dp" -->
-        <!-- android:background="@drawable/day_button_selector" -->
-        <!-- android:text="@string/tue" /> -->
-
-
-        <!-- <Button -->
-        <!-- android:id="@+id/btn_saturday" -->
-        <!-- android:layout_width="50dp" -->
-        <!-- android:layout_height="50dp" -->
-        <!-- android:layout_gravity="center_horizontal" -->
-        <!-- android:layout_margin="10dp" -->
-        <!-- android:background="@drawable/day_button_selector" -->
-        <!-- android:text="@string/sat" /> -->
-
-
-        <!-- <Button -->
-        <!-- android:id="@+id/btn_wednesday" -->
-        <!-- android:layout_width="50dp" -->
-        <!-- android:layout_height="50dp" -->
-        <!-- android:layout_gravity="center_horizontal" -->
-        <!-- android:layout_margin="10dp" -->
-        <!-- android:background="@drawable/day_button_selector" -->
-        <!-- android:text="@string/wed" /> -->
-    </GridLayout>
+    <View
+        android:layout_width="fill_parent"
+        android:layout_height="1dp"
+        android:background="@color/line_divider" />
 
     <EditText
         android:id="@+id/et_hex"
-        android:layout_width="wrap_content"
+        android:layout_width="fill_parent"
         android:layout_height="wrap_content"
-        android:layout_alignParentRight="true"
-        android:padding="20dp"
         android:background="#00000000"
-        android:focusable="true"
-        android:hint="@string/catagory_color_placeholder"  
-        android:singleLine="false"
-        android:textSize="17sp" />
+        android:padding="20dp"
+        android:singleLine="true"
+        android:textSize="17sp"
+        android:gravity="center"
+        android:maxLength="7" />
 
 </LinearLayout>

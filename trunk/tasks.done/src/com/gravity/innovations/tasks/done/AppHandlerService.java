@@ -102,7 +102,8 @@ public class AppHandlerService extends Service implements
 			AppStateIntent = new Intent(this, SplashActivity.class);
 			AppStateClassName = SplashActivity.class.getName();
 			user_data = new Common.userData();
-			nH = new NotificationHandler(this);
+			LoadLocalDB();
+			nH = new NotificationHandler(this, db.tasks.GetsPendingTasks().size());
 			
 			// InitEvents();
 			
@@ -1094,7 +1095,7 @@ public class AppHandlerService extends Service implements
 				@Override
 				public void run() {
 					// TODO Auto-generated method stub
-					Common.CustomDialog.CustomDialog((Context) FocusedActivity,
+					Common.CustomDialog.set((Context) FocusedActivity,
 							Title, message, posText, negText, posListener,
 							negListener);
 				}
@@ -1572,7 +1573,7 @@ public class AppHandlerService extends Service implements
 			}
 			else{
 				Bitmap b = BitmapFactory.decodeResource(getResources(),
-						R.drawable.catag_personal);
+						R.drawable.ic_account_circle_grey600_24dp);
 				b =  ImageGridAdapter.getRoundedCornerBitmap(b,user.image_alpha);
 				bmp = b;
 			}
@@ -1646,7 +1647,7 @@ public class AppHandlerService extends Service implements
 		if(pendingAlerts.size()>0){
 			if(FocusedActivity!=null && FocusedActivity.getClass() == MainActivity.class){
 			
-				Common.CustomDialog.TextDialog(FocusedActivity,pendingAlerts.get(0)).create().show();
+				Common.CustomDialog.textDialog(FocusedActivity,pendingAlerts.get(0)).create().show();
 				pendingAlerts.remove(0);
 			}
 			else

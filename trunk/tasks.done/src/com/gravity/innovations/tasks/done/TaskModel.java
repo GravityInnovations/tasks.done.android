@@ -24,20 +24,17 @@ public class TaskModel implements Comparable, Serializable {
 	public int fk_tasklist_id = 1;
 	public String relativeTime;// !db
 
-	public int rep_allDay; // swtich 0/1
-	public int rep_interval;// exact number of days/week/months from custom
-							// dialog
+	public int allDay; // swtich 0/1
+	public int rep_interval;
+	// exact number of days/week/months
 	public int rep_intervalType;// 0-4
 
-	public String rep_intervalExpiration;// from dialog forever/date/for fixed
-											// number of events
+	public String rep_intervalExpiration;
+	// forever/date/for fixed number of events
 	public String rep_value;
-	public String rep_createdDateTime;
-
-	// if switch is OFF Hours and Minuts == 00
-
-	public String rep_startDateTime;
-	public String rep_endDateTime;
+	public String createdDateTime;
+	public String startDateTime;
+	public String endDateTime;
 
 	// ********* Constructors *********//
 	public TaskModel() {

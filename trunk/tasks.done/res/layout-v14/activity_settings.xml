@@ -14,7 +14,6 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="App Features"
-        
         android:padding="5dp"
         android:textAppearance="?android:attr/textAppearanceMedium" />
      <View android:background="@android:color/holo_blue_dark" android:layout_width="match_parent" android:layout_height="1px"/>
@@ -71,62 +70,7 @@
         android:padding="5dp"
         android:textAppearance="?android:attr/textAppearanceMedium" />
      <View android:background="@android:color/holo_blue_dark" android:layout_width="match_parent" android:layout_height="1px"/>
- <RelativeLayout 
-    android:layout_width="wrap_content"
-    android:orientation="horizontal"
-        android:layout_height="wrap_content"
-        android:paddingTop="10dp"
-        android:paddingBottom="10dp"
-     >
-     <View
-         android:id="@+id/orange_theme"
-         android:onClick="action_orange_theme" 
-         android:layout_width="50dp"
-         android:layout_height="50dp"
-         android:background="@drawable/circle_orange" 
-         android:layout_alignParentRight="true" />
 
-      <View
-          android:id="@+id/black_theme"
-          android:layout_width="50dp"
-          android:layout_height="50dp"
-          android:layout_alignTop="@+id/orange_theme"
-          android:layout_marginRight="14dp"
-          android:layout_toLeftOf="@+id/orange_theme"
-          android:background="@drawable/circle_black"
-          android:onClick="action_black_theme" />
-
-       <View
-           android:id="@+id/turquosie_theme"
-           android:layout_width="50dp"
-           android:layout_height="50dp"
-           android:layout_marginRight="14dp"
-           android:layout_alignTop="@+id/black_theme"
-           android:layout_toLeftOf="@+id/black_theme"
-           android:background="@drawable/circle_turquosie"
-           android:onClick="action_turquosie_theme" />
-
-       <View
-           android:id="@+id/grey_theme"
-           android:layout_width="50dp"
-           android:layout_height="50dp"
-           android:layout_marginRight="14dp"
-           
-           android:layout_alignTop="@+id/turquosie_theme"
-           android:layout_toLeftOf="@+id/turquosie_theme"
-           android:background="@drawable/circle_grey"
-           android:onClick="action_black_theme" />
-
-       <View
-           android:id="@+id/blue_theme"
-           android:layout_width="50dp"
-           android:layout_height="50dp"
-           android:layout_marginRight="14dp"
-           android:layout_alignTop="@+id/grey_theme"
-           android:layout_toLeftOf="@+id/grey_theme"
-           android:background="@drawable/circle_blue" />
-
-   </RelativeLayout>
 </LinearLayout>
    
     

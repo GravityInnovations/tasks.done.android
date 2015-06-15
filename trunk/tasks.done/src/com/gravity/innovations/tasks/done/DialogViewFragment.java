@@ -10,6 +10,7 @@ import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.FragmentManager.OnBackStackChangedListener;
 import android.graphics.Color;
+import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
@@ -65,7 +66,7 @@ public class DialogViewFragment extends DialogFragment {
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container,
 			Bundle savedInstanceState) {
-		view = inflater.inflate(R.layout.dialog_task_full_details, container);
+		view = inflater.inflate(R.layout.dialog_task_details, container);
 		return view;
 	}
 
@@ -80,15 +81,13 @@ public class DialogViewFragment extends DialogFragment {
 	@Override
 	public void onActivityCreated(Bundle arg0) {
 		super.onActivityCreated(arg0);
-
+		int MAX_CHARS = 7;
 		tv_title = (TextView) view.findViewById(R.id.txt_task_name);
 		tv_details = (TextView) view.findViewById(R.id.txt_details);
 		tv_notes = (TextView) view.findViewById(R.id.txt_notes);
 		tv_updated = (TextView) view.findViewById(R.id.txt_time_updated);
-		// TextView tv_due = (TextView) view.findViewById(R.id.);
 		tv_sync_time = (TextView) view.findViewById(R.id.txt_time_synced);
 		cal = (CalendarView) view.findViewById(R.id.calendar1);
-		//
 		markDoneToggle = (ImageView) view.findViewById(R.id.detail_done_toggle);
 
 		taskEdit = (ImageView) view
@@ -100,30 +99,65 @@ public class DialogViewFragment extends DialogFragment {
 		taskDelete = (ImageView) view
 				.findViewById(R.id.btn_delete_task_detail_dialog);
 
-		// ********************AssigningTextViews*********************//
-		try{
+		try {
 			// assigning title
-			tv_title.setText( taskModel.title.toString() );
-		}catch(Exception e){
-			tv_title.setText( "title" );
+			if (taskModel.title.toLowerCase().contains("call")
+					|| taskModel.title.toLowerCase().contains("sms")
+					|| taskModel.title.toLowerCase().contains("email")) {
+				String uri = taskModel.title;
+				String type = null;
+				if (taskModel.title.toLowerCase().contains("call")) {
+					uri = uri.substring(5);
+					type = "Call ";
+				} else if (taskModel.title.toLowerCase().contains("sms")) {
+					uri = uri.substring(4);
+					type = "Sms ";
+				} else if (taskModel.title.toLowerCase().contains("email")) {
+					uri = uri.substring(6);
+					type = "Email ";
+				}
+				String temp = type
+						+ Common.ContactStringConversion.getDisplayName(
+								Uri.parse(uri), mActivity);
+				
+				if (temp.length() > MAX_CHARS) {
+					tv_title.setText(temp.substring(0, MAX_CHARS)
+							+ "...");
+				} else {
+					tv_title.setText(temp);
+				}
+				
+			} else {
+				//tv_title.setText(taskModel.title.toString());
+				
+				if (taskModel.title.length() > MAX_CHARS) {
+					String temp = taskModel.title.toString().substring(0, MAX_CHARS)
+							+ "...";
+					tv_title.setText(temp);
+				} else {
+					tv_title.setText(taskModel.title);
+				}
+			}
+		} catch (Exception e) {
+			tv_title.setText("title");
 		}
-		try{
-			// assigning details 
-			tv_details.setText( taskModel.details.toString() );
-		}catch(Exception e){
-			tv_details.setText( "has no details yet" );
+		try {
+			// assigning details
+			tv_details.setText(taskModel.details.toString());
+		} catch (Exception e) {
+			tv_details.setText("has no details yet");
 		}
-		try{
+		try {
 			// assigning notes
-			tv_notes.setText( taskModel.notes.toString() );
-		}catch(Exception e){
-			tv_notes.setText( "has no notes yet" );
+			tv_notes.setText(taskModel.notes.toString());
+		} catch (Exception e) {
+			tv_notes.setText("has no notes yet");
 		}
 
 		// long to string time formatting
 		SimpleDateFormat formatter = new SimpleDateFormat("yyyy/MM/dd " + " "
 				+ "hh:MM:ss");
-		// assigning updated time
+
 		if (taskModel.updated == null) {
 			tv_updated.setText("Last Updated: not updated yet");
 		} else {
@@ -131,7 +165,6 @@ public class DialogViewFragment extends DialogFragment {
 			String dateString = formatter.format(new Date(update));
 			tv_updated.setText("Last Updated: " + dateString);
 		}
-		// assigning sync time
 		try {
 			if (taskModel.syncStatusTimeStamp == null) {
 				tv_sync_time.setText("Last Synced: not synced yet");
@@ -144,7 +177,7 @@ public class DialogViewFragment extends DialogFragment {
 		} catch (Exception e) {
 			Log.e("AssigningSyFcedTimeStamp", "NDF openTaskDetailsDialog");
 		}
-		// ********************ImageViews*********************//
+
 		float alpha = 0;
 		if (taskModel.completed == 1) {
 			alpha = 1.0f;
@@ -153,10 +186,9 @@ public class DialogViewFragment extends DialogFragment {
 			alpha = 0.10f;
 			// markDoneToggle.setBackgroundResource(R.drawable.task_row_bg);
 		}
-		markDoneToggle.setBackgroundColor(adjustAlpha(
+		markDoneToggle.setBackgroundColor(Common.ShapesAndGraphics.adjustAlpha(
 				Color.parseColor(listModel.fragmentColor), alpha));
 
-		// taskDelete: to delete the task
 		taskDelete.setOnClickListener(new OnClickListener() {
 
 			@Override
@@ -174,7 +206,6 @@ public class DialogViewFragment extends DialogFragment {
 			}
 		});
 
-		// taskEdit: to edit the task
 		taskEdit.setOnClickListener(new OnClickListener() {
 
 			@Override
@@ -185,7 +216,6 @@ public class DialogViewFragment extends DialogFragment {
 			}
 		});
 
-		// taskShare: to share the task
 		taskShare.setOnClickListener(new OnClickListener() {
 
 			@Override
@@ -195,7 +225,6 @@ public class DialogViewFragment extends DialogFragment {
 			}
 		});
 
-		// markDoneToggle: to mark the task as done or otherwise
 		markDoneToggle.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {
@@ -214,11 +243,12 @@ public class DialogViewFragment extends DialogFragment {
 
 				}
 				try {
-					markDoneToggle.setBackgroundColor(adjustAlpha(
-							Color.parseColor(listModel.fragmentColor),
-							alphaToggle));
+					markDoneToggle.setBackgroundColor(Common.ShapesAndGraphics
+							.adjustAlpha(
+									Color.parseColor(listModel.fragmentColor),
+									alphaToggle));
 					Animation animationFadeIn = AnimationUtils.loadAnimation(
-							mActivity, R.anim.fade_in);
+							mActivity, android.R.anim.fade_in);
 					markDoneToggle.startAnimation(animationFadeIn);
 				} catch (Exception e) {
 					Log.e("markDoneToggle", e.getLocalizedMessage());
@@ -228,46 +258,11 @@ public class DialogViewFragment extends DialogFragment {
 
 			}
 		});
-
-		// AsyncTask<Void, Void, Void> t = new AsyncTask<Void, Void, Void>() {
-		//
-		// @Override
-		// protected void onPostExecute(Void result) {
-		// // TODO Auto-generated method stub
-		// super.onPostExecute(result);
-		// cal.ScrollToToday();
-		// }
-		//
-		// @Override
-		// protected Void doInBackground(Void... params) {
-		// // TODO Auto-generated method stub
-		// try {
-		// Thread.sleep(3000);
-		//
-		// } catch (InterruptedException e) {
-		// // TODO Auto-generated catch block
-		// e.printStackTrace();
-		// }
-		//
-		// return null;
-		// }
-		// };
-		// t.execute();
-
 	}
 
 	@Override
 	public void onDetach() {
 		super.onDetach();
 		mNavigationDrawerFragment.mAdapter.notifyDataSetChanged();
-	}
-
-	public int adjustAlpha(int color, float alpha) {
-		// float f = alpha/100;
-		int a = Math.round(255 * alpha);// ( 255 * (float)());
-		int red = Color.red(color);
-		int green = Color.green(color);
-		int blue = Color.blue(color);
-		return Color.argb(a, red, green, blue);
 	}
 }

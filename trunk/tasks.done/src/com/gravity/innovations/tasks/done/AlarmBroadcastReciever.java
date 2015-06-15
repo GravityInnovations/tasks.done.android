@@ -1,31 +1,20 @@
 package com.gravity.innovations.tasks.done;
 
-import java.nio.channels.AlreadyConnectedException;
 import java.util.Calendar;
 import java.util.Date;
-import java.util.GregorianCalendar;
 import java.util.concurrent.TimeUnit;
-
-import javax.xml.transform.Templates;
-
 import android.annotation.SuppressLint;
 import android.app.AlarmManager;
 import android.app.PendingIntent;
-import android.app.Service;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
-import android.os.Build;
 import android.support.v4.content.WakefulBroadcastReceiver;
-import android.text.format.DateUtils;
-import android.text.format.Time;
-import android.util.Log;
 
 public class AlarmBroadcastReciever extends WakefulBroadcastReceiver {
 	// The app's AlarmManager, which provides access to the system alarm
 	// services.
-	// isNothing
 	private AlarmManager alarmMgr;
 	// The pending intent that is triggered when the alarm fires.
 	private PendingIntent alarmIntent;
@@ -34,9 +23,7 @@ public class AlarmBroadcastReciever extends WakefulBroadcastReceiver {
 	public void onReceive(Context context, Intent intent) {
 		String alarm_id = intent.getAction();
 		Intent service = new Intent(context, AlarmSchedulingService.class);
-		// service.setData(Uri.parse("custom://" + alarm_id));
-		service.setAction(String.valueOf(alarm_id));
-		service.putExtra("alarmMgr_id", alarm_id);
+		service.putExtra(Common.KEY_EXTRAS_ALARM_ID, Integer.parseInt(alarm_id));
 		// Start the service, keeping the device awake while it is launching.
 		startWakefulService(context, service);
 
@@ -61,9 +48,9 @@ public class AlarmBroadcastReciever extends WakefulBroadcastReceiver {
 			// notification classification by type
 			Long adjustableTime = (long) 0;
 			Long notificationTime = (long) 0;
-			notificationTime = Long.valueOf(task.rep_startDateTime);
+			notificationTime = Long.valueOf(task.startDateTime);
 			if (model.interval_type != 0) {
-				if (task.rep_allDay == 0) {
+				if (task.allDay == 0) {
 					if (model.interval_type == 1) {
 						// mins
 						adjustableTime = TimeUnit.MINUTES.toMillis(Integer
@@ -86,11 +73,11 @@ public class AlarmBroadcastReciever extends WakefulBroadcastReceiver {
 						// 604800000 = week in millis
 						notificationTime = notificationTime - adjustableTime;
 					}
-				} else if (task.rep_allDay == 1) {
+				} else if (task.allDay == 1) {
 
 					Calendar dateCal = Calendar.getInstance();
 					dateCal.setTimeInMillis(Long
-							.valueOf(task.rep_startDateTime));
+							.valueOf(task.startDateTime));
 					Calendar timeCal = Calendar.getInstance();
 					timeCal.setTimeInMillis(Long
 							.valueOf(model.interval_expiration));
@@ -167,9 +154,9 @@ public class AlarmBroadcastReciever extends WakefulBroadcastReceiver {
 		// ////////////////////////////////////////////////////
 		Long adjustableTime = (long) 0;
 		Long notificationTime = (long) 0;
-		notificationTime = Long.valueOf(task.rep_startDateTime);
+		notificationTime = Long.valueOf(task.startDateTime);
 		if (model.interval_type != 0) {
-			if (task.rep_allDay == 0) {
+			if (task.allDay == 0) {
 				if (model.interval_type == 1) {
 					// mins
 					adjustableTime = TimeUnit.MINUTES.toMillis(Integer
@@ -192,10 +179,10 @@ public class AlarmBroadcastReciever extends WakefulBroadcastReceiver {
 					// 604800000 = week in millis
 					notificationTime = notificationTime - adjustableTime;
 				}
-			} else if (task.rep_allDay == 1) {
+			} else if (task.allDay == 1) {
 
 				Calendar dateCal = Calendar.getInstance();
-				dateCal.setTimeInMillis(Long.valueOf(task.rep_startDateTime));
+				dateCal.setTimeInMillis(Long.valueOf(task.startDateTime));
 				Calendar timeCal = Calendar.getInstance();
 				timeCal.setTimeInMillis(Long.valueOf(model.interval_expiration));
 

@@ -67,7 +67,7 @@
  	    android:layout_height="wrap_content"
  	    android:layout_alignParentBottom="true"
  	    android:layout_alignParentRight="true"
- 	    android:src="@drawable/ic_action_expand"
+ 	    android:src="@drawable/ic_expand_more_white_24dp"
  	    android:padding="5dp"
  	    android:clickable="true"
  	    android:background="@drawable/default_button_selector" />
