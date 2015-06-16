@@ -5,36 +5,39 @@ import java.util.ArrayList;
 import java.util.Calendar;
 
 public class TaskModel implements Comparable, Serializable {
-	public int _id;
-	public String title;
-	public String details;
-	public String notes;
-	public String updated;// date time
-	public String server_id;
-	public String self_link;
-	public TaskListModel parent;
-	public ArrayList<TaskNotificationsModel> notifications = new ArrayList<TaskNotificationsModel>();
-	public String status;
-	public int completed;// yes(1) or no(0)
-	public int hidden;
+	
+	
+	public int _id;//
+	public String title;//
+	public String details;//
+	public String notes;//
+	public String DateUpdated;//
+	public String DateCreated;//
+	public String server_id;//
+	public TaskListModel parent;//
+
 	public String syncStatus;// date time
-	public String syncStatusTimeStamp;// date time
-	public String links;
-	public String associated_usermodels;
+	public ArrayList<TaskNotificationsModel> notifications = new ArrayList<TaskNotificationsModel>();
+	
+	public int completed;// yes(1) or no(0)
+	public String startDateTime;//
+	public String endDateTime;//
+	//public String syncStatus;// date time
+	//public String syncStatusTimeStamp;// date time
+	//public String links;
+	//public String associated_usermodels;
 	public int fk_tasklist_id = 1;
-	public String relativeTime;// !db
+	//public String relativeTime;// !db
 
-	public int allDay; // swtich 0/1
-	public int rep_interval;
+	public int allDay;// // swtich 0/1
+	public int rep_interval;//
 	// exact number of days/week/months
-	public int rep_intervalType;// 0-4
+	public int rep_intervalType;//// 0-4
 
-	public String rep_intervalExpiration;
+	public String rep_intervalExpiration;//
 	// forever/date/for fixed number of events
-	public String rep_value;
-	public String createdDateTime;
-	public String startDateTime;
-	public String endDateTime;
+	public String rep_value;//
+	
 
 	// ********* Constructors *********//
 	public TaskModel() {

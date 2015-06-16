@@ -1004,7 +1004,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 			return model;
 		}
 
-		public int Add(ArrayList<TaskNotificationsModel> models,
+		private int Add(ArrayList<TaskNotificationsModel> models,
 				SQLiteDatabase db, int fk) {
 			int id = 0;
 			for (TaskNotificationsModel temp : models) {
@@ -1018,7 +1018,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 			return id;
 		}
 
-		public int Add(TaskNotificationsModel model, SQLiteDatabase db) {
+		private int Add(TaskNotificationsModel model, SQLiteDatabase db) {
 			ContentValues values = setContent(model);
 			int id = (int) db.insert(TABLE_TASK_NOTIFICATIONS, null, values);
 			return id;
