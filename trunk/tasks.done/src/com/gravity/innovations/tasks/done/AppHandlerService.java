@@ -1496,6 +1496,23 @@ public class AppHandlerService extends Service implements
 					
 				}
 				int id = db.tasklists.Add(model);//.TaskList_New(model);
+//				{
+//                    "Notifications": [],
+//                    "TaskId": "c7c49467-b6e8-4476-8e10-0aaef9d2528e",
+//                    "Title": "Add New List",
+//                    "Details": "1- Swipe from left side of screen\n2 - Click on down button on the top right side of the pane\n3 - Click on \"New Catagory\"4 - Follow The Steps",
+//                    "Notes": "task.done predefined tutorial",
+//                    "DateUpdated": "2015-06-16T10:25:26.513",
+//                    "Completed": false,
+//                    "isAllDay": true,
+//                    "DateCreated": "2015-06-16T10:25:26.513",
+//                    "StartDate": "2015-06-16T10:25:26.513",
+//                    "EndDate": "2015-06-16T10:25:26.513",
+//                    "Rep_Interval": 1,
+//                    "Rep_Type": 1,
+//                    "Rep_Expiration": "2015-06-16T10:25:26.513",
+//                    "Rep_Value": ""
+//                },
 				JSONArray tasks = temp.optJSONArray("Tasks");
 				for (int j = 0; j < tasks.length(); j++) {
 					TaskModel taskModel = new TaskModel();
@@ -1506,7 +1523,19 @@ public class AppHandlerService extends Service implements
 					if(taskObj.optBoolean("Completed"))
 					taskModel.completed = 1;//.optString("Title");
 					else taskModel.completed = 0;
-					taskModel.server_id =  taskObj.optString("TaskId");
+					taskModel.server_id =  taskObj.optString("TaskId");//
+					if(taskObj.optBoolean("isAllDay"))
+						taskModel.allDay = 1;//.optString("Title");
+						else taskModel.allDay = 0;
+					taskModel.DateCreated = taskObj.optString("DateCreated");
+					taskModel.DateUpdated = taskObj.optString("DateUpdated");
+					taskModel.startDateTime = taskObj.optString("StartDate");
+					taskModel.endDateTime = taskObj.optString("EndDate");
+					taskModel.rep_interval = taskObj.optInt("Rep_Interval");
+					taskModel.rep_intervalType = taskObj.optInt("Rep_Type");
+					taskModel.rep_intervalExpiration = taskObj.optString("Rep_Expiration");
+					taskModel.rep_value = taskObj.optString("Rep_Value");
+					
 					
 					taskModel.fk_tasklist_id = id;
 					db.tasks.Add(taskModel);
