@@ -161,7 +161,7 @@ public class TaskListFragment extends Fragment {
 
 		btn_listSharedWith = ((ImageButton) rootView
 				.findViewById(R.id.btn_showShared));
-		if (data.user_id == mService.user_data._id) {
+		if (data.owner_id == mService.user_data._id) {
 
 			btn_shareList.setOnClickListener(new View.OnClickListener() {
 				@Override
@@ -242,7 +242,7 @@ public class TaskListFragment extends Fragment {
 			mTextView_ownerName = (TextView) lv_owner
 					.findViewById(R.id.grid_item_name);
 
-			if (data.user_id == mService.user_data._id) {
+			if (data.owner_id == mService.user_data._id) {
 				if (mService.user_data.image != null) {
 					Bitmap b = ImageGridAdapter.getRoundedCornerBitmap(Bitmap
 							.createScaledBitmap(mService.user_data.image, 40,
