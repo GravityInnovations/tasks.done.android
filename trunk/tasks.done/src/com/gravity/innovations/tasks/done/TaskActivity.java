@@ -3,6 +3,8 @@ package com.gravity.innovations.tasks.done;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Currency;
+
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -71,7 +73,6 @@ public class TaskActivity extends ActionBarActivity implements OnClickListener {
 	private Calendar mTime;
 	private TextView titleString_validate;
 	private String globalUriString = null;
-
 	private Boolean isDaily = false, isWeekly = false, isMonthly = false,
 			isYearly = false, isForever = false, isUntilADate = false,
 			isForFixedEvents = false;
@@ -159,7 +160,6 @@ public class TaskActivity extends ActionBarActivity implements OnClickListener {
 				} else {
 					setResult(RESULT_OK, intent);
 				}
-
 			} catch (Exception e) {
 				e.getLocalizedMessage();
 				setResult(RESULT_CANCELED, intent);
@@ -247,7 +247,6 @@ public class TaskActivity extends ActionBarActivity implements OnClickListener {
 								e.getLocalizedMessage();
 							}
 						}
-
 						if (s.toString().length() > 6) {
 							String test = s.toString().substring(6);
 							if (test.contains("content://com.android.contacts/data/")) {
@@ -278,7 +277,6 @@ public class TaskActivity extends ActionBarActivity implements OnClickListener {
 								|| s.toString() == "sms") {
 							startActivityForResult(intent, PICK_CONTACT);
 						}
-
 						if ((s.toString().length() > 4 && s.toString()
 								.toLowerCase().contains("call"))
 								|| (s.toString().length() > 3 && s.toString()
@@ -302,7 +300,6 @@ public class TaskActivity extends ActionBarActivity implements OnClickListener {
 									uriString = s.toString().substring(3);
 									type = "Sms ";
 								}
-
 								uriString = uriString.trim();
 								globalUriString = uriString;
 								Uri uri = Uri.parse(uriString);
@@ -319,7 +316,6 @@ public class TaskActivity extends ActionBarActivity implements OnClickListener {
 			title.setText(task.title);
 			details.setText(task.details);
 			notes.setText(task.notes);
-
 			tv_repeat = (TextView) findViewById(R.id.repeat_tv);
 			tv_notification0 = (TextView) findViewById(R.id.add_notification_btn);
 			tv_notification0.setTag(0);
@@ -338,7 +334,6 @@ public class TaskActivity extends ActionBarActivity implements OnClickListener {
 						TaskNotificationsModel model = new TaskNotificationsModel();
 						task.notifications.add(model);
 						listDialog_notifications(tag, model);
-
 					}
 				}
 			};
@@ -444,7 +439,6 @@ public class TaskActivity extends ActionBarActivity implements OnClickListener {
 									.getDateInMs(start_datetime));
 							task.endDateTime = (Common.datetimeHelper
 									.getDateInMs(end_datetime));
-
 						}
 
 					} else {// isNotAllDay
@@ -512,19 +506,19 @@ public class TaskActivity extends ActionBarActivity implements OnClickListener {
 									.getDateInMs(start_datetime));
 							task.endDateTime = (Common.datetimeHelper
 									.getDateInMs(end_datetime));
-
 						}
 
-					}// else isNotAllDay
-
+					}
+					// else isNotAllDay
 					if (arrayList_TextView.size() > 2) {
-						if (task._id == -1) {
+						//if (task._id == -1) {
 							try {
+								int size = arrayList_TextView.size();
 								resetNotificaionTextViews();
 							} catch (Exception e) {
 								Log.e("allDaySwitch", e.getLocalizedMessage());
 							}
-						}
+						//}
 					}
 				}
 			};
@@ -532,7 +526,6 @@ public class TaskActivity extends ActionBarActivity implements OnClickListener {
 			try {
 				isAllDay = (Switch) findViewById(R.id.onOFF);
 				((Switch) isAllDay).setText("All Day");
-
 				((Switch) isAllDay)
 						.setOnCheckedChangeListener(allDay_change_listener);
 				if (task._id == -1) {
@@ -665,17 +658,19 @@ public class TaskActivity extends ActionBarActivity implements OnClickListener {
 		 * Remember to put a check here if(task.id==-1) otherwise it should do
 		 * something else
 		 */
-
 		// when ever switched is pressed it will reset the notifications
 		if (textViewTag == 2) {
+			  tv_notification0.setText("Notifications");
 			((LinearLayout) tv_notification1.getParent())
 					.removeView(tv_notification1);
 		} else if (textViewTag == 3) {
+			  tv_notification0.setText("Notifications");
 			((LinearLayout) tv_notification1.getParent())
 					.removeView(tv_notification1);
 			((LinearLayout) tv_notification2.getParent())
 					.removeView(tv_notification2);
 		} else if (textViewTag == 4) {
+			  tv_notification0.setText("Notifications");
 			((LinearLayout) tv_notification1.getParent())
 					.removeView(tv_notification1);
 			((LinearLayout) tv_notification2.getParent())
@@ -686,6 +681,16 @@ public class TaskActivity extends ActionBarActivity implements OnClickListener {
 			textViewFlag = 5;
 		}
 		textViewTag = 1;
+		
+		if (task._id != -1) {
+			for(TaskNotificationsModel model: task.notifications){ 
+				task.notifications.set(task.notifications.indexOf(model), Common.NotificaitonModel.deletable(model)); 
+			}
+		}else{
+			task.notifications.clear(); // for clearing the arrayList
+		}
+		
+		
 		arrayList_TextView = new ArrayList<TextView>();
 		arrayList_TextView = null;
 		arrayList_TextView = new ArrayList<TextView>();
@@ -1408,7 +1413,7 @@ public class TaskActivity extends ActionBarActivity implements OnClickListener {
 			}
 			generic_TV.setText(string_TVnotificaion);
 		} else if (which == 5) {
-			customNotificationDialog_Test(tag, model);
+			customNotificationDialog(tag, model);
 			// what if it return a string and then setting text part will happen
 			// here as well
 		}
@@ -1416,7 +1421,7 @@ public class TaskActivity extends ActionBarActivity implements OnClickListener {
 
 	Boolean isMin = false, isHrs = false, isDys = false, isWks = false;
 
-	private void customNotificationDialog_Test(final int tv_tag,
+	private void customNotificationDialog(final int tv_tag,
 			final TaskNotificationsModel model) {
 		View view = this.getLayoutInflater().inflate(
 				R.layout.dialog_notifications_custom, null);
@@ -1439,9 +1444,17 @@ public class TaskActivity extends ActionBarActivity implements OnClickListener {
 			isDys = true;
 			tv_timepicker.setVisibility(View.VISIBLE);
 			line_timepicker.setVisibility(View.VISIBLE);
+			try{
 			tv_timepicker.setText(DateUtils.formatDateTime(TaskActivity.this,
 					mTime.getTimeInMillis(), DateUtils.FORMAT_SHOW_TIME));
-
+			}catch(Exception e){
+				tv_timepicker.setText(DateUtils.formatDateTime(TaskActivity.this,
+						System.currentTimeMillis(), DateUtils.FORMAT_SHOW_TIME));
+				/*
+				 * this exception is a fall back but a bad approach 
+				 * the error lies in mTime
+				 */
+			}
 		}
 		final RadioGroup rg_NotificationOrEmail = (RadioGroup) view
 				.findViewById(R.id.myRadioGroup2);
@@ -2048,7 +2061,6 @@ public class TaskActivity extends ActionBarActivity implements OnClickListener {
 			DialogFragment newFragment = new DatePickerFragment(cal_startdate,
 					TaskActivity.this, isDate, isTime, isStart, isEnd);
 			newFragment.show(getSupportFragmentManager(), "datePicker");
-
 		} else if (v == date_end) {
 			Boolean isEnd = true;
 			Boolean isDate = true;
@@ -2059,9 +2071,6 @@ public class TaskActivity extends ActionBarActivity implements OnClickListener {
 			DialogFragment newFragment = new DatePickerFragment(cal_enddate,
 					TaskActivity.this, isDate, isTime, isStart, isEnd);
 			newFragment.show(getSupportFragmentManager(), "datePicker");
-
 		}
-
 	}
-
 }
