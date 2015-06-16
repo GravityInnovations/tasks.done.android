@@ -160,7 +160,7 @@ public class HttpTask extends AsyncTask<Void, Void, JSONObject> {
 			resultString = EntityUtils.toString(entity);
 			jsonObject = JsonHelper.toJsonObject(resultString);
 			String status = jsonObject.getString("status");
-			if(status.equals("Success"))
+			if(status.equals("success") ||status.equals("Success")  )
 			this.ResponseCode = Common.HTTP_RESPONSE_OK;
 			else 
 				this.ResponseCode = Common.HTTP_RESPONSE_ERROR;

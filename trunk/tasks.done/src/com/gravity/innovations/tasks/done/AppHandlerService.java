@@ -919,12 +919,15 @@ public class AppHandlerService extends Service implements
 			s+=0;
 		}
 	}
+	private JSONObject registeration_response;
 	public void httpResult(JSONObject data, int RequestCode, int ResultCode) {
 		switch (RequestCode) {
 		case Common.RequestCodes.GRAVITY_REGISTER:
 
 			if (ResultCode == Common.HTTP_RESPONSE_OK) {
+				registeration_response = data;
 				data = data.optJSONObject("data");
+				
 				user_data.gravity_user_id = data.optString("UserId");
 				user_data.gravity_is_registered = true;
 				
@@ -954,64 +957,7 @@ public class AppHandlerService extends Service implements
 							+ ResultCode, Toast.LENGTH_LONG).show();
 			break;
 		case Common.RequestCodes.GRAVITY_GET_TASKLISTS:
-			if (ResultCode == Common.HTTP_RESPONSE_OK) {
-				JSONArray arr_data = data.optJSONArray("data");
-				//DatabaseHelper db = new DatabaseHelper(this);
-				for (int i = 0; i < arr_data.length(); i++) {
-					try {
-						JSONObject temp = arr_data.getJSONObject(i);
-						TaskListModel model = new TaskListModel(
-								temp.getString("Title"));
-						model.syncStatus = "Synced";
-						model.server_id = temp.optString("TaskListId");
-						model.updated = temp.optString("updated");
-						model.fragmentColor = temp.optString("Color");
-						model.icon_identifier = temp.optInt("icon");
-						if(temp.optString("UserId") != null &&
-								user_data.gravity_user_id.equals(temp.optString("UserId")))
-						model.user_id = user_data._id;//temp.optInt("UserId");
-						else if(temp.optString("UserId") != null)
-						{
-							UserModel m = db.users.Get(temp.optInt("UserId"));
-							if(m!=null)
-							{
-								model.user_id = m._id;
-							}
-							else{
-								m = new UserModel(temp.optJSONObject("Owner"));
-								
-								db.users.Add(m);
-							}
-						}
-						int id = db.tasklists.Add(model);//.TaskList_New(model);
-						JSONArray tasks = temp.optJSONArray("Tasks");
-						for (int j = 0; j < tasks.length(); j++) {
-							TaskModel taskModel = new TaskModel();
-							JSONObject taskObj = tasks.getJSONObject(j);
-							taskModel.title = taskObj.optString("Title");
-							taskModel.details = taskObj.optString("Details");
-							taskModel.notes = taskObj.optString("Notes");
-							if(taskObj.optBoolean("Completed"))
-							taskModel.completed = 1;//.optString("Title");
-							else taskModel.completed = 0;
-							taskModel.server_id =  taskObj.optString("TaskId");
-							
-							taskModel.fk_tasklist_id = id;
-							db.tasks.Add(taskModel);
-						}
-					} catch (JSONException e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
-					}
-
-				}
-				addProgressTask(getString(R.string.gravity_fetch_data_success));
-			} else {
-				addProgressTask(getString(R.string.gravity_fetch_data_failed));
-			}
-			// TriggerEvent(Common.USERS_SYNC);
-			donetasks++;
-
+			
 			break;
 		case Common.RequestCodes.GRAVITY_GET_TASKS:
 			if (ResultCode == Common.HTTP_RESPONSE_OK) {
@@ -1272,17 +1218,21 @@ public class AppHandlerService extends Service implements
 		mSharedPreferencesEditor = mSharedPreferences.edit();
 		user_data.mac = mSharedPreferences.getString(Common.DEVICE_MAC, "");
 		if(user_data.mac == "" || user_data.mac.equals("")){
-			mSharedPreferencesEditor.putString(Common.DEVICE_MAC, getDeviceMac());
+			user_data.mac =  getDeviceMac();
+			mSharedPreferencesEditor.putString(Common.DEVICE_MAC,user_data.mac);
+			//user_data.mac = temp;
 		}
 			
 		user_data.imei = mSharedPreferences.getString(Common.DEVICE_IMEI, "");
 		if(user_data.imei == "" || user_data.imei.equals("")){
-			mSharedPreferencesEditor.putString(Common.DEVICE_IMEI, getDeviceIMEI());
+			user_data.imei=getDeviceIMEI();
+			mSharedPreferencesEditor.putString(Common.DEVICE_IMEI,user_data.imei );
 			
 		}
 		user_data.device_title = mSharedPreferences.getString(Common.DEVICE_TITLE, "");
 		if(user_data.device_title == "" || user_data.device_title.equals("")){
-			mSharedPreferencesEditor.putString(Common.DEVICE_TITLE, getDeviceTitle());
+			user_data.device_title =getDeviceTitle();
+			mSharedPreferencesEditor.putString(Common.DEVICE_TITLE, user_data.device_title);
 			
 		}
 		
@@ -1490,11 +1440,91 @@ public class AppHandlerService extends Service implements
 	@Override
 	public void SyncAppData() {
 		// TODO Auto-generated method stub
-		GravityController.get_tasklists(mContext, user_data,
-				Common.RequestCodes.GRAVITY_GET_TASKLISTS);
+		//GravityController.get_tasklists(mContext, user_data,
+			//	Common.RequestCodes.GRAVITY_GET_TASKLISTS);
 //		GravityController.get_tasks(mContext, user_data,
 //				Common.RequestCodes.GRAVITY_GET_TASKS);
 		//donetasks++;// temp
+		
+		
+		//registeration_response;
+		JSONArray arr_data = registeration_response.optJSONObject("data").optJSONArray("TaskLists");
+		//DatabaseHelper db = new DatabaseHelper(this);
+		for (int i = 0; i < arr_data.length(); i++) {
+			try {
+//				 "TaskListId": "b0ec6f16-30f8-482d-82c1-6a983d395e8d",
+//	                "Color": "#343434",
+//	                "Icon": 1,
+//	                "Title": "Welcome to tasks.done",
+//	                "DateCreated": "2015-06-16T10:25:26.5",
+//	                "DateUpdated": "2015-06-16T10:25:26.5",
+//	                "OwnerId": "1b701633-69b8-4960-98ef-4c79dabeb7d1",
+				JSONObject temp = arr_data.getJSONObject(i);
+				TaskListModel model = new TaskListModel(
+						temp.getString("Title"));
+				
+				model.syncStatus = "Synced";
+				model.server_id = temp.optString("TaskListId");
+				model.DateUpdated = temp.optString("DateUpdated");
+				model.DateCreated = temp.optString("DateCreated");
+				model.fragmentColor = temp.optString("Color");
+				model.icon_identifier = temp.optInt("Icon");
+				model.title = temp.optString("Title");
+				//model.owner_id =  temp.optString("Title");
+				JSONArray arr_users = temp.optJSONArray("Users");
+				String owner_id = temp.optString("OwnerId");
+				if(owner_id != null &&
+						user_data.gravity_user_id.equals(owner_id))
+				{
+					model.owner_id = user_data._id;
+				}
+				for(int j = 0; j< arr_users.length(); j++)
+				{
+					JSONObject arr_user = arr_users.getJSONObject(j);
+					UserModel m = db.users.Get(arr_user.optString("UserId"));
+					
+					if(m==null){
+						m = new UserModel(arr_user);
+						m._id = db.users.Add(m);
+					}
+					if(arr_user.optString("UserId").equals(owner_id) && m._id !=-1)
+					{
+						model.owner_id = m._id;
+					}
+					
+					
+					
+				}
+				int id = db.tasklists.Add(model);//.TaskList_New(model);
+				JSONArray tasks = temp.optJSONArray("Tasks");
+				for (int j = 0; j < tasks.length(); j++) {
+					TaskModel taskModel = new TaskModel();
+					JSONObject taskObj = tasks.getJSONObject(j);
+					taskModel.title = taskObj.optString("Title");
+					taskModel.details = taskObj.optString("Details");
+					taskModel.notes = taskObj.optString("Notes");
+					if(taskObj.optBoolean("Completed"))
+					taskModel.completed = 1;//.optString("Title");
+					else taskModel.completed = 0;
+					taskModel.server_id =  taskObj.optString("TaskId");
+					
+					taskModel.fk_tasklist_id = id;
+					db.tasks.Add(taskModel);
+				}
+			} catch (JSONException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+
+		}
+		addProgressTask(getString(R.string.gravity_fetch_data_success));
+	
+	// TriggerEvent(Common.USERS_SYNC);
+	//donetasks++;
+
+		
+		
+		
 	}
 
 	public byte[] loadContactPhoto(long photoId) {
@@ -1974,6 +2004,8 @@ public class AppHandlerService extends Service implements
 			
 		
 	}
-	
+	public void push_referee()
+	{	//if(hasInternet()){}
+	}
 
 }

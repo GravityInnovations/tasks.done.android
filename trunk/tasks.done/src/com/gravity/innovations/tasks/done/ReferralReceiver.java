@@ -69,6 +69,10 @@ public class ReferralReceiver extends BroadcastReceiver {
 			if (value != null) {
 				editor.putString(key, value);
 			}
+			if(key.equals(ReferralReceiver.EXPECTED_PARAMETERS[3]))
+			{
+					
+			}
 		}
 
 		editor.commit();

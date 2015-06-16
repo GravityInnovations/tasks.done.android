@@ -260,9 +260,10 @@ public class MainActivity extends ActionBarActivity implements
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		mContext = this;
-		// getActionBar().hide();//***************
+		 //getActionBar().hide();//***************
 		setContentView(R.layout.activity_main);
-
+		restoreActionBar();
+		//getActionBar().hide();
 		service = ((TheApp) getApplicationContext()).getService();// mBinder.getService();
 		if (service != null) {
 			service.onActivityOpen(this, this);
@@ -438,7 +439,13 @@ public class MainActivity extends ActionBarActivity implements
 		actionBar.setDisplayShowTitleEnabled(true);
 		// actionBar.setTitle(mTitle);
 		actionBar.setTitle(CurrentList.title);
+		try{
 		actionBar.hide();
+		}
+		catch(Exception e)
+		{
+			
+		}
 		/***********/
 	}
 
