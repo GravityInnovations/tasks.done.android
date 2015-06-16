@@ -7,6 +7,8 @@ import org.apache.http.NameValuePair;
 import org.apache.http.message.BasicNameValuePair;
 import org.json.JSONObject;
 
+import com.gravity.innovations.tasks.done.Common.userData;
+
 import android.app.Activity;
 import android.content.Context;
 import android.os.AsyncTask;
@@ -25,12 +27,15 @@ public class GravityController {
 		/*HttpTask temp = new HttpTask(Common.USER_INFO_URL);
 		temp.execute();*/
 	}
-	public static void register_gravity_account(Context context,String Email, String gcm_reg_id,String Username, int RequestCode)
+	public static void register_gravity_account(Context context,userData user_data, int RequestCode)
 	{
 		List<NameValuePair> postData = new ArrayList<NameValuePair>();          
-		postData.add(new BasicNameValuePair("Email", Email));
-		postData.add(new BasicNameValuePair("Regid", gcm_reg_id));
-		postData.add(new BasicNameValuePair("Name", Username));
+		postData.add(new BasicNameValuePair("Email", user_data.email));
+		postData.add(new BasicNameValuePair("gcmDeviceId", user_data.google_reg_id));
+		postData.add(new BasicNameValuePair("Name", user_data.name));
+		postData.add(new BasicNameValuePair("DeviceImei", user_data.imei));
+		postData.add(new BasicNameValuePair("DeviceMac", user_data.mac));
+		postData.add(new BasicNameValuePair("DeviceTitle", user_data.device_title));
 		HttpTask Temp = new HttpTask(context, Common.GRAVITY_ACCOUNT_URL, postData,
 				Common.HttpMethod.HttpPost,RequestCode);
 		Temp.execute();

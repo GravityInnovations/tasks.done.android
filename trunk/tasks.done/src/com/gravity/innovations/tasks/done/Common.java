@@ -46,6 +46,9 @@ public class Common {
 																	// email
 																	// address
 	public static final String USER_NAME = prefix + "Username";
+	public static final String DEVICE_MAC = prefix + "DeviceMAC";
+	public static final String DEVICE_IMEI = prefix + "DeviceIMEI";
+	public static final String DEVICE_TITLE = prefix + "DeviceTitle";
 	public static final String USER_IMAGE = prefix + "UserImage";
 	public static final String USER_DATA = prefix + "UserData";
 	public static final String USER_IS_VERIFICATION_COMPLETE = prefix
@@ -107,7 +110,7 @@ public class Common {
 	public static final String SPLASH_ACTIVITY = "SplashActivity";
 
 	// gravity urls
-	public static final String GRAVITY_BASE_URL = "http://192.168.1.9/";
+	public static final String GRAVITY_BASE_URL = "http://192.168.1.8/";
 	public static final String GRAVITY_ACCOUNT_URL = GRAVITY_BASE_URL
 			+ "Account/";
 	public static final String GRAVITY_GCM_URL = GRAVITY_BASE_URL + "GCM/";
@@ -238,6 +241,9 @@ public class Common {
 
 	public static class userData implements Serializable {
 		public String email;
+		public String imei;
+		public String mac;
+		public String device_title;
 		public int _id;
 		public String name;
 		public Boolean is_sync_type;

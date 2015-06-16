@@ -12,6 +12,10 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import com.google.android.gms.ads.AdListener;
+import com.google.android.gms.ads.AdRequest;
+import com.google.android.gms.ads.AdView;
+import com.google.android.gms.ads.InterstitialAd;
 import com.google.android.gms.common.AccountPicker;
 import com.google.android.gms.gcm.GoogleCloudMessaging;
 import android.accounts.AccountManager;
@@ -38,8 +42,11 @@ import android.graphics.BitmapFactory;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.Uri;
+import android.net.wifi.WifiInfo;
+import android.net.wifi.WifiManager;
 import android.os.AsyncTask;
 import android.os.Binder;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.HandlerThread;
@@ -53,6 +60,8 @@ import android.provider.ContactsContract.Data;
 import android.provider.ContactsContract.Contacts.Photo;
 import android.provider.ContactsContract.RawContacts;
 import android.support.v4.app.NotificationCompat;
+import android.telephony.TelephonyManager;
+import android.view.View;
 import android.widget.Toast;
 
 public class AppHandlerService extends Service implements
@@ -83,7 +92,96 @@ public class AppHandlerService extends Service implements
 		// this.getSystemService(Context.NOTIFICATION_SERVICE);
 		// TODO Auto-generated constructor stub
 	}
+	public void openAdDialog(final long interval)
+	{
+		final Runnable r = new Runnable() {
+			private InterstitialAd mAdView;
+			@Override
+			public void run() {
+				mAdView =  new InterstitialAd(FocusedActivity);//(AdView) view.findViewById(R.id.LargeadView);
+				mAdView.setAdUnitId("ca-app-pub-1363931415415684/7076105056");
+				mAdView.setAdListener(new AdListener() {
 
+					@Override
+					public void onAdClosed() {
+						// TODO Auto-generated method stub
+						super.onAdClosed();
+						openAdDialog(1000*60);
+					}
+
+					@Override
+					public void onAdFailedToLoad(int errorCode) {
+						// TODO Auto-generated method stub
+						super.onAdFailedToLoad(errorCode);
+						switch(errorCode)
+						{
+						case AdRequest.ERROR_CODE_INTERNAL_ERROR:
+							break;
+						case AdRequest.ERROR_CODE_INVALID_REQUEST:
+							break;
+						case AdRequest.ERROR_CODE_NETWORK_ERROR:
+							break;
+						case AdRequest.ERROR_CODE_NO_FILL:
+							break;
+						}
+						openAdDialog(2000);
+					}
+
+					@Override
+					public void onAdLeftApplication() {
+						// TODO Auto-generated method stub
+						super.onAdLeftApplication();
+					}
+
+					@Override
+					public void onAdLoaded() {
+						// TODO Auto-generated method stub
+						super.onAdLoaded();
+						mAdView.show();
+					}
+
+					@Override
+					public void onAdOpened() {
+						// TODO Auto-generated method stub
+						super.onAdOpened();
+					}
+					 
+				});
+				AdRequest adRequest = new AdRequest.Builder().build();
+				 mAdView.loadAd(adRequest);
+				 
+			}
+		};
+		AsyncTask<Void,Void,Void> t = new AsyncTask<Void, Void, Void>(){
+
+			
+
+			@Override
+			protected Void doInBackground(Void... params) {
+				// TODO Auto-generated method stub
+				try {
+					if(FocusedActivity!=null)
+					{
+						Thread.sleep(interval);
+						runOnUiThread(r);
+					}
+					else{
+						Thread.sleep(3000);
+						openAdDialog(4000);
+					}
+				} catch (InterruptedException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+				
+				return null;
+			}};
+		
+		t.execute();
+		
+		
+		
+	}
 	@Override
 	public void onCreate() {
 		// TODO Auto-generated method stub
@@ -116,7 +214,7 @@ public class AppHandlerService extends Service implements
 		    Looper looper = thread.getLooper();
 		    mHandler = new tdHandler(looper);
 			TriggerEvent(Common.LOAD_PREFS);
-			
+			//openAdDialog(4000);
 			 
 		} catch (Exception ex) {
 			progress_tasks.add(0, ex.getLocalizedMessage());
@@ -280,7 +378,61 @@ public class AppHandlerService extends Service implements
 	// // TODO Auto-generated method stub
 	// super.setIntentRedelivery(enabled);
 	// }
+	private String getDeviceIMEI() {
+		//requires READ_PHONE_STATE permission in manifest.xml
+		try{
+			TelephonyManager telephonyManager = (TelephonyManager) this
+					.getSystemService(Context.TELEPHONY_SERVICE);
+			String id = telephonyManager.getDeviceId();
+			return id;
+		}
+		catch(Exception e)
+		{
+			addProgressTask(e.getMessage());
+			return null;
+		}
+		
+	}
+	private String getDeviceTitle()
+	{
+		try{
+		 String manufacturer = Build.MANUFACTURER;
+		   String model = Build.MODEL;
+		   if (model.startsWith(manufacturer)) {
+		      return model;
+		   } else {
+		      return manufacturer + " " + model;
+		   }
+		}
+		catch(Exception e)
+		{
+			return "default";
+		}
+	}
+	private String getDeviceMac(){
+		try{
 
+			Boolean flag = false;
+			//requires ACCESS_WIFI_STATE permission in manifest.xml
+			WifiManager wifiManager = (WifiManager) this.getSystemService(Context.WIFI_SERVICE);
+			if(!wifiManager.isWifiEnabled())
+			{
+				wifiManager.setWifiEnabled(true);
+				flag = true;
+			}
+			WifiInfo wInfo = wifiManager.getConnectionInfo();
+			String mac = wInfo.getMacAddress();
+			if(flag)
+				wifiManager.setWifiEnabled(false);
+			return mac;	
+		}
+		catch(Exception e)
+		{
+			addProgressTask(e.getMessage());
+			return null;
+			
+		}
+	}
 	public void addProgressTask(final String s) {
 		
 			TimerTask t = new TimerTask() {
@@ -1117,6 +1269,23 @@ public class AppHandlerService extends Service implements
 		mSharedPreferences = getSharedPreferences(Common.SHARED_PREF_KEY,
 				MODE_MULTI_PROCESS);
 		mSharedPreferencesEditor = mSharedPreferences.edit();
+		user_data.mac = mSharedPreferences.getString(Common.DEVICE_MAC, "");
+		if(user_data.mac == "" || user_data.mac.equals("")){
+			mSharedPreferencesEditor.putString(Common.DEVICE_MAC, getDeviceMac());
+		}
+			
+		user_data.imei = mSharedPreferences.getString(Common.DEVICE_IMEI, "");
+		if(user_data.imei == "" || user_data.imei.equals("")){
+			mSharedPreferencesEditor.putString(Common.DEVICE_IMEI, getDeviceIMEI());
+			
+		}
+		user_data.device_title = mSharedPreferences.getString(Common.DEVICE_TITLE, "");
+		if(user_data.device_title == "" || user_data.device_title.equals("")){
+			mSharedPreferencesEditor.putString(Common.DEVICE_TITLE, getDeviceTitle());
+			
+		}
+		
+		mSharedPreferencesEditor.commit();
 		user_data.email = mSharedPreferences.getString(Common.USER_EMAIL, null);
 		user_data.is_sync_type = mSharedPreferences.getBoolean(
 				Common.USER_IS_SYNC_TYPE, true);
@@ -1203,11 +1372,11 @@ public class AppHandlerService extends Service implements
 	public void GravityRegister() {
 		// TODO Auto-generated method stub
 		if(user_data.name != null && user_data.google_reg_id != null && user_data.email!=null &&
-				user_data.name != "" && user_data.google_reg_id != "" && user_data.email!="")
+				user_data.name != "" && user_data.google_reg_id != "" && user_data.email!="" 
+				&& user_data.mac !="" && user_data.mac!=null&& user_data.device_title !="" && user_data.device_title!=null)
 			
 			
-		GravityController.register_gravity_account(mContext, user_data.email,
-				user_data.google_reg_id, user_data.name,
+		GravityController.register_gravity_account(mContext, user_data,
 				Common.RequestCodes.GRAVITY_REGISTER);
 		else{
 			
