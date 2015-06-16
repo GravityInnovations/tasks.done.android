@@ -1,0 +1,323 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:paddingTop="?attr/actionBarSize" >
+
+    <EditText
+        android:id="@+id/txt_title"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentEnd="true"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentStart="true"
+        android:layout_marginTop="5dp"
+        android:background="#00000000"
+        android:focusable="true"
+        android:hint="@string/title_here"
+       
+        android:paddingBottom="20dp"
+        android:paddingLeft="20dp"
+        android:paddingRight="20dp"
+        android:paddingTop="40dp"
+        android:singleLine="false"
+        android:textColor="@color/textColor"
+        android:textSize="24sp" />
+    <!--   android:maxLength="20" -->
+
+    <View
+        android:id="@+id/line1"
+        android:layout_width="fill_parent"
+        android:layout_height="1dp"
+        android:layout_below="@+id/counter_titleString"
+        android:background="@color/line_divider" />
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_below="@+id/line1"
+        android:background="#fbfbfb" >
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" >
+
+            <EditText
+                android:id="@+id/txt_details"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_alignParentLeft="true"
+                android:layout_alignParentRight="true"
+                android:layout_alignParentTop="true"
+                android:background="#00000000"
+                android:focusable="true"
+                android:hint="Details Here"
+                android:paddingBottom="10dp"
+                android:paddingLeft="20dp"
+                android:paddingRight="20dp"
+                android:paddingTop="10dp"
+                android:singleLine="false"
+                android:textColor="@color/textColor"
+                android:textSize="17sp" />
+
+            <View
+                android:id="@+id/line2"
+                android:layout_width="fill_parent"
+                android:layout_height="1dp"
+                android:layout_below="@+id/txt_details"
+                android:background="@color/line_divider" />
+
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_below="@+id/line2"
+                android:padding="10dp" >
+
+                <ImageView
+                    android:id="@+id/sec_iv"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignBottom="@+id/switch_layout"
+                    android:layout_alignParentLeft="true"
+                    android:layout_alignParentTop="true"
+                    android:src="@drawable/ic_schedule_grey600_24dp" />
+
+                <include
+                    android:id="@+id/switch_layout"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentRight="true"
+                    android:layout_marginLeft="10dp"
+                    android:layout_toRightOf="@+id/sec_iv"
+                    layout="@layout/switch_layout" />
+
+                <TextView
+                    android:id="@+id/btn_date_1"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignLeft="@+id/switch_layout"
+                    android:layout_below="@+id/switch_layout"
+                    android:layout_margin="0dp"
+                    android:layout_marginTop="5dp"
+                    android:background="@android:color/transparent"
+                    android:paddingBottom="10dp"
+                    android:paddingTop="10dp"
+                    android:tag="start"
+                    android:text="Friday, Apr 3 2015"
+                    android:textColor="@color/textColor"
+                    android:textSize="17sp" />
+
+                <TextView
+                    android:id="@+id/btn_date_2"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignLeft="@+id/btn_date_1"
+                    android:layout_below="@+id/btn_date_1"
+                    android:layout_margin="0dp"
+                    android:layout_marginTop="5dp"
+                    android:background="@android:color/transparent"
+                    android:paddingBottom="10dp"
+                    android:paddingTop="10dp"
+                    android:tag="end"
+                    android:text="Friday, Apr 3 2015"
+                    android:textColor="@color/textColor"
+                    android:textSize="17sp" />
+
+                <TextView
+                    android:id="@+id/btn_time_2"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignBaseline="@+id/btn_date_2"
+                    android:layout_alignBottom="@+id/btn_date_2"
+                    android:layout_alignLeft="@+id/btn_time_1"
+                    android:layout_alignParentRight="true"
+                    android:layout_margin="0dp"
+                    android:background="@android:color/transparent"
+                    android:gravity="right"
+                    android:paddingBottom="10dp"
+                    android:paddingTop="10dp"
+                    android:tag="end"
+                    android:text="11:00AM"
+                    android:textColor="@color/textColor"
+                    android:textSize="17sp" />
+
+                <TextView
+                    android:id="@+id/btn_time_1"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignBaseline="@+id/btn_date_1"
+                    android:layout_alignBottom="@+id/btn_date_1"
+                    android:layout_alignParentRight="true"
+                    android:layout_margin="0dp"
+                    android:layout_toRightOf="@+id/btn_date_1"
+                    android:background="@android:color/transparent"
+                    android:gravity="right"
+                    android:paddingBottom="10dp"
+                    android:paddingTop="10dp"
+                    android:tag="start"
+                    android:text="11:00AM"
+                    android:textColor="@color/textColor"
+                    android:textSize="17sp" />
+
+                <View
+                    android:id="@+id/line3"
+                    android:layout_width="fill_parent"
+                    android:layout_height="1dp"
+                    android:layout_alignLeft="@+id/btn_date_2"
+                    android:layout_alignParentRight="true"
+                    android:layout_below="@+id/btn_date_2"
+                    android:layout_toLeftOf="@+id/btn_date_2"
+                    android:background="@color/line_divider" />
+
+                <ImageView
+                    android:id="@+id/repeat_iv"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentLeft="true"
+                    android:layout_below="@+id/line3"
+                    android:layout_marginRight="10dp"
+                    android:layout_toLeftOf="@+id/repeat_tv"
+                    android:paddingBottom="10dp"
+                    android:paddingTop="10dp"
+                    android:src="@drawable/ic_replay_grey600_24dp" />
+
+                <TextView
+                    android:id="@+id/repeat_tv"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignBottom="@+id/repeat_iv"
+                    android:layout_alignLeft="@+id/line3"
+                    android:layout_alignParentRight="true"
+                    android:layout_below="@+id/line3"
+                    android:background="@android:color/transparent"
+                    android:clickable="false"
+                    android:gravity="center_vertical"
+                    android:tag="0"
+                    android:text="Repeat"
+                    android:textColor="@color/textColor"
+                    android:textSize="17sp" />
+
+                <View
+                    android:id="@+id/line4"
+                    android:layout_width="fill_parent"
+                    android:layout_height="1dp"
+                    android:layout_alignLeft="@+id/btn_date_2"
+                    android:layout_alignParentRight="true"
+                    android:layout_below="@+id/repeat_tv"
+                    android:layout_toLeftOf="@+id/repeat_tv"
+                    android:background="@color/line_divider" />
+
+                <ImageView
+                    android:id="@+id/notification_iv"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentLeft="true"
+                    android:layout_below="@+id/line4"
+                    android:layout_marginRight="10dp"
+                    android:layout_toLeftOf="@+id/add_notification_btn"
+                    android:paddingBottom="0dp"
+                    android:paddingTop="10dp"
+                    android:src="@drawable/ic_notifications_grey600_24dp" />
+
+                <TextView
+                    android:id="@+id/add_notification_btn"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignBottom="@+id/notification_iv"
+                    android:layout_alignLeft="@+id/line4"
+                    android:layout_alignParentRight="true"
+                    android:layout_below="@+id/line4"
+                    android:background="@android:color/transparent"
+                    android:clickable="false"
+                    android:gravity="center_vertical"
+                    android:text="Notifications"
+                    android:textColor="@color/textColor"
+                    android:textSize="17sp" />
+
+                <LinearLayout
+                    android:id="@+id/append_btn_linearlayout"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignLeft="@+id/add_notification_btn"
+                    android:layout_below="@+id/add_notification_btn"
+                    android:orientation="vertical" >
+                </LinearLayout>
+
+                <TextView
+                    android:id="@+id/add_another_notification_btn"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignLeft="@+id/add_notification_btn"
+                    android:layout_below="@+id/append_btn_linearlayout"
+                    android:background="@android:color/transparent"
+                    android:paddingBottom="10dp"
+                    android:paddingTop="8dp"
+                    android:text="@string/addAnotherNotification"
+                    android:textColor="@color/textColor"
+                    android:textSize="17sp" />
+
+                <View
+                    android:id="@+id/line5"
+                    android:layout_width="fill_parent"
+                    android:layout_height="1dp"
+                    android:layout_alignLeft="@+id/add_another_notification_btn"
+                    android:layout_alignParentRight="true"
+                    android:layout_below="@+id/add_another_notification_btn"
+                    android:layout_toLeftOf="@+id/add_another_notification_btn"
+                    android:background="@color/line_divider" />
+
+                <ImageView
+                    android:id="@+id/notes_iv"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentLeft="true"
+                    android:layout_below="@+id/line5"
+                    android:layout_marginRight="10dp"
+                    android:layout_toLeftOf="@+id/add_notification_btn"
+                    android:paddingBottom="10dp"
+                    android:paddingTop="10dp"
+                    android:src="@drawable/ic_content_paste_grey600_24dp" />
+
+                <EditText
+                    android:id="@+id/txt_notes"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentRight="true"
+                    android:layout_below="@+id/line5"
+                    android:layout_toRightOf="@+id/notes_iv"
+                    android:background="#00000000"
+                    android:focusable="true"
+                    android:hint="Notes Here"
+                    android:paddingBottom="10dp"
+                    android:paddingRight="20dp"
+                    android:paddingTop="10dp"
+                    android:singleLine="false"
+                    android:textColor="@color/textColor"
+                    android:textSize="17sp" />
+
+                <Button
+                    android:id="@+id/buttON"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_below="@+id/txt_notes"
+                    android:text="Button"
+                    android:visibility="gone" />
+            </RelativeLayout>
+        </RelativeLayout>
+    </ScrollView>
+
+    <TextView
+        android:id="@+id/counter_titleString"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignBaseline="@+id/txt_title"
+        android:layout_alignBottom="@+id/txt_title"
+        android:layout_alignParentEnd="true"
+        android:layout_alignParentRight="true"
+        android:paddingRight="10dp"
+        android:text="* "
+        android:textColor="@color/pumpkin" />
+
+</RelativeLayout>

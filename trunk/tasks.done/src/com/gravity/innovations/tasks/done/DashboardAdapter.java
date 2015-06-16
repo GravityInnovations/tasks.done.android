@@ -1,51 +1,35 @@
 package com.gravity.innovations.tasks.done;
 
 import java.util.ArrayList;
-
 import android.app.Activity;
 import android.content.Context;
 import android.graphics.Color;
+import android.net.Uri;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.EditText;
 import android.widget.Filter;
 import android.widget.Filterable;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
-import android.widget.Toast;
 
 public class DashboardAdapter extends
 		RecyclerView.Adapter<DashboardAdapter.RecyclerArrayHolder> implements
 		Filterable {
 	ArrayList<TaskModel> task_data = new ArrayList<TaskModel>();
 	ArrayList<TaskModel> data_backup = new ArrayList<TaskModel>();
-	int layoutResourceId, position;
 	NavigationDrawerFragment mNavigationDrawerFragment;
-	TaskListAdapter mTaskListAdapter;
-	Activity mActivity;
 	Context mContext;
-	// private View footer;
-	// static EditText search;
-	//DatabaseHelper db;
 
-	public DashboardAdapter(Activity act, int layoutResourceId, NavigationDrawerFragment NavDrawer,
-			ArrayList<TaskModel> data
-	// ,View footer,EditText search_et
-	// ,TaskListAdapter _mTaskListAdapter
-	) {
-		// super(act, layoutResourceId, data);
-		this.layoutResourceId = layoutResourceId;
-		this.mActivity = act;
+	public DashboardAdapter(Activity act, NavigationDrawerFragment NavDrawer,
+			ArrayList<TaskModel> data) {
 		this.task_data = data;
 		data_backup = data;
 		mNavigationDrawerFragment = NavDrawer;
 		notifyDataSetChanged();
 		mContext = act;
-		// this.footer = footer;
-		// this.search = search_et;
 	}
 
 	long currentTimeMills = System.currentTimeMillis();
@@ -66,7 +50,6 @@ public class DashboardAdapter extends
 			rowIdentifier = (View) itemView.findViewById(R.id.listColor);
 			row = (RelativeLayout) itemView.findViewById(R.id.row_layout);
 		}
-
 	}
 
 	public Filter getFilter() {
@@ -81,8 +64,6 @@ public class DashboardAdapter extends
 		@Override
 		protected FilterResults performFiltering(CharSequence constraint) {
 			ArrayList<TaskModel> filteredResults = new ArrayList<TaskModel>();
-			// getFilteredResults(constraint);
-
 			for (TaskModel temp : data_backup) {
 				if (temp.title.toLowerCase().contains(
 						constraint.toString().toLowerCase()))
@@ -95,11 +76,8 @@ public class DashboardAdapter extends
 
 		protected void publishResults(CharSequence constraint,
 				FilterResults results) {
-			// data_backup = data; // data_backup source is un-filtered data
-			// data = (ArrayList<TaskListModel>) results.values;
-
 			ArrayList<TaskModel> temp = (ArrayList<TaskModel>) results.values;
-			if (temp.size() == 0) { // .isEmpty()){
+			if (temp.size() == 0) {
 				if (constraint == "")
 					task_data = data_backup;
 				else
@@ -117,31 +95,53 @@ public class DashboardAdapter extends
 
 	@Override
 	public int getItemCount() {
-		// TODO Auto-generated method stub
 		return task_data.size();
 	}
 
 	@Override
 	public void onBindViewHolder(RecyclerArrayHolder viewHolder, int position) {
-		// TODO Auto-generated method stub
+		final TaskModel task = getItem(position);
 
-		final TaskModel task = getItem(position);// task_data.get(position);
-		
-		viewHolder.tv_title.setText(task.title);
+		if (task.title.toLowerCase().contains("call")
+				|| task.title.toLowerCase().contains("sms")
+				|| task.title.toLowerCase().contains("email")) {
+
+			String uri = task.title;
+			String type = null;
+			if (task.title.toLowerCase().contains("call")) {
+				uri = uri.substring(5);
+				type = "Call ";
+			} else if (task.title.toLowerCase().contains("sms")) {
+				uri = uri.substring(4);
+				type = "Sms ";
+			} else if (task.title.toLowerCase().contains("email")) {
+				uri = uri.substring(6);
+				type = "Email ";
+			}
+
+			viewHolder.tv_title.setText(type
+					+ Common.ContactStringConversion.getDisplayName(
+							Uri.parse(uri), mContext));
+
+		} else {
+			viewHolder.tv_title.setText(task.title);
+		}
 
 		if (task.relativeTime == "" || task.relativeTime == null)
+
 			task.updateRelativeTime(currentTimeMills);
+
 		viewHolder.tv_updatedAt.setText(task.relativeTime);
-		
+
 		viewHolder.tv_list_title.setText(task.parent.title);
+
 		String hex = task.parent.fragmentColor;
+
 		viewHolder.rowIdentifier.setBackgroundColor(Color.parseColor(hex));
-		
+
 		viewHolder.row.setOnClickListener(new View.OnClickListener() {
 			@Override
 			public void onClick(View v) {
-				
-				
 				mNavigationDrawerFragment.selectItem(task);
 			}
 		});
@@ -150,15 +150,10 @@ public class DashboardAdapter extends
 	@Override
 	public RecyclerArrayHolder onCreateViewHolder(ViewGroup parent, int arg1) {
 		View itemLayoutView = LayoutInflater.from(parent.getContext()).inflate(
-				R.layout.row_task_dashboard, null);
+				R.layout.row_dashboard, null);
 
-		
-		// create ViewHolder
 		RecyclerArrayHolder viewHolder = new RecyclerArrayHolder(itemLayoutView);
-		//
 		return viewHolder;
-		// View view = mInflater.inflate(mResource, viewGroup, false);
-		// return new RecyclerArrayHolder(itemLayoutView);
 	}
 
 	public TaskModel getItem(int position) {

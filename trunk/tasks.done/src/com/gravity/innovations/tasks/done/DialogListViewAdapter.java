@@ -21,7 +21,7 @@ public class DialogListViewAdapter extends ArrayAdapter<String> {
 			Integer[] image_Id) {
 		// super(context, resource);
 		// TODO Auto-generated constructor stub
-		super(context, R.layout.listview_dialog, web_);
+		super(context, R.layout.dialog_listview, web_);
 		this.mContext = context;
 		this._list_item = web_;
 		this._imageId = image_Id;
@@ -31,7 +31,7 @@ public class DialogListViewAdapter extends ArrayAdapter<String> {
 	@Override
 	public View getView(int position, View view, ViewGroup parent) {
 		LayoutInflater inflater = mContext.getLayoutInflater();
-		View rowView = inflater.inflate(R.layout.dialog_listview_row, null,
+		View rowView = inflater.inflate(R.layout.row_dialog_listview, null,
 				true);
 		TextView txtTitle = (TextView) rowView.findViewById(R.id.et_list_item);
 		ImageView imageView = (ImageView) rowView.findViewById(R.id.list_icon);

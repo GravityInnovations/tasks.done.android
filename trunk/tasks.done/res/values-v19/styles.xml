@@ -8,6 +8,7 @@
         <!-- API 19 theme customizations can go here. -->
         <item name="android:windowTranslucentStatus">true</item>
 <item name="android:windowTranslucentNavigation">false</item>
+
     </style>
 
 </resources>

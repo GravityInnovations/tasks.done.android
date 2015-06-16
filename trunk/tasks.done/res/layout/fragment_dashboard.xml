@@ -10,7 +10,7 @@
         android:layout_width="match_parent"
         android:layout_height="150dp"
         android:layout_alignParentTop="true"
-        android:background="#88B1C5"
+        android:background="@color/taskDoneBlue"
         android:clickable="true" >
 
         <RelativeLayout
@@ -18,75 +18,91 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_alignParentLeft="true"
+            android:layout_alignParentStart="true"
             android:layout_alignParentTop="true"
             android:layout_marginBottom="10dp"
             android:layout_marginLeft="10dp"
             android:layout_marginRight="10dp"
             android:layout_marginTop="35dp" >
 
-            <!-- <TextView -->
-            <!-- android:id="@+id/img_sync" -->
-            <!-- android:layout_width="wrap_content" -->
-            <!-- android:layout_height="30dp" -->
-            <!-- android:layout_alignParentRight="true" -->
-            <!-- android:layout_alignParentTop="true" -->
-            <!-- android:layout_marginLeft="5dp" -->
-            <!-- android:text="Pending Tasks" -->
-            <!-- android:textColor="@android:color/white" -->
-            <!-- android:textSize="15dp" -->
-            <!-- android:visibility="gone" /> -->
-
             <ImageButton
                 android:id="@+id/iv_drawer_toggle"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_alignParentLeft="true"
-                android:layout_alignParentTop="true"
+                android:layout_alignParentStart="true"
                 android:background="@drawable/default_button_selector"
                 android:clickable="true"
-                android:src="@drawable/ic_action_overflow_white" />
-        </RelativeLayout>
-		 <RelativeLayout
-            android:id="@+id/search_layout_relative_replica"
-            android:layout_width="fill_parent"
-            android:layout_height="wrap_content"
-            android:layout_above="@+id/search_line"
-            android:layout_alignParentLeft="true"
-            android:layout_below="@+id/top_layout"
-            android:background="#00000000"
-            android:padding="12dp"  >
-
-            <ImageView
-                android:id="@+id/search_iv"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_alignParentRight="true"
-                android:layout_centerVertical="true"
-                android:focusable="true"
-                android:src="@drawable/ic_action_search"
-                android:visibility="visible" />
+                android:src="@drawable/ic_menu_white_24dp" />
 
             <TextView
                 android:id="@+id/tv_pending_tasks"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginLeft="10dp"
-                android:layout_alignParentLeft="true"
-                android:layout_below="@+id/searchView"
+                android:layout_alignParentRight="true"
+                android:layout_alignParentEnd="true"
                 android:layout_centerVertical="true"
-                android:layout_toLeftOf="@+id/search_iv"
-                android:background="#00000000"
                 android:focusable="true"
-                android:hint="Tasks pending"
+                android:hint="@string/tasks_pending"
+                android:textSize="10sp"
                 android:textColor="@android:color/white" />
         </RelativeLayout>
+
+        <RelativeLayout
+            android:id="@+id/search_layout_relative_replica"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:layout_above="@+id/search_line"
+            android:layout_alignParentLeft="true"
+            android:layout_alignParentStart="true"
+            android:background="#00000000"
+            android:padding="12dp" >
+
+            <ImageView
+                android:id="@+id/search_iv"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentEnd="true"
+                android:layout_alignParentRight="true"
+                android:layout_centerVertical="true"
+                android:focusable="true"
+                android:src="@drawable/ic_search_white_24dp"
+                android:visibility="visible" />
+
+            <ImageView
+                android:id="@+id/iv_dashboard"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentLeft="true"
+                android:layout_alignParentStart="true"
+                android:layout_centerVertical="true"
+                android:src="@drawable/ic_web_white_24dp" />
+
+            <TextView
+                android:id="@+id/tv_dashboard"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerVertical="true"
+                android:layout_toEndOf="@+id/iv_dashboard"
+                android:layout_toRightOf="@+id/iv_dashboard"
+                android:text="@string/dashboard"
+                android:textColor="@android:color/white"
+                android:textSize="22sp"
+                android:layout_marginLeft="5dp"
+                android:layout_marginStart="5dp"
+                android:shadowColor="#242424"
+                android:shadowDx="2"
+                android:shadowDy="2"
+                android:shadowRadius="2" />
+        </RelativeLayout>
+
         <RelativeLayout
             android:id="@+id/search_layout_relative"
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
             android:layout_above="@+id/search_line"
             android:layout_alignParentLeft="true"
-            android:layout_below="@+id/top_layout"
+            android:layout_alignParentStart="true"
             android:background="#ffffff"
             android:padding="12dp"
             android:visibility="visible" >
@@ -95,28 +111,26 @@
                 android:id="@+id/cancel_iv"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_alignParentEnd="true"
                 android:layout_alignParentRight="true"
                 android:layout_centerVertical="true"
                 android:focusable="true"
-                android:src="@drawable/ic_action_cancel"
-                />
+                android:src="@drawable/ic_close_grey600_24dp" />
 
             <EditText
                 android:id="@+id/search_et"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_alignParentLeft="true"
-                android:layout_below="@+id/searchView"
+                android:layout_alignParentStart="true"
                 android:layout_centerVertical="true"
                 android:layout_toLeftOf="@+id/cancel_iv"
                 android:background="#00000000"
-                android:paddingLeft="10dp"
                 android:focusable="true"
-                android:hint="Search Here" >
+                android:hint="@string/search_here"
+                android:paddingLeft="10dp" >
             </EditText>
         </RelativeLayout>
-
-       
 
         <View
             android:id="@+id/search_line"

@@ -102,7 +102,7 @@ public class BitmapAdapter extends
 			}
 			else{
 				Bitmap b = BitmapFactory.decodeResource(mActivity.getResources(),
-						R.drawable.catag_personal);
+						R.drawable.ic_account_circle_grey600_24dp);
 				b =  ImageGridAdapter.getRoundedCornerBitmap(b,user.image_alpha);
 				bmp = b;
 			}

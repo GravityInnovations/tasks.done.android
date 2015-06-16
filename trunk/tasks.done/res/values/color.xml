@@ -7,6 +7,18 @@
     <color name="d_gray">#666</color>
     <color name="black">#000</color>
     <color name="jsfiddle">#4072b4</color>
-
+   
+    
+    <color name="taskDoneBlue">#88B1C5</color>
+    <color name="moonLightBlue">#909BAA</color>
+    <color name="orangeJazz">#6D7B92</color>
+    <color name="caramel">#CCCCCC</color>
+    <color name="seaGreen">#666</color>
+    <color name="yellow">#000</color>
+    <color name="pink">#4072b4</color>
+    <color name="textColor">#757575</color>
+    <color name="textColorDark">#999999</color>
+    
     
 </resources>
+ 

@@ -12,11 +12,13 @@ public class NotificationHandler {
 
 	private NotificationManager mNM;
 	private Context mContext;
+	int pendingTaskCount;
 
-	public NotificationHandler(Context mContext) {
+	public NotificationHandler(Context mContext, int _pendingtaskcount) {
 		this.mContext = mContext;
 		mNM = (NotificationManager) mContext
 				.getSystemService(Context.NOTIFICATION_SERVICE);
+		pendingTaskCount = _pendingtaskcount;
 	}
 
 	public void showNotification(int id, String Text, Intent i) {
@@ -31,11 +33,10 @@ public class NotificationHandler {
 				.setSmallIcon(R.drawable.ic_launcher)
 				.setContentTitle("task.done")
 				.setStyle(
-						new NotificationCompat.InboxStyle().setBigContentTitle("task.done")
-						.setSummaryText(Text)
-						)
-						//.BigTextStyle()
-								//.bigText(Text))
+						new NotificationCompat.InboxStyle().setBigContentTitle(
+								"task.done").setSummaryText(Text))
+				// .BigTextStyle()
+				// .bigText(Text))
 				.setDefaults(
 
 						Notification.DEFAULT_LIGHTS
@@ -43,36 +44,45 @@ public class NotificationHandler {
 								| Notification.FLAG_NO_CLEAR
 								| Notification.FLAG_ONGOING_EVENT)
 				.setContentText(Text).setVibrate(null);
-		
-			mBuilder.setContentIntent(contentIntent);
 
-			mBuilder.setOnlyAlertOnce(true);
+		mBuilder.setContentIntent(contentIntent);
+
+		mBuilder.setOnlyAlertOnce(true);
 		mBuilder.setOngoing(true);
-		mBuilder.setContentInfo("5 pending tasks");
-//		Bitmap b = BitmapFactory.decodeResource(mContext.getResources(), R.drawable.ic_action_about);
-//		mBuilder.setLargeIcon(b);
-		mBuilder.setProgress(100,1, true);
-		mBuilder.addAction(android.R.drawable.ic_menu_close_clear_cancel, "Force stop", contentIntent);
-		mBuilder.addAction(android.R.drawable.ic_menu_send, "Launch App", contentIntent);
-		
+		if (pendingTaskCount > 0) {
+			mBuilder.setContentInfo(pendingTaskCount + " pending tasks");
+		} else {
+			mBuilder.setContentInfo("No pending tasks");
+		}
+
+		// Bitmap b = BitmapFactory.decodeResource(mContext.getResources(),
+		// R.drawable.ic_action_about);
+		// mBuilder.setLargeIcon(b);
+		mBuilder.setProgress(100, 1, true);
+		mBuilder.addAction(android.R.drawable.ic_menu_close_clear_cancel,
+				"Force stop", contentIntent);
+		mBuilder.addAction(android.R.drawable.ic_menu_send, "Launch App",
+				contentIntent);
+
 		mNM.notify(id, mBuilder.build());
 		// }
 	}
-	public void showAlertNotification(int id, String Text, Intent i, Bitmap icon ) {
+
+	public void showAlertNotification(int id, String Text, Intent i, Bitmap icon) {
 		// if(isStatusChanged){
 		PendingIntent contentIntent = PendingIntent.getService(mContext, 0, i,
 				Notification.FLAG_NO_CLEAR | Notification.FLAG_ONGOING_EVENT
 						| Notification.FLAG_ONLY_ALERT_ONCE);
 		NotificationCompat.Builder mBuilder = new NotificationCompat.Builder(
 				mContext)
-				.setSmallIcon(R.drawable.ic_launcher).setLargeIcon(ImageGridAdapter.getRoundedCornerBitmap(icon))
+				.setSmallIcon(R.drawable.ic_launcher)
+				.setLargeIcon(ImageGridAdapter.getRoundedCornerBitmap(icon))
 				.setContentTitle("task.done")
 				.setStyle(
-						new NotificationCompat.InboxStyle().setBigContentTitle("task.done")
-						.setSummaryText(Text)
-						)
-						//.BigTextStyle()
-								//.bigText(Text))
+						new NotificationCompat.InboxStyle().setBigContentTitle(
+								"task.done").setSummaryText(Text))
+				// .BigTextStyle()
+				// .bigText(Text))
 				.setDefaults(
 
 						Notification.DEFAULT_LIGHTS
@@ -80,11 +90,12 @@ public class NotificationHandler {
 								| Notification.FLAG_NO_CLEAR
 								| Notification.FLAG_ONGOING_EVENT)
 				.setContentText(Text);
-		
-			mBuilder.setContentIntent(contentIntent);
+
+		mBuilder.setContentIntent(contentIntent);
 		mBuilder.setAutoCancel(true);
-//		Bitmap b = BitmapFactory.decodeResource(mContext.getResources(), R.drawable.ic_action_about);
-//		mBuilder.setLargeIcon(b);
+		// Bitmap b = BitmapFactory.decodeResource(mContext.getResources(),
+		// R.drawable.ic_action_about);
+		// mBuilder.setLargeIcon(b);
 		mNM.notify(id, mBuilder.build());
 		// }
 	}

@@ -2,36 +2,21 @@ package com.gravity.innovations.tasks.done;
 
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.TimeZone;
 import org.json.JSONException;
 import org.json.JSONObject;
 import android.accounts.Account;
 import android.accounts.AccountManager;
 import android.annotation.SuppressLint;
 import android.app.Activity;
-import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.DialogInterface.OnClickListener;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
-import android.graphics.Canvas;
-import android.graphics.Color;
-import android.graphics.drawable.BitmapDrawable;
-import android.graphics.drawable.Drawable;
-import android.graphics.drawable.ShapeDrawable;
-import android.graphics.drawable.shapes.OvalShape;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.support.v4.app.ActionBarDrawerToggle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.widget.DrawerLayout;
@@ -43,19 +28,16 @@ import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.View.OnTouchListener;
-import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
-import android.widget.TimePicker;
 import android.widget.Toast;
 
 import com.google.android.gms.ads.AdListener;
 import com.google.android.gms.ads.AdRequest;
-import com.google.android.gms.ads.AdSize;
 import com.google.android.gms.ads.AdView;
 import com.gravity.innovations.tasks.done.Common.Callbacks.ServiceCallback;
 
@@ -72,15 +54,9 @@ public class MainActivity extends ActionBarActivity implements
 	public NavigationDrawerFragment mNavigationDrawerFragment;
 	private Context mContext;
 	private TaskListModel CurrentList;
-
 	AccountManager mAccountManager;
 	ArrayList<Account> mAccounts;
 	Account mAccount;
-
-	// TimePicker mTimePicker;
-	// int hour;
-	// int minute;
-
 	DatabaseHelper db;
 	ImageView mImageView;
 	EditText mEditText;
@@ -122,12 +98,13 @@ public class MainActivity extends ActionBarActivity implements
 		if (service != null)
 			service.onActivityOpen(null, null);
 
-		try {
-			mContext.unregisterReceiver(mTimeReciever);
-		} catch (Exception e) {
-			Log.e(this.toString() + ": onDestroy", e.getLocalizedMessage());
-		}
-
+		// Commented by Mushahid 12April2014 on Testing for exception
+		// <<<<<<<<<<<<<<<<
+		// try {
+		// mContext.unregisterReceiver(mTimeReciever);
+		// } catch (Exception e) {
+		// Log.e(this.toString() + ": onDestroy", e.getLocalizedMessage());
+		// }
 	}
 
 	@Override
@@ -212,25 +189,40 @@ public class MainActivity extends ActionBarActivity implements
 
 	private void startActions() {
 		Intent i = getIntent();
-		int listID = -1, taskID = -1;
+		int listID = -1, taskID = -1, actionID = -1, notification_ID;
 		Bundle extra = i.getExtras();
 		mContext = getApplicationContext();
 		if (extra != null) {
-			listID = i.getIntExtra("_task_list_id", -1);
-			taskID = i.getIntExtra("_task_id", -1);
-
+			listID = i.getIntExtra(Common.KEY_EXTRAS_LIST_ID, -1);
+			taskID = i.getIntExtra(Common.KEY_EXTRAS_TASK_ID, -1);
+			notification_ID = i.getIntExtra(Common.KEY_EXTRAS_NOTIFICATION_ID_COMPARING, -1);
+			actionID = i.getIntExtra(
+					Common.KEY_EXTRAS_NOTIFICATION_ACTION_TYPE, -1);
+			//Common.Notification.cancel(i.getIntExtra(Common.KEY_EXTRAS_NOTIFICATION_ID, -1), mContext);
+			//autoCancel notification property was not working
+			if (actionID != -1) {
+				Intent intent = new Intent("CUSTOM_NOTIFICATION_INTENT");
+				intent.setAction(Common.KEY_INTENT_NOTIFICATION_SET_ACTION);
+				intent.putExtra(Common.KEY_EXTRAS_NOTIFICATION_ACTION_TYPE,
+						String.valueOf(actionID));
+				intent.putExtra(
+						Common.KEY_EXTRAS_NOTIFICATION_RECEPIENT,
+						i.getStringExtra(Common.KEY_EXTRAS_NOTIFICATION_RECEPIENT));
+				sendBroadcast(intent);
+			}
 		}
 
-		// String x = getHash("Faik");
 		mContext = this;
 		FragmentManager mgr = getSupportFragmentManager();
 
 		mNavigationDrawerFragment = (NavigationDrawerFragment) mgr
 				.findFragmentById(R.id.navigation_drawer);
-		mTitle = "";// getTitle();
+		mTitle = "";
+		// getTitle();
 		// new userData();//
-		user_data = service.user_data;// (Common.userData)getIntent().getExtras().getSerializable("user");//
-										// after latest commits commented
+		user_data = service.user_data;
+		// (Common.userData)getIntent().getExtras().getSerializable("user");
+		// after latest commits commented
 		// init user_data from intent extras
 		// Set up the drawer.
 		// user_data.image = null;
@@ -249,7 +241,7 @@ public class MainActivity extends ActionBarActivity implements
 				switch (event.getAction()) {
 				case MotionEvent.ACTION_DOWN:
 					try {
-						showSoftKeyboard(mImageView);
+						Common.SoftKeyboard.show(mImageView, MainActivity.this );
 					} catch (Exception e) {
 						Log.e("Error MA onCreate", "Error");
 					}
@@ -296,13 +288,14 @@ public class MainActivity extends ActionBarActivity implements
 			};
 			t.execute();
 		}
+
 	}
 
 	public void displayAds() {
 		try {
-			 AdView mAdView = (AdView) findViewById(R.id.adView);
-			 //mAdView.setAdSize(AdSize.SMART_BANNER);
-			 mAdView.setAdListener(new AdListener() {
+			AdView mAdView = (AdView) findViewById(R.id.adView);
+			// mAdView.setAdSize(AdSize.SMART_BANNER);
+			mAdView.setAdListener(new AdListener() {
 
 				@Override
 				public void onAdClosed() {
@@ -314,8 +307,7 @@ public class MainActivity extends ActionBarActivity implements
 				public void onAdFailedToLoad(int errorCode) {
 					// TODO Auto-generated method stub
 					super.onAdFailedToLoad(errorCode);
-					switch(errorCode)
-					{
+					switch (errorCode) {
 					case AdRequest.ERROR_CODE_INTERNAL_ERROR:
 						break;
 					case AdRequest.ERROR_CODE_INVALID_REQUEST:
@@ -344,10 +336,10 @@ public class MainActivity extends ActionBarActivity implements
 					// TODO Auto-generated method stub
 					super.onAdOpened();
 				}
-				 
+
 			});
 			AdRequest adRequest = new AdRequest.Builder().build();
-			 mAdView.loadAd(adRequest);
+			mAdView.loadAd(adRequest);
 		} catch (Exception e) {
 			Log.e("displayAd:MainActivity", e.getLocalizedMessage());
 		}
@@ -357,15 +349,19 @@ public class MainActivity extends ActionBarActivity implements
 	protected void onActivityResult(int arg0, int arg1, Intent intent) {
 		// created for Calendar API
 		super.onActivityResult(arg0, arg1, intent);
-	}
-
-	public void showSoftKeyboard(View view) {
-		if (view.requestFocus()) {
-			mEditText.setFocusable(true);
-			mEditText.requestFocus();
-			InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
-			imm.showSoftInput(mEditText, InputMethodManager.SHOW_IMPLICIT);
-
+		if (arg0 == 12345) {
+			if (arg1 == RESULT_OK) {
+				Bundle mBundle = intent.getExtras();
+				mBundle.getSerializable(Common.KEY_EXTRAS_LIST);
+				mBundle.getSerializable(Common.KEY_EXTRAS_TASK);
+				TaskListModel list = (TaskListModel) intent
+						.getSerializableExtra(Common.KEY_EXTRAS_LIST);
+				TaskModel task = (TaskModel) intent
+						.getSerializableExtra(Common.KEY_EXTRAS_TASK);
+				mNavigationDrawerFragment.updateTask(list, task);
+			} else if (arg1 == RESULT_CANCELED) {
+				onDashboardSelected();
+			}
 		}
 	}
 
@@ -378,9 +374,14 @@ public class MainActivity extends ActionBarActivity implements
 			try {
 				if (temp._id == -1) {
 					int id = temp._id;
+					try {
+						onDashboardSelected();
+					} catch (Exception e) {
+						Log.e("asf", "asdf");
+					}
 					mNavigationDrawerFragment.openNavigationDrawer(id);
 				} else {
-					// update the main content by replacing fragments
+					// update the main content by replacing fragment
 					// actionBar = getSupportActionBar();
 					// actionBar.setTitle("");
 					FragmentManager fragmentManager = this
@@ -469,10 +470,15 @@ public class MainActivity extends ActionBarActivity implements
 
 		if (id == R.id.action_settings) {
 			Intent i = new Intent(MainActivity.this, SettingsActivity.class);
-			//overridePendingTransition(R.anim.abc_fade_in, R.anim.abc_fade_out);
 			startActivity(i);
 		} else if (id == R.id.action_dashboard) {
 			onDashboardSelected();
+		} else if (id == R.id.action_refer_friend) {
+			mNavigationDrawerFragment
+					.referAFriend(/* service.user_data._id */1234567890);
+			// Intent intent = new Intent(MainActivity.this,
+			// MailActivity.class);
+			// startActivity(intent);
 		} else if (id == R.id.action_add) {
 			mNavigationDrawerFragment.addOrEditTaskList(new TaskListModel());
 		} else if (id == R.id.action_delete) {
@@ -486,8 +492,8 @@ public class MainActivity extends ActionBarActivity implements
 			Intent i = new Intent(MainActivity.this, StoreActivity.class);
 			startActivity(i);
 		} else if (id == R.id.action_add_task) {
-			mNavigationDrawerFragment.addOrEditTask(CurrentList,
-					new TaskModel());
+			// ZZ**ZZ mNavigationDrawerFragment.addOrEditTask(CurrentList, new
+			// TaskModel());
 		} else if (id == R.id.action_share) {
 			listof_nameEmailPic(); // for calling list of users
 		}
@@ -531,7 +537,7 @@ public class MainActivity extends ActionBarActivity implements
 		// builder.setItems(cs, null);
 		// builder.create().show();
 		final MultiSelectListAdapter adapter = new MultiSelectListAdapter(this,
-				R.layout.multiselectlist_row, users_lv);
+				R.layout.row_multiselectlist, users_lv);
 
 		OnItemClickListener onItemClickListener = new OnItemClickListener() {
 			@Override
@@ -571,8 +577,8 @@ public class MainActivity extends ActionBarActivity implements
 			}
 		};
 		Common.CustomDialog.MultiChoiceDialog(mContext, adapter,
-				onItemClickListener, negListener, posListener,
-				R.string.dialog_ok, R.string.dialog_cancel, "Share");
+				onItemClickListener, negListener, posListener, R.string.ok,
+				R.string.cancel, "Share");
 
 		// View view = getLayoutInflater().inflate(
 		// R.layout.multiselectlist_list, null);
@@ -675,11 +681,20 @@ public class MainActivity extends ActionBarActivity implements
 
 	}
 
-	// chg
 	@Override
 	public void onTimeReceive(Context mContext, Intent intent) {
 		// mNavigationDrawerFragment.onTimeReceive(mContext, intent);
 		mTaskListFragment.updateRelativeTime();// .mTaskAdapter.notifyDataSetChanged();
+	}
+
+	public void updateCurrentTask() {
+		// for marking the task as done from detailsDial
+		try {
+			mTaskListFragment.updateCurrentTask();
+			// mTaskListFragment.mTaskAdapter.notifyItemChanged(mTaskListFragment.mTaskAdapter.getPosition());
+		} catch (Exception e) {
+			Log.e("updateCurrentTask:MainActivity", e.getLocalizedMessage());
+		}
 	}
 
 	public ArrayList<UserModel> getUsers() {
@@ -695,4 +710,5 @@ public class MainActivity extends ActionBarActivity implements
 		// TODO Auto-generated method stub
 
 	}
+
 }

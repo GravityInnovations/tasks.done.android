@@ -4,6 +4,10 @@ import java.util.ArrayList;
 import android.app.Activity;
 import android.content.res.Resources;
 import android.graphics.Color;
+import android.graphics.ColorFilter;
+import android.graphics.ColorMatrixColorFilter;
+import android.graphics.PorterDuff;
+import android.graphics.drawable.Drawable;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -25,7 +29,6 @@ public class TaskListAdapter extends ArrayAdapter<TaskListModel> {
 	public TaskListAdapter(Activity activity, int layoutResourceId,
 			ArrayList<TaskListModel> data) {
 		super(activity, layoutResourceId, data);
-		// TODO Auto-generated constructor stub
 		this.mActivity = activity;
 		this.layoutResourceId = layoutResourceId;
 		this.data = data;
@@ -55,9 +58,7 @@ public class TaskListAdapter extends ArrayAdapter<TaskListModel> {
 
 	@Override
 	public int getCount() {
-		// TODO Auto-generated method stub
 		return data.size();
-		// return super.getCount();
 	}
 
 	@Override
@@ -67,8 +68,6 @@ public class TaskListAdapter extends ArrayAdapter<TaskListModel> {
 			@Override
 			protected void publishResults(CharSequence constraint,
 					FilterResults results) {
-				// data_backup = data; // data_backup source is un-filtered data
-				// data = (ArrayList<TaskListModel>) results.values;
 				ArrayList<TaskListModel> temp = (ArrayList<TaskListModel>) results.values;
 				if (temp.size() == 0) { // .isEmpty()){
 					if (constraint == "")
@@ -81,14 +80,12 @@ public class TaskListAdapter extends ArrayAdapter<TaskListModel> {
 					Log.d("AdapterFilterError", "Data is not Empty");
 					data = temp;
 				}
-
 				notifyDataSetChanged();
 			}
 
 			@Override
 			protected FilterResults performFiltering(CharSequence constraint) {
 				ArrayList<TaskListModel> filteredResults = new ArrayList<TaskListModel>();
-				// getFilteredResults(constraint);
 				for (TaskListModel temp : data_backup) {
 					if (temp.title.toLowerCase().contains(
 							constraint.toString().toLowerCase()))
@@ -97,36 +94,7 @@ public class TaskListAdapter extends ArrayAdapter<TaskListModel> {
 				FilterResults results = new FilterResults();
 				results.values = filteredResults;
 				return results;
-
-				// if (constraint != null) {
-				// ArrayList<TaskListModel> filteredResults = new
-				// ArrayList<TaskListModel>();
-				// // getFilteredResults(constraint);
-				// for (TaskListModel temp : data) {
-				// if (temp.SearchFilter(constraint))
-				// filteredResults.add(temp);
-				// }
-				// FilterResults results = new FilterResults();
-				// results.values = filteredResults;
-				// return results;
-				// }
-				//
-				// else if (constraint == null) {
-				// ArrayList<TaskListModel> unfilterResults = new
-				// ArrayList<TaskListModel>();
-				// // data = new ArrayList<TaskListModel>();
-				// // data = data_backup;
-				// for (TaskListModel temp : data_backup) {
-				// if (temp.SearchFilter(constraint))
-				// data_backup.remove(temp);
-				// }
-				// // data = data_backup;
-				// FilterResults results_backup = new FilterResults();
-				// results_backup.values = unfilterResults;
-				// return results_backup;
-				// }
 			}
-
 		};
 	}
 
@@ -151,16 +119,12 @@ public class TaskListAdapter extends ArrayAdapter<TaskListModel> {
 		// android.R.color.background_light)); // default color
 
 		tasklist = data.get(position);
-		// holder.title.setText(tasklist.title);
 		try {
 			if (selected == position)
 				row.setBackgroundColor(Color.parseColor("#efefef"));
 			else
 				row.setBackgroundColor(Color.parseColor("#ffffffff"));
 			if (tasklist.title.length() > MAX_CHARS) {
-
-				// String temp= tasklist.title.toString();
-				// holder.title.setText( temp.substring(0,MAX_CHARS) + "...");
 				String temp = tasklist.title.toString().substring(0, MAX_CHARS)
 						+ "...";
 				holder.title.setText(temp);
@@ -175,32 +139,14 @@ public class TaskListAdapter extends ArrayAdapter<TaskListModel> {
 
 		try {
 			Resources resources = mActivity.getResources();
-			holder.list_icon.setImageDrawable(resources
-					.getDrawable(tasklist.icon_identifier));
+			holder.list_icon.setImageDrawable(resources.getDrawable(tasklist.icon_identifier));
+
 		} catch (Exception e) {
 			String tag = "TasklistAdapter";
 			String msg = "listICON";
 			Log.e(tag, msg);
 		}
-
-		// row.setOnTouchListener(new OnTouchListener() {
-		//
-		// @Override
-		// public boolean onTouch(View v, MotionEvent event) {
-		// // TODO Auto-generated method stub
-		// int action = MotionEventCompat.getActionMasked(event);
-		// switch(action)
-		// {
-		// case (MotionEvent.AXIS_HSCROLL):
-		// return true;
-		// case (MotionEvent.ACTION_MOVE):
-		// return true; }
-		// return false;
-		// }
-		// });
-
 		return row;
-
 	}
 
 	class TaskListHolder {

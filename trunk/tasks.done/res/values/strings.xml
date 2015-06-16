@@ -14,6 +14,8 @@
     <color name="viewpager_gray">#666</color>
 
     <string name="add_task">Add Task</string>
+    <string name="title_here">Title Here</string>
+    <string name="catagory_color_placeholder">Select Your Category Color Above Or Enter A HEX Here</string>
     <string name="app_name">tasks.done</string>
     <string name="banner_ad_main_bottom_unit_id">ca-app-pub-1363931415415684/6495852251</string>
     <string name="title_section1">Section 1</string>
@@ -63,14 +65,15 @@
     <string name="users_sync_error">Error while syncing device users</string>
     <string name="gcm_play_service_success">Device validated for play store</string>
     <!-- String Resources for Dialogs -->
+    <string name="every">Every</string>
     <string name="edit">Edit</string>
-    <string name="dialog_save">Save</string>
-    <string name="dialog_done">Done</string>
-    <string name="dialog_cancel">Cancel</string>
-    <string name="dialog_ok">OK</string>
-    <string name="dialog_back">Back</string>
-    <string name="dialog_finish">Finish</string>
-    <string name="dialog_dont_remind">Don\'t Remind</string>
+    <string name="save">Save</string>
+    <string name="done">Done</string>
+    <string name="cancel">Cancel</string>
+    <string name="ok">OK</string>
+    <string name="back">Back</string>
+    <string name="finish">Finish</string>
+    <string name="dont_remind">Don\'t Remind</string>
     <string name="delete_message_confirm">Delete Sure?</string>
     <string name="delete">Delete</string>
     <string name="proceed">Continue</string>
@@ -78,14 +81,41 @@
     <string name="attl">Add The Task List</string>
     <string name="share">Share</string>
     <string name="set_reminder">Set Reminder</string>
-    <string name="minutes">Minutes</string>
-    <string name="hours">Hours</string>
-    <string name="days">Days</string>
-    <string name="weeks">Weeks</string>
+    <string name="minutes">Minute</string>
+    <string name="hours">Hour</string>
+    <string name="days">Day</string>
+    <string name="weeks">Week</string>
+    <string name="custom_notification">Custom Notifications</string>
     <string name="as_notification">As Notification</string>
     <string name="as_email">As Email</string>
+    <string name="digitOne">1</string>
+    <string name="sun">Sun</string>
+    <string name="mon">Mon</string>
+    <string name="tue">Tue</string>
+    <string name="wed">Wed</string>
+    <string name="thr">Thr</string>
+    <string name="fri">Fri</string>
+    <string name="sat">Sat</string>
+    <string name="event">event</string>
+    <string name="dateFormat">MM/DD/YYYY</string>
+    <string name="addAnotherNotification">Add another notification</string>
+    <string name="notifications">Notifications</string>
+    <string name="watch_a_video">Watch A Video</string>
+    <string name="refer_friend">Refer A Friend</string>
+    <string name="make_ad_free">Make task.done Ad Free</string>
+    <string name="dashboard">Dashboard</string>
+    <string name="tasks_pending">Tasks pending</string>
+    <string name="search_here">Search Here</string>
+    <string name="list_name">List Name</string>
+     <string name="now">Now</string>
+    
+    
+    
+    
+   
+    
 
-    <string-array name="weekdays_array">
+    <string-array name="array_weekdays">
         <item>Sunday</item>
         <item>Monday</item>
         <item>Tuesday</item>
@@ -94,12 +124,12 @@
         <item>Friday</item>
         <item>Saturday</item>
     </string-array>
-    <string-array name="repeatTill_array">
+    <string-array name="array_repeatTimes">
         <item>Forever</item>
         <item>Until a date</item>
         <item>For a fixed number of events</item>
     </string-array>
-    <string-array name="repeatInterval_array">
+    <string-array name="array_repeatInterval">
         <item>Repeat daily</item>
         <item>Repeat weekly</item>
         <item>Repeat monthly</item>

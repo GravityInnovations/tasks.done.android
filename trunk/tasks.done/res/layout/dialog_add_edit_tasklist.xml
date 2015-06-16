@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical" >
+
+    <View
+        android:id="@+id/view_catagoryColor"
+        android:layout_width="fill_parent"
+        android:layout_height="14dp"
+        android:background="@color/taskDoneBlue" />
+
+    <EditText
+        android:id="@+id/et_title"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:background="#00000000"
+        android:focusable="true"
+        android:hint="@string/title_here"
+        android:padding="20dp"
+        android:singleLine="false"
+        android:textSize="24sp" 
+        android:maxLength="20"
+        />
+
+    <View
+        android:layout_width="fill_parent"
+        android:layout_height="1dp"
+        android:background="@color/line_divider" />
+
+    <include layout="@layout/gridview_icons" />
+
+    <View
+        android:layout_width="fill_parent"
+        android:layout_height="1dp"
+        android:background="@color/line_divider" />
+
+    <include layout="@layout/gridview_colors" />
+
+    <View
+        android:layout_width="fill_parent"
+        android:layout_height="1dp"
+        android:background="@color/line_divider" />
+
+    <EditText
+        android:id="@+id/et_hex"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:background="#00000000"
+        android:padding="20dp"
+        android:singleLine="true"
+        android:textSize="17sp"
+        android:gravity="center"
+        android:maxLength="7" />
+
+</LinearLayout>

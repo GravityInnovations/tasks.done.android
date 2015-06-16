@@ -29,8 +29,6 @@ public class CustomIconListAdapter extends ArrayAdapter<CustomIconListAdapter.Op
 		this.mActivity = activity;
 		this.layoutResourceId = resource;
 	}
-	
-	
 
 	@Override
 	public View getView(int position, View convertView, ViewGroup parent) {

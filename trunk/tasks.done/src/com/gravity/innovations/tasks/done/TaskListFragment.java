@@ -3,7 +3,6 @@ package com.gravity.innovations.tasks.done;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
-
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.DialogInterface;
@@ -12,37 +11,29 @@ import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
-import android.graphics.drawable.ShapeDrawable;
-import android.graphics.drawable.shapes.OvalShape;
+import android.graphics.ColorFilter;
+import android.graphics.ColorMatrixColorFilter;
+import android.graphics.Outline;
+import android.graphics.PorterDuff;
+import android.graphics.drawable.Drawable;
+import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
-import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.support.v7.widget.RecyclerView.OnItemTouchListener;
 import android.util.Log;
 import android.view.LayoutInflater;
-import android.view.Menu;
 import android.view.MenuItem;
-import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.View.OnTouchListener;
-import android.view.animation.Animation;
-import android.view.animation.AnimationUtils;
-import android.webkit.WebView.FindListener;
-import android.widget.AbsListView.MultiChoiceModeListener;
+import android.view.ViewOutlineProvider;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
-import android.widget.AdapterView.OnItemLongClickListener;
-import android.widget.Button;
 import android.widget.GridView;
 import android.widget.ImageButton;
 import android.widget.ImageView;
-import android.widget.ListView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
-import android.widget.Toast;
 
 public class TaskListFragment extends Fragment {
 	private TaskListModel data;
@@ -62,29 +53,17 @@ public class TaskListFragment extends Fragment {
 	private TextView mTextView_ownerName;
 
 	public TaskListFragment() {
-
 	}
 
 	public void newInstance(TaskListModel temp, int _selectTaskId,
 			NavigationDrawerFragment mNavigationDrawerFragment,
 			AppHandlerService mService) {
-		// TODO Auto-generated method stub
 		this.data = temp;
-
 		// updateRelativeTime();
 		this.mNavigationDrawerFragment = mNavigationDrawerFragment;
 		this.selectedTaskID = _selectTaskId;
-		// this.mThumbIds= mThumbIds;
 		this.mService = mService;
 	}
-
-	/*
-	 * public void newInstance(TaskListModel temp, NavigationDrawerFragment
-	 * navigationDrawerFragment) { this.data = temp; // updateRelativeTime();
-	 * this.mNavigationDrawerFragment = navigationDrawerFragment;
-	 * 
-	 * }
-	 */
 
 	public Fragment getFragment() {
 		return this;
@@ -97,29 +76,23 @@ public class TaskListFragment extends Fragment {
 		mTaskAdapter.notifyDataSetChanged();
 	}
 
+	public void updateCurrentTask() {
+		int id = mTaskAdapter.getPosition();
+		mTaskAdapter.notifyItemChanged(mTaskAdapter.getPosition());
+	}
+
 	@Override
 	public void onAttach(Activity activity) {
 		super.onAttach(activity);
-	}
-
-	private ShapeDrawable returnButtonShape(String hex) {
-		ShapeDrawable circle;
-		circle = new ShapeDrawable(new OvalShape());
-		// circle.setBounds(10, 10, 20, 20);
-		// circle.setPadding(14, 15, 10, 10);// L,T,R,B
-		circle.getPaint().setColor(Color.parseColor(hex));
-		return circle;
 	}
 
 	@SuppressLint("NewApi")
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container,
 			Bundle savedInstanceState) {
-		// TODO Auto-generated method stub
 		super.onCreateView(inflater, container, savedInstanceState);
 		View rootView = inflater.inflate(R.layout.fragment_main, container,
 				false);
-
 		try {
 			// Assign color to headerLayout
 			RelativeLayout headerLayout = (RelativeLayout) rootView
@@ -129,13 +102,33 @@ public class TaskListFragment extends Fragment {
 			// floating button
 			final ImageButton floatingBtn = (ImageButton) rootView
 					.findViewById(R.id.floating_button);
-			floatingBtn.setBackground(returnButtonShape(hex));
+			floatingBtn.setBackground(Common.ShapesAndGraphics.getfloatingButton(hex));
+			if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+
+				ViewOutlineProvider viewOutlineProvider = new ViewOutlineProvider() {
+					@Override
+					public void getOutline(View view, Outline outline) {
+						int size = getResources().getDimensionPixelSize(
+								R.dimen.round_button_diameter);
+						outline.setOval(0, 0, size, size);
+					}
+				};
+				floatingBtn.setOutlineProvider(viewOutlineProvider);
+			}
+
 			floatingBtn.setOnClickListener(new View.OnClickListener() {
 
 				@Override
 				public void onClick(View v) {
-					mNavigationDrawerFragment.addOrEditTask(data,
-							new TaskModel());
+					// * mNavigationDrawerFragment.addOrEditTask(data,
+					// * new TaskModel());
+					try {
+						mNavigationDrawerFragment.setReminder(data,
+								new TaskModel());
+					} catch (Exception e) {
+						Log.e("TLF: onClick new Task", e.getLocalizedMessage());
+
+					}
 				}
 			});
 
@@ -169,63 +162,49 @@ public class TaskListFragment extends Fragment {
 		btn_listSharedWith = ((ImageButton) rootView
 				.findViewById(R.id.btn_showShared));
 		if (data.user_id == mService.user_data._id) {
-			
-		
-		btn_shareList.setOnClickListener(new View.OnClickListener() {
 
-			@Override
-			public void onClick(View v) {
-				mActivity = getActivity();
-				openShareDialog();
-			}
-			
-		});
+			btn_shareList.setOnClickListener(new View.OnClickListener() {
+				@Override
+				public void onClick(View v) {
+					mActivity = getActivity();
+					openShareDialog();
+				}
+			});
 
-		btn_editList.setOnClickListener(new View.OnClickListener() {
+			btn_editList.setOnClickListener(new View.OnClickListener() {
+				@Override
+				public void onClick(View v) {
+					mActivity = getActivity();
+					((MainActivity) mActivity)
+							.manuallySelectOptionMenuItem(R.id.action_edit);
+				}
+			});
+			btn_deleteList.setOnClickListener(new View.OnClickListener() {
+				@Override
+				public void onClick(View v) {
+					mActivity = getActivity();
 
-			@Override
-			public void onClick(View v) {
-				mActivity = getActivity();
-				// ((MainActivity) mActivity).listof_nameEmailPic();
-				// TODO Auto-generated method stub
-				// Toast.makeText(mActivity, "edit",Toast.LENGTH_LONG).show();
-				((MainActivity) mActivity)
-						.manuallySelectOptionMenuItem(R.id.action_edit);
-
-			}
-		});
-		btn_deleteList.setOnClickListener(new View.OnClickListener() {
-
-			@Override
-			public void onClick(View v) {
-				mActivity = getActivity();
-
-				((MainActivity) mActivity)
-						.manuallySelectOptionMenuItem(R.id.action_delete);
-			}
-		});
-		}
-		else{
+					((MainActivity) mActivity)
+							.manuallySelectOptionMenuItem(R.id.action_delete);
+				}
+			});
+		} else {
 			btn_shareList.setVisibility(View.GONE);
 			btn_editList.setVisibility(View.GONE);
 			btn_deleteList.setVisibility(View.GONE);
 		}
-			if (this.data.users.size() <= 0)
+		if (this.data.users.size() <= 0)
 			btn_listSharedWith.setVisibility(View.GONE);
 		btn_listSharedWith.setOnClickListener(new View.OnClickListener() {
 
 			@Override
 			public void onClick(View v) {
 				mActivity = getActivity();
-
 				openSharedViewDialog();
-
 			}
 		});
-		
 
-
-		if (true) {// (data.tasks != null && data.tasks.size() > 0) {
+		if (true) {
 			// header on each fragment
 			RelativeLayout header = (RelativeLayout) rootView
 					.findViewById(R.id.header);
@@ -236,9 +215,8 @@ public class TaskListFragment extends Fragment {
 			iv_isSynced = (ImageView) rootView.findViewById(R.id.img_sync);
 			try {
 				mActivity = getActivity();
-				Resources resources = mActivity.getResources();
-				iv_listIcon.setImageDrawable(resources
-						.getDrawable(data.icon_identifier));
+				iv_listIcon.setImageDrawable(mActivity.getResources().getDrawable(Common.DrawableResouces.compareDrawable(data.icon_identifier) ));
+
 			} catch (Exception e) {
 				String tag = "TasklistFragment";
 				String msg = "listIconSetResource";
@@ -257,33 +235,38 @@ public class TaskListFragment extends Fragment {
 
 			tv_footerSyncedTime = (TextView) lv_footer
 					.findViewById(R.id.time_sync);
-			/**********************/
+
 			View lv_owner = lv_footer.findViewById(R.id.ownerinfo);
 			mTextView_ownerImage = (ImageView) lv_owner
 					.findViewById(R.id.grid_item_image);
 			mTextView_ownerName = (TextView) lv_owner
 					.findViewById(R.id.grid_item_name);
-			// UserModel owner =
+
 			if (data.user_id == mService.user_data._id) {
-				if(mService.user_data.image!=null){
-				Bitmap b = ImageGridAdapter.getRoundedCornerBitmap(Bitmap
-						.createScaledBitmap(mService.user_data.image, 40, 40,
-								true));
-				mTextView_ownerImage.setImageBitmap(b);}
-				else{
-					Bitmap b = BitmapFactory.decodeResource(mActivity.getResources(),
-							R.drawable.catag_personal);
+				if (mService.user_data.image != null) {
+					Bitmap b = ImageGridAdapter.getRoundedCornerBitmap(Bitmap
+							.createScaledBitmap(mService.user_data.image, 40,
+									40, true));
+					mTextView_ownerImage.setImageBitmap(b);
+				} else {
+					Bitmap b = BitmapFactory.decodeResource(
+							mActivity.getResources(),
+							R.drawable.ic_account_circle_grey600_24dp);
 					mTextView_ownerImage.setImageBitmap(b);
 				}
-				if(mService.user_data.name != null)
-				mTextView_ownerName.setText(mService.user_data.name);
+				if (mService.user_data.name != null)
+					mTextView_ownerName.setText(mService.user_data.name);
 			} else {
-				Bitmap b = ImageGridAdapter
-						.getRoundedCornerBitmap(getUserImage(data.owner));
-				mTextView_ownerImage.setImageBitmap(b);
-				mTextView_ownerName.setText(data.owner.name);
+				try {
+					Bitmap b = ImageGridAdapter
+							.getRoundedCornerBitmap(getUserImage(data.owner));
+					mTextView_ownerImage.setImageBitmap(b);
+					mTextView_ownerName.setText(data.owner.name);
+				} catch (Exception e) {
+					Log.e("TLF: getUserImage: data.owener",
+							e.getLocalizedMessage());
+				}
 			}
-			/********************/
 
 			try {
 				if (data.syncStatusTimeStamp != null) {
@@ -316,28 +299,17 @@ public class TaskListFragment extends Fragment {
 			mRecyclerView.setLayoutManager(mLinearLayoutManager);
 
 			mTaskAdapter = new TaskAdapter(getActivity(),
-					R.layout.task_listview_row, data,
+					R.layout.row_task_listview, data,
 					mNavigationDrawerFragment, /* data.tasks, */
 					selectedTaskID, lv_footer, mRecyclerView);
-
 			mRecyclerView.setAdapter(mTaskAdapter);
 			try {
-				// RecyclerViewAdapter.ViewHolder viewHolder = new
-				// RecyclerViewAdapter.ViewHolder(lv_footer,1);
-				// recyclerView.addView(viewHolder.itemView);
-				mTaskAdapter.createViewHolder(mRecyclerView, 1);// (lv_footer,
-																// 1);//.bindViewHolder(viewHolder,
-																// 1);
-				// m.addView(lv_footer, 0);
-				// recyclerView//.addView(lv_footer);
+				mTaskAdapter.createViewHolder(mRecyclerView, 1);
 			} catch (Exception e) {
 				String s = e.getLocalizedMessage();
 			}
-			// mRecyclerView.addView(lv_footer);
-
 			mRecyclerView.setItemAnimator(mTaskAdapter.anim);
 			registerForContextMenu(mRecyclerView);
-
 			mGridView.requestDisallowInterceptTouchEvent(true);
 			mTaskAdapter.notifyDataSetChanged();
 
@@ -360,10 +332,8 @@ public class TaskListFragment extends Fragment {
 						mTaskAdapter.getItem(position));
 				break;
 			case R.id.item_edit:
-				mNavigationDrawerFragment.addOrEditTask(data,
-						mTaskAdapter.getItem(position));
-				break;
-			case R.id.item_set_reminder:
+				// ZZ**ZZ mNavigationDrawerFragment.addOrEditTask(data,
+				// mTaskAdapter.getItem(position));
 				mNavigationDrawerFragment.setReminder(data,
 						mTaskAdapter.getItem(position));
 				break;
@@ -439,7 +409,7 @@ public class TaskListFragment extends Fragment {
 		// builder.setItems(cs, null);
 		// builder.create().show();
 		final MultiSelectListAdapter adapter = new MultiSelectListAdapter(
-				mActivity, R.layout.multiselectlist_row, users_lv);
+				mActivity, R.layout.row_multiselectlist, users_lv);
 		adapter.setNewSelection(users_lv_selected);
 		OnItemClickListener onItemClickListener = new OnItemClickListener() {
 			@Override
@@ -475,7 +445,7 @@ public class TaskListFragment extends Fragment {
 				else
 					btn_listSharedWith.setVisibility(View.VISIBLE);
 				mUsersAdapter.clear();
-				mUsersAdapter.addAll(sel_users);//(getUsersImages(sel_users));
+				mUsersAdapter.addAll(sel_users);// (getUsersImages(sel_users));
 				mUsersAdapter.notifyDataSetChanged();// = new ImageGridAdapter(,
 														// mActivity);
 				mNavigationDrawerFragment.addUserToTaskList(data, sel_users);
@@ -492,8 +462,8 @@ public class TaskListFragment extends Fragment {
 			}
 		};
 		Common.CustomDialog.MultiChoiceDialog(mActivity, adapter,
-				onItemClickListener, negListener, posListener,
-				R.string.dialog_ok, R.string.dialog_cancel, "Share");
+				onItemClickListener, negListener, posListener, R.string.ok,
+				R.string.cancel, "Share");
 
 	}
 
@@ -523,7 +493,7 @@ public class TaskListFragment extends Fragment {
 		}
 
 		final MultiSelectListAdapter adapter = new MultiSelectListAdapter(
-				mActivity, R.layout.multiselectlist_row, users_lv);
+				mActivity, R.layout.row_multiselectlist, users_lv);
 		OnItemClickListener onItemClickListener = new OnItemClickListener() {
 			@Override
 			public void onItemClick(AdapterView<?> parent, View view,
@@ -541,217 +511,40 @@ public class TaskListFragment extends Fragment {
 			}
 		};
 		Common.CustomDialog.MultiChoiceDialog(mActivity, adapter,
-				onItemClickListener, null, posListener, R.string.dialog_ok,
-				R.string.dialog_cancel, "Sharing With");
+				onItemClickListener, null, posListener, R.string.ok,
+				R.string.cancel, "Sharing With");
 
 	}
 
 	public ArrayList<Bitmap> getUsersImages(ArrayList<UserModel> users) {
 		ArrayList<Bitmap> bmps = new ArrayList<Bitmap>();
 		for (UserModel user : users) {
-			bmps.add(getUserImage(user));
+			try {
+				bmps.add(getUserImage(user));
+			} catch (Exception e) {
+				Log.e("TLF: getUserImage", e.getLocalizedMessage());
+			}
 		}
 		return bmps;
 	}
+
 	public Bitmap getUserImage(UserModel user) {
-		Bitmap bmp =null;
-			if (user.image != null){
-				
-				Bitmap b = BitmapFactory.decodeByteArray(user.image, 0,
-						user.image.length);
-				b =  ImageGridAdapter.getRoundedCornerBitmap(b,user.image_alpha);
-				
-				bmp = b;
-			
-			}
-			else{
-				Bitmap b = BitmapFactory.decodeResource(mActivity.getResources(),
-						R.drawable.catag_personal);
-				b =  ImageGridAdapter.getRoundedCornerBitmap(b,user.image_alpha);
-				bmp = b;
-			}
-		
+		Bitmap bmp = null;
+		if (user.image != null) {
+
+			Bitmap b = BitmapFactory.decodeByteArray(user.image, 0,
+					user.image.length);
+			b = ImageGridAdapter.getRoundedCornerBitmap(b, user.image_alpha);
+
+			bmp = b;
+
+		} else {
+			Bitmap b = BitmapFactory.decodeResource(mActivity.getResources(),
+					R.drawable.ic_account_circle_grey600_24dp);
+			b = ImageGridAdapter.getRoundedCornerBitmap(b, user.image_alpha);
+			bmp = b;
+		}
+
 		return bmp;
 	}
-
-	// private void openShareDialog()
-	// {
-	// ArrayList<UserModel> temp_users = ((MainActivity)mActivity).getUsers();
-	//
-	// //boolean flag = false;//temp_users.removeAll(this.data.users);//false;
-	// // for(UserModel m: temp_users)
-	// // {
-	// // if(this.data.users.)
-	// // }
-	// // for(UserModel m1: this.data.users)
-	// // {
-	// // for(UserModel m2: temp_users)
-	// // {
-	// // if(m1._id == m2._id){
-	// // temp_users.remove(m2);
-	// // break;
-	// // }
-	// // }
-	// // //flag = temp_users.contains(m);
-	// // //temp_users.remove();
-	// // }
-	// final ArrayList<UserModel> users = temp_users;
-	// ArrayList<Common.CustomViewsData.MultiSelectRowData> users_lv = new
-	// ArrayList<Common.CustomViewsData.MultiSelectRowData>();
-	// ArrayList<Common.CustomViewsData.MultiSelectRowData> users_lv_selected =
-	// new ArrayList<Common.CustomViewsData.MultiSelectRowData>();
-	// ArrayList<String> S = new ArrayList<String>();
-	// for (UserModel temp : users) {
-	// Common.CustomViewsData.MultiSelectRowData user = new
-	// Common.CustomViewsData.MultiSelectRowData();
-	// user.text1 = temp.displayName;
-	// user.text2 = temp.email;
-	//
-	// // Bitmap bmp = BitmapFactory.decodeByteArray(temp.image, 0,
-	// // temp.image.length);
-	// // ImageView image = (ImageView) findViewById(R.id.imageView1);
-	//
-	// // user.iconRes.setImageBitmap(bmp);
-	// // byte[] byteArray = getBlob(temp.image);
-	// // Bitmap bm = BitmapFactory.decodeByteArray(byteArray, 0
-	// // ,byteArray.length);
-	// S.add(temp.displayName);
-	// user.iconRes = temp.image;
-	// users_lv.add(user);
-	// for(UserModel m1: this.data.users)
-	// {
-	// if(m1._id == temp._id)
-	// users_lv_selected.add(user);
-	// }
-	// }
-	//
-	// // CharSequence[] cs = S.toArray(new CharSequence[S.size()]);
-	// //
-	// // AlertDialog.Builder builder = new AlertDialog.Builder(mContext);
-	// // builder.setIcon(android.R.drawable.ic_popup_reminder);
-	// // builder.setTitle("share");
-	// // builder.setItems(cs, null);
-	// // builder.create().show();
-	// final MultiSelectListAdapter adapter = new
-	// MultiSelectListAdapter(mActivity,
-	// R.layout.multiselectlist_row, users_lv);
-	// adapter.setNewSelection(users_lv_selected);
-	// OnItemClickListener onItemClickListener = new OnItemClickListener() {
-	// @Override
-	// public void onItemClick(AdapterView<?> parent, View view,
-	// int position, long id) {
-	// adapter.setOrRemoveSelection(view,position);
-	//
-	//
-	// }
-	// };
-	// DialogInterface.OnClickListener negListener = new OnClickListener() {
-	// @Override
-	// public void onClick(DialogInterface dialog, int which) {
-	// dialog.cancel();
-	// }
-	// };
-	//
-	// DialogInterface.OnClickListener posListener = new OnClickListener() {
-	//
-	//
-	// @Override
-	// public void onClick(DialogInterface dialog, int which) {
-	// dialog.cancel();
-	// ArrayList<Integer> sel = adapter.getSelected();
-	// ArrayList<UserModel> sel_users = new ArrayList<UserModel>();
-	// for(Integer i:sel)
-	// {
-	// sel_users.add(users.get(i));
-	// }
-	// data.users.clear();
-	// data.users.addAll(sel_users);
-	// if(data.users.size()<=0)
-	// btn_shared.setVisibility(View.GONE);
-	// else
-	// btn_shared.setVisibility(View.VISIBLE);
-	// mUsersAdapter.clear();
-	// mUsersAdapter.addAll(getUsersImages(sel_users));
-	// mUsersAdapter.notifyDataSetChanged();// = new ImageGridAdapter(,
-	// mActivity);
-	//
-	//
-	//
-	// //add sel_users in table_users_tasklist and update grid adapter in header
-	//
-	// // TaskModel tempModel = null;
-	// // String temp = tempModel.associated_usermodels;
-	// // temp = temp + ", " + which;
-	// // tempModel.associated_usermodels = temp;
-	// // db.Task_Edit(tempModel);
-	//
-	// }
-	// };
-	// Common.CustomDialog.MultiChoiceDialog(mActivity, adapter,
-	// onItemClickListener, negListener, posListener,
-	// R.string.dialog_ok, R.string.dialog_cancel, "Share");
-	//
-	// }
-	// private void openSharedViewDialog()
-	// {
-	// ArrayList<UserModel> users = this.data.users;
-	//
-	// ArrayList<Common.CustomViewsData.MultiSelectRowData> users_lv = new
-	// ArrayList<Common.CustomViewsData.MultiSelectRowData>();
-	//
-	// ArrayList<String> S = new ArrayList<String>();
-	// for (UserModel temp : users) {
-	// Common.CustomViewsData.MultiSelectRowData user = new
-	// Common.CustomViewsData.MultiSelectRowData();
-	// user.text1 = temp.displayName;
-	// user.text2 = temp.email;
-	//
-	//
-	// S.add(temp.displayName);
-	// user.iconRes = temp.image;
-	// users_lv.add(user);
-	//
-	// }
-	//
-	// final MultiSelectListAdapter adapter = new
-	// MultiSelectListAdapter(mActivity,
-	// R.layout.multiselectlist_row, users_lv);
-	// OnItemClickListener onItemClickListener = new OnItemClickListener() {
-	// @Override
-	// public void onItemClick(AdapterView<?> parent, View view,
-	// int position, long id) {
-	// //adapter.setOrRemoveSelection(view,position);
-	//
-	//
-	// }
-	// };
-	// DialogInterface.OnClickListener posListener = new OnClickListener() {
-	//
-	//
-	// @Override
-	// public void onClick(DialogInterface dialog, int which) {
-	// dialog.cancel();
-	//
-	// }
-	// };
-	// Common.CustomDialog.MultiChoiceDialog(mActivity, adapter,
-	// onItemClickListener,null, posListener,
-	// R.string.dialog_ok, R.string.dialog_cancel, "Sharing With");
-	//
-	// }
-	// public ArrayList<Bitmap> getUsersImages(ArrayList<UserModel> users)
-	// {
-	// ArrayList<Bitmap> bmps = new ArrayList<Bitmap>();
-	// for(UserModel user: users)
-	// {
-	// if(user.image!= null)
-	// bmps.add(BitmapFactory.decodeByteArray(user.image, 0,
-	// user.image.length));
-	// else
-	// bmps.add(BitmapFactory.decodeResource(mActivity.getResources(),
-	// R.drawable.catag_personal));
-	// }
-	// return bmps;
-	// }
-
 }

@@ -1,0 +1,122 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical" >
+
+    <RelativeLayout
+        android:id="@+id/header_layout"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:padding="10dp" >
+
+        <Spinner
+            android:id="@+id/spinner_repeatInterval"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentLeft="true"
+            android:layout_centerVertical="true" />
+
+        <include
+            android:id="@+id/toggle_repeat"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentRight="true"
+            android:layout_centerVertical="true"
+            layout="@layout/switch_layout" />
+    </RelativeLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="#efefef"
+        android:orientation="horizontal"
+        android:paddingLeft="20dp"
+        android:paddingRight="20dp" >
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="#00000000"
+            android:text="@string/every" />
+
+        <EditText
+            android:id="@+id/et_numOfInterval"
+            android:layout_width="30dp"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:inputType="number"
+            android:maxLength="2"
+            android:paddingLeft="5dp"
+            android:paddingRight="5dp"
+            android:selectAllOnFocus="true"
+            android:text="@string/digitOne" />
+
+        <TextView
+            android:id="@+id/tv_repeatInterval"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="#00000000"
+            android:text="@string/days" />
+    </LinearLayout>
+
+    
+    <GridView
+        android:id="@+id/gv_weekdays"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="#efefef"
+        android:clipChildren="false"
+        android:columnOrderPreserved="true"
+        android:numColumns="4"
+       	android:stretchMode="spacingWidthUniform"
+       	android:verticalSpacing="7dp"
+        android:gravity="center"  
+        android:choiceMode="multipleChoice"
+        />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="#efefef"
+        android:orientation="horizontal"
+        android:paddingLeft="15dp"
+        android:paddingRight="15dp" >
+
+        <Spinner
+            android:id="@+id/spinner_repeatTimes"
+            android:layout_width="125dp"
+            android:layout_height="wrap_content" />
+
+        <EditText
+            android:id="@+id/et_spinnerRepeat"
+            android:layout_width="40dp"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:inputType="number"
+            android:maxLength="3"
+            android:paddingLeft="5dp"
+            android:paddingRight="5dp"
+            android:selectAllOnFocus="true"
+            android:text="@string/digitOne" >
+        </EditText>
+        <!-- android:background="#00000000" -->
+
+        <TextView
+            android:id="@+id/tv_setDate"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="@android:color/transparent"
+            android:hint="@string/dateFormat"
+            android:paddingLeft="5dp"
+            android:paddingRight="5dp"
+            android:visibility="gone" />
+
+        <TextView
+            android:id="@+id/tv_spinnerRepeat"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/event" />
+    </LinearLayout>
+
+</LinearLayout>
