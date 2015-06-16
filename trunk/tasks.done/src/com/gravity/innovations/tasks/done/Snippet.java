@@ -18,23 +18,7 @@ public class Snippet {
 	// GetUTC g = new GetUTC();
 	// g.GetUTCdatetimeAsDate();
 
-	private String getDeviceIMEI() {
-		// requires READ_PHONE_STATE permission in manifest.xml
-		TelephonyManager telephonyManager = (TelephonyManager) mContext
-				.getSystemService(Context.TELEPHONY_SERVICE);
-		String id = telephonyManager.getDeviceId();
-		return id;
-	}
-
-	private String geDeviceMac() {
-		// requires ACCESS_WIFI_STATE permission in manifest.xml
-		WifiManager wifiManager = (WifiManager) mContext
-				.getSystemService(Context.WIFI_SERVICE);
-		WifiInfo wInfo = wifiManager.getConnectionInfo();
-		String mac = wInfo.getMacAddress();
-		mac = mac + "";
-		return mac;
-	}
+	
 
 	public class GetUTC {
 
@@ -111,40 +95,6 @@ public class Snippet {
 
 	}
 
-	public void ServerAndDeviceTime() {
-		try {
-
-			// String ServerDate = data.optString("data");//
-			// 2015-01-13T12:00:28.3367416Z
-			// localtime on Desktop 5:02PM
-			String DATEFORMAT_SERVER = "yyyy-M-dd'T'HH:mm:ss.SSSSSSS'Z'";
-			SimpleDateFormat serverDateFormat = new SimpleDateFormat(
-					DATEFORMAT_SERVER);
-
-			String DATEFORMAT_DISPLAY = "yyyy-MM-dd HH:mm:ss.SSS";
-			SimpleDateFormat displayFormat = new SimpleDateFormat(
-					DATEFORMAT_DISPLAY);
-			displayFormat.setTimeZone(TimeZone.getTimeZone("UTC"));
-
-			// returns formatted serverDateTime
-			long serverTimeLong = serverDateFormat.parse(
-					"2015-01-13T12:00:28.3367416Z").getTime();
-			// 1421135795416;
-			String serverTime = displayFormat.format(new Date(serverTimeLong));
-			Log.e("ServerTime", serverTime);
-			// returns formatted serverDateTime
-
-			// takes cuurent devive time and convert it to display Format
-			String currentDateTime = serverDateFormat.format(new Date());
-			long deviceCurrentTimeLong = System.currentTimeMillis();
-			String deviceTime = displayFormat.format(new Date(
-					deviceCurrentTimeLong));
-			Log.e("DeviceTime", deviceTime);
-			// 1421216214567
-			// takes cuurent devive time and convert it to display Format
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-	}
+	
 
 }

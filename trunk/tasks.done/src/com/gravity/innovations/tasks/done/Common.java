@@ -160,7 +160,45 @@ public class Common {
 		public static final int GRAVITY_VALIDATE_USERS = 992;
 		public static final int GRAVITY_GET_TASKS = 991;
 	}
+	public static String toDeviceTime(String serverTime) {
+		try {
 
+			// String ServerDate = data.optString("data");//
+			// 2015-01-13T12:00:28.3367416Z
+			// localtime on Desktop 5:02PM
+			String DATEFORMAT_SERVER = "yyyy-M-dd'T'HH:mm:ss.SSSSSSS'Z'";
+			SimpleDateFormat serverDateFormat = new SimpleDateFormat(
+					DATEFORMAT_SERVER);
+
+			String DATEFORMAT_DISPLAY = "yyyy-MM-dd HH:mm:ss.SSS";
+			SimpleDateFormat displayFormat = new SimpleDateFormat(
+					DATEFORMAT_DISPLAY);
+			displayFormat.setTimeZone(TimeZone.getTimeZone("UTC"));
+
+			// returns formatted serverDateTime
+			long serverTimeLong = serverDateFormat.parse(
+					serverTime).getTime();
+			// 1421135795416;
+			serverTime = displayFormat.format(new Date(serverTimeLong));
+			Log.e("ServerTime", serverTime);
+			// returns formatted serverDateTime
+
+			// takes cuurent devive time and convert it to display Format
+			String currentDateTime = serverDateFormat.format(new Date());
+			long deviceCurrentTimeLong = System.currentTimeMillis();
+			String deviceTime = displayFormat.format(new Date(
+					deviceCurrentTimeLong));
+			
+			return deviceTime;
+			//Log.e("DeviceTime", deviceTime);
+			// 1421216214567
+			// takes cuurent devive time and convert it to display Format
+		} catch (Exception e) {
+			e.printStackTrace();
+			return "";
+			
+		}
+	}
 	public static class serviceActions {
 		public static final String START_APP = "startapplication";
 		public static final String RESTART_SERVICE = "restartservice";

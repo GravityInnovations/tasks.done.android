@@ -1465,8 +1465,8 @@ public class AppHandlerService extends Service implements
 				
 				model.syncStatus = "Synced";
 				model.server_id = temp.optString("TaskListId");
-				model.DateUpdated = temp.optString("DateUpdated");
-				model.DateCreated = temp.optString("DateCreated");
+				model.DateUpdated = Common.toDeviceTime(temp.optString("DateUpdated"));//temp.optString("DateUpdated");
+				model.DateCreated = Common.toDeviceTime(temp.optString("DateCreated"));
 				model.fragmentColor = temp.optString("Color");
 				model.icon_identifier = temp.optInt("Icon");
 				model.title = temp.optString("Title");
@@ -1527,13 +1527,13 @@ public class AppHandlerService extends Service implements
 					if(taskObj.optBoolean("isAllDay"))
 						taskModel.allDay = 1;//.optString("Title");
 						else taskModel.allDay = 0;
-					taskModel.DateCreated = taskObj.optString("DateCreated");
-					taskModel.DateUpdated = taskObj.optString("DateUpdated");
-					taskModel.startDateTime = taskObj.optString("StartDate");
-					taskModel.endDateTime = taskObj.optString("EndDate");
+					taskModel.DateCreated = Common.toDeviceTime(taskObj.optString("DateCreated"));
+					taskModel.DateUpdated = Common.toDeviceTime(taskObj.optString("DateUpdated"));
+					taskModel.startDateTime = Common.toDeviceTime(taskObj.optString("StartDate"));
+					taskModel.endDateTime = Common.toDeviceTime(taskObj.optString("EndDate"));
 					taskModel.rep_interval = taskObj.optInt("Rep_Interval");
 					taskModel.rep_intervalType = taskObj.optInt("Rep_Type");
-					taskModel.rep_intervalExpiration = taskObj.optString("Rep_Expiration");
+					taskModel.rep_intervalExpiration = taskObj.optString("Rep_Expiration");//>>>>>>>>>>>>>>>>>>>>cross check for date
 					taskModel.rep_value = taskObj.optString("Rep_Value");
 					taskModel.syncStatus = "Synced";
 					
@@ -1547,7 +1547,7 @@ public class AppHandlerService extends Service implements
 						mTaskNotificationsModel.fk_task_id = task_id;
 						mTaskNotificationsModel.interval = notifObj.optInt("Interval");
 						mTaskNotificationsModel.interval_type = notifObj.optInt("Type");
-						mTaskNotificationsModel.interval_expiration = notifObj.optString("Expiration");
+						mTaskNotificationsModel.interval_expiration = notifObj.optString("Expiration");//>>>>>>>>>>>>>>>>>>>>cross check for date or null
 						mTaskNotificationsModel.send_as = notifObj.optInt("SendAs");
 						mTaskNotificationsModel.server_id = notifObj.optString("Id");
 						db.notification.Add(mTaskNotificationsModel, task_id);
