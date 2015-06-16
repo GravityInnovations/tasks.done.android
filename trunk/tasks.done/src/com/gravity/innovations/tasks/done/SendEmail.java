@@ -51,9 +51,10 @@ public class SendEmail{
 						// String someUtmSource = "somrSource";
 						// String someUtmMedium = "somrMedium";
 						// String someUtmCampaign = "someCampaign";
-						generatedURL = "https://play.google.com/store/apps/details?id=com.gravity.inv.referraltester&referrer=utm_source%3Dtasks.done_test_app%26utm_medium%3Dtasks.done_app%26utm_term%3Dtesting_referrals%26utm_content%3Dtest_USERID==="
-								+ userDataId
-								+ "_case%26utm_campaign%3Dbeta_testing";
+						generatedURL = "https://play.google.com/store/apps/details?id=com.gravity.innovations.tasks.done&referrer=utm_source%3Dapp_referrer%26utm_medium%3Dapplication%26utm_content%3D"+userDataId+"%26utm_campaign%3Dinit_pub";
+								//"https://play.google.com/store/apps/details?id=com.gravity.inv.referraltester&referrer=utm_source%3Dtasks.done_test_app%26utm_medium%3Dtasks.done_app%26utm_term%3Dtesting_referrals%26utm_content%3Dtest_USERID==="
+								//+ userDataId
+								//+ "_case%26utm_campaign%3Dbeta_testing";
 						String recieverName = emailList.get(i);
 						 sender.sendMail("userName:XYZ Has invited you to download this app",
 						 ""
