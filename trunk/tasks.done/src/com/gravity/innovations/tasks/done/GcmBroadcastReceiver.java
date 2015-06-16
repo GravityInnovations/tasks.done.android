@@ -106,11 +106,11 @@ public class GcmBroadcastReceiver extends WakefulBroadcastReceiver {
 					tasklist.server_id = tasklistid;
 					if(mService.user_data.gravity_user_id == usid 
 							|| mService.user_data.gravity_user_id.equals(usid)){
-						tasklist.user_id = mService.user_data._id;//owner._id;
+						tasklist.owner_id = mService.user_data._id;//owner._id;
 					}
 					else if(owner!=null)
 					{
-						tasklist.user_id = owner._id;
+						tasklist.owner_id = owner._id;
 					}
 					tasklist.owner = owner;
 					//tasklist.user_id = mService.user_data._id;//owner._id;
@@ -118,7 +118,7 @@ public class GcmBroadcastReceiver extends WakefulBroadcastReceiver {
 					tasklist.icon_identifier = icon;
 					tasklist.fragmentColor = color;
 					tasklist.syncStatus = "Synced";
-					tasklist.updated = data.optString("updated");
+					tasklist.DateUpdated = data.optString("updated");
 					if(mService.user_data.gravity_user_id == sender.optString("UserId") 
 						|| mService.user_data.gravity_user_id.equals(sender.optString("UserId"))){
 					
@@ -169,7 +169,7 @@ public class GcmBroadcastReceiver extends WakefulBroadcastReceiver {
 		TaskListModel temp = mService.db.tasklists.Get(TasklistLocalId);//TaskList_Single(TasklistLocalId);//new TaskListModel();
 		temp.syncStatus = "Synced";
 		temp.server_id = data.optString("TaskListId");
-		temp.updated = data.optString("updated");
+		temp.DateUpdated = data.optString("updated");
 		mService.response_new_tasklist(temp);
 	}
 	

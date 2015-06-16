@@ -39,9 +39,7 @@ public class TaskListModel implements Serializable {
 			if (task.completed == 0) {
 				task.parent = this;
 				temp.add(task);
-
 				// temp.parent
-
 			}
 		}
 		return temp;
@@ -53,38 +51,6 @@ public class TaskListModel implements Serializable {
 		this.tasks = new ArrayList<TaskModel>();
 	}
 
-	public TaskListModel(int id, String title, int _icon_identifier) {
-		this._id = id;
-		this.title = title;
-		this.icon_identifier = _icon_identifier;
-		this.tasks = new ArrayList<TaskModel>();
-	}
-
-	public TaskListModel(String title, int _icon_identifier,
-			String fragement_color) {
-		this.title = title;
-		this.icon_identifier = _icon_identifier;
-		this.fragmentColor = fragement_color;
-		this.tasks = new ArrayList<TaskModel>();
-	}
-
-	public TaskListModel(int id, String _title, String _server_id,
-			String _etag, String _updated, String _self_link, String _kind,
-			int _user_id, String _syncStatus, String _syncStatusTimeStamp,
-			int _list_type) {
-		this._id = id;
-		this.title = _title;
-		this.server_id = _server_id;
-		this.etag = _etag;
-		this.updated = _updated;
-		this.self_link = _self_link;
-		this.kind = _kind;
-		this.user_id = _user_id;
-		this.syncStatus = _syncStatus;
-		this.syncStatusTimeStamp = _syncStatusTimeStamp;
-		this.icon_identifier = _list_type;
-		this.tasks = new ArrayList<TaskModel>();
-	}// for onClickNotifiacation
 		// ********* Constructors *********//
 
 	public TaskModel GetTask(int id) {

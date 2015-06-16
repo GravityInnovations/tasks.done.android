@@ -481,11 +481,7 @@ public class MainActivity extends ActionBarActivity implements
 		} else if (id == R.id.action_dashboard) {
 			onDashboardSelected();
 		} else if (id == R.id.action_refer_friend) {
-			mNavigationDrawerFragment
-					.referAFriend(/* service.user_data._id */1234567890);
-			// Intent intent = new Intent(MainActivity.this,
-			// MailActivity.class);
-			// startActivity(intent);
+			mNavigationDrawerFragment.referAFriend(/* service.user_data._id */1234567890);
 		} else if (id == R.id.action_add) {
 			mNavigationDrawerFragment.addOrEditTaskList(new TaskListModel());
 		} else if (id == R.id.action_delete) {

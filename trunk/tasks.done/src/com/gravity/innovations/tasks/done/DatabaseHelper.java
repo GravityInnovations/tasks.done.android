@@ -194,12 +194,12 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 			values.put(KEY_TITLE, task.title);
 			values.put(KEY_DETAILS, task.details);
 			values.put(KEY_NOTES, task.notes);
-			values.put(KEY_UPDATED_DATETIMESTAMP, task.updated);
+			values.put(KEY_UPDATED_DATETIMESTAMP, task.DateUpdated);
 			values.put(KEY_REP_INTERVAL, task.rep_interval);
 			values.put(KEY_REP_TYPE, task.rep_intervalType);
 			values.put(KEY_REP_INTERVAL_EXPIRATION, task.rep_intervalExpiration);
 			values.put(KEY_REP_VALUE, task.rep_value);
-			values.put(KEY_CREATED_DATETIMESTAMP, task.createdDateTime);
+			values.put(KEY_CREATED_DATETIMESTAMP, task.DateCreated);
 			values.put(KEY_All_DAY, task.allDay);
 			values.put(KEY_START_DATETIMESTAMP, task.startDateTime);
 			values.put(KEY_END_DATETIMESTAMP, task.endDateTime);
@@ -238,12 +238,12 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 			task.title = c.getString(colTitle);
 			task.details = c.getString(colDetails);
 			task.notes = c.getString(colNotes);
-			task.updated = c.getString(colUpdated);
+			task.DateUpdated = c.getString(colUpdated);
 			task.rep_interval = c.getInt(colInterval);
 			task.rep_intervalType = c.getInt(colIntervalType);
 			task.rep_intervalExpiration = c.getString(colIntervalExpiration);
 			task.rep_value = c.getString(colValue);
-			task.createdDateTime = c.getString(colDateCreated);
+			task.DateCreated = c.getString(colDateCreated);
 			task.allDay = c.getInt(colAllDay);
 			task.startDateTime = c.getString(colStartDate);
 			task.endDateTime = c.getString(colEndDate);
@@ -374,15 +374,17 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 				+ TABLE_TASK_LIST + "("
 
 				+ KEY_PK + " INTEGER PRIMARY KEY AUTOINCREMENT,"
-
+				
 				+ KEY_TITLE + " TEXT,"
-
+				
 				+ KEY_SERVER_ID + " TEXT,"
+				
+				+ KEY_CREATED_DATETIMESTAMP + " DATETIME,"
 
 				+ KEY_UPDATED_DATETIMESTAMP + " DATETIME,"
 
 				+ KEY_SYNC_STATUS + " TEXT,"
-
+				
 				+ KEY_SYNC_STATUS_DATETIMESTAMP + " DATETIME,"
 
 				+ KEY_LIST_TYPE + " INTEGER,"
@@ -401,12 +403,13 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 			ContentValues values = new ContentValues();
 			values.put(KEY_TITLE, temp.title);
 			values.put(KEY_SERVER_ID, temp.server_id);
-			values.put(KEY_UPDATED_DATETIMESTAMP, temp.updated);
+			values.put(KEY_CREATED_DATETIMESTAMP, temp.DateCreated);
+			values.put(KEY_UPDATED_DATETIMESTAMP, temp.DateUpdated);
 			values.put(KEY_SYNC_STATUS, temp.syncStatus);
 			values.put(KEY_SYNC_STATUS_DATETIMESTAMP, temp.syncStatusTimeStamp);
 			values.put(KEY_LIST_TYPE, temp.icon_identifier);
 			values.put(KEY_LIST_COLOR, temp.fragmentColor);
-			values.put(KEY_FK_USER_ID, temp.user_id);
+			values.put(KEY_FK_USER_ID, temp.owner_id);
 			return values;
 		}
 
@@ -415,6 +418,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 			int colId = c.getColumnIndex(KEY_PK);
 			int colTitle = c.getColumnIndex(KEY_TITLE);
 			int colServerID = c.getColumnIndex(KEY_SERVER_ID);
+			int colDateCreated = c.getColumnIndex(KEY_CREATED_DATETIMESTAMP);
 			int colUpdatedAt = c.getColumnIndex(KEY_UPDATED_DATETIMESTAMP);
 			int colUserID = c.getColumnIndex(KEY_FK_USER_ID);
 			int colSyncStatus = c.getColumnIndex(KEY_SYNC_STATUS);
@@ -426,9 +430,10 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 			temp._id = c.getInt(colId);
 			temp.title = c.getString(colTitle);
 			temp.server_id = c.getString(colServerID);
-			temp.updated = c.getString(colUpdatedAt);
-			temp.user_id = c.getInt(colUserID);
-			temp.owner = users.Get(temp.user_id);
+			temp.DateCreated = c.getString(colDateCreated);
+			temp.DateUpdated = c.getString(colUpdatedAt);
+			temp.owner_id = c.getInt(colUserID);
+			temp.owner = users.Get(temp.owner_id);
 			temp.syncStatus = c.getString(colSyncStatus);
 			temp.syncStatusTimeStamp = c.getString(colSyncStatusTimeStamp);
 			temp.fragmentColor = c.getString(colFragmentColor);
@@ -799,7 +804,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 			int id = -1;
 			String dataids = "";
 			for (UserModel user : users) {
-				if (user._id != tasklist.user_id) {
+				if (user._id != tasklist.owner_id) {
 					id = this.Share(tasklist, user, "unsynced");
 					if (id != -1)
 						dataids += id + ",";

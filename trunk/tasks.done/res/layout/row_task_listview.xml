@@ -34,8 +34,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_below="@+id/search_line"
-        android:background="#ffffff"
-        android:elevation="4dp" >
+        android:background="#ffffff">
 
         <TextView
             android:id="@+id/user_task_title"
@@ -49,7 +48,9 @@
             android:singleLine="true"
             android:text=""
             android:textAppearance="?android:attr/textAppearanceLarge"
-            android:textColor="@color/textColor" />
+            android:textColor="@color/textColor"
+        	android:paddingLeft="5dp" 
+            />
 
         <TextView
             android:id="@+id/user_task_details"
@@ -62,7 +63,9 @@
             android:lines="2"
             android:text=""
             android:textAppearance="?android:attr/textAppearanceSmall"
-            android:textColor="@color/textColor" />
+            android:textColor="@color/textColor"
+            android:paddingLeft="5dp" 
+            />
 
         <TextView
             android:id="@+id/user_task_notes"

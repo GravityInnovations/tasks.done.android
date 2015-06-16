@@ -617,7 +617,9 @@ public class TaskActivity extends ActionBarActivity implements OnClickListener {
 			textView.setTextSize(17);
 			float scale = getResources().getDisplayMetrics().density;
 			int dpAsPixels = (int) (10 * scale + 0.5f);
-			textView.setPadding(0, dpAsPixels, 0, dpAsPixels);
+			//textView.setPadding(0, dpAsPixels, 0, dpAsPixels);
+			textView.setPadding(0, dpAsPixels, 0, 0);
+			//textView.setPadding(left, top, right, bottom)
 			textView.setTextColor(Color.parseColor("#757575"));// textColor
 			textView.setBackground(getResources().getDrawable(
 					android.R.color.transparent));

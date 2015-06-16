@@ -832,7 +832,7 @@ public class NavigationDrawerFragment extends Fragment implements
 				}
 
 				if (tasklist._id == -1) {
-					tasklist.user_id = user_data._id;
+					tasklist.owner_id = user_data._id;
 					if (tasklist.title.length() != 0) {
 						tasklist._id = db.tasklists.Add(tasklist);// .TaskList_New(temp);
 						if (tasklist._id != -1) {
@@ -887,17 +887,14 @@ public class NavigationDrawerFragment extends Fragment implements
 		{
 			TaskListModel temp = mAdapter.getItem(i);
 			if (temp._id == m._id) {
-				temp.etag = m.etag;
 				// temp.gravity_id = m.gravity_id;
 				temp.icon_identifier = m.icon_identifier;
-				temp.kind = m.kind;
-				temp.self_link = m.self_link;
 				temp.server_id = m.server_id;
 				temp.syncStatus = m.syncStatus;
 				temp.syncStatusTimeStamp = "";
 				temp.title = temp.title;
-				temp.updated = temp.updated;
-				temp.user_id = temp.user_id;
+				temp.DateUpdated = temp.DateUpdated;
+				temp.owner_id = temp.owner_id;
 				this.mAdapter.notifyDataSetChanged();
 				// ((MainActivity)mActivity).mTaskListFragment.
 				int position = this.mAdapter.getPosition(temp);
