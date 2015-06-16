@@ -23,11 +23,9 @@ public class TaskModel implements Comparable, Serializable {
 	public String startDateTime;//
 	public String endDateTime;//
 	//public String syncStatus;// date time
-	//public String syncStatusTimeStamp;// date time
-	//public String links;
-	//public String associated_usermodels;
+	public String syncStatusTimeStamp;// date time
 	public int fk_tasklist_id = 1;
-	//public String relativeTime;// !db
+	public String relativeTime;// !db
 
 	public int allDay;// // swtich 0/1
 	public int rep_interval;//
@@ -59,7 +57,7 @@ public class TaskModel implements Comparable, Serializable {
 	public void updateTimeNow() {
 		long a = System.currentTimeMillis();
 		String currentDateTime = Long.toString(a);
-		this.updated = currentDateTime;
+		this.DateUpdated = currentDateTime;
 		updateRelativeTime(a);
 		// return a;
 	}
@@ -74,7 +72,7 @@ public class TaskModel implements Comparable, Serializable {
 	public TaskModel updateRelativeTime(long currentTimeMills) {
 		// long currentTimeMills = System.currentTimeMillis();
 		try {
-			String s = this.updated.toString();
+			String s = this.DateUpdated.toString();
 			long previousTime = Long.valueOf(s).longValue();
 			long diff = currentTimeMills - previousTime;
 			String relativeTime = null;

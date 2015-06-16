@@ -158,10 +158,10 @@ public class DialogViewFragment extends DialogFragment {
 		SimpleDateFormat formatter = new SimpleDateFormat("yyyy/MM/dd " + " "
 				+ "hh:MM:ss");
 
-		if (taskModel.updated == null) {
+		if (taskModel.DateUpdated == null) {
 			tv_updated.setText("Last Updated: not updated yet");
 		} else {
-			long update = Long.parseLong(taskModel.updated.toString());
+			long update = Long.parseLong(taskModel.DateUpdated.toString());
 			String dateString = formatter.format(new Date(update));
 			tv_updated.setText("Last Updated: " + dateString);
 		}
