@@ -1535,10 +1535,25 @@ public class AppHandlerService extends Service implements
 					taskModel.rep_intervalType = taskObj.optInt("Rep_Type");
 					taskModel.rep_intervalExpiration = taskObj.optString("Rep_Expiration");
 					taskModel.rep_value = taskObj.optString("Rep_Value");
-					
+					taskModel.syncStatus = "Synced";
 					
 					taskModel.fk_tasklist_id = id;
-					db.tasks.Add(taskModel);
+					
+					int task_id = db.tasks.Add(taskModel);
+					JSONArray notifications = taskObj.optJSONArray("Notifications");
+					for (int k = 0; k < notifications.length();k++) {
+						TaskNotificationsModel mTaskNotificationsModel = new TaskNotificationsModel();
+						JSONObject notifObj = notifications.getJSONObject(k);
+						mTaskNotificationsModel.fk_task_id = task_id;
+						mTaskNotificationsModel.interval = notifObj.optInt("Interval");
+						mTaskNotificationsModel.interval_type = notifObj.optInt("Type");
+						mTaskNotificationsModel.interval_expiration = notifObj.optString("Expiration");
+						mTaskNotificationsModel.send_as = notifObj.optInt("SendAs");
+						mTaskNotificationsModel.server_id = notifObj.optString("Id");
+						db.notification.Add(mTaskNotificationsModel, task_id);
+						//>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> ADD SYSTEM ALARAMS HERE >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+						
+					}
 				}
 			} catch (JSONException e) {
 				// TODO Auto-generated catch block

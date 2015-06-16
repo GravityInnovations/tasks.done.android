@@ -15,6 +15,8 @@ public class TaskModel implements Comparable, Serializable {
 	public String DateCreated;//
 	public String server_id;//
 	public TaskListModel parent;//
+
+	public String syncStatus;// date time
 	public ArrayList<TaskNotificationsModel> notifications = new ArrayList<TaskNotificationsModel>();
 	
 	public int completed;// yes(1) or no(0)
