@@ -4,16 +4,17 @@ import java.io.Serializable;
 import java.util.ArrayList;
 
 public class TaskListModel implements Serializable {
+	
+	
+	
 	public UserModel owner;
 	public int _id = -1;
 	public String title;
 	// public String gravity_id = "";
 	public String server_id = "";
-	public String etag;
-	public String updated;
-	public String self_link;
-	public String kind;
-	public int user_id;
+	public String DateUpdated;
+	public String DateCreated;
+	public int owner_id;
 	public String syncStatus;// date time
 	public String syncStatusTimeStamp;// date time
 	public int icon_identifier;
