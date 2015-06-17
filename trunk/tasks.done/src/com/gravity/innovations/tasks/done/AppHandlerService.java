@@ -5,6 +5,7 @@ import java.io.FileOutputStream;
 import java.io.InputStream;
 import java.lang.Thread.UncaughtExceptionHandler;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.TimerTask;
 
@@ -61,6 +62,7 @@ import android.provider.ContactsContract.Contacts.Photo;
 import android.provider.ContactsContract.RawContacts;
 import android.support.v4.app.NotificationCompat;
 import android.telephony.TelephonyManager;
+import android.util.Log;
 import android.view.View;
 import android.widget.Toast;
 
@@ -83,7 +85,6 @@ public class AppHandlerService extends Service implements
 	public boolean hasInternet = false;
 	private NotificationHandler nH= null;
 	ArrayList<Common.AlertData> pendingAlerts = new ArrayList<Common.AlertData>();
-	private tdHandler mHandler;
 	//private ArrayList<>
 	public AppHandlerService() {
 		super();
@@ -212,8 +213,8 @@ public class AppHandlerService extends Service implements
 			//TriggerEvent(Common.USERS_SYNC);
 			HandlerThread thread = new HandlerThread("Thread name", android.os.Process.THREAD_PRIORITY_DEFAULT);//.THREAD_PRIORITY_BACKGROUND);
 		    thread.start();
-		    Looper looper = thread.getLooper();
-		    mHandler = new tdHandler(looper);
+		    //Looper looper = thread.getLooper();
+		    //mHandler = new tdHandler(looper);
 			TriggerEvent(Common.LOAD_PREFS);
 			//openAdDialog(4000);
 			 
@@ -509,166 +510,10 @@ public class AppHandlerService extends Service implements
 
 	private GoogleCloudMessaging gcm;
 	private com.gravity.innovations.tasks.done.GoogleAuth mAuth;
-	private int todotasks = 0;
-	private int donetasks = 0;
-
-	public class tdHandler extends Handler {
-		  public tdHandler(Looper looper) {
-		    super(looper);
-		  }
-
-		  @Override
-		  public void handleMessage(Message msg) {
-		    super.handleMessage(msg);
-		    int eventId = msg.arg1;
-		   
-		    try {
-				Thread.sleep(1000);
-			} catch (InterruptedException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-			switch (eventId) {
-			case 999999: //save bitmap
-				String url = (String) msg.obj;
-				getAndSaveBitmap(url);
-				break;
-			case Common.LOAD_LOCAL_DB:
-				addProgressTask(getString(R.string.load_db));
-				LoadLocalDB();
-				donetasks++;
-				break;
-			case Common.LOAD_PREFS:
-				addProgressTask(getString(R.string.load_sp));
-				// TriggerNextEvent();
-				LoadPreferences();
-
-				TriggerEvent(Common.LOAD_LOCAL_DB);
-
-				if (user_data.is_sync_type) {
-					if (user_data.email == "" || user_data.email == null)
-						TriggerEvent(Common.GET_ACCOUNT);// GetAccount();
-
-					else if (user_data.email != ""
-							&& user_data.email != null) {
-						addProgressTask(getString(R.string.check_internet));
-						TriggerEvent(Common.CHECK_INTERNET);
-					}
-
-					// TriggerWaitEvent(Common.CHECK_INTERNET);
-					donetasks++;
-				} else {
-
-					TriggerEvent(Common.GO_TO_MAIN);
-					donetasks++;
-				}
-
-				break;
-			case Common.CHECK_INTERNET:
-				CheckInternet();
-				donetasks++;
-				break;
-			case Common.CONFIG_GCM:
-				ConfigureGCM();
-				break;
-			case Common.GET_ACCOUNT:
-
-				GetAccount();
-
-				break;
-			case Common.GOT_ACCOUNT:
-
-				if (user_data.is_sync_type && user_data.email != null) {
-
-					if (!user_data.gravity_is_registered) {
-						TriggerEvent(Common.GRAVITY_REGISTER);
-					}
-
-					TriggerEvent(Common.GOOGLE_AUTH);
-				}
-				donetasks++;
-				break;
-			case Common.USERS_SYNC:
-				if (user_data.is_sync_type) {// >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>needs
-												// review
-					addProgressTask(getString(R.string.users_sync));
-					if (!user_data.all_users_synced)
-						SyncUsers(true);
-					else
-						SyncUsers(false);
-					//
-					// SyncUsers();
-				}
-				donetasks++;
-				break;
-			case Common.GOOGLE_AUTH:
-				GoogleAuth();
-
-				break;
-			case Common.GOOGLE_USER_INFO:
-				GetUserDataFromGoogle();
-				break;
-			case Common.GRAVITY_REGISTER:
-				if (!user_data.gravity_is_registered) {
-					addProgressTask(getString(R.string.gravity_register));
-
-					GravityRegister();
-				}
-				break;
-			case Common.GRAVITY_SYNC:
-
-				if (user_data.gravity_is_registered) {
-					addProgressTask(getString(R.string.gravity_sync));
-					SyncAppData();
-
-				}
-				break;
-			case Common.GO_TO_MAIN:
-				// donetasks++;
-				todotasks--;
-				int d = donetasks;
-				int x = todotasks;
-				if (donetasks == todotasks) {
-					AppStateIntent = new Intent(FocusedActivity,
-							MainActivity.class);
-					AppStateClassName = MainActivity.class.getName();
-					FocusedActivity.runOnUiThread(new Runnable() {
-
-						@Override
-						public void run() {
-							// TODO Auto-generated method stub
-							AppStateIntent.putExtra("user", user_data);
-							FocusedActivity.startActivity(AppStateIntent);
-							FocusedActivity.finish();
-						}
-					});
-					//
-					// FocusedActivity.finish();
-
-					// addProgressTask(">>>>>>>>>>>>>>>>>>main launched<<<<<<<<<<<<<<<<<<<");
-				} else
-					try {
-						Thread.sleep(2000);
-						// this.execute();
-						TriggerEvent(Common.GO_TO_MAIN);
-					} catch (InterruptedException e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
-					}
-
-				break;
-			default:
-				addProgressTask("No such option exists yet");
-				todotasks--;
-				break;
-
-			}
-		    
-		    // Do some processing
-		    //boolean stopped = stopSelfResult(startId);
-		    // stopped is true if the service is stopped
-		  }
-		}
+	//private int todotasks = 0;
+	//private int donetasks = 0;
+	//private ArrayList<String> triggers = new ArrayList<String>();
+	private HashMap<Integer, Integer> triggers = new HashMap<Integer,Integer>();
 	public void TriggerEvent(final int eventId) {
 //		Message msg = mHandler.obtainMessage();
 //	    msg.arg1 = eventId;
@@ -680,7 +525,16 @@ public class AppHandlerService extends Service implements
 			@Override
 			protected void onPreExecute() {
 				// TODO Auto-generated method stub
-				todotasks++;
+				//todotasks++;
+				triggers.put(eventId, 0);
+				Log.e("EVENTS", ">>>>>>>>>>>>>>>>>>>>>>>>>");
+				Log.e("EVENTS", ">>>>>>>>>>>Pre>>>>>>>>>");
+				for(HashMap.Entry<Integer, Integer> v : triggers.entrySet())
+				{
+					Log.e("EVENTS", "key:"+v.getKey()+" value:"+v.getValue());
+				}
+				
+				Log.e("EVENTS", ">>>>>>>>>>>>>>>>>>>>>>>>>");
 				super.onPreExecute();
 			}
 
@@ -698,7 +552,8 @@ public class AppHandlerService extends Service implements
 				case Common.LOAD_LOCAL_DB:
 					addProgressTask(getString(R.string.load_db));
 					LoadLocalDB();
-					donetasks++;
+					triggers.put(eventId, 1);
+					//donetasks++;
 					break;
 				case Common.LOAD_PREFS:
 					addProgressTask(getString(R.string.load_sp));
@@ -718,17 +573,20 @@ public class AppHandlerService extends Service implements
 						}
 
 						// TriggerWaitEvent(Common.CHECK_INTERNET);
-						donetasks++;
+						triggers.put(eventId, 1);
+						//donetasks++;
 					} else {
 
 						TriggerEvent(Common.GO_TO_MAIN);
-						donetasks++;
+						triggers.put(eventId, 1);
+						//donetasks++;
 					}
 
 					break;
 				case Common.CHECK_INTERNET:
 					CheckInternet();
-					donetasks++;
+					triggers.put(eventId, 1);
+					//donetasks++;
 					break;
 				case Common.CONFIG_GCM:
 					ConfigureGCM();
@@ -748,7 +606,8 @@ public class AppHandlerService extends Service implements
 
 						TriggerEvent(Common.GOOGLE_AUTH);
 					}
-					donetasks++;
+					triggers.put(eventId, 1);
+					//donetasks++;
 					break;
 				case Common.USERS_SYNC:
 					if (user_data.is_sync_type) {// >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>needs
@@ -761,7 +620,8 @@ public class AppHandlerService extends Service implements
 						//
 						// SyncUsers();
 					}
-					donetasks++;
+					triggers.put(eventId, 1);
+					//donetasks++;
 					break;
 				case Common.GOOGLE_AUTH:
 					GoogleAuth();
@@ -786,11 +646,21 @@ public class AppHandlerService extends Service implements
 					}
 					break;
 				case Common.GO_TO_MAIN:
+					triggers.put(eventId, 1);
+					Log.e("EVENTS", ">>>>>>>>>>>>>>>>>>>>>>>>>");
+					Log.e("EVENTS", ">>>>>>>>>>>Main>>>>>>>>>");
+					Boolean flag = true;
+					for(HashMap.Entry<Integer, Integer> v : triggers.entrySet())
+					{
+						Log.e("EVENTS", "key:"+v.getKey()+" value:"+v.getValue());
+						if(v.getValue() == 0 || v.getValue().equals(0))
+							flag = false;
+					}
+					
+					Log.e("EVENTS", ">>>>>>>>>>>>>>>>>>>>>>>>>");
 					// donetasks++;
-					todotasks--;
-					int d = donetasks;
-					int x = todotasks;
-					if (donetasks == todotasks) {
+					
+					if (flag) {
 						AppStateIntent = new Intent(FocusedActivity,
 								MainActivity.class);
 						AppStateClassName = MainActivity.class.getName();
@@ -817,11 +687,12 @@ public class AppHandlerService extends Service implements
 							// TODO Auto-generated catch block
 							e.printStackTrace();
 						}
-
+					
 					break;
 				default:
 					addProgressTask("No such option exists yet");
-					todotasks--;
+					//todotasks--;
+					triggers.put(eventId, 99999);
 					break;
 
 				}
@@ -881,7 +752,8 @@ public class AppHandlerService extends Service implements
 
 				TriggerEvent(Common.GOOGLE_USER_INFO);
 			}
-			donetasks++;
+			triggers.put(Common.GOOGLE_AUTH, 1);
+			//donetasks++;
 			//
 
 			// runWorker
@@ -948,7 +820,8 @@ public class AppHandlerService extends Service implements
 
 			// TriggerWaitEvent(Common.CONFIG_GCM);
 			// addProgressTask(getString(R.string.checking_other_settings));
-			donetasks++;
+			triggers.put(Common.GRAVITY_REGISTER, 1);
+			//donetasks++;
 			break;
 		case Common.RequestCodes.GRAVITY_SEND_GCM_CODE:
 			Toast.makeText(
@@ -960,7 +833,7 @@ public class AppHandlerService extends Service implements
 			
 			break;
 		case Common.RequestCodes.GRAVITY_GET_TASKS:
-			if (ResultCode == Common.HTTP_RESPONSE_OK) {
+			/*if (ResultCode == Common.HTTP_RESPONSE_OK) {
 				JSONArray arr_data = data.optJSONArray("data");
 				DatabaseHelper db = new DatabaseHelper(this);
 				for (int i = 0; i < arr_data.length(); i++) {
@@ -981,7 +854,7 @@ public class AppHandlerService extends Service implements
 			}
 			// TriggerEvent(Common.USERS_SYNC);
 			donetasks++;
-
+*/
 			break;
 		case Common.RequestCodes.GOOGLE_GET_USER_INFO:
 			// save user info
@@ -999,13 +872,15 @@ public class AppHandlerService extends Service implements
 				// next step in getAndSaveBitmap function
 				mSharedPreferencesEditor.commit();
 				addProgressTask("User information fetch complete");
-				donetasks++;
+				triggers.put(Common.GOOGLE_USER_INFO, 1);
+				//donetasks++;
 
 			} catch (JSONException e) {
 
 				// TODO Auto-generated catch block
 				addProgressTask("Unable to fetch your information from Google");
-				donetasks++;
+				triggers.put(Common.GOOGLE_USER_INFO, 1);
+				//donetasks++;
 				e.printStackTrace();
 			}
 
@@ -1382,9 +1257,10 @@ public class AppHandlerService extends Service implements
 					GCMController.registerInBackground(mContext, gcm);
 
 				} else {
-					donetasks++;
-					int d = donetasks;
-					int x = todotasks;
+					triggers.put(Common.CONFIG_GCM, 1);
+					//donetasks++;
+					//int d = donetasks;
+					//int x = todotasks;
 					TriggerEvent(Common.GO_TO_MAIN);
 				}
 				flag = true;
@@ -1408,7 +1284,8 @@ public class AppHandlerService extends Service implements
 
 		}
 		if (!flag)
-			todotasks--;
+			triggers.put(Common.CONFIG_GCM, 1);
+			//todotasks--;
 		// TODO Auto-generated method stub
 
 	}
@@ -1430,7 +1307,8 @@ public class AppHandlerService extends Service implements
 
 			mSharedPreferencesEditor.commit();
 			addProgressTask("Saved GCM reg, app ver ");
-			donetasks++;
+			triggers.put(Common.CONFIG_GCM, 1);
+			//donetasks++;
 			//TriggerEvent(Common.GRAVITY_REGISTER);
 		} catch (Exception e) {
 			addProgressTask(e.getLocalizedMessage());
@@ -1555,12 +1433,15 @@ public class AppHandlerService extends Service implements
 						
 					}
 				}
+				
+				TriggerEvent(Common.GO_TO_MAIN);
 			} catch (JSONException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
 
 		}
+		triggers.put(Common.GRAVITY_SYNC, 1);
 		addProgressTask(getString(R.string.gravity_fetch_data_success));
 	
 	// TriggerEvent(Common.USERS_SYNC);
@@ -1800,7 +1681,8 @@ public class AppHandlerService extends Service implements
 			TriggerEvent(Common.GO_TO_MAIN);
 			// goto main
 		}
-		donetasks++;
+		triggers.put(Common.GET_ACCOUNT, 1);
+		//donetasks++;
 
 	}
 	public Bitmap getUserImage(UserModel user) {
