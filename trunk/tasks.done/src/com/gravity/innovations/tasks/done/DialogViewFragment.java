@@ -17,6 +17,7 @@ import android.os.Handler;
 import android.support.annotation.Nullable;
 import android.support.v4.app.DialogFragment;
 import android.support.v4.app.FragmentManager;
+import android.text.method.ScrollingMovementMethod;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -39,6 +40,7 @@ public class DialogViewFragment extends DialogFragment {
 	private DialogViewFragment dialog;
 	private CalendarView cal;
 	private Activity mActivity;
+	private String TAG = "DialogViewFragment";
 
 	public DialogViewFragment(TaskListModel listModel, TaskModel taskModel,
 			NavigationDrawerFragment ndf, Activity activity) {
@@ -84,7 +86,9 @@ public class DialogViewFragment extends DialogFragment {
 		int MAX_CHARS = 7;
 		tv_title = (TextView) view.findViewById(R.id.txt_task_name);
 		tv_details = (TextView) view.findViewById(R.id.txt_details);
+		tv_details.setMovementMethod(new ScrollingMovementMethod());
 		tv_notes = (TextView) view.findViewById(R.id.txt_notes);
+		tv_notes.setMovementMethod(new ScrollingMovementMethod());
 		tv_updated = (TextView) view.findViewById(R.id.txt_time_updated);
 		tv_sync_time = (TextView) view.findViewById(R.id.txt_time_synced);
 		cal = (CalendarView) view.findViewById(R.id.calendar1);
@@ -140,30 +144,37 @@ public class DialogViewFragment extends DialogFragment {
 			}
 		} catch (Exception e) {
 			tv_title.setText("title");
+			Log.e(TAG, "title was missing");
 		}
 		try {
 			// assigning details
 			tv_details.setText(taskModel.details.toString());
 		} catch (Exception e) {
 			tv_details.setText("has no details yet");
+			Log.e(TAG, "details were missing");
 		}
 		try {
 			// assigning notes
 			tv_notes.setText(taskModel.notes.toString());
 		} catch (Exception e) {
 			tv_notes.setText("has no notes yet");
+			Log.e(TAG, "notes were missing");
 		}
 
 		// long to string time formatting
 		SimpleDateFormat formatter = new SimpleDateFormat("yyyy/MM/dd " + " "
 				+ "hh:MM:ss");
-
+		try {
 		if (taskModel.DateUpdated == null) {
 			tv_updated.setText("Last Updated: not updated yet");
 		} else {
 			long update = Long.parseLong(taskModel.DateUpdated.toString());
 			String dateString = formatter.format(new Date(update));
 			tv_updated.setText("Last Updated: " + dateString);
+		}
+		} catch (Exception e) {
+			Log.e(TAG, "tv_updated has some issue");
+			tv_updated.setText(" ");
 		}
 		try {
 			if (taskModel.syncStatusTimeStamp == null) {
@@ -175,7 +186,8 @@ public class DialogViewFragment extends DialogFragment {
 				tv_sync_time.setText("Last Synced: " + syncString);
 			}
 		} catch (Exception e) {
-			Log.e("AssigningSyFcedTimeStamp", "NDF openTaskDetailsDialog");
+			Log.e(TAG, "tv_sync_time issue");
+			tv_sync_time.setText(" ");
 		}
 
 		float alpha = 0;
@@ -190,7 +202,6 @@ public class DialogViewFragment extends DialogFragment {
 				Color.parseColor(listModel.fragmentColor), alpha));
 
 		taskDelete.setOnClickListener(new OnClickListener() {
-
 			@Override
 			public void onClick(View v) {
 				try {
@@ -202,12 +213,10 @@ public class DialogViewFragment extends DialogFragment {
 				} catch (Exception e) {
 					Log.e("DialogViewFragment", "taskDelete");
 				}
-
 			}
 		});
 
 		taskEdit.setOnClickListener(new OnClickListener() {
-
 			@Override
 			public void onClick(View v) {
 				dialog.dismiss();
@@ -217,7 +226,6 @@ public class DialogViewFragment extends DialogFragment {
 		});
 
 		taskShare.setOnClickListener(new OnClickListener() {
-
 			@Override
 			public void onClick(View v) {
 				// code here for share
@@ -234,13 +242,11 @@ public class DialogViewFragment extends DialogFragment {
 					// markDoneToggle
 					// .setBackgroundResource(R.drawable.task_row_bg);
 					taskModel.completed = 0;
-
 				} else if (taskModel.completed == 0) {
 					alphaToggle = 1.0f;
 					taskModel.completed = 1;
 					// markDoneToggle
 					// .setBackgroundResource(R.drawable.task_row_done_bg);
-
 				}
 				try {
 					markDoneToggle.setBackgroundColor(Common.ShapesAndGraphics
@@ -253,9 +259,7 @@ public class DialogViewFragment extends DialogFragment {
 				} catch (Exception e) {
 					Log.e("markDoneToggle", e.getLocalizedMessage());
 				}
-
 				mNavigationDrawerFragment.MarkDoneTask(listModel, taskModel);
-
 			}
 		});
 	}
