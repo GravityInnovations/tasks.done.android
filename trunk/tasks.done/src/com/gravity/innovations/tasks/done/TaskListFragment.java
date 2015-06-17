@@ -51,6 +51,8 @@ public class TaskListFragment extends Fragment {
 	private AppHandlerService mService;
 	private ImageView mTextView_ownerImage;
 	private TextView mTextView_ownerName;
+	private String tag = "TasklistFragment";
+	
 
 	public TaskListFragment() {
 	}
@@ -120,8 +122,6 @@ public class TaskListFragment extends Fragment {
 
 				@Override
 				public void onClick(View v) {
-					// * mNavigationDrawerFragment.addOrEditTask(data,
-					// * new TaskModel());
 					try {
 						mNavigationDrawerFragment.setReminder(data,
 								new TaskModel());
@@ -209,7 +209,17 @@ public class TaskListFragment extends Fragment {
 			RelativeLayout header = (RelativeLayout) rootView
 					.findViewById(R.id.header);
 			tv_listTitle = (TextView) rootView.findViewById(R.id.tasklist_name);
-			tv_listTitle.setText(data.title);
+			try{
+			if (data.title.length()>6)
+			{
+				tv_listTitle.setText(data.title.substring(5));
+			}else{
+				tv_listTitle.setText(data.title);				
+			}
+			}catch(Exception e){
+				String msg = "listTitle";
+				Log.e(tag, msg);	
+			}
 
 			iv_listIcon = (ImageView) rootView.findViewById(R.id.tasklist_icon);
 			iv_isSynced = (ImageView) rootView.findViewById(R.id.img_sync);
@@ -218,7 +228,6 @@ public class TaskListFragment extends Fragment {
 				iv_listIcon.setImageDrawable(mActivity.getResources().getDrawable(Common.DrawableResouces.compareDrawable(data.icon_identifier) ));
 
 			} catch (Exception e) {
-				String tag = "TasklistFragment";
 				String msg = "listIconSetResource";
 				Log.e(tag, msg);
 			}

@@ -64,12 +64,12 @@
 
         <TextView
             android:id="@+id/txt_details"
-            android:layout_width="wrap_content"
+            android:layout_width="fill_parent"
             android:layout_height="wrap_content"
             android:text="some details here"
             android:textColor="@color/textColor"
-            android:lines="1"
-            android:ellipsize="end"
+            android:lines="2"
+            android:scrollbars = "vertical"
             android:textSize="14sp" />
 
         <TextView
@@ -87,12 +87,12 @@
 
         <TextView
             android:id="@+id/txt_notes"
-            android:layout_width="wrap_content"
+            android:layout_width="fill_parent"
             android:layout_height="wrap_content"
             android:text="some notes here"
             android:textColor="@color/textColor"
-            android:lines="1"
-            android:ellipsize="end"
+            android:lines="2"
+            android:scrollbars = "vertical"
             android:textSize="14sp" />
 
         <TextView
@@ -129,7 +129,7 @@
             android:layout_height="wrap_content"
             android:background="@drawable/default_button_selector"
             android:clickable="true"
-            android:padding="10dp"
+            android:padding="8dp"
             android:src="@android:drawable/ic_menu_edit" />
 
         <ImageButton
@@ -138,7 +138,7 @@
             android:layout_height="wrap_content"
             android:background="@drawable/default_button_selector"
             android:clickable="true"
-            android:padding="10dp"
+            android:padding="8dp"
             android:src="@android:drawable/ic_menu_delete" />
 
         <ImageButton
@@ -147,7 +147,7 @@
             android:layout_height="wrap_content"
             android:background="@drawable/default_button_selector"
             android:clickable="true"
-            android:padding="10dp"
+            android:padding="8dp"
             android:src="@android:drawable/ic_menu_share" />
     </LinearLayout>
 

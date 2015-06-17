@@ -25,6 +25,7 @@ public class TaskListAdapter extends ArrayAdapter<TaskListModel> {
 	ArrayList<TaskListModel> data = new ArrayList<TaskListModel>();
 	ArrayList<TaskListModel> data_backup = new ArrayList<TaskListModel>();
 	int selected = 0;
+	String tag = "TasklistAdapter";
 
 	public TaskListAdapter(Activity activity, int layoutResourceId,
 			ArrayList<TaskListModel> data) {
@@ -132,19 +133,17 @@ public class TaskListAdapter extends ArrayAdapter<TaskListModel> {
 				holder.title.setText(tasklist.title);
 			}
 		} catch (Exception e) {
-			String tag = "TasklistAdapter";
 			String msg = "truncation Error";
 			Log.e(tag, msg);
 		}
-
+		Resources resources = mActivity.getResources();
 		try {
-			Resources resources = mActivity.getResources();
 			holder.list_icon.setImageDrawable(resources.getDrawable(tasklist.icon_identifier));
 
 		} catch (Exception e) {
-			String tag = "TasklistAdapter";
 			String msg = "listICON";
 			Log.e(tag, msg);
+			holder.list_icon.setImageDrawable(resources.getDrawable(R.drawable.ic_assignment_grey600_24dp));
 		}
 		return row;
 	}
