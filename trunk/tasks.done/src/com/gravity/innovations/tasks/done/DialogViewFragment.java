@@ -4,6 +4,7 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 
+import com.google.android.gms.internal.mc;
 import com.gravity.innovations.custom.views.CalendarView;
 
 import android.annotation.SuppressLint;
@@ -26,6 +27,7 @@ import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.view.ViewGroup;
 import android.widget.ImageView;
+import android.widget.TabHost;
 import android.widget.TextView;
 
 @SuppressLint("ValidFragment")
@@ -69,6 +71,27 @@ public class DialogViewFragment extends DialogFragment {
 	public View onCreateView(LayoutInflater inflater, ViewGroup container,
 			Bundle savedInstanceState) {
 		view = inflater.inflate(R.layout.dialog_task_details, container);
+		TabHost tabHost = (TabHost) view.findViewById(R.id.TabHost01);
+		tabHost.setup();
+
+		// create tab 1
+		TabHost.TabSpec spec1 = tabHost.newTabSpec("tab1");
+		spec1.setIndicator(
+				"Details",
+				getActivity().getResources().getDrawable(
+						R.drawable.ic_add_grey600_18dp));
+		spec1.setContent(R.id.lltab1);
+
+		tabHost.addTab(spec1);
+		// create tab2
+		TabHost.TabSpec spec2 = tabHost.newTabSpec("tab2");
+		spec2.setIndicator(
+				"Reminders",
+				getActivity().getResources().getDrawable(
+						R.drawable.ic_close_grey600_24dp));
+		spec2.setContent(R.id.lltab2);
+		tabHost.addTab(spec2);
+
 		return view;
 	}
 
@@ -91,7 +114,7 @@ public class DialogViewFragment extends DialogFragment {
 		tv_notes.setMovementMethod(new ScrollingMovementMethod());
 		tv_updated = (TextView) view.findViewById(R.id.txt_time_updated);
 		tv_sync_time = (TextView) view.findViewById(R.id.txt_time_synced);
-		cal = (CalendarView) view.findViewById(R.id.calendar1);
+		//cal = (CalendarView) view.findViewById(R.id.calendar1);
 		markDoneToggle = (ImageView) view.findViewById(R.id.detail_done_toggle);
 
 		taskEdit = (ImageView) view
@@ -103,6 +126,8 @@ public class DialogViewFragment extends DialogFragment {
 		taskDelete = (ImageView) view
 				.findViewById(R.id.btn_delete_task_detail_dialog);
 
+
+		
 		try {
 			// assigning title
 			if (taskModel.title.toLowerCase().contains("call")
@@ -123,19 +148,19 @@ public class DialogViewFragment extends DialogFragment {
 				String temp = type
 						+ Common.ContactStringConversion.getDisplayName(
 								Uri.parse(uri), mActivity);
-				
+
 				if (temp.length() > MAX_CHARS) {
-					tv_title.setText(temp.substring(0, MAX_CHARS)
-							+ "...");
+					tv_title.setText(temp.substring(0, MAX_CHARS) + "...");
 				} else {
 					tv_title.setText(temp);
 				}
-				
+
 			} else {
-				//tv_title.setText(taskModel.title.toString());
-				
+				// tv_title.setText(taskModel.title.toString());
+
 				if (taskModel.title.length() > MAX_CHARS) {
-					String temp = taskModel.title.toString().substring(0, MAX_CHARS)
+					String temp = taskModel.title.toString().substring(0,
+							MAX_CHARS)
 							+ "...";
 					tv_title.setText(temp);
 				} else {
@@ -146,6 +171,7 @@ public class DialogViewFragment extends DialogFragment {
 			tv_title.setText("title");
 			Log.e(TAG, "title was missing");
 		}
+		
 		try {
 			// assigning details
 			tv_details.setText(taskModel.details.toString());
@@ -161,17 +187,18 @@ public class DialogViewFragment extends DialogFragment {
 			Log.e(TAG, "notes were missing");
 		}
 
+		
 		// long to string time formatting
 		SimpleDateFormat formatter = new SimpleDateFormat("yyyy/MM/dd " + " "
 				+ "hh:MM:ss");
 		try {
-		if (taskModel.DateUpdated == null) {
-			tv_updated.setText("Last Updated: not updated yet");
-		} else {
-			long update = Long.parseLong(taskModel.DateUpdated.toString());
-			String dateString = formatter.format(new Date(update));
-			tv_updated.setText("Last Updated: " + dateString);
-		}
+			if (taskModel.DateUpdated == null) {
+				tv_updated.setText("Last Updated: not updated yet");
+			} else {
+				long update = Long.parseLong(taskModel.DateUpdated.toString());
+				String dateString = formatter.format(new Date(update));
+				tv_updated.setText("Last Updated: " + dateString);
+			}
 		} catch (Exception e) {
 			Log.e(TAG, "tv_updated has some issue");
 			tv_updated.setText(" ");
