@@ -318,18 +318,18 @@ public class NavigationDrawerFragment extends Fragment implements
 				.findViewById(R.id.options_toggle);
 
 		options_toggle.setOnClickListener(new OnClickListener() {
-			int imageresource = R.drawable.ic_expand_more_white_24dp;
+			int imageresource = R.drawable.ic_expand_more_white_36dp;
 
 			@Override
 			public void onClick(View v) {
 				RelativeLayout search_layout = (RelativeLayout) mDrawerLayout
 						.findViewById(R.id.search_layout);
-				if (imageresource == R.drawable.ic_expand_less_white_24dp) {
+				if (imageresource == R.drawable.ic_expand_less_white_36dp) {
 					mDrawerListView.setAdapter(mAdapter);
 					search_layout.setVisibility(View.VISIBLE);
 					mDrawerListView
 							.setOnItemClickListener(TaskListItemListener);
-					imageresource = R.drawable.ic_expand_more_white_24dp;
+					imageresource = R.drawable.ic_expand_more_white_36dp;
 
 				} else {
 					mDrawerListView.setAdapter(opt_adapter);
@@ -373,7 +373,7 @@ public class NavigationDrawerFragment extends Fragment implements
 									}
 								}
 							});
-					imageresource = R.drawable.ic_expand_less_white_24dp;
+					imageresource = R.drawable.ic_expand_less_white_36dp;
 				}
 				options_toggle.setImageResource(imageresource);
 				// v.setBackgroundColor(Color.parseColor("#34343434"));

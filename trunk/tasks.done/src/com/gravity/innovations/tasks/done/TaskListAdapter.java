@@ -138,8 +138,8 @@ public class TaskListAdapter extends ArrayAdapter<TaskListModel> {
 		}
 		Resources resources = mActivity.getResources();
 		try {
-			holder.list_icon.setImageDrawable(resources.getDrawable(tasklist.icon_identifier));
-
+			//holder.list_icon.setImageDrawable(resources.getDrawable(tasklist.icon_identifier));
+			holder.list_icon.setImageDrawable(Common.DrawableResouces.changeColor(tasklist.fragmentColor, tasklist.icon_identifier, mActivity));
 		} catch (Exception e) {
 			String msg = "listICON";
 			Log.e(tag, msg);

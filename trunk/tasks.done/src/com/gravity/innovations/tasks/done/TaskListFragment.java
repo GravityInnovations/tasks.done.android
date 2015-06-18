@@ -210,12 +210,7 @@ public class TaskListFragment extends Fragment {
 					.findViewById(R.id.header);
 			tv_listTitle = (TextView) rootView.findViewById(R.id.tasklist_name);
 			try{
-			if (data.title.length()>6)
-			{
-				tv_listTitle.setText(data.title.substring(5));
-			}else{
 				tv_listTitle.setText(data.title);				
-			}
 			}catch(Exception e){
 				String msg = "listTitle";
 				Log.e(tag, msg);	
@@ -335,6 +330,12 @@ public class TaskListFragment extends Fragment {
 			// position of recycle view item
 
 			switch (item.getItemId()) {
+			case R.id.item_view:
+				// TaskModel t = mTaskAdapter.getItem(position);
+				mNavigationDrawerFragment
+				.openTaskDetailsDialog(data,
+						mTaskAdapter.getItem(position));
+				break;
 			case R.id.item_delete:
 				// TaskModel t = mTaskAdapter.getItem(position);
 				mNavigationDrawerFragment.deleteTask(data,

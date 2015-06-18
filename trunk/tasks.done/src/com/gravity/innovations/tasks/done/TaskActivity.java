@@ -13,6 +13,7 @@ import android.app.Dialog;
 import android.app.TimePickerDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.res.Resources;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.net.Uri;
@@ -22,6 +23,7 @@ import android.support.v4.app.DialogFragment;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBarActivity;
 import android.text.Editable;
+import android.text.Html;
 import android.text.InputFilter;
 import android.text.TextWatcher;
 import android.text.format.DateFormat;
@@ -106,7 +108,10 @@ public class TaskActivity extends ActionBarActivity implements OnClickListener {
 		if (list != null)
 			mActionBar.setBackgroundDrawable(new ColorDrawable(Color
 					.parseColor(list.fragmentColor)));
-		mActionBar.setTitle("Task Details");// //>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>???
+		//mActionBar.setTitle("Task Details");// //>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>???
+		mActionBar.setTitle(Html.fromHtml("<font color='#ffffff'>Task Details</font>"));
+		getSupportActionBar().setHomeAsUpIndicator(R.drawable.ic_arrow_back_white_24dp);
+		
 		mActionBar.show();
 		/***********/
 	}
@@ -617,8 +622,11 @@ public class TaskActivity extends ActionBarActivity implements OnClickListener {
 			textView.setTextSize(17);
 			float scale = getResources().getDisplayMetrics().density;
 			int dpAsPixels = (int) (10 * scale + 0.5f);
-			//textView.setPadding(0, dpAsPixels, 0, dpAsPixels);
-			textView.setPadding(0, dpAsPixels, 0, 0);
+//			if (textViewTag == 3){
+//				textView.setPadding(0, dpAsPixels, 0, 0);
+//			}else{
+				textView.setPadding(0, dpAsPixels, 0, dpAsPixels); //original one		
+//			}
 			//textView.setPadding(left, top, right, bottom)
 			textView.setTextColor(Color.parseColor("#757575"));// textColor
 			textView.setBackground(getResources().getDrawable(
@@ -1266,7 +1274,7 @@ public class TaskActivity extends ActionBarActivity implements OnClickListener {
 				// forever
 				if (intervalType == 2) {
 					stringToBeDisplayed = interval + " time/s " + type + " on "
-							+ getNamesOfDays(task.rep_value);
+							+ Common.RepeatConversions.getNamesOfDays(task.rep_value);
 				} else {
 					stringToBeDisplayed = interval + " time/s " + type;
 				}
@@ -1292,36 +1300,6 @@ public class TaskActivity extends ActionBarActivity implements OnClickListener {
 	}
 
 	// Methods Related to Repeat
-
-	private ArrayList<String> getNamesOfDays(String rep_value) {
-		// TODO Auto-generated method stub
-		ArrayList<String> value = new ArrayList<String>();// = "";
-		String[] seperated = rep_value.split(",");
-		for (String temp : seperated) {
-			if (temp.contains("1")) {
-				value.add("Sun");
-			}
-			if (temp.contains("2")) {
-				value.add("Mon");
-			}
-			if (temp.contains("3")) {
-				value.add("Tue");
-			}
-			if (temp.contains("4")) {
-				value.add("Wed");
-			}
-			if (temp.contains("5")) {
-				value.add("Thr");
-			}
-			if (temp.contains("6")) {
-				value.add("Fri");
-			}
-			if (temp.contains("7")) {
-				value.add("Sat");
-			}
-		}
-		return value;
-	}
 
 	// Methods Related to Notifications
 	private void listDialog_notifications(final int tag,

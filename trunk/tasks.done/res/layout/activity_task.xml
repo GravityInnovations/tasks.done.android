@@ -217,7 +217,7 @@
                     android:layout_below="@+id/line4"
                     android:layout_marginRight="10dp"
                     android:layout_toLeftOf="@+id/add_notification_btn"
-                    android:paddingBottom="0dp"
+                    android:paddingBottom="10dp"
                     android:paddingTop="10dp"
                     android:src="@drawable/ic_notifications_grey600_24dp" />
 
@@ -235,6 +235,15 @@
                     android:text="Notifications"
                     android:textColor="@color/textColor"
                     android:textSize="17sp" />
+                <View
+                    android:id="@+id/line_below_add_notification_btn"
+                    android:layout_width="fill_parent"
+                    android:layout_height="1dp"
+                    android:layout_alignLeft="@+id/btn_date_2"
+                    android:layout_alignParentRight="true"
+                    android:layout_below="@+id/add_notification_btn"
+                    android:layout_toLeftOf="@+id/repeat_tv"
+                    android:background="@android:color/transparent" />
 
                 <LinearLayout
                     android:id="@+id/append_btn_linearlayout"
@@ -253,7 +262,7 @@
                     android:layout_below="@+id/append_btn_linearlayout"
                     android:background="@android:color/transparent"
                     android:paddingBottom="10dp"
-                    android:paddingTop="8dp"
+                    android:paddingTop="10dp"
                     android:text="@string/addAnotherNotification"
                     android:textColor="@color/textColor"
                     android:textSize="17sp" />

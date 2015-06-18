@@ -20,6 +20,9 @@ import android.content.Intent;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.Color;
+import android.graphics.ColorFilter;
+import android.graphics.ColorMatrixColorFilter;
+import android.graphics.PorterDuff;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.GradientDrawable;
 import android.graphics.drawable.ShapeDrawable;
@@ -160,6 +163,7 @@ public class Common {
 		public static final int GRAVITY_VALIDATE_USERS = 992;
 		public static final int GRAVITY_GET_TASKS = 991;
 	}
+
 	public static String toDeviceTime(String serverTime) {
 		try {
 
@@ -176,8 +180,7 @@ public class Common {
 			displayFormat.setTimeZone(TimeZone.getTimeZone("UTC"));
 
 			// returns formatted serverDateTime
-			long serverTimeLong = serverDateFormat.parse(
-					serverTime).getTime();
+			long serverTimeLong = serverDateFormat.parse(serverTime).getTime();
 			// 1421135795416;
 			serverTime = displayFormat.format(new Date(serverTimeLong));
 			Log.e("ServerTime", serverTime);
@@ -188,17 +191,18 @@ public class Common {
 			long deviceCurrentTimeLong = System.currentTimeMillis();
 			String deviceTime = displayFormat.format(new Date(
 					deviceCurrentTimeLong));
-			
+
 			return deviceTime;
-			//Log.e("DeviceTime", deviceTime);
+			// Log.e("DeviceTime", deviceTime);
 			// 1421216214567
 			// takes cuurent devive time and convert it to display Format
 		} catch (Exception e) {
 			e.printStackTrace();
 			return "";
-			
+
 		}
 	}
+
 	public static class serviceActions {
 		public static final String START_APP = "startapplication";
 		public static final String RESTART_SERVICE = "restartservice";
@@ -939,7 +943,7 @@ public class Common {
 			model.send_as = 0;
 			return model;
 		}
-		
+
 		public static TaskNotificationsModel atTimeOfEvent(
 				TaskNotificationsModel model) {
 			model.interval = 0; // 0
@@ -1192,6 +1196,22 @@ public class Common {
 			}
 			return hex;
 		}
+		
+		public static Drawable changeColor(String hex, int resource , Activity mActivity){
+			
+			Drawable mDrawable = mActivity.getResources().getDrawable(resource);
+			mDrawable.setColorFilter(Color.WHITE, PorterDuff.Mode.MULTIPLY);
+			int iColor =  Color.parseColor(hex);
+			int red = (iColor & 0xFF0000) / 0xFFFF;
+			int green = (iColor & 0xFF00) / 0xFF;
+			int blue = iColor & 0xFF;
+			float[] matrix = { 0, 0, 0, 0, red, 0, 0, 0, 0, green, 0, 0, 0, 0,
+					blue, 0, 0, 0, 1, 0 };
+			ColorFilter colorFilter = new ColorMatrixColorFilter(matrix);
+			mDrawable.setColorFilter(colorFilter);
+
+			return mDrawable;
+		}
 	}
 
 	public static class Arrays {
@@ -1432,5 +1452,144 @@ public class Common {
 					.getSystemService(Context.NOTIFICATION_SERVICE);
 			notificationManager.cancel(id);
 		}
+	}
+
+	public static class RepeatConversions {
+		public static String getIntervalType(int _interval) {
+			String repeatInterval = null;
+			if (_interval == 0) {
+				repeatInterval = "Does Not Repeat";
+			} else if (_interval == 1) {
+				repeatInterval = "Every day";
+			} else if (_interval == 1) {
+				repeatInterval = "Every day";
+			} else if (_interval == 2) {
+				repeatInterval = "Every week";
+			} else if (_interval == 3) {
+				repeatInterval = "Every month";
+			} else if (_interval == 3) {
+				repeatInterval = "Every year";
+			} else if (_interval == 4) {
+				repeatInterval = "Custom";
+			}
+			return repeatInterval;
+		}
+
+		public static ArrayList<String> getNamesOfDays(String rep_value) {
+			ArrayList<String> value = new ArrayList<String>();// = "";
+			String[] seperated = rep_value.split(",");
+			for (String temp : seperated) {
+				if (temp.contains("1")) {
+					value.add("Sun");
+				}
+				if (temp.contains("2")) {
+					value.add("Mon");
+				}
+				if (temp.contains("3")) {
+					value.add("Tue");
+				}
+				if (temp.contains("4")) {
+					value.add("Wed");
+				}
+				if (temp.contains("5")) {
+					value.add("Thr");
+				}
+				if (temp.contains("6")) {
+					value.add("Fri");
+				}
+				if (temp.contains("7")) {
+					value.add("Sat");
+				}
+			}
+			return value;
+		}
+
+		public static String[] getNotificationsArray(TaskModel task) {
+			int i = 0;
+			String notificationsArray[] = new String[task.notifications.size()];
+			for (TaskNotificationsModel notificationModel : task.notifications) {
+				
+				int unitOfTime_type = notificationModel.interval_type;
+				String unitOfTime = null;
+				if (unitOfTime_type == 1) {
+					unitOfTime = " minute/s ";
+				} else if (unitOfTime_type == 2) {
+					unitOfTime = " hour/s ";
+				} else if (unitOfTime_type == 3) {
+					unitOfTime = " days/s ";
+				} else if (unitOfTime_type == 4) {
+					unitOfTime = " weeks/s ";
+				}
+				if (notificationModel.send_as == 1) {
+					notificationsArray[i] = notificationModel.interval
+							+ unitOfTime + " before, as email";
+					i++;
+				} else {
+					notificationsArray[i] = notificationModel.interval
+							+ unitOfTime + " before";
+					i++;
+				}
+
+			}
+			return notificationsArray;
+		}
+
+		
+		public static String getRepeatString(TaskModel task) {
+			// tv_repeat.setText(task.repetition.)
+			// based on combinations it should return some text and that text will
+			// be displayed at this text view
+			int interval = task.rep_interval;
+			// interval = number of days or weeks or months or years
+			int intervalType = task.rep_intervalType;
+			String type = null;
+			String stringToBeDisplayed = null;
+			if (interval == 0) {
+				stringToBeDisplayed = "Does not repeat";
+			} else if (interval > 0) {
+				if (intervalType == 1) {
+					// day or days
+					type = "every day";
+				} else if (intervalType == 2) {
+					// week or weeks
+					type = "every week";
+				} else if (intervalType == 3) {
+					// monthly
+					type = "every month";
+				} else if (intervalType == 4) {
+					// yearly
+					type = "every year";
+				}
+				if (task.rep_intervalExpiration == null
+						|| task.rep_intervalExpiration.isEmpty()) {
+					// forever
+					if (intervalType == 2) {
+						stringToBeDisplayed = interval + " time/s " + type + " on "
+								+ Common.RepeatConversions.getNamesOfDays(task.rep_value);
+					} else {
+						stringToBeDisplayed = interval + " time/s " + type;
+					}
+				} else if (task.rep_intervalExpiration != null
+						|| !(task.rep_intervalExpiration.isEmpty())) {
+					// then its either a date or number of events
+					if (Integer.parseInt(task.rep_intervalExpiration) >= 1
+							&& Integer.parseInt(task.rep_intervalExpiration) <= 730) {
+						// its number of events
+						String numberOfEvents = task.rep_intervalExpiration;
+						stringToBeDisplayed = interval + " time/s " + type
+								+ " for " + numberOfEvents + " events ";
+					} else {
+						// its a long date/ expire datenumberOfEvents
+						String date = task.rep_intervalExpiration;
+						stringToBeDisplayed = interval + " time/s " + type
+								+ " util " + date + " ";
+					}
+
+				}
+			}
+			return stringToBeDisplayed;
+		}
+		
+		
 	}
 }

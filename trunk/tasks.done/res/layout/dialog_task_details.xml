@@ -41,6 +41,7 @@
             android:layout_height="wrap_content"
             android:layout_below="@+id/txt_time_synced"
             android:ellipsize="end"
+            android:lines="1"
             android:shadowColor="#242424"
             android:shadowDx="2"
             android:shadowDy="2"
@@ -99,96 +100,91 @@
 
     <TabHost
         android:id="@+id/TabHost01"
-        android:layout_width="fill_parent"
+        android:layout_width="match_parent"
         android:layout_height="fill_parent"
         android:layout_above="@+id/detail_done_toggle"
         android:layout_below="@+id/LL1" >
 
-        <RelativeLayout
-            android:layout_width="fill_parent"
-            android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:padding="5dp" >
+        <LinearLayout 
+                android:layout_width="fill_parent" 
+                android:layout_height="fill_parent"
+                android:orientation="vertical">
 
-            <FrameLayout
-                android:id="@android:id/tabcontent"
-                android:layout_width="fill_parent"
-                android:layout_height="wrap_content"
-                android:padding="5dp" >
-
-                <ScrollView
-                    android:id="@+id/ScrollView01"
+                <FrameLayout
+                    android:id="@android:id/tabcontent"
                     android:layout_width="fill_parent"
-                    android:layout_height="wrap_content" >
+                     android:layout_height="0dip"
+                        android:layout_weight="1" 
+                    android:padding="5dp" >
 
-                    <LinearLayout
-                        android:id="@+id/lltab1"
+                    <ScrollView
+                        android:id="@+id/ScrollView01"
                         android:layout_width="fill_parent"
-                        android:layout_height="fill_parent"
-                        android:orientation="vertical" >
+                        android:layout_height="wrap_content" >
 
-                        <TextView
-                            android:id="@+id/TextView01"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:gravity="center_horizontal"
-                            android:paddingBottom="15dip"
-                            android:paddingLeft="15dip"
-                            android:paddingRight="20dip"
-                            android:paddingTop="15dip"
-                            android:text="SecondTab"
-                            android:visibility="gone" />
-
-                        <TextView
-                            android:id="@+id/ttl_details"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_marginTop="10dp"
-                            android:text="Details"
-                            android:textSize="18sp" />
-
-                        <View
+                        <LinearLayout
+                            android:id="@+id/lltab1"
                             android:layout_width="fill_parent"
-                            android:layout_height="1dip"
-                            android:background="#cecece" />
+                            android:layout_height="fill_parent"
+                            android:orientation="vertical" >
 
-                        <TextView
-                            android:id="@+id/txt_details"
-                            android:layout_width="fill_parent"
-                            android:layout_height="wrap_content"
-                            android:scrollbars="vertical"
-                            android:text="some details here"
-                            android:textColor="@color/textColor"
-                            android:textSize="14sp" />
+                            <TextView
+                                android:id="@+id/TextView01"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:gravity="center_horizontal"
+                                android:paddingBottom="15dip"
+                                android:paddingLeft="15dip"
+                                android:paddingRight="20dip"
+                                android:paddingTop="15dip"
+                                android:text="SecondTab"
+                                android:visibility="gone" />
 
-                        <TextView
-                            android:id="@+id/ttl_notes"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_marginTop="10dp"
-                            android:text="Notes"
-                            android:textSize="18sp" />
+                            <TextView
+                                android:id="@+id/ttl_details"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_marginTop="10dp"
+                                android:text="Details"
+                                android:textSize="16sp" />
 
-                        <View
-                            android:layout_width="fill_parent"
-                            android:layout_height="1dip"
-                            android:background="#cecece" />
+                            <View
+                                android:layout_width="fill_parent"
+                                android:layout_height="1dip"
+                                android:background="#cecece" />
 
-                        <TextView
-                            android:id="@+id/txt_notes"
-                            android:layout_width="fill_parent"
-                            android:layout_height="wrap_content"
-                            android:scrollbars="vertical"
-                            android:text="some notes here"
-                            android:textColor="@color/textColor"
-                            android:textSize="14sp" />
-                    </LinearLayout>
-                </ScrollView>
+                            <TextView
+                                android:id="@+id/txt_details"
+                                android:layout_width="fill_parent"
+                                android:layout_height="wrap_content"
+                                android:scrollbars="vertical"
+                                android:text="some details here"
+                                android:textColor="@color/textColor"
+                                android:textSize="12sp" />
 
-                <ScrollView
-                    android:id="@+id/ScrollView02"
-                    android:layout_width="fill_parent"
-                    android:layout_height="wrap_content" >
+                            <TextView
+                                android:id="@+id/ttl_notes"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_marginTop="10dp"
+                                android:text="Notes"
+                                android:textSize="16sp" />
+
+                            <View
+                                android:layout_width="fill_parent"
+                                android:layout_height="1dip"
+                                android:background="#cecece" />
+
+                            <TextView
+                                android:id="@+id/txt_notes"
+                                android:layout_width="fill_parent"
+                                android:layout_height="wrap_content"
+                                android:scrollbars="vertical"
+                                android:text="some notes here"
+                                android:textColor="@color/textColor"
+                                android:textSize="12sp" />
+                        </LinearLayout>
+                    </ScrollView>
 
                     <LinearLayout
                         android:id="@+id/lltab2"
@@ -205,7 +201,7 @@
                             android:paddingLeft="15dip"
                             android:paddingRight="20dip"
                             android:paddingTop="15dip"
-                            android:text="AsliSecondTab"
+                            android:text="SecondTab"
                             android:visibility="gone" />
 
                         <TextView
@@ -214,33 +210,49 @@
                             android:layout_height="wrap_content"
                             android:layout_marginTop="10dp"
                             android:text="Reminders"
-                            android:textSize="18sp" />
+                            android:textSize="16sp" />
 
                         <View
                             android:layout_width="fill_parent"
                             android:layout_height="1dip"
                             android:background="#cecece" />
 
-<!--                         <CalendarView -->
-<!--                             android:layout_width="match_parent" -->
-<!--                             android:layout_height="wrap_content" /> -->
-<!--                        Instead use textViews to populate data for each notificaiton and repeatValues -->
-<!--                         <com.gravity.innovations.custom.views.CalendarView -->
-<!--                         android:id="@+id/calendar1" -->
-<!--                         android:layout_width="match_parent" -->
-<!--                         android:layout_height="wrap_content" > -->
-<!--                         </com.gravity.innovations.custom.views.CalendarView> -->
-                        
-                    </LinearLayout>
-                </ScrollView>
-            </FrameLayout>
+                        <TextView
+                            android:id="@+id/tv_repeat_string"
+                            android:layout_width="fill_parent"
+                            android:layout_height="wrap_content"
+                            android:scrollbars="vertical"
+                            android:text="Does Not Repeat"
+                            android:textColor="@color/textColor"
+                            android:textSize="12sp" />
 
-            <TabWidget
-                android:id="@android:id/tabs"
-                android:layout_width="fill_parent"
-                android:layout_height="wrap_content"
-                android:layout_alignParentBottom="true" />
-        </RelativeLayout>
+                        <TextView
+                            android:id="@+id/ttl_notifications"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="10dp"
+                            android:text="Notifications"
+                            android:textSize="16sp" />
+
+                        <View
+                            android:layout_width="fill_parent"
+                            android:layout_height="1dip"
+                            android:background="#cecece" />
+
+                        <ListView
+                            android:id="@+id/lv_notification_details"
+                            android:layout_width="fill_parent"
+                            android:layout_height="fill_parent" >
+                        </ListView>
+                    </LinearLayout>
+                </FrameLayout>
+
+                <TabWidget
+                    android:id="@android:id/tabs"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentBottom="true" />
+            </LinearLayout>
     </TabHost>
 
 </RelativeLayout>

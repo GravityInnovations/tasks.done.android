@@ -10,9 +10,11 @@ import com.gravity.innovations.custom.views.CalendarView;
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.FragmentManager.OnBackStackChangedListener;
+import android.database.DataSetObserver;
 import android.graphics.Color;
 import android.net.Uri;
 import android.os.AsyncTask;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.annotation.Nullable;
@@ -26,7 +28,10 @@ import android.view.View.OnClickListener;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.view.ViewGroup;
+import android.widget.ArrayAdapter;
 import android.widget.ImageView;
+import android.widget.ListAdapter;
+import android.widget.ListView;
 import android.widget.TabHost;
 import android.widget.TextView;
 
@@ -43,6 +48,12 @@ public class DialogViewFragment extends DialogFragment {
 	private CalendarView cal;
 	private Activity mActivity;
 	private String TAG = "DialogViewFragment";
+ 	private TextView tv_repeat_string;	
+//	private TextView tv_repeat_type;
+//	private TextView tv_repeat_interval;
+//	private TextView tv_repeat_expiration;
+//	private TextView tv_repeat_value;
+	private ListView notification_listView;
 
 	public DialogViewFragment(TaskListModel listModel, TaskModel taskModel,
 			NavigationDrawerFragment ndf, Activity activity) {
@@ -73,22 +84,22 @@ public class DialogViewFragment extends DialogFragment {
 		view = inflater.inflate(R.layout.dialog_task_details, container);
 		TabHost tabHost = (TabHost) view.findViewById(R.id.TabHost01);
 		tabHost.setup();
-
 		// create tab 1
 		TabHost.TabSpec spec1 = tabHost.newTabSpec("tab1");
-		spec1.setIndicator(
-				"Details",
-				getActivity().getResources().getDrawable(
-						R.drawable.ic_add_grey600_18dp));
+		spec1.setIndicator("Details");
+//		spec1.setIndicator(
+//				"Details",
+//				getActivity().getResources().getDrawable(
+//						R.drawable.ic_add_grey600_18dp));
 		spec1.setContent(R.id.lltab1);
 
 		tabHost.addTab(spec1);
 		// create tab2
+
 		TabHost.TabSpec spec2 = tabHost.newTabSpec("tab2");
-		spec2.setIndicator(
-				"Reminders",
-				getActivity().getResources().getDrawable(
-						R.drawable.ic_close_grey600_24dp));
+		spec2.setIndicator("Reminders");
+//		spec2.setIndicator("Reminders", getActivity().getResources()
+//				.getDrawable(R.drawable.ic_close_grey600_24dp));
 		spec2.setContent(R.id.lltab2);
 		tabHost.addTab(spec2);
 
@@ -106,7 +117,6 @@ public class DialogViewFragment extends DialogFragment {
 	@Override
 	public void onActivityCreated(Bundle arg0) {
 		super.onActivityCreated(arg0);
-		int MAX_CHARS = 7;
 		tv_title = (TextView) view.findViewById(R.id.txt_task_name);
 		tv_details = (TextView) view.findViewById(R.id.txt_details);
 		tv_details.setMovementMethod(new ScrollingMovementMethod());
@@ -114,7 +124,11 @@ public class DialogViewFragment extends DialogFragment {
 		tv_notes.setMovementMethod(new ScrollingMovementMethod());
 		tv_updated = (TextView) view.findViewById(R.id.txt_time_updated);
 		tv_sync_time = (TextView) view.findViewById(R.id.txt_time_synced);
-		//cal = (CalendarView) view.findViewById(R.id.calendar1);
+		// cal = (CalendarView) view.findViewById(R.id.calendar1);
+		notification_listView = (ListView) view.findViewById(R.id.lv_notification_details);
+		
+		tv_repeat_string = (TextView) view.findViewById(R.id.tv_repeat_string);
+		
 		markDoneToggle = (ImageView) view.findViewById(R.id.detail_done_toggle);
 
 		taskEdit = (ImageView) view
@@ -126,8 +140,28 @@ public class DialogViewFragment extends DialogFragment {
 		taskDelete = (ImageView) view
 				.findViewById(R.id.btn_delete_task_detail_dialog);
 
-
+		try{
+			tv_repeat_string.setText(Common.RepeatConversions.getRepeatString(taskModel));		
+			}
+		catch(Exception e){
+			Log.e(TAG, "tv_repeat_string");
+		}
 		
+		try {
+			
+			String[] notificationArray = Common.RepeatConversions.getNotificationsArray(taskModel);
+			if (notificationArray.length == 0){
+				notificationArray = new String[1];
+				notificationArray[0] = "has not notification yet";
+			}
+			ArrayAdapter<String> adapter = new ArrayAdapter<String>(mActivity,
+					  R.layout.row_notification, R.id.tv_notification,
+					notificationArray);
+			notification_listView.setAdapter(adapter);
+		} catch (Exception e) {
+			Log.e(TAG, "notification_listView");
+		}
+
 		try {
 			// assigning title
 			if (taskModel.title.toLowerCase().contains("call")
@@ -145,33 +179,17 @@ public class DialogViewFragment extends DialogFragment {
 					uri = uri.substring(6);
 					type = "Email ";
 				}
-				String temp = type
+				tv_title.setText(type
 						+ Common.ContactStringConversion.getDisplayName(
-								Uri.parse(uri), mActivity);
-
-				if (temp.length() > MAX_CHARS) {
-					tv_title.setText(temp.substring(0, MAX_CHARS) + "...");
-				} else {
-					tv_title.setText(temp);
-				}
-
+								Uri.parse(uri), mActivity));
 			} else {
-				// tv_title.setText(taskModel.title.toString());
-
-				if (taskModel.title.length() > MAX_CHARS) {
-					String temp = taskModel.title.toString().substring(0,
-							MAX_CHARS)
-							+ "...";
-					tv_title.setText(temp);
-				} else {
 					tv_title.setText(taskModel.title);
-				}
 			}
 		} catch (Exception e) {
 			tv_title.setText("title");
 			Log.e(TAG, "title was missing");
 		}
-		
+
 		try {
 			// assigning details
 			tv_details.setText(taskModel.details.toString());
@@ -187,7 +205,6 @@ public class DialogViewFragment extends DialogFragment {
 			Log.e(TAG, "notes were missing");
 		}
 
-		
 		// long to string time formatting
 		SimpleDateFormat formatter = new SimpleDateFormat("yyyy/MM/dd " + " "
 				+ "hh:MM:ss");
