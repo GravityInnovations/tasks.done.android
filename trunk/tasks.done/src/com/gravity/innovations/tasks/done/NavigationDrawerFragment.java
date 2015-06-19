@@ -860,7 +860,8 @@ public class NavigationDrawerFragment extends Fragment implements
 
 				} else {
 					if (tasklist.title.length() != 0) {
-						int nRows = db.tasklists.Edit(tasklist);
+						
+						int nRows = db.tasklists.Edit(tasklist,false);
 						if (nRows > 0) {
 							editTaskList(tasklist);
 						}
@@ -910,7 +911,7 @@ public class NavigationDrawerFragment extends Fragment implements
 			}
 		}
 	}
-
+	
 	public void addUserShareInAdapter(String tasklistId, String userids,
 			boolean updateUsersAdapter) {
 
@@ -1022,11 +1023,7 @@ public class NavigationDrawerFragment extends Fragment implements
 			public void onClick(DialogInterface dialog, int which) {
 				try {
 					db.tasklists.Delete(tasklist._id);
-					removeTaskList(tasklist);
-					/**
-					 * update data
-					 */
-					mAdapter.updateData(data); // update data
+					delete_tasklist_on_ui(tasklist);
 					/**
 					 * update data
 					 */
@@ -1046,7 +1043,14 @@ public class NavigationDrawerFragment extends Fragment implements
 		Common.CustomDialog.set(mContext, R.string.delete, R.string.cancel,
 				negListener, posListener, R.string.delete_message_list);
 	}
-
+	public void delete_tasklist_on_ui(TaskListModel tasklist)
+	{
+		removeTaskList(tasklist);
+		/**
+		 * update data
+		 */
+		mAdapter.updateData(data); // update data
+	}
 	private void removeTaskList(TaskListModel temp) {
 		int position = 0;// this.mAdapter.getPosition(temp);
 		boolean flag = false;

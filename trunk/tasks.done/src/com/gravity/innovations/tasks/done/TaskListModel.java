@@ -122,6 +122,10 @@ public class TaskListModel implements Serializable {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
+		catch(Exception e)
+		{
+			
+		}
 		return temp.toString();
 	}
 	public TaskModel GetTask(int id) {

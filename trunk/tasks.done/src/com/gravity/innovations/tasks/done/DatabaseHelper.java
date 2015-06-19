@@ -445,21 +445,66 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 		}
 
 		public int Add(TaskListModel tasklist) {
-			SQLiteDatabase db = getWritableDatabase();
-			tasklist.DateCreated = DateHelper.deviceDefaultTime();//String.valueOf(system_time);
-			tasklist.DateUpdated = DateHelper.deviceDefaultTime();//String.valueOf(system_time);
-			//tasklist.syncStatus = "Unsynced";
-			ContentValues values = setContent(tasklist);
+			boolean flag = true;
+			if(tasklist.server_id!=null && !tasklist.server_id.equals(""))
+			{
+				if((Get(tasklist.server_id))._id != -1) flag=false;
+			}
 			
-			int id = (int) db.insert(TABLE_TASK_LIST, null, values);
-			tasklist._id = id;
-			db.close();
-			service.mSyncHelper.sync_tasklist(tasklist);
-			return id;
+			if(flag){
+				SQLiteDatabase db = getWritableDatabase();
+				tasklist.DateCreated = DateHelper.deviceDefaultTime();//String.valueOf(system_time);
+				tasklist.DateUpdated = DateHelper.deviceDefaultTime();//String.valueOf(system_time);
+				//tasklist.syncStatus = "Unsynced";
+				ContentValues values = setContent(tasklist);
+				
+				int id = (int) db.insert(TABLE_TASK_LIST, null, values);
+				tasklist._id = id;
+				db.close();
+				service.mSyncHelper.sync_tasklist(tasklist);
+				return id;
+			}
+			return -1;
 		}
 		
 		public boolean Delete(int id) {
+			TaskListModel tasklist = Get(id);
+			
 			SQLiteDatabase db = getWritableDatabase();
+			
+			tasklist.syncStatus = "Delete";
+			ContentValues values = setContent(tasklist);
+			
+			if(db.update(TABLE_TASK_LIST, values, KEY_PK + " = ?",
+					new String[] { String.valueOf(tasklist._id) })>0)
+			{
+				db.close();
+				if(tasklist.server_id!=null && !tasklist.server_id.equals(""))
+				{
+					service.mSyncHelper.sync_tasklist(tasklist);
+				}
+				return true;
+			}
+			else{
+				return false;
+			}
+			/*if (db.delete(TABLE_TASK_LIST, KEY_PK + " = ?",
+					new String[] { String.valueOf(id) }) > 0) {
+				db.close();
+				if(tasklist.server_id!=null && !tasklist.server_id.equals(""))
+				{
+					service.mSyncHelper.sync_tasklist(tasklist);
+				}
+				return true;
+			}
+			db.close();
+			return false;*/
+		}
+		public boolean ActualDelete(int id) {
+			
+			SQLiteDatabase db = getWritableDatabase();
+			
+			
 			if (db.delete(TABLE_TASK_LIST, KEY_PK + " = ?",
 					new String[] { String.valueOf(id) }) > 0) {
 				db.close();
@@ -468,15 +513,33 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 			db.close();
 			return false;
 		}
-
-		public int Edit(TaskListModel tasklist) {
+		public int Edit(TaskListModel tasklist,boolean setSynced) {
+			TaskListModel orignal = Get(tasklist._id);
 			SQLiteDatabase db = getWritableDatabase();
 			tasklist.DateUpdated = DateHelper.deviceDefaultTime();//String.valueOf(system_time);
 			
-			ContentValues values = setContent(tasklist);
+			tasklist.DateCreated = orignal.DateCreated;
 			
-			return db.update(TABLE_TASK_LIST, values, KEY_PK + " = ?",
+			/*if(tasklist.syncStatus.equals("Synced"))
+			{
+				tasklist.syncStatus = "Unsynced";
+			}*/
+			if(setSynced)
+			{
+			
+				tasklist.syncStatusTimeStamp = DateHelper.deviceDefaultTime();
+				tasklist.syncStatus = "Synced";
+			}
+			else
+				tasklist.syncStatus = "UnSynced";
+			ContentValues values = setContent(tasklist);
+			int id = db.update(TABLE_TASK_LIST, values, KEY_PK + " = ?",
 					new String[] { String.valueOf(tasklist._id) });
+			//tasklist._id = id;
+			db.close();
+			if(!setSynced)
+			service.mSyncHelper.sync_tasklist(tasklist);
+			return id;
 		}
 		public int SetSynced(TaskListModel tasklist) {
 			SQLiteDatabase db = getWritableDatabase();
@@ -487,11 +550,12 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 			return db.update(TABLE_TASK_LIST, values, KEY_PK + " = ?",
 					new String[] { String.valueOf(tasklist._id) });
 		}
+		
 		public ArrayList<TaskListModel> Get() {
 			ArrayList<TaskListModel> data = new ArrayList<TaskListModel>();
 			try {
 				// Select All Query
-				String selectQuery = "SELECT  * FROM " + TABLE_TASK_LIST;
+				String selectQuery = "SELECT  * FROM " + TABLE_TASK_LIST + " WHERE "+ KEY_SYNC_STATUS+"!= 'Delete'"  ;
 				SQLiteDatabase db = getWritableDatabase();
 				Cursor cursor = db.rawQuery(selectQuery, null);
 				// looping through all rows and adding to list

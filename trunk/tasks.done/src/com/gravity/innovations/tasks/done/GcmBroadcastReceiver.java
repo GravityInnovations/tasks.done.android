@@ -83,12 +83,19 @@ public class GcmBroadcastReceiver extends WakefulBroadcastReceiver {
 			 {
 				
 				 	//TaskListModel mTaskList = mService.db.tasklists.Get(dataid);
-				 	TaskListModel Temp = new TaskListModel(bundle,mService.user_data, mService.db);
-				 	Temp._id = dataid;
-				 	
-				 	Temp.syncStatus = "Synced";
-				 	Temp.syncStatusTimeStamp = DateHelper.deviceDefaultTime();
-					mService.response_new_tasklist(Temp);
+				 	if(cmd.equals(CMD_ADD) || cmd.equals(CMD_EDIT)){
+					 	TaskListModel Temp = new TaskListModel(bundle,mService.user_data, mService.db);
+					 	Temp._id = dataid;
+					 	
+					 	//Temp.syncStatus = "Synced";
+					 	
+						mService.response_add_or_edit_tasklist(Temp);
+				 	}
+				 	else if(cmd.equals(CMD_DELETE))
+				 	{
+				 		TaskListModel temp = mService.db.tasklists.Get(dataid);
+				 		mService.response_delete_tasklist(temp);
+				 	}
 				 	//temp.server_id = data.optString("TaskListId");
 					//temp.DateUpdated = data.optString("updated");
 				 	
@@ -101,6 +108,10 @@ public class GcmBroadcastReceiver extends WakefulBroadcastReceiver {
 					 {
 						 
 						 mService.json_add_tasklist(bundle);
+					 }
+					 else if(cmd.equals(CMD_EDIT))
+					 {
+						 //mService.jso
 					 }
 				 }
 				 else if(datatype == DATA_TASK)

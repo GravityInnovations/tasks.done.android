@@ -1757,19 +1757,43 @@ public class AppHandlerService extends Service implements
 				}
 			
 	}
-	public void response_new_tasklist(TaskListModel temp)
+	public void delete_tasklist_on_ui(TaskListModel temp)
+	{
+		if (FocusedActivity != null
+				&& FocusedActivity.getClass() == MainActivity.class) {
+			
+					// TODO Auto-generated method stub
+					((MainActivity)FocusedActivity).mNavigationDrawerFragment.delete_tasklist_on_ui(temp);
+					
+				}
+			
+	}
+	public void response_add_or_edit_tasklist(TaskListModel temp)
 	{
 		
-		if(db.tasklists.Edit(temp)>0)
+		if(db.tasklists.Edit(temp,true)>0 )
 		{
 				//mSyncHelper.remove_tasklist(temp);
-				update_tasklist_on_ui(temp);
+				;
+				update_tasklist_on_ui(db.tasklists.Get(temp.server_id));
 				//navigation drawer update tasklist
 				
 			
 		}
 	}
-	
+	public void response_delete_tasklist(TaskListModel temp)
+	{
+		db.tasklists.ActualDelete(temp._id);
+//		if(db.tasklists.Delete(temp._id))
+//		{
+//				//mSyncHelper.remove_tasklist(temp);
+//				
+//				//delete_tasklist_on_ui(temp);
+//				//navigation drawer update tasklist
+//				
+//			
+//		}
+	}
 	public void response_share_add_tasklist(TaskListModel tasklist,UserModel owner,JSONArray users, boolean self)
 	{
 		if(!self)
