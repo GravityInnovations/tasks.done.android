@@ -4,6 +4,10 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Calendar;
 
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
 public class TaskModel implements Comparable, Serializable {
 	
 	
@@ -42,7 +46,32 @@ public class TaskModel implements Comparable, Serializable {
 		this._id = -1;
 		updateTimeNow();
 	}
-
+	public TaskModel(JSONObject taskObj,int tasklist_id)
+	{
+		//TaskModel taskModel = new TaskModel();
+		//JSONObject taskObj = tasks.getJSONObject(j);
+		this.title = taskObj.optString("Title");
+		this.details = taskObj.optString("Details");
+		this.notes = taskObj.optString("Notes");
+		if(taskObj.optBoolean("Completed"))
+		this.completed = 1;//.optString("Title");
+		else this.completed = 0;
+		this.server_id =  taskObj.optString("TaskId");//
+		if(taskObj.optBoolean("isAllDay"))
+			this.allDay = 1;//.optString("Title");
+			else this.allDay = 0;
+		this.DateCreated = DateHelper.UtcZTimeToDeviceDefaultTime(taskObj.optString("DateUpdated"));//Common.toDeviceTime(temp.optString("DateUpdated"));
+		this.DateUpdated =  DateHelper.UtcZTimeToDeviceDefaultTime(taskObj.optString("DateUpdated"));
+		this.startDateTime =  DateHelper.UtcZTimeToDeviceDefaultTime(taskObj.optString("DateUpdated"));
+		this.endDateTime =  DateHelper.UtcZTimeToDeviceDefaultTime(taskObj.optString("DateUpdated"));
+		this.rep_interval = taskObj.optInt("Rep_Interval");
+		this.rep_intervalType = taskObj.optInt("Rep_Type");
+		this.rep_intervalExpiration = taskObj.optString("Rep_Expiration");//>>>>>>>>>>>>>>>>>>>>cross check for date
+		this.rep_value = taskObj.optString("Rep_Value");
+		this.syncStatus = "Synced";
+		
+		this.fk_tasklist_id = tasklist_id;
+	}
 	public TaskModel(String title, String _task_details, String _task_notes,
 			int fk) {
 		// started editing form this constructor

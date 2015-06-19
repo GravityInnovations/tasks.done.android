@@ -1,5 +1,6 @@
 package com.gravity.innovations.tasks.done;
 
+import java.sql.Date;
 import java.util.ArrayList;
 import android.content.ContentValues;
 import android.content.Context;
@@ -445,18 +446,18 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
 		public int Add(TaskListModel tasklist) {
 			SQLiteDatabase db = getWritableDatabase();
+			tasklist.DateCreated = DateHelper.deviceDefaultTime();//String.valueOf(system_time);
+			tasklist.DateUpdated = DateHelper.deviceDefaultTime();//String.valueOf(system_time);
+			//tasklist.syncStatus = "Unsynced";
 			ContentValues values = setContent(tasklist);
+			
 			int id = (int) db.insert(TABLE_TASK_LIST, null, values);
 			tasklist._id = id;
 			db.close();
-			if (id != -1 && tasklist.server_id == "" && service.hasInternet
-					&& service.user_data.is_sync_type) {
-				GravityController.post_tasklist(service, service.user_data,
-						tasklist, -1);
-			}
+			service.mSyncHelper.sync_tasklist(tasklist);
 			return id;
 		}
-
+		
 		public boolean Delete(int id) {
 			SQLiteDatabase db = getWritableDatabase();
 			if (db.delete(TABLE_TASK_LIST, KEY_PK + " = ?",
@@ -470,11 +471,22 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
 		public int Edit(TaskListModel tasklist) {
 			SQLiteDatabase db = getWritableDatabase();
+			tasklist.DateUpdated = DateHelper.deviceDefaultTime();//String.valueOf(system_time);
+			
 			ContentValues values = setContent(tasklist);
+			
 			return db.update(TABLE_TASK_LIST, values, KEY_PK + " = ?",
 					new String[] { String.valueOf(tasklist._id) });
 		}
-
+		public int SetSynced(TaskListModel tasklist) {
+			SQLiteDatabase db = getWritableDatabase();
+			//tasklist.DateUpdated = DateHelper.deviceDefaultTime();//String.valueOf(system_time);
+			tasklist.syncStatus = "Synced";
+			ContentValues values = setContent(tasklist);
+			
+			return db.update(TABLE_TASK_LIST, values, KEY_PK + " = ?",
+					new String[] { String.valueOf(tasklist._id) });
+		}
 		public ArrayList<TaskListModel> Get() {
 			ArrayList<TaskListModel> data = new ArrayList<TaskListModel>();
 			try {

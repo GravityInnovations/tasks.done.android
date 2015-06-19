@@ -4,9 +4,12 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.InputStream;
 import java.lang.Thread.UncaughtExceptionHandler;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
+import java.util.TimeZone;
 import java.util.TimerTask;
 
 import org.json.JSONArray;
@@ -84,6 +87,7 @@ public class AppHandlerService extends Service implements
 	public DatabaseHelper db = null;
 	public boolean hasInternet = false;
 	private NotificationHandler nH= null;
+	public SyncHelper mSyncHelper=  new SyncHelper(this);
 	ArrayList<Common.AlertData> pendingAlerts = new ArrayList<Common.AlertData>();
 	//private ArrayList<>
 	public AppHandlerService() {
@@ -201,6 +205,7 @@ public class AppHandlerService extends Service implements
 			AppStateIntent = new Intent(this, SplashActivity.class);
 			AppStateClassName = SplashActivity.class.getName();
 			user_data = new Common.userData();
+			
 			LoadLocalDB();
 			nH = new NotificationHandler(this, db.tasks.GetsPendingTasks().size());
 			
@@ -1085,12 +1090,31 @@ public class AppHandlerService extends Service implements
 
 		}
 	}
-
+	public void putSyncPreference(String value)
+	{
+		if(mSharedPreferencesEditor== null){
+		mSharedPreferences = getSharedPreferences(Common.SHARED_PREF_KEY,
+				MODE_MULTI_PROCESS);
+		mSharedPreferencesEditor = mSharedPreferences.edit();
+		}
+		mSharedPreferencesEditor.putString(Common.PENDING_TASKLISTS, value);
+		mSharedPreferencesEditor.commit();
+	}
+	public SharedPreferences getPreference()
+	{
+		if(mSharedPreferencesEditor== null){
+		mSharedPreferences = getSharedPreferences(Common.SHARED_PREF_KEY,
+				MODE_MULTI_PROCESS);
+		
+		}
+		return mSharedPreferences;//.getString(Common.PENDING_TASKLISTS,"");
+	}
 	@Override
 	public void LoadPreferences() {
 		mSharedPreferences = getSharedPreferences(Common.SHARED_PREF_KEY,
 				MODE_MULTI_PROCESS);
 		mSharedPreferencesEditor = mSharedPreferences.edit();
+		
 		user_data.mac = mSharedPreferences.getString(Common.DEVICE_MAC, "");
 		if(user_data.mac == "" || user_data.mac.equals("")){
 			user_data.mac =  getDeviceMac();
@@ -1314,7 +1338,7 @@ public class AppHandlerService extends Service implements
 			addProgressTask(e.getLocalizedMessage());
 		}
 	}
-
+	
 	@Override
 	public void SyncAppData() {
 		// TODO Auto-generated method stub
@@ -1338,109 +1362,15 @@ public class AppHandlerService extends Service implements
 //	                "DateUpdated": "2015-06-16T10:25:26.5",
 //	                "OwnerId": "1b701633-69b8-4960-98ef-4c79dabeb7d1",
 				JSONObject temp = arr_data.getJSONObject(i);
-				TaskListModel model = new TaskListModel(
-						temp.getString("Title"));
+				json_add_tasklist(temp);
 				
-				model.syncStatus = "Synced";
-				model.server_id = temp.optString("TaskListId");
-				model.DateUpdated = Common.toDeviceTime(temp.optString("DateUpdated"));//temp.optString("DateUpdated");
-				model.DateCreated = Common.toDeviceTime(temp.optString("DateCreated"));
-				model.fragmentColor = temp.optString("Color");
-				model.icon_identifier = temp.optInt("Icon");
-				model.title = temp.optString("Title");
-				//model.owner_id =  temp.optString("Title");
-				JSONArray arr_users = temp.optJSONArray("Users");
-				String owner_id = temp.optString("OwnerId");
-				if(owner_id != null &&
-						user_data.gravity_user_id.equals(owner_id))
-				{
-					model.owner_id = user_data._id;
-				}
-				for(int j = 0; j< arr_users.length(); j++)
-				{
-					JSONObject arr_user = arr_users.getJSONObject(j);
-					UserModel m = db.users.Get(arr_user.optString("UserId"));
-					
-					if(m==null){
-						m = new UserModel(arr_user);
-						m._id = db.users.Add(m);
-					}
-					if(arr_user.optString("UserId").equals(owner_id) && m._id !=-1)
-					{
-						model.owner_id = m._id;
-					}
-					
-					
-					
-				}
-				int id = db.tasklists.Add(model);//.TaskList_New(model);
-//				{
-//                    "Notifications": [],
-//                    "TaskId": "c7c49467-b6e8-4476-8e10-0aaef9d2528e",
-//                    "Title": "Add New List",
-//                    "Details": "1- Swipe from left side of screen\n2 - Click on down button on the top right side of the pane\n3 - Click on \"New Catagory\"4 - Follow The Steps",
-//                    "Notes": "task.done predefined tutorial",
-//                    "DateUpdated": "2015-06-16T10:25:26.513",
-//                    "Completed": false,
-//                    "isAllDay": true,
-//                    "DateCreated": "2015-06-16T10:25:26.513",
-//                    "StartDate": "2015-06-16T10:25:26.513",
-//                    "EndDate": "2015-06-16T10:25:26.513",
-//                    "Rep_Interval": 1,
-//                    "Rep_Type": 1,
-//                    "Rep_Expiration": "2015-06-16T10:25:26.513",
-//                    "Rep_Value": ""
-//                },
-				JSONArray tasks = temp.optJSONArray("Tasks");
-				for (int j = 0; j < tasks.length(); j++) {
-					TaskModel taskModel = new TaskModel();
-					JSONObject taskObj = tasks.getJSONObject(j);
-					taskModel.title = taskObj.optString("Title");
-					taskModel.details = taskObj.optString("Details");
-					taskModel.notes = taskObj.optString("Notes");
-					if(taskObj.optBoolean("Completed"))
-					taskModel.completed = 1;//.optString("Title");
-					else taskModel.completed = 0;
-					taskModel.server_id =  taskObj.optString("TaskId");//
-					if(taskObj.optBoolean("isAllDay"))
-						taskModel.allDay = 1;//.optString("Title");
-						else taskModel.allDay = 0;
-					taskModel.DateCreated = Common.toDeviceTime(taskObj.optString("DateCreated"));
-					taskModel.DateUpdated = Common.toDeviceTime(taskObj.optString("DateUpdated"));
-					taskModel.startDateTime = Common.toDeviceTime(taskObj.optString("StartDate"));
-					taskModel.endDateTime = Common.toDeviceTime(taskObj.optString("EndDate"));
-					taskModel.rep_interval = taskObj.optInt("Rep_Interval");
-					taskModel.rep_intervalType = taskObj.optInt("Rep_Type");
-					taskModel.rep_intervalExpiration = taskObj.optString("Rep_Expiration");//>>>>>>>>>>>>>>>>>>>>cross check for date
-					taskModel.rep_value = taskObj.optString("Rep_Value");
-					taskModel.syncStatus = "Synced";
-					
-					taskModel.fk_tasklist_id = id;
-					
-					int task_id = db.tasks.Add(taskModel);
-					JSONArray notifications = taskObj.optJSONArray("Notifications");
-					for (int k = 0; k < notifications.length();k++) {
-						TaskNotificationsModel mTaskNotificationsModel = new TaskNotificationsModel();
-						JSONObject notifObj = notifications.getJSONObject(k);
-						mTaskNotificationsModel.fk_task_id = task_id;
-						mTaskNotificationsModel.interval = notifObj.optInt("Interval");
-						mTaskNotificationsModel.interval_type = notifObj.optInt("Type");
-						mTaskNotificationsModel.interval_expiration = notifObj.optString("Expiration");//>>>>>>>>>>>>>>>>>>>>cross check for date or null
-						mTaskNotificationsModel.send_as = notifObj.optInt("SendAs");
-						mTaskNotificationsModel.server_id = notifObj.optString("Id");
-						db.notification.Add(mTaskNotificationsModel, task_id);
-						//>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> ADD SYSTEM ALARAMS HERE >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
-						
-					}
-				}
-				
-				TriggerEvent(Common.GO_TO_MAIN);
 			} catch (JSONException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
 
 		}
+		TriggerEvent(Common.GO_TO_MAIN);
 		triggers.put(Common.GRAVITY_SYNC, 1);
 		addProgressTask(getString(R.string.gravity_fetch_data_success));
 	
@@ -1644,7 +1574,7 @@ public class AppHandlerService extends Service implements
 			if(emails!="" && hasInternet)
 			{
 				AppUsers = db.users.Get();//.User_List();
-				GravityController.validate_gravity_accounts(mContext, emails, Common.RequestCodes.GRAVITY_VALIDATE_USERS);
+				GravityController.validate_gravity_accounts(mContext, emails,user_data, Common.RequestCodes.GRAVITY_VALIDATE_USERS);
 			}
 			
 		}
@@ -1731,25 +1661,7 @@ public class AppHandlerService extends Service implements
 		if (FocusedActivity != null)
 			FocusedActivity.runOnUiThread(runnable);
 	}
-	public void response_new_tasklist(TaskListModel temp)
-	{
-		
-		if(db.tasklists.Edit(temp)>0)
-		{
-			if (FocusedActivity != null
-					&& FocusedActivity.getClass() == MainActivity.class) {
-				
-						// TODO Auto-generated method stub
-						((MainActivity)FocusedActivity).mNavigationDrawerFragment.editTaskListInAdapter(temp);
-						
-					}
-				
-				
-				//navigation drawer update tasklist
-				
-			
-		}
-	}
+	
 	class dialogClickListener implements DialogInterface.OnClickListener{
 		TaskListModel s_tasklist;
 		UserModel s_owner;
@@ -1788,6 +1700,76 @@ public class AppHandlerService extends Service implements
 			}
 		}
 	}
+	public void json_add_tasklist(JSONObject temp)
+	{
+		try{
+			
+		TaskListModel model = new TaskListModel(temp, user_data, db);
+		int id = db.tasklists.Add(model);//.TaskList_New(model);
+//		{
+//            "Notifications": [],
+//            "TaskId": "c7c49467-b6e8-4476-8e10-0aaef9d2528e",
+//            "Title": "Add New List",
+//            "Details": "1- Swipe from left side of screen\n2 - Click on down button on the top right side of the pane\n3 - Click on \"New Catagory\"4 - Follow The Steps",
+//            "Notes": "task.done predefined tutorial",
+//            "DateUpdated": "2015-06-16T10:25:26.513",
+//            "Completed": false,
+//            "isAllDay": true,
+//            "DateCreated": "2015-06-16T10:25:26.513",
+//            "StartDate": "2015-06-16T10:25:26.513",
+//            "EndDate": "2015-06-16T10:25:26.513",
+//            "Rep_Interval": 1,
+//            "Rep_Type": 1,
+//            "Rep_Expiration": "2015-06-16T10:25:26.513",
+//            "Rep_Value": ""
+//        },
+		JSONArray tasks = temp.optJSONArray("Tasks");
+		for (int j = 0; j < tasks.length(); j++) {
+			JSONObject taskObj = tasks.getJSONObject(j);
+			TaskModel taskModel = new TaskModel(taskObj, id);
+			int task_id = db.tasks.Add(taskModel);
+			JSONArray notifications = taskObj.optJSONArray("Notifications");
+			for (int k = 0; k < notifications.length();k++) {
+				JSONObject notifObj = notifications.getJSONObject(k);
+				TaskNotificationsModel mTaskNotificationsModel = new TaskNotificationsModel(notifObj, task_id);
+				
+				//date work in notification model
+				db.notification.Add(mTaskNotificationsModel, task_id);
+				//>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> ADD SYSTEM ALARAMS HERE >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+				
+			}
+		}
+		update_tasklist_on_ui(model);
+		} catch (JSONException e) {
+		// TODO Auto-generated catch block
+		e.printStackTrace();
+	}
+	}
+	
+	public void update_tasklist_on_ui(TaskListModel temp)
+	{
+		if (FocusedActivity != null
+				&& FocusedActivity.getClass() == MainActivity.class) {
+			
+					// TODO Auto-generated method stub
+					((MainActivity)FocusedActivity).mNavigationDrawerFragment.editTaskListInAdapter(temp);
+					
+				}
+			
+	}
+	public void response_new_tasklist(TaskListModel temp)
+	{
+		
+		if(db.tasklists.Edit(temp)>0)
+		{
+				//mSyncHelper.remove_tasklist(temp);
+				update_tasklist_on_ui(temp);
+				//navigation drawer update tasklist
+				
+			
+		}
+	}
+	
 	public void response_share_add_tasklist(TaskListModel tasklist,UserModel owner,JSONArray users, boolean self)
 	{
 		if(!self)
