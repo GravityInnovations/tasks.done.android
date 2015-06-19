@@ -142,8 +142,10 @@ public class TaskListAdapter extends ArrayAdapter<TaskListModel> {
 		try {
 			
 			Drawable mDrawable = resources.getDrawable(tasklist.icon_identifier);
-			
-			holder.list_icon.setImageDrawable(Common.DrawableResouces.changeColor(tasklist.fragmentColor, mDrawable));
+			holder.list_icon.setImageResource(tasklist.icon_identifier);
+			int iColor =  Color.parseColor(tasklist.fragmentColor);
+			holder.list_icon.setColorFilter(iColor);
+			//holder.list_icon.setImageDrawable(Common.DrawableResouces.changeColor(tasklist.fragmentColor, mDrawable));
 			//holder.list_icon.setImageDrawable(Common.DrawableResouces.changeColor(tasklist.fragmentColor, tasklist.icon_identifier, mActivity));
 		} catch (Exception e) {
 			holder.list_icon.setImageDrawable(resources.getDrawable(R.drawable.ic_assignment_grey600_24dp));
