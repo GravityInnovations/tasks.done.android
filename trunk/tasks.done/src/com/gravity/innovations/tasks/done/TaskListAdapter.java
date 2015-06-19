@@ -135,8 +135,8 @@ public class TaskListAdapter extends ArrayAdapter<TaskListModel> {
 				holder.title.setText(tasklist.title);
 			}
 		} catch (Exception e) {
-//			String msg = "truncation Error";
-//			Log.e(tag, msg);
+			String msg = "truncation Error";
+			Log.e(tag, msg);
 		}
 		
 		try {
@@ -149,6 +149,9 @@ public class TaskListAdapter extends ArrayAdapter<TaskListModel> {
 			//holder.list_icon.setImageDrawable(Common.DrawableResouces.changeColor(tasklist.fragmentColor, tasklist.icon_identifier, mActivity));
 		} catch (Exception e) {
 			holder.list_icon.setImageDrawable(resources.getDrawable(R.drawable.ic_assignment_grey600_24dp));
+			int iColor =  Color.parseColor(tasklist.fragmentColor);
+			holder.list_icon.setColorFilter(iColor);			
+			Log.e(tag, "default resouse set");
 		}
 		return row;
 	}

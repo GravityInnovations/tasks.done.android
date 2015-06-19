@@ -223,7 +223,8 @@ public class TaskListFragment extends Fragment {
 				iv_listIcon.setImageDrawable(mActivity.getResources().getDrawable(Common.DrawableResouces.compareDrawable(data.icon_identifier) ));
 
 			} catch (Exception e) {
-				String msg = "listIconSetResource";
+				iv_listIcon.setImageDrawable(mActivity.getResources().getDrawable(R.drawable.ic_assignment_white_24dp));
+				String msg = "defaul listIconSetResource set";
 				Log.e(tag, msg);
 			}
 
