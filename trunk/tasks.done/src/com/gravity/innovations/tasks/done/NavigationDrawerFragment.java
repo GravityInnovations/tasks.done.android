@@ -754,11 +754,29 @@ public class NavigationDrawerFragment extends Fragment implements
 				}
 			}
 		});
+	
+		
+		//
+		DialogInterface.OnClickListener posListener = new DialogInterface.OnClickListener() {
+			@Override
+			public void onClick(DialogInterface dialog, int which) {
+			}
+		};
+		builder.setView(view_dialog);
+		builder.setPositiveButton(R.string.save, posListener);
+		final AlertDialog alertDialog = builder.create();
+		alertDialog.show();
+		Button theButton = alertDialog
+				.getButton(DialogInterface.BUTTON_POSITIVE);
+		temp_btn = theButton;
+		theButton.setEnabled(false);
 		if (tasklist._id != -1) {
 			et_title.setText(tasklist.title);
 			view_catagoryColor.setBackgroundColor(Color
 					.parseColor(tasklist.fragmentColor));
+			temp_btn.setEnabled(true);
 		}
+		//
 		et_title.addTextChangedListener(new TextWatcher() {
 
 			@Override
@@ -780,19 +798,8 @@ public class NavigationDrawerFragment extends Fragment implements
 				}
 			}
 		});
-		DialogInterface.OnClickListener posListener = new DialogInterface.OnClickListener() {
-			@Override
-			public void onClick(DialogInterface dialog, int which) {
-			}
-		};
-		builder.setView(view_dialog);
-		builder.setPositiveButton(R.string.save, posListener);
-		final AlertDialog alertDialog = builder.create();
-		alertDialog.show();
-		Button theButton = alertDialog
-				.getButton(DialogInterface.BUTTON_POSITIVE);
-		temp_btn = theButton;
-		theButton.setEnabled(false);
+
+
 		OnClickListener listerner = new OnClickListener() {
 			@Override
 			public void onClick(View v) {
@@ -1037,7 +1044,7 @@ public class NavigationDrawerFragment extends Fragment implements
 			}
 		};
 		Common.CustomDialog.set(mContext, R.string.delete, R.string.cancel,
-				negListener, posListener);
+				negListener, posListener, R.string.delete_message_list);
 	}
 
 	private void removeTaskList(TaskListModel temp) {
@@ -1112,7 +1119,7 @@ public class NavigationDrawerFragment extends Fragment implements
 			}
 		};
 		Common.CustomDialog.set(mContext, R.string.delete, R.string.cancel,
-				negListener, posListener);
+				negListener, posListener, R.string.delete_message_task);
 	}
 
 	/**

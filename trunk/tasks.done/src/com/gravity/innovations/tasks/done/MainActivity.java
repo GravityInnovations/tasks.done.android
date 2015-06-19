@@ -444,7 +444,7 @@ public class MainActivity extends ActionBarActivity implements
 		}
 		catch(Exception e)
 		{
-			
+			Log.e("MainActivity", "restoreActionBar");
 		}
 		/***********/
 	}

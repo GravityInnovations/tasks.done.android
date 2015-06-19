@@ -66,12 +66,14 @@ public class TaskActivity extends ActionBarActivity implements OnClickListener {
 	private TextView time_end;
 	private TextView date_start;
 	private TextView date_end;
+	private TextView tv_setDate;
 	private Activity mActivity;
 	private Calendar cal_startdate;
 	private Calendar cal_enddate;
+
 	private Calendar cal_starttime;
 	private Calendar cal_endtime;
-	private Calendar cal_repeatdate;
+	private Calendar cal_repeatdate;//	private Calendar cal_repdate;//<<<<<<<<<<new
 	private Calendar mTime;
 	private TextView titleString_validate;
 	private String globalUriString = null;
@@ -757,7 +759,7 @@ public class TaskActivity extends ActionBarActivity implements OnClickListener {
 		View dialogView = this.getLayoutInflater().inflate(
 				R.layout.dialog_repeat_custom, null);
 		final Spinner spinner_repeatTimes, spinner_repeatInterval;
-		final TextView tv_setDate, spinnerRepeat_tv, tv_repeatIntervalUnit, tv_spinnerValue;
+		final TextView  spinnerRepeat_tv, tv_repeatIntervalUnit, tv_spinnerValue;
 
 		final EditText et_spinnerRepeat, et_spinnerInterval;
 		Switch switchOn;
@@ -976,7 +978,8 @@ public class TaskActivity extends ActionBarActivity implements OnClickListener {
 						calendar_dialog_view, posListener, R.string.done);// *
 			}
 		};
-		tv_setDate.setOnClickListener(dateListener);
+		//tv_setDate.setOnClickListener(dateListener);<<<<<<<<<<<<<<<<<<<<previous version
+		tv_setDate.setOnClickListener(this);
 
 		et_spinnerRepeat.addTextChangedListener(new TextWatcher() {
 
@@ -1891,6 +1894,7 @@ public class TaskActivity extends ActionBarActivity implements OnClickListener {
 		Boolean isEnd = false;
 		Boolean isDate = false;
 		Boolean isTime = false;
+		Boolean isRepeat = false;
 
 		public TimePickerFragment(Calendar _calendar,
 				TaskActivity _mTaskActivity, Boolean _isDate, Boolean _isTime,
@@ -1923,7 +1927,7 @@ public class TaskActivity extends ActionBarActivity implements OnClickListener {
 			calendar.set(Calendar.HOUR_OF_DAY, hourOfDay);
 			calendar.set(Calendar.MINUTE, minute);
 			((TaskActivity) mTaskActivity).setCalender(calendar, isDate,
-					isTime, isStart, isEnd);
+					isTime, isStart, isEnd, isRepeat);
 
 		}
 	}
@@ -1937,16 +1941,18 @@ public class TaskActivity extends ActionBarActivity implements OnClickListener {
 		Boolean isEnd = false;
 		Boolean isDate = false;
 		Boolean isTime = false;
+		Boolean isRepeat = false;
 
 		public DatePickerFragment(Calendar _calendar,
 				TaskActivity _mTaskActivity, Boolean _isDate, Boolean _isTime,
-				Boolean _isStart, Boolean _isEnd) {
+				Boolean _isStart, Boolean _isEnd, Boolean _isRepeat) {
 			calendar = _calendar;
 			mTaskActivity = _mTaskActivity;
 			isStart = _isStart;
 			isEnd = _isEnd;
 			isDate = _isDate;
 			isTime = _isTime;
+			isRepeat = _isRepeat;
 		}
 
 		@Override
@@ -1969,12 +1975,12 @@ public class TaskActivity extends ActionBarActivity implements OnClickListener {
 			calendar.set(Calendar.DAY_OF_MONTH, dayOfMonth);
 			calendar.set(Calendar.MONTH, monthOfYear);
 			((TaskActivity) mTaskActivity).setCalender(calendar, isDate,
-					isTime, isStart, isEnd);
+					isTime, isStart, isEnd, isRepeat);
 		}
 	}
 
 	public void setCalender(Calendar calendar, Boolean isDate, Boolean isTime,
-			Boolean isStart, Boolean isEnd) {
+			Boolean isStart, Boolean isEnd, Boolean isRepeat) {
 
 		if (isDate) {
 			if (isStart) {
@@ -1985,6 +1991,12 @@ public class TaskActivity extends ActionBarActivity implements OnClickListener {
 				cal_enddate = calendar;
 				date_end.setText(Common.datetimeHelper.getDate(cal_enddate));
 			}
+			 else if (isRepeat) {
+				 cal_repeatdate = Calendar.getInstance();
+				 cal_repeatdate = calendar;
+					tv_setDate.setText(Common.datetimeHelper.getDate(cal_repeatdate));
+			 }
+			
 		} else if (isTime) {
 			if (isStart) {
 				cal_starttime = calendar;
@@ -2037,9 +2049,10 @@ public class TaskActivity extends ActionBarActivity implements OnClickListener {
 
 			Boolean isEnd = false;
 			Boolean isTime = false;
+			Boolean isRepeat = false;
 
 			DialogFragment newFragment = new DatePickerFragment(cal_startdate,
-					TaskActivity.this, isDate, isTime, isStart, isEnd);
+					TaskActivity.this, isDate, isTime, isStart, isEnd, isRepeat);
 			newFragment.show(getSupportFragmentManager(), "datePicker");
 		} else if (v == date_end) {
 			Boolean isEnd = true;
@@ -2047,10 +2060,23 @@ public class TaskActivity extends ActionBarActivity implements OnClickListener {
 
 			Boolean isStart = false;
 			Boolean isTime = false;
+			Boolean isRepeat = false;
 
 			DialogFragment newFragment = new DatePickerFragment(cal_enddate,
-					TaskActivity.this, isDate, isTime, isStart, isEnd);
+					TaskActivity.this, isDate, isTime, isStart, isEnd, isRepeat);
 			newFragment.show(getSupportFragmentManager(), "datePicker");
+		}
+		else if (v == tv_setDate){
+			Boolean isEnd = false;
+			Boolean isDate = true;
+			Boolean isStart = false;
+			Boolean isTime = false;
+			Boolean isRepeat = true;
+			
+			DialogFragment newFragment = new DatePickerFragment(cal_enddate,
+					TaskActivity.this, isDate, isTime, isStart, isEnd, isRepeat);
+			newFragment.show(getSupportFragmentManager(), "datePicker");
+
 		}
 	}
 }

@@ -372,12 +372,12 @@ public class Common {
 
 		public static final void set(final Context context, int posText,
 				int negText, DialogInterface.OnClickListener negListener,
-				DialogInterface.OnClickListener posListener) {
+				DialogInterface.OnClickListener posListener, int  resource_msg) {
 
 			AlertDialog.Builder builder = new AlertDialog.Builder(context);
 			builder.setIcon(R.drawable.ic_warning_grey600_24dp);
 			builder.setTitle(R.string.delete);
-			builder.setMessage(R.string.delete_message_confirm);
+			builder.setMessage(resource_msg);
 			if (posListener != null) {
 				builder.setPositiveButton(posText, posListener);
 			}
