@@ -123,10 +123,10 @@ public class TaskAdapter extends RecyclerView.Adapter {
 				}
 
 				try {
-					if (task.rep_interval == 0) {
-						viewHolder.iv_alarmToggle.setVisibility(View.INVISIBLE);
-					} else {
+					if (task.notifications.size() > 0) {
 						viewHolder.iv_alarmToggle.setVisibility(View.VISIBLE);
+					} else {
+						viewHolder.iv_alarmToggle.setVisibility(View.INVISIBLE);
 					}
 				} catch (Exception e) {
 					Log.e("TaskAdapter", "iv_alarmToggle");
@@ -281,6 +281,7 @@ public class TaskAdapter extends RecyclerView.Adapter {
 		@Override
 		public void onCreateContextMenu(ContextMenu menu, View v,
 				ContextMenuInfo menuInfo) {
+			menu.add(Menu.NONE, R.id.item_view, Menu.NONE, "View");
 			menu.add(Menu.NONE, R.id.item_delete, Menu.NONE, "Delete");
 			menu.add(Menu.NONE, R.id.item_edit, Menu.NONE, "Edit");
 		}

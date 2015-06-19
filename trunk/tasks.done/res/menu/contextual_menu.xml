@@ -8,6 +8,13 @@
         android:title="@string/delete"
         android:titleCondensed="Delete">
     </item>
+        <item
+        android:id="@+id/item_view"
+        android:icon="@android:drawable/ic_menu_view"
+        android:showAsAction="ifRoom|withText"
+        android:title="@string/view"
+        android:titleCondensed="View">
+    </item>
     <item
         android:id="@+id/item_edit"
         android:icon="@android:drawable/ic_menu_edit"

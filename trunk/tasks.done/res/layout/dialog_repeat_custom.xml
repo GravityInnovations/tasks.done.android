@@ -110,7 +110,8 @@
             android:hint="@string/dateFormat"
             android:paddingLeft="5dp"
             android:paddingRight="5dp"
-            android:visibility="gone" />
+            android:visibility="gone"
+            android:tag="repeatsetdate" />
 
         <TextView
             android:id="@+id/tv_spinnerRepeat"

@@ -26,38 +26,11 @@
             android:layout_marginTop="35dp" >
 
             <ImageView
-                android:id="@+id/tasklist_icon"
-                android:layout_width="24dp"
-                android:layout_height="24dp"
-                android:layout_alignParentBottom="true"
-                android:layout_alignParentLeft="true"
-                android:layout_alignParentStart="true"
-                android:src="@drawable/ic_web_white_24dp" />
-
-            <TextView
-                android:id="@+id/tasklist_name"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_alignBottom="@+id/tasklist_icon"
-                android:layout_toRightOf="@+id/tasklist_icon"
-                android:layout_toEndOf="@+id/tasklist_icon" 
-                android:shadowColor="#242424"
-                android:shadowDx="2"
-                android:shadowDy="2"
-                android:shadowRadius="2"
-                android:text="@string/title_here"
-                android:textColor="@android:color/white"
-                android:textSize="22sp"
-                android:layout_marginLeft="5dp"
-                android:layout_marginStart="5dp"
-                android:layout_toLeftOf="@+id/LL3" />
-
-            <ImageView
                 android:id="@+id/img_sync"
                 android:layout_width="30dp"
                 android:layout_height="30dp"
-                android:layout_alignParentRight="true"
                 android:layout_alignParentEnd="true"
+                android:layout_alignParentRight="true"
                 android:layout_alignParentTop="true"
                 android:layout_marginLeft="5dp"
                 android:layout_marginStart="5dp" />
@@ -71,55 +44,94 @@
                 android:background="@drawable/default_button_selector"
                 android:clickable="true"
                 android:src="@drawable/ic_menu_white_24dp" />
-       
 
-        <LinearLayout
-            android:id="@+id/LL3"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_alignParentBottom="true"
-            android:layout_alignParentRight="true"
-            android:layout_alignParentEnd="true"
-            android:layout_marginBottom="5dp"
-            android:layout_marginRight="5dp"
-            android:orientation="horizontal" >
-
-            <ImageButton
-                android:id="@+id/btn_showShared"
+            <RelativeLayout
+                android:id="@+id/rL_test"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:background="@drawable/default_button_selector"
-                android:clickable="true"
-                android:padding="0dp"
-                android:src="@android:drawable/ic_menu_view" />
+                android:layout_alignParentBottom="true"
+                android:layout_alignParentLeft="true"
+                android:layout_alignParentStart="true"
+                android:layout_marginBottom="5dp"
+                android:layout_marginLeft="5dp"
+                android:layout_toLeftOf="@+id/LL3"
+                android:orientation="horizontal" >
 
-            <ImageButton
-                android:id="@+id/btn_share_list"
+                <ImageView
+                    android:id="@+id/tasklist_icon"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_centerVertical="true"
+                    android:src="@drawable/ic_assignment_white_24dp" />
+
+                <TextView
+                    android:id="@+id/tasklist_name"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_centerVertical="true"
+                    android:layout_marginLeft="5dp"
+                    android:layout_marginStart="5dp"
+                    android:layout_toEndOf="@+id/tasklist_icon"
+                    android:layout_toRightOf="@+id/tasklist_icon"
+                    android:ellipsize="end"
+                    android:lines="1"
+                    android:shadowColor="#242424"
+                    android:shadowDx="2"
+                    android:shadowDy="2"
+                    android:shadowRadius="2"
+                    android:text="@string/title_here"
+                    android:textColor="@android:color/white"
+                    android:textSize="22sp" />
+            </RelativeLayout>
+
+            <LinearLayout
+                android:id="@+id/LL3"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:background="@drawable/default_button_selector"
-                android:clickable="true"
-                android:src="@android:drawable/ic_menu_share" />
+                android:layout_alignParentBottom="true"
+                android:layout_alignParentEnd="true"
+                android:layout_alignParentRight="true"
+                android:layout_marginBottom="5dp"
+                android:layout_marginRight="5dp"
+                android:orientation="horizontal" >
 
-            <ImageButton
-                android:id="@+id/btn_edit_list"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:background="@drawable/default_button_selector"
-                android:clickable="true"
-                android:padding="0dp"
-                android:src="@android:drawable/ic_menu_edit" />
+                <ImageButton
+                    android:id="@+id/btn_showShared"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:background="@drawable/default_button_selector"
+                    android:clickable="true"
+                    android:padding="0dp"
+                    android:src="@android:drawable/ic_menu_view" />
 
-            <ImageButton
-                android:id="@+id/btn_delete_list"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:background="@drawable/default_button_selector"
-                android:clickable="true"
-                android:padding="0dp"
-                android:src="@android:drawable/ic_menu_delete" />
-        </LinearLayout>
- </RelativeLayout>
+                <ImageButton
+                    android:id="@+id/btn_share_list"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:background="@drawable/default_button_selector"
+                    android:clickable="true"
+                    android:src="@android:drawable/ic_menu_share" />
+
+                <ImageButton
+                    android:id="@+id/btn_edit_list"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:background="@drawable/default_button_selector"
+                    android:clickable="true"
+                    android:padding="0dp"
+                    android:src="@android:drawable/ic_menu_edit" />
+
+                <ImageButton
+                    android:id="@+id/btn_delete_list"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:background="@drawable/default_button_selector"
+                    android:clickable="true"
+                    android:padding="0dp"
+                    android:src="@android:drawable/ic_menu_delete" />
+            </LinearLayout>
+        </RelativeLayout>
+
         <View
             android:id="@+id/search_line"
             android:layout_width="fill_parent"
@@ -127,73 +139,6 @@
             android:layout_alignParentBottom="true"
             android:background="@color/line_divider" />
     </RelativeLayout>
-    <!--
-    <ListView
-        android:id="@+id/list"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_below="@+id/header"
-        android:background="@android:color/transparent"
-        android:clipChildren="false"
-        android:divider="#bbb"
-        android:dividerHeight="3px"
-        android:focusable="false"
-        android:focusableInTouchMode="false"
-        android:scrollingCache="false"
-        android:stackFromBottom="false"/>
-    
-
-    <RelativeLayout
-        android:id="@+id/relLayoutRecyclerView"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_below="@+id/header"
-        android:orientation="vertical" >
-
-        <android.support.v7.widget.RecyclerView
-            xmlns:android="http://schemas.android.com/apk/res/android"
-            xmlns:tools="http://schemas.android.com/tools"
-            android:id="@+id/myRecyclerView"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent" />
-    </RelativeLayout>
-
-    <RelativeLayout
-        android:id="@+id/footer_of_recycleiew"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_below="@+id/relLayoutRecyclerView"
-        android:orientation="vertical" >
-
-        <include
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            layout="@layout/fragment_main_footer" />
-    </RelativeLayout>
-    -->
-    <!--
-    <include
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_below="@+id/header"
-        layout="@layout/recycle_view" />
-   
-
-    <LinearLayout
-        android:id="@+id/footer"
-        android:layout_width="match_parent"
-        android:layout_height="0dp"
-        
-        android:background="#f00"
-        android:layout_alignParentBottom="true"
-        android:orientation="vertical" >
-
-        <include
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            layout="@layout/fragment_main_footer" />
-    </LinearLayout>
-    -->
 
     <android.support.v7.widget.RecyclerView
         android:id="@+id/recyclerView"
@@ -201,10 +146,6 @@
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
         android:layout_below="@+id/header" />
-
-    <!-- android:layout_height="wrap_content" -->
-    <!-- android:layout_below="@+id/header" -->
-    <!-- /> -->
 
     <ImageButton
         android:id="@+id/floating_button"
@@ -215,9 +156,9 @@
         android:layout_marginBottom="20dp"
         android:layout_marginRight="20dp"
         android:clickable="true"
+        android:elevation="4dp"
         android:gravity="center_vertical"
         android:src="@drawable/ic_add_white_36dp"
-        android:elevation="4dp"
         android:tint="@android:color/white" />
 
 </RelativeLayout>

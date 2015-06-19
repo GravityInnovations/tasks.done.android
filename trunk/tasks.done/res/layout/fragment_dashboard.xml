@@ -105,7 +105,7 @@
             android:layout_alignParentStart="true"
             android:background="#ffffff"
             android:padding="12dp"
-            android:visibility="visible" >
+            android:visibility="gone" >
 
             <ImageView
                 android:id="@+id/cancel_iv"

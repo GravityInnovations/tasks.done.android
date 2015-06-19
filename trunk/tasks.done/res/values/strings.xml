@@ -76,6 +76,7 @@
     <string name="dont_remind">Don\'t Remind</string>
     <string name="delete_message_confirm">Delete Sure?</string>
     <string name="delete">Delete</string>
+    <string name="view">View</string>
     <string name="proceed">Continue</string>
     <string name="useoffline">Skip (use offline)</string>
     <string name="attl">Add The Task List</string>
