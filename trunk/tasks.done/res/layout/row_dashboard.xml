@@ -51,8 +51,7 @@
         android:layout_width="match_parent"
         android:layout_height="86dp"
         android:layout_below="@+id/search_line"
-        android:background="#ffffff"
-        android:elevation="14dp" >
+        android:background="#ffffff">
 
         <View
             android:id="@+id/listColor"

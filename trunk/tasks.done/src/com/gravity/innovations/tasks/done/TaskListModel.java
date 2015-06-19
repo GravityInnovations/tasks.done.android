@@ -35,7 +35,6 @@ public class TaskListModel implements Serializable {
 		ArrayList<TaskModel> temp = new ArrayList<TaskModel>();
 
 		for (TaskModel task : this.tasks) {
-
 			if (task.completed == 0) {
 				task.parent = this;
 				temp.add(task);

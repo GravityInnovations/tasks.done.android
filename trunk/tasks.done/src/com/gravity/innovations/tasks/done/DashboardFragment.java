@@ -1,6 +1,7 @@
 package com.gravity.innovations.tasks.done;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Locale;
 import android.app.Activity;
 import android.os.Bundle;
@@ -42,6 +43,13 @@ public class DashboardFragment extends Fragment {
 		this.mNavigationDrawerFragment = mNavigationDrawerFragment;
 		// this.mService = mService;
 	}
+	
+//	private ArrayList<TaskModel> sortTasksStartDateTime (ArrayList<TaskModel> _tasks){
+//		ArrayList<TaskModel> sortedTasks = new ArrayList<TaskModel>();
+//		for(TaskModel model: _tasks){
+//		}
+//		return sortedTasks;
+//	}
 
 	public Fragment getFragment() {
 		return this;
