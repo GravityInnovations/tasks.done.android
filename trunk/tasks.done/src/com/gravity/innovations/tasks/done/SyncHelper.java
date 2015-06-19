@@ -40,14 +40,36 @@ public class SyncHelper {
 	{
 		//add logic
 		//pending_tasklists.add(temp);
-		if (temp._id != -1 && temp.server_id.equals("") && mService.hasInternet
-				&& mService.user_data.is_sync_type) {
-			GravityController.post_tasklist(mService, mService.user_data,
-					temp,"add",-1);
-			//GravityController.post_tasklist(service, service.user_data,
-				//	tasklist, -1);
-		}
+		try{
+			if(temp.syncStatus==null || (!temp.syncStatus.equals("Synced") && !temp.syncStatus.equals("Delete"))){
+				if (temp._id != -1 && temp.server_id.equals("") && mService.hasInternet
+						&& mService.user_data.is_sync_type) {
+					GravityController.post_tasklist(mService, mService.user_data,
+							temp,"add",-1);
+					//GravityController.post_tasklist(service, service.user_data,
+						//	tasklist, -1);
+				}
+				else if (temp._id != -1 && !temp.server_id.equals("") && mService.hasInternet
+						&& mService.user_data.is_sync_type) {
+					GravityController.post_tasklist(mService, mService.user_data,
+							temp,"edit",-1);
+					//GravityController.post_tasklist(service, service.user_data,
+						//	tasklist, -1);
+				}
+			}
+			else if(temp._id != -1 && temp.syncStatus.equals("Delete")&& !temp.server_id.equals("") && mService.hasInternet
+					&& mService.user_data.is_sync_type)
+			{
+				GravityController.post_tasklist(mService, mService.user_data,
+						temp,"delete",-1);
+			}
 		
+		}
+		catch(Exception e)
+		{
+			String s = e.getLocalizedMessage();
+			s+=e.getMessage();
+		}
 	}
 	
 }

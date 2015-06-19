@@ -161,7 +161,7 @@ public class TaskListFragment extends Fragment {
 
 		btn_listSharedWith = ((ImageButton) rootView
 				.findViewById(R.id.btn_showShared));
-		if (data.owner_id == mService.user_data._id) {
+		if (true){//(data.owner_id == mService.user_data._id) {
 
 			btn_shareList.setOnClickListener(new View.OnClickListener() {
 				@Override
