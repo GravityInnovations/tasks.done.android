@@ -148,7 +148,6 @@ public class DialogViewFragment extends DialogFragment {
 		}
 		
 		try {
-			
 			String[] notificationArray = Common.RepeatConversions.getNotificationsArray(taskModel);
 			if (notificationArray.length == 0){
 				notificationArray = new String[1];
