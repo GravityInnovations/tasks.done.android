@@ -17,8 +17,10 @@ public class InternetReciever extends BroadcastReceiver{
 			mService = ((TheApp) context.getApplicationContext()).getService();//.startService((Common.Callbacks.ServiceCallback)context);
 			if(mService!=null)
 			{
-				if(Common.hasInternet(context))
+				if(Common.hasInternet(context)){
 					mService.hasInternet = true;
+					mService.mSyncHelper.sync_all_tasklists();
+				}
 				else{
 					mService.hasInternet = false;
 //					if(mService.AppStateClassName == SplashActivity.class.getName()){

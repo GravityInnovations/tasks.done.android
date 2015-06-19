@@ -40,9 +40,9 @@ public class GravityController {
 				Common.HttpMethod.HttpPost,RequestCode);
 		Temp.execute();
 	}
-	public static void validate_gravity_accounts(Context context, String Emails,int RequestCode)
+	public static void validate_gravity_accounts(Context context, String Emails,Common.userData user_data,int RequestCode)
 	{
-		String params = "?Emails="+Emails;
+		String params = "?Emails="+Emails+"&SenderId="+user_data.gravity_user_id;
 		HttpTask Temp = new HttpTask(context,Common.GRAVITY_ACCOUNT_URL+params, null,
 				Common.HttpMethod.HttpGet,
 				RequestCode);
@@ -69,23 +69,40 @@ public class GravityController {
 				RequestCode);
 		Temp.execute();
 	}
-	public static void post_tasklist( Context context, Common.userData user_data,  TaskListModel tasklist,  int RequestCode)
+	public static void post_tasklist( Context context, Common.userData user_data,  TaskListModel tasklist, String cmd,  int RequestCode)
 	{
+		//request and url
+		////http://192.168.100.4/TaskList?cmd=add
+//		UserId=1da1a801-65d5-4290-a0e9-191b40568645&TaskList={
+//				"Color":"#343437",
+//				"Icon":1,
+//				"Title":"m title",
+//				"DateUpdated": "2015-06-16T12:59:19.897",
+//				"DateCreated": "2015-06-16T12:59:19.897"
+//				}
+		//Users:[]
 		List<NameValuePair> postData = new ArrayList<NameValuePair>();
-		postData.add(new BasicNameValuePair("deviceid", user_data.google_reg_id));
-		postData.add(new BasicNameValuePair("userid", user_data.gravity_user_id));
-		postData.add(new BasicNameValuePair("dataid",tasklist._id+""));
-		postData.add(new BasicNameValuePair("color", tasklist.fragmentColor));
-		postData.add(new BasicNameValuePair("icon",tasklist.icon_identifier+""));
+		postData.add(new BasicNameValuePair("UserId", user_data.gravity_user_id));
+		postData.add(new BasicNameValuePair("DeviceId", user_data.google_reg_id));
+		postData.add(new BasicNameValuePair("DataId", tasklist._id+""));
+		postData.add(new BasicNameValuePair("TaskList", tasklist.toServerJsonString()));
+		
+//		
+//		postData.add(new BasicNameValuePair("deviceid", user_data.google_reg_id));
+//		postData.add(new BasicNameValuePair("userid", user_data.gravity_user_id));
+//		postData.add(new BasicNameValuePair("dataid",tasklist._id+""));
+//		postData.add(new BasicNameValuePair("color", tasklist.fragmentColor));
+//		postData.add(new BasicNameValuePair("icon",tasklist.icon_identifier+""));
 		//add or edit
-		if(tasklist.server_id!= ""){
-			postData.add(new BasicNameValuePair("_id", tasklist.server_id));
-			postData.add(new BasicNameValuePair("action", "edit"));
-		}
-		else
-			postData.add(new BasicNameValuePair("action", "add"));
-		postData.add(new BasicNameValuePair("title", tasklist.title));
-		HttpTask Temp = new HttpTask(context, Common.GRAVITY_TASKLIST_URL, postData,Common.HttpMethod.HttpPost,
+		//if(tasklist.server_id!= ""){
+			
+			//postData.add(new BasicNameValuePair("_id", tasklist.server_id));
+			//postData.add(new BasicNameValuePair("action", "edit"));
+		//}
+		//else
+			//postData.add(new BasicNameValuePair("action", "add"));
+		//postData.add(new BasicNameValuePair("title", tasklist.title));
+		HttpTask Temp = new HttpTask(context, Common.GRAVITY_TASKLIST_URL+cmd, postData,Common.HttpMethod.HttpPost,
 				RequestCode);
 		Temp.execute();
 		

@@ -49,10 +49,16 @@ public class GcmBroadcastReceiver extends WakefulBroadcastReceiver {
             } else if (GoogleCloudMessaging.
                     MESSAGE_TYPE_MESSAGE.equals(messageType)) {
                 // This loop represents the service doing some work.
-            	String s = extras.getString("data").toString();
-            	JSONObject data = JsonHelper.toJsonObject(s);
+            	String s_data = extras.getString("data").toString();
+            	String s_cmd = extras.getString("cmd").toString();
+            	String s_type = extras.getString("datatype").toString();
+            	String s_sender = extras.getString("sender").toString();
+            	int s_dataid = Integer.parseInt(extras.getString("dataid"));
+            	//>>>>>>>>>>>>>>>>>.. sender info here
+            	
+            	JSONObject data = JsonHelper.toJsonObject(s_data);
             	if(data!=null)
-            	handle(data);
+            	handle(data,s_cmd,s_type,s_sender,s_dataid);
             	//mService.sendNotification("task.done", s, 3000);
             }
         }
@@ -70,10 +76,42 @@ public class GcmBroadcastReceiver extends WakefulBroadcastReceiver {
 	}
 	
 	
-	private void handle(JSONObject bundle)
+	private void handle(JSONObject bundle, String cmd, String datatype, String sender,int dataid)
 	{
 		 try {
-			String status = bundle.optString("status");
+			 if(sender.equals(mService.user_data.google_reg_id) || sender == mService.user_data.google_reg_id)
+			 {
+				
+				 	//TaskListModel mTaskList = mService.db.tasklists.Get(dataid);
+				 	TaskListModel Temp = new TaskListModel(bundle,mService.user_data, mService.db);
+				 	Temp._id = dataid;
+				 	
+				 	Temp.syncStatus = "Synced";
+				 	Temp.syncStatusTimeStamp = DateHelper.deviceDefaultTime();
+					mService.response_new_tasklist(Temp);
+				 	//temp.server_id = data.optString("TaskListId");
+					//temp.DateUpdated = data.optString("updated");
+				 	
+				 	//mService.db.tasklists.SetSynced(mTaskList);
+			 }
+			 else{
+				 if(datatype == DATA_TASKLIST)
+				 {
+					 if(cmd.equals(CMD_ADD))
+					 {
+						 
+						 mService.json_add_tasklist(bundle);
+					 }
+				 }
+				 else if(datatype == DATA_TASK)
+				 {
+					 
+				 }
+			 }
+			 
+			 
+			 
+			/*String status = bundle.optString("status");
 			String message = bundle.optString("message");
 			String dataid = bundle.optString("dataid");
 			JSONArray users = bundle.optJSONArray("users");
@@ -149,7 +187,7 @@ public class GcmBroadcastReceiver extends WakefulBroadcastReceiver {
 					}
 				
 				}
-			}
+			}*/
 			
 		} catch (Exception e) {
 				// TODO Auto-generated catch block
@@ -157,6 +195,15 @@ public class GcmBroadcastReceiver extends WakefulBroadcastReceiver {
 			}
 		 
 	}
+	private static String DATA_TASKLIST = "TaskList";
+	private static String DATA_TASK = "Task";
+	private static String CMD_ADD = "add";
+	private static String CMD_DELETE = "delete";
+	private static String CMD_EDIT = "edit";
+	
+	private static String CMD_SHARE = "share";
+	
+	
 	private static String TASKLIST_ADD = "add_tasklist";
 	private static String TASKLIST_DELETE = "delete_tasklist";
 	private static String TASKLIST_EDIT = "edit_tasklist";
@@ -170,7 +217,7 @@ public class GcmBroadcastReceiver extends WakefulBroadcastReceiver {
 		temp.syncStatus = "Synced";
 		temp.server_id = data.optString("TaskListId");
 		temp.DateUpdated = data.optString("updated");
-		mService.response_new_tasklist(temp);
+		//mService.response_new_tasklist(temp);
 	}
 	
 }
