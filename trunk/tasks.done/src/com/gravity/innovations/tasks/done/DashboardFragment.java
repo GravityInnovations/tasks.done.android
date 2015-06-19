@@ -2,6 +2,8 @@ package com.gravity.innovations.tasks.done;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.Locale;
 import android.app.Activity;
 import android.os.Bundle;
@@ -39,17 +41,15 @@ public class DashboardFragment extends Fragment {
 	public void newInstance(ArrayList<TaskModel> _tasks,
 			NavigationDrawerFragment mNavigationDrawerFragment,
 			AppHandlerService mService) {
+		Collections.sort(_tasks, new Comparator<TaskModel>() {
+			public int compare(TaskModel obj1, TaskModel obj2) {
+				return obj1.getDateTime(obj1).compareTo(obj2.getDateTime(obj2));
+			}
+		});
 		this.tasks = _tasks;
 		this.mNavigationDrawerFragment = mNavigationDrawerFragment;
 		// this.mService = mService;
 	}
-	
-//	private ArrayList<TaskModel> sortTasksStartDateTime (ArrayList<TaskModel> _tasks){
-//		ArrayList<TaskModel> sortedTasks = new ArrayList<TaskModel>();
-//		for(TaskModel model: _tasks){
-//		}
-//		return sortedTasks;
-//	}
 
 	public Fragment getFragment() {
 		return this;
@@ -156,13 +156,16 @@ public class DashboardFragment extends Fragment {
 					String text = search_et.getText().toString()
 							.toLowerCase(Locale.getDefault());
 				}
+
 				@Override
 				public void onTextChanged(CharSequence s, int start,
 						int before, int count) {
 					mTaskAdapter.getFilter().filter(s.toString());
 				}
+
 				@Override
-				public void afterTextChanged(Editable s) {}
+				public void afterTextChanged(Editable s) {
+				}
 			});
 			int taskCount = 0;
 			taskCount = mTaskAdapter.getItemCount();
@@ -172,4 +175,5 @@ public class DashboardFragment extends Fragment {
 		}
 		return rootView;
 	}
+
 }

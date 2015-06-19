@@ -1,6 +1,7 @@
 package com.gravity.innovations.tasks.done;
 
 import java.io.Serializable;
+import java.sql.Date;
 import java.util.ArrayList;
 import java.util.Calendar;
 
@@ -208,6 +209,13 @@ public class TaskModel implements Comparable, Serializable {
 		}
 		return this;
 	}
+	
+	public Date getDateTime(TaskModel temp){
+		//DashboardFragment uses this function
+		Date date = new Date(Long.parseLong( temp.startDateTime) );
+		return date;
+	}
+	
 
 	@Override
 	public int compareTo(Object another) {
