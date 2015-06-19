@@ -1174,6 +1174,22 @@ public class Common {
 
 			return mDrawable;
 		}
+		public static Drawable changeColor(String hex, Drawable mDrawable){
+			
+			//Drawable mDrawable = mActivity.getResources().getDrawable(resource);
+			//mDrawable.setColorFilter(Color.WHITE, PorterDuff.Mode.MULTIPLY);
+			int iColor =  Color.parseColor(hex);
+			mDrawable.setColorFilter(iColor, PorterDuff.Mode.SRC_ATOP);
+//			int red = (iColor & 0xFF0000) / 0xFFFF;
+//			int green = (iColor & 0xFF00) / 0xFF;
+//			int blue = iColor & 0xFF;
+//			float[] matrix = { 0, 0, 0, 0, red, 0, 0, 0, 0, green, 0, 0, 0, 0,
+//					blue, 0, 0, 0, 1, 0 };
+//			ColorFilter colorFilter = new ColorMatrixColorFilter(matrix);
+//			mDrawable.setColorFilter(colorFilter);
+
+			return mDrawable;
+		}
 	}
 
 	public static class Arrays {

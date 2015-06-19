@@ -3,6 +3,7 @@ package com.gravity.innovations.tasks.done;
 import java.util.ArrayList;
 import android.app.Activity;
 import android.content.res.Resources;
+import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.ColorFilter;
 import android.graphics.ColorMatrixColorFilter;
@@ -26,7 +27,7 @@ public class TaskListAdapter extends ArrayAdapter<TaskListModel> {
 	ArrayList<TaskListModel> data_backup = new ArrayList<TaskListModel>();
 	int selected = 0;
 	String tag = "TasklistAdapter";
-
+	Resources resources;
 	public TaskListAdapter(Activity activity, int layoutResourceId,
 			ArrayList<TaskListModel> data) {
 		super(activity, layoutResourceId, data);
@@ -35,6 +36,7 @@ public class TaskListAdapter extends ArrayAdapter<TaskListModel> {
 		this.data = data;
 		this.data_backup = data;
 		notifyDataSetChanged();
+		 resources = mActivity.getResources();
 	}
 
 	public void setSelection(int position) {
@@ -106,7 +108,7 @@ public class TaskListAdapter extends ArrayAdapter<TaskListModel> {
 
 		if (row == null) {
 			LayoutInflater inflater = LayoutInflater.from(mActivity);
-			row = inflater.inflate(layoutResourceId, parent, false);
+			row = inflater.inflate(layoutResourceId,null);//, parent, false);
 			holder = new TaskListHolder();
 			holder.title = (TextView) row.findViewById(R.id.txt_title);
 
@@ -133,16 +135,17 @@ public class TaskListAdapter extends ArrayAdapter<TaskListModel> {
 				holder.title.setText(tasklist.title);
 			}
 		} catch (Exception e) {
-			String msg = "truncation Error";
-			Log.e(tag, msg);
+//			String msg = "truncation Error";
+//			Log.e(tag, msg);
 		}
-		Resources resources = mActivity.getResources();
+		
 		try {
-			//holder.list_icon.setImageDrawable(resources.getDrawable(tasklist.icon_identifier));
-			holder.list_icon.setImageDrawable(Common.DrawableResouces.changeColor(tasklist.fragmentColor, tasklist.icon_identifier, mActivity));
+			
+			Drawable mDrawable = resources.getDrawable(tasklist.icon_identifier);
+			
+			holder.list_icon.setImageDrawable(Common.DrawableResouces.changeColor(tasklist.fragmentColor, mDrawable));
+			//holder.list_icon.setImageDrawable(Common.DrawableResouces.changeColor(tasklist.fragmentColor, tasklist.icon_identifier, mActivity));
 		} catch (Exception e) {
-			String msg = "listICON";
-			Log.e(tag, msg);
 			holder.list_icon.setImageDrawable(resources.getDrawable(R.drawable.ic_assignment_grey600_24dp));
 		}
 		return row;
