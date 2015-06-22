@@ -890,6 +890,7 @@ public class NavigationDrawerFragment extends Fragment implements
 	}
 
 	public void editTaskListInAdapter(TaskListModel m) {
+		boolean flag = true;
 		for (int i = 0; i < mAdapter.getCount(); i++)
 		// TaskListModel temp:this.data)
 		{
@@ -900,15 +901,23 @@ public class NavigationDrawerFragment extends Fragment implements
 				temp.server_id = m.server_id;
 				temp.syncStatus = m.syncStatus;
 				temp.syncStatusTimeStamp = "";
-				temp.title = temp.title;
-				temp.DateUpdated = temp.DateUpdated;
-				temp.owner_id = temp.owner_id;
+				temp.title = m.title;
+				temp.DateCreated = m.DateCreated;
+				temp.fragmentColor = m.fragmentColor;
+				
+				temp.DateUpdated = m.DateUpdated;
+				temp.owner_id = m.owner_id;
 				this.mAdapter.notifyDataSetChanged();
 				// ((MainActivity)mActivity).mTaskListFragment.
 				int position = this.mAdapter.getPosition(temp);
 				selectItem(++position, -1);// select if selected
+				flag = false;
 				break;
 			}
+		}
+		if(flag)
+		{
+			addTaskList(m);
 		}
 	}
 	
@@ -1062,7 +1071,19 @@ public class NavigationDrawerFragment extends Fragment implements
 			if (i._id == temp._id)
 				flag = true;
 		}
-		data.remove(temp);
+		flag = data.remove(temp);
+		if(!flag)
+		{
+			for (int i=0;i<this.data.size();i++) {
+				
+				TaskListModel t = this.data.get(i);
+				if(t._id == temp._id){
+					this.data.remove(i);
+				position = i;
+				}
+				
+			}
+		}
 		this.mAdapter.notifyDataSetChanged();
 		/**
 		 * update data

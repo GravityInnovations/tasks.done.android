@@ -102,7 +102,7 @@ public class GcmBroadcastReceiver extends WakefulBroadcastReceiver {
 				 	//mService.db.tasklists.SetSynced(mTaskList);
 			 }
 			 else{
-				 if(datatype == DATA_TASKLIST)
+				 if(datatype.equals(DATA_TASKLIST))
 				 {
 					 if(cmd.equals(CMD_ADD))
 					 {
@@ -111,7 +111,14 @@ public class GcmBroadcastReceiver extends WakefulBroadcastReceiver {
 					 }
 					 else if(cmd.equals(CMD_EDIT))
 					 {
-						 //mService.jso
+						 mService.json_edit_tasklist(dataid, bundle);
+					 }
+					 else if(cmd.equals(CMD_DELETE))
+					 {
+						 //mService.json_edit_tasklist(dataid, bundle);
+						 String server_id = bundle.optString("TaskListId");
+						 TaskListModel temp = mService.db.tasklists.Get(server_id);
+					 		mService.gcm_delete_tasklist(temp);
 					 }
 				 }
 				 else if(datatype == DATA_TASK)

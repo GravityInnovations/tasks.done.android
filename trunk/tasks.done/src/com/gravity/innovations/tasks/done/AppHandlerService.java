@@ -1702,9 +1702,10 @@ public class AppHandlerService extends Service implements
 	}
 	public void json_add_tasklist(JSONObject temp)
 	{
+		TaskListModel model = new TaskListModel(temp, user_data, db);
 		try{
 			
-		TaskListModel model = new TaskListModel(temp, user_data, db);
+		
 		int id = db.tasklists.Add(model);//.TaskList_New(model);
 //		{
 //            "Notifications": [],
@@ -1724,11 +1725,48 @@ public class AppHandlerService extends Service implements
 //            "Rep_Value": ""
 //        },
 		JSONArray tasks = temp.optJSONArray("Tasks");
+		json_update_tasklist_tasks(tasks,id);
+		
+		
+		} catch (Exception e) {
+		// TODO Auto-generated catch block
+		e.printStackTrace();
+	}
+		update_tasklist_on_ui(model);
+	}
+	public void json_edit_tasklist(int dataid, JSONObject temp)
+	{
+		TaskListModel model = new TaskListModel(temp, user_data, db);
+		TaskListModel model2 = db.tasklists.Get(model.server_id);
+		model._id = model2._id;
+		try{
+			
+		
+		int id = db.tasklists.Edit(model, true);//db.tasklists.Add(model);//.TaskList_New(model);
+
+		JSONArray tasks = temp.optJSONArray("Tasks");
+		//json_update_tasklist_tasks(tasks,id);
+		
+		
+		} catch (Exception e) {
+		// TODO Auto-generated catch block
+		e.printStackTrace();
+	}
+		update_tasklist_on_ui(model);
+	}
+	public void json_update_tasklist_tasks(JSONArray tasks, int id)
+	{
+		try{
+			
+		
+		
+		if(tasks!=null)
 		for (int j = 0; j < tasks.length(); j++) {
 			JSONObject taskObj = tasks.getJSONObject(j);
 			TaskModel taskModel = new TaskModel(taskObj, id);
 			int task_id = db.tasks.Add(taskModel);
 			JSONArray notifications = taskObj.optJSONArray("Notifications");
+			if(notifications!=null)
 			for (int k = 0; k < notifications.length();k++) {
 				JSONObject notifObj = notifications.getJSONObject(k);
 				TaskNotificationsModel mTaskNotificationsModel = new TaskNotificationsModel(notifObj, task_id);
@@ -1739,13 +1777,13 @@ public class AppHandlerService extends Service implements
 				
 			}
 		}
-		update_tasklist_on_ui(model);
+		
 		} catch (JSONException e) {
 		// TODO Auto-generated catch block
 		e.printStackTrace();
 	}
+		//update_tasklist_on_ui(model);
 	}
-	
 	public void update_tasklist_on_ui(TaskListModel temp)
 	{
 		if (FocusedActivity != null
@@ -1793,6 +1831,20 @@ public class AppHandlerService extends Service implements
 //				
 //			
 //		}
+	}
+	public void gcm_delete_tasklist(TaskListModel temp)
+	{
+		;
+		if(db.tasklists.ActualDelete(temp._id))
+		{
+			
+				//mSyncHelper.remove_tasklist(temp);
+				
+				delete_tasklist_on_ui(temp);
+				//navigation drawer update tasklist
+				
+			
+		}
 	}
 	public void response_share_add_tasklist(TaskListModel tasklist,UserModel owner,JSONArray users, boolean self)
 	{

@@ -121,7 +121,7 @@ public class Common {
 	public static final String SPLASH_ACTIVITY = "SplashActivity";
 
 	// gravity urls
-	public static final String GRAVITY_BASE_URL = "http://192.168.100.4/";
+	public static final String GRAVITY_BASE_URL = "http://192.168.100.2/";
 	public static final String GRAVITY_ACCOUNT_URL = GRAVITY_BASE_URL
 			+ "Account/";
 	public static final String GRAVITY_GCM_URL = GRAVITY_BASE_URL + "GCM/";

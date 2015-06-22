@@ -1300,12 +1300,28 @@ public class SplashActivity extends Activity implements
 	@Override
 	public void startResultActivity(final Intent intent, final int RequestCode) {
 		// TODO Auto-generated method stub
+		final Activity a = this;
 		runOnUiThread(new Runnable() {
 			int choice = 0;
 			@Override
 			public void run() {
-				
+				try{
 				    startActivityForResult(intent, RequestCode);
+				}
+				catch(Exception e)
+				{
+					String s = e.getLocalizedMessage();
+//					Intent i = new Intent(a.getApplicationContext(),MainActivity.class);
+//					try{
+//						startActivity(intent);
+//					}
+//					catch(Exception ex)
+//					{
+//						String d = ex.getLocalizedMessage();
+//						
+//					}
+					
+				}
 //				OnClickListener optListener = new OnClickListener() {
 //					
 //					@Override
@@ -1315,7 +1331,7 @@ public class SplashActivity extends Activity implements
 //						
 //					}
 //				};
-//				//View view = mActivity.getLayoutInflater().inflate(R.layout.activity_authentication,null);
+//				View view = mActivity.getLayoutInflater().inflate(R.layout.activity_authentication,null);
 //				mAuth = new GoogleAuth(mContext, null);
 //				//if(user_data.user_email == null)
 //				List<String> options = new ArrayList<String>();//List<String>();
@@ -1337,19 +1353,19 @@ public class SplashActivity extends Activity implements
 //					public void onClick(DialogInterface dialog, int which) {
 //						// TODO Auto-generated method stub
 //						
-//						((SplashServiceCallback)sContext).onAccountProvided(a.getItem(choice));
+//						((SplashServiceCallback)mContext).onAccountProvided(a.getItem(choice));
 //					}
 //				}).setNegativeButton(R.string.useoffline, new OnClickListener() {
 //					
 //					@Override
 //					public void onClick(DialogInterface dialog, int which) {
 //						// TODO Auto-generated method stub
-//						((SplashServiceCallback)sContext).onAccountProvided("");
+//						((SplashServiceCallback)mContext).onAccountProvided("");
 //					}
 //				});
 //			    
 //			    builder.create().show();
-				//Common.CustomDialog.CustomDialog(mContext, view, negListener , posListener, R.string.proceed, R.string.useoffline, "Login");
+//				Common.CustomDialog.CustomDialog(mContext, view, negListener , posListener, R.string.proceed, R.string.useoffline, "Login");
 			}
 		});
 		
