@@ -45,6 +45,7 @@ public class GravityActivity extends ActionBarActivity {
 		LayoutInflater inflater = getLayoutInflater();
 		ViewGroup header = (ViewGroup) inflater.inflate(R.layout.gravity_header, v,
                 false);
+		header.setPadding(0, 50, 0, 0);
       
 		v.addHeaderView(header, null, false);
 		v.setAdapter(new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1,
