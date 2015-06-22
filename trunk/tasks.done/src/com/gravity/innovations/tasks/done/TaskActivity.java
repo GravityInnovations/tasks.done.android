@@ -20,6 +20,7 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.provider.ContactsContract;
 import android.support.v4.app.DialogFragment;
+import android.support.v4.view.MenuItemCompat;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBarActivity;
 import android.text.Editable;
@@ -42,6 +43,7 @@ import android.widget.CompoundButton.OnCheckedChangeListener;
 import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.GridView;
+import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
@@ -70,10 +72,11 @@ public class TaskActivity extends ActionBarActivity implements OnClickListener {
 	private Activity mActivity;
 	private Calendar cal_startdate;
 	private Calendar cal_enddate;
-
+	private ImageButton save, home;
 	private Calendar cal_starttime;
 	private Calendar cal_endtime;
-	private Calendar cal_repeatdate;//	private Calendar cal_repdate;//<<<<<<<<<<new
+	private Calendar cal_repeatdate;// private Calendar
+									// cal_repdate;//<<<<<<<<<<new
 	private Calendar mTime;
 	private TextView titleString_validate;
 	private String globalUriString = null;
@@ -85,11 +88,22 @@ public class TaskActivity extends ActionBarActivity implements OnClickListener {
 	private int textViewFlag = 5;
 	private int textViewTag = 1;
 	private ArrayList<TextView> arrayList_TextView = new ArrayList<TextView>();
+	private String TAG = "TaskActivity";
 
 	@Override
 	public void onBackPressed() {
+		// Intent intent = new Intent(this, MainActivity.class);
+		// setResult(RESULT_CANCELED, intent);
+		//
 		Intent intent = new Intent(this, MainActivity.class);
+		Serializable l = (Serializable) list;
+		intent.putExtra(Common.KEY_EXTRAS_LIST, l);
+
+		Serializable t = (Serializable) task;
+		intent.putExtra(Common.KEY_EXTRAS_TASK, t);
 		setResult(RESULT_CANCELED, intent);
+
+		//
 		finish();
 		Common.SoftKeyboard.hide(mActivity);
 		super.onBackPressed();
@@ -110,11 +124,14 @@ public class TaskActivity extends ActionBarActivity implements OnClickListener {
 		if (list != null)
 			mActionBar.setBackgroundDrawable(new ColorDrawable(Color
 					.parseColor(list.fragmentColor)));
-		//mActionBar.setTitle("Task Details");// //>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>???
-		mActionBar.setTitle(Html.fromHtml("<font color='#ffffff'>Task Details</font>"));
-		getSupportActionBar().setHomeAsUpIndicator(R.drawable.ic_arrow_back_white_24dp);
-		
-		mActionBar.show();
+		// mActionBar.setTitle("Task Details");//
+		// //>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>???
+		mActionBar.setTitle(Html
+				.fromHtml("<font color='#ffffff'>Task Details</font>"));
+		getSupportActionBar().setHomeAsUpIndicator(
+				R.drawable.ic_arrow_back_white_24dp);
+
+		mActionBar.hide();
 		/***********/
 	}
 
@@ -176,6 +193,8 @@ public class TaskActivity extends ActionBarActivity implements OnClickListener {
 
 			this.finish();
 			// setResult(/* 12345 */RESULT_OK, intent);// >>>>>>>>>>>>????
+		} else {
+			onBackPressed();
 		}
 		return super.onOptionsItemSelected(item);
 	}
@@ -184,6 +203,11 @@ public class TaskActivity extends ActionBarActivity implements OnClickListener {
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
+		try {
+			restoreActionBar();
+		} catch (Exception e) {
+			Log.e(TAG, "restoreActionBar:onCreate");
+		}
 		setContentView(R.layout.activity_task);
 		mActivity = this;
 		Intent intent = getIntent();
@@ -195,6 +219,13 @@ public class TaskActivity extends ActionBarActivity implements OnClickListener {
 					.getSerializableExtra(Common.KEY_EXTRAS_TASK);
 		}
 		try {
+			RelativeLayout header = (RelativeLayout) findViewById(R.id.task_activity_header);
+			header.setBackgroundColor(Color.parseColor(list.fragmentColor));
+			save = (ImageButton) findViewById(R.id.save_ib);
+			save.setOnClickListener(this);
+			home = (ImageButton) findViewById(R.id.home_ib);
+			home.setOnClickListener(this);
+			
 			Calendar cal_init = Calendar.getInstance();
 			cal_startdate = Calendar.getInstance();
 			cal_startdate.set(0, 0, 0, 0, 0, 0);
@@ -518,14 +549,14 @@ public class TaskActivity extends ActionBarActivity implements OnClickListener {
 					}
 					// else isNotAllDay
 					if (arrayList_TextView.size() > 2) {
-						//if (task._id == -1) {
-							try {
-								int size = arrayList_TextView.size();
-								resetNotificaionTextViews();
-							} catch (Exception e) {
-								Log.e("allDaySwitch", e.getLocalizedMessage());
-							}
-						//}
+						// if (task._id == -1) {
+						try {
+							int size = arrayList_TextView.size();
+							resetNotificaionTextViews();
+						} catch (Exception e) {
+							Log.e("allDaySwitch", e.getLocalizedMessage());
+						}
+						// }
 					}
 				}
 			};
@@ -624,12 +655,12 @@ public class TaskActivity extends ActionBarActivity implements OnClickListener {
 			textView.setTextSize(17);
 			float scale = getResources().getDisplayMetrics().density;
 			int dpAsPixels = (int) (10 * scale + 0.5f);
-//			if (textViewTag == 3){
-//				textView.setPadding(0, dpAsPixels, 0, 0);
-//			}else{
-				textView.setPadding(0, dpAsPixels, 0, dpAsPixels); //original one		
-//			}
-			//textView.setPadding(left, top, right, bottom)
+			// if (textViewTag == 3){
+			// textView.setPadding(0, dpAsPixels, 0, 0);
+			// }else{
+			textView.setPadding(0, dpAsPixels, 0, dpAsPixels); // original one
+			// }
+			// textView.setPadding(left, top, right, bottom)
 			textView.setTextColor(Color.parseColor("#757575"));// textColor
 			textView.setBackground(getResources().getDrawable(
 					android.R.color.transparent));
@@ -672,17 +703,17 @@ public class TaskActivity extends ActionBarActivity implements OnClickListener {
 		 */
 		// when ever switched is pressed it will reset the notifications
 		if (textViewTag == 2) {
-			  tv_notification0.setText("Notifications");
+			tv_notification0.setText("Notifications");
 			((LinearLayout) tv_notification1.getParent())
 					.removeView(tv_notification1);
 		} else if (textViewTag == 3) {
-			  tv_notification0.setText("Notifications");
+			tv_notification0.setText("Notifications");
 			((LinearLayout) tv_notification1.getParent())
 					.removeView(tv_notification1);
 			((LinearLayout) tv_notification2.getParent())
 					.removeView(tv_notification2);
 		} else if (textViewTag == 4) {
-			  tv_notification0.setText("Notifications");
+			tv_notification0.setText("Notifications");
 			((LinearLayout) tv_notification1.getParent())
 					.removeView(tv_notification1);
 			((LinearLayout) tv_notification2.getParent())
@@ -693,16 +724,16 @@ public class TaskActivity extends ActionBarActivity implements OnClickListener {
 			textViewFlag = 5;
 		}
 		textViewTag = 1;
-		
+
 		if (task._id != -1) {
-			for(TaskNotificationsModel model: task.notifications){ 
-				task.notifications.set(task.notifications.indexOf(model), Common.NotificaitonModel.deletable(model)); 
+			for (TaskNotificationsModel model : task.notifications) {
+				task.notifications.set(task.notifications.indexOf(model),
+						Common.NotificaitonModel.deletable(model));
 			}
-		}else{
+		} else {
 			task.notifications.clear(); // for clearing the arrayList
 		}
-		
-		
+
 		arrayList_TextView = new ArrayList<TextView>();
 		arrayList_TextView = null;
 		arrayList_TextView = new ArrayList<TextView>();
@@ -759,7 +790,7 @@ public class TaskActivity extends ActionBarActivity implements OnClickListener {
 		View dialogView = this.getLayoutInflater().inflate(
 				R.layout.dialog_repeat_custom, null);
 		final Spinner spinner_repeatTimes, spinner_repeatInterval;
-		final TextView  spinnerRepeat_tv, tv_repeatIntervalUnit, tv_spinnerValue;
+		final TextView spinnerRepeat_tv, tv_repeatIntervalUnit, tv_spinnerValue;
 
 		final EditText et_spinnerRepeat, et_spinnerInterval;
 		Switch switchOn;
@@ -974,11 +1005,12 @@ public class TaskActivity extends ActionBarActivity implements OnClickListener {
 
 					}
 				};
-				Common.CustomDialog.set(mActivity,
-						calendar_dialog_view, posListener, R.string.done);// *
+				Common.CustomDialog.set(mActivity, calendar_dialog_view,
+						posListener, R.string.done);// *
 			}
 		};
-		//tv_setDate.setOnClickListener(dateListener);<<<<<<<<<<<<<<<<<<<<previous version
+		// tv_setDate.setOnClickListener(dateListener);<<<<<<<<<<<<<<<<<<<<previous
+		// version
 		tv_setDate.setOnClickListener(this);
 
 		et_spinnerRepeat.addTextChangedListener(new TextWatcher() {
@@ -1276,8 +1308,12 @@ public class TaskActivity extends ActionBarActivity implements OnClickListener {
 					|| task.rep_intervalExpiration.isEmpty()) {
 				// forever
 				if (intervalType == 2) {
-					stringToBeDisplayed = interval + " time/s " + type + " on "
-							+ Common.RepeatConversions.getNamesOfDays(task.rep_value);
+					stringToBeDisplayed = interval
+							+ " time/s "
+							+ type
+							+ " on "
+							+ Common.RepeatConversions
+									.getNamesOfDays(task.rep_value);
 				} else {
 					stringToBeDisplayed = interval + " time/s " + type;
 				}
@@ -1391,8 +1427,8 @@ public class TaskActivity extends ActionBarActivity implements OnClickListener {
 						Common.NotificaitonModel.one_hrBefore(model));
 			} else if (task.allDay == 1) {
 				string_TVnotificaion = "The Day before at 11:30 PM";
-				task.notifications.set(tag, Common.NotificaitonModel
-						.onDayBeforeAtElevenThirtyPM());
+				task.notifications.set(tag,
+						Common.NotificaitonModel.onDayBeforeAtElevenThirtyPM());
 			}
 			generic_TV.setText(string_TVnotificaion);
 		} else if (which == 5) {
@@ -1427,15 +1463,17 @@ public class TaskActivity extends ActionBarActivity implements OnClickListener {
 			isDys = true;
 			tv_timepicker.setVisibility(View.VISIBLE);
 			line_timepicker.setVisibility(View.VISIBLE);
-			try{
-			tv_timepicker.setText(DateUtils.formatDateTime(TaskActivity.this,
-					mTime.getTimeInMillis(), DateUtils.FORMAT_SHOW_TIME));
-			}catch(Exception e){
-				tv_timepicker.setText(DateUtils.formatDateTime(TaskActivity.this,
-						System.currentTimeMillis(), DateUtils.FORMAT_SHOW_TIME));
+			try {
+				tv_timepicker.setText(DateUtils.formatDateTime(
+						TaskActivity.this, mTime.getTimeInMillis(),
+						DateUtils.FORMAT_SHOW_TIME));
+			} catch (Exception e) {
+				tv_timepicker.setText(DateUtils.formatDateTime(
+						TaskActivity.this, System.currentTimeMillis(),
+						DateUtils.FORMAT_SHOW_TIME));
 				/*
-				 * this exception is a fall back but a bad approach 
-				 * the error lies in mTime
+				 * this exception is a fall back but a bad approach the error
+				 * lies in mTime
 				 */
 			}
 		}
@@ -1990,13 +2028,13 @@ public class TaskActivity extends ActionBarActivity implements OnClickListener {
 			} else if (isEnd) {
 				cal_enddate = calendar;
 				date_end.setText(Common.datetimeHelper.getDate(cal_enddate));
+			} else if (isRepeat) {
+				cal_repeatdate = Calendar.getInstance();
+				cal_repeatdate = calendar;
+				tv_setDate.setText(Common.datetimeHelper
+						.getDate(cal_repeatdate));
 			}
-			 else if (isRepeat) {
-				 cal_repeatdate = Calendar.getInstance();
-				 cal_repeatdate = calendar;
-					tv_setDate.setText(Common.datetimeHelper.getDate(cal_repeatdate));
-			 }
-			
+
 		} else if (isTime) {
 			if (isStart) {
 				cal_starttime = calendar;
@@ -2065,18 +2103,52 @@ public class TaskActivity extends ActionBarActivity implements OnClickListener {
 			DialogFragment newFragment = new DatePickerFragment(cal_enddate,
 					TaskActivity.this, isDate, isTime, isStart, isEnd, isRepeat);
 			newFragment.show(getSupportFragmentManager(), "datePicker");
-		}
-		else if (v == tv_setDate){
+		} else if (v == tv_setDate) {
 			Boolean isEnd = false;
 			Boolean isDate = true;
 			Boolean isStart = false;
 			Boolean isTime = false;
 			Boolean isRepeat = true;
-			
+
 			DialogFragment newFragment = new DatePickerFragment(cal_enddate,
 					TaskActivity.this, isDate, isTime, isStart, isEnd, isRepeat);
 			newFragment.show(getSupportFragmentManager(), "datePicker");
 
+		} else if (v == save) {
+			Intent intent = new Intent(TaskActivity.this, MainActivity.class);
+			Serializable l = (Serializable) list;
+			intent.putExtra(Common.KEY_EXTRAS_LIST, l);
+
+			if (globalUriString != null) {
+				if (task.title.toLowerCase().contains("email")) {
+					task.title = "Email " + globalUriString;
+				} else if (task.title.toLowerCase().contains("call")) {
+					task.title = "Call " + globalUriString;
+				} else if (task.title.toLowerCase().contains("sms")) {
+					task.title = "Sms " + globalUriString;
+				}
+			}
+			Serializable t = (Serializable) task;
+			intent.putExtra(Common.KEY_EXTRAS_TASK, t);
+			try {
+				String _task = task.title;
+				if (_task.isEmpty() || _task == null || _task == ""
+						|| _task == " " || _task.length() == 0) {
+					setResult(RESULT_CANCELED, intent);
+				} else {
+					setResult(RESULT_OK, intent);
+				}
+			} catch (Exception e) {
+				e.getLocalizedMessage();
+				setResult(RESULT_CANCELED, intent);
+			}
+
+			Common.SoftKeyboard.hide(mActivity);
+
+			TaskActivity.this.finish();
+		} else if (v == home) {
+			onBackPressed();
 		}
+
 	}
 }

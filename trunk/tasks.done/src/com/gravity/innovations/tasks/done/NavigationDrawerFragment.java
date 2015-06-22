@@ -17,6 +17,7 @@ import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
+import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
@@ -109,6 +110,8 @@ public class NavigationDrawerFragment extends Fragment implements
 	public TaskListModel opt_Tasklist;// =null;
 	public TaskModel opt_Task;// =null;
 	LayoutInflater inflaterr;
+	Button temp_btn; // used in Dialog to for enable and disable
+	private String TAG = "NavigationDrawerFragment";
 
 	public NavigationDrawerFragment() {
 	}
@@ -485,8 +488,8 @@ public class NavigationDrawerFragment extends Fragment implements
 
 	public void openNavigationDrawer(int id) {
 		mDrawerLayout.openDrawer(mFragmentContainerView);
-			// to open the drawer on every start up
-			// and when there is no list
+		// to open the drawer on every start up
+		// and when there is no list
 	}
 
 	public void shutNavigationDrawer() {
@@ -675,8 +678,6 @@ public class NavigationDrawerFragment extends Fragment implements
 		}
 	}
 
-	Button temp_btn;
-
 	public void addOrEditTaskList(final TaskListModel tasklist) {
 		AlertDialog.Builder builder = new AlertDialog.Builder(mContext);
 		View view_dialog = getActivity().getLayoutInflater().inflate(
@@ -754,8 +755,7 @@ public class NavigationDrawerFragment extends Fragment implements
 				}
 			}
 		});
-	
-		
+
 		//
 		DialogInterface.OnClickListener posListener = new DialogInterface.OnClickListener() {
 			@Override
@@ -798,7 +798,6 @@ public class NavigationDrawerFragment extends Fragment implements
 				}
 			}
 		});
-
 
 		OnClickListener listerner = new OnClickListener() {
 			@Override
@@ -860,8 +859,8 @@ public class NavigationDrawerFragment extends Fragment implements
 
 				} else {
 					if (tasklist.title.length() != 0) {
-						
-						int nRows = db.tasklists.Edit(tasklist,false);
+
+						int nRows = db.tasklists.Edit(tasklist, false);
 						if (nRows > 0) {
 							editTaskList(tasklist);
 						}
@@ -920,7 +919,7 @@ public class NavigationDrawerFragment extends Fragment implements
 			addTaskList(m);
 		}
 	}
-	
+
 	public void addUserShareInAdapter(String tasklistId, String userids,
 			boolean updateUsersAdapter) {
 
@@ -1052,14 +1051,15 @@ public class NavigationDrawerFragment extends Fragment implements
 		Common.CustomDialog.set(mContext, R.string.delete, R.string.cancel,
 				negListener, posListener, R.string.delete_message_list);
 	}
-	public void delete_tasklist_on_ui(TaskListModel tasklist)
-	{
+
+	public void delete_tasklist_on_ui(TaskListModel tasklist) {
 		removeTaskList(tasklist);
 		/**
 		 * update data
 		 */
 		mAdapter.updateData(data); // update data
 	}
+
 	private void removeTaskList(TaskListModel temp) {
 		int position = 0;// this.mAdapter.getPosition(temp);
 		boolean flag = false;
@@ -1249,11 +1249,12 @@ public class NavigationDrawerFragment extends Fragment implements
 			}
 		}
 
-		if (task._id >= 0) {//means it is an old task
+		if (task._id >= 0) {// means it is an old task
 			for (TaskNotificationsModel tempNotificaiton : opt_Task.notifications) {
 				if (tempNotificaiton._id != -1) {
-					//for canceling all alarms
-					mAlarmBroadcastReciever.cancelAlarm(mContext, tempNotificaiton._id);
+					// for canceling all alarms
+					mAlarmBroadcastReciever.cancelAlarm(mContext,
+							tempNotificaiton._id);
 				}
 			}
 			for (TaskNotificationsModel newNoifications : task.notifications) {
@@ -1268,7 +1269,9 @@ public class NavigationDrawerFragment extends Fragment implements
 						mService.db.notification.Edit(newNoifications);
 						for (TaskNotificationsModel model : opt_Task.notifications) {
 							if (newNoifications._id == model._id) {
-								opt_Task.notifications.set(	opt_Task.notifications.indexOf(model), newNoifications);
+								opt_Task.notifications.set(
+										opt_Task.notifications.indexOf(model),
+										newNoifications);
 							}
 						}
 					}
@@ -1278,18 +1281,20 @@ public class NavigationDrawerFragment extends Fragment implements
 					opt_Task.notifications.remove(newNoifications);
 				}
 			}
-			
-			mService.db.tasks.Edit(task); //so that name title etc can be updated
+
+			mService.db.tasks.Edit(task); // so that name title etc can be
+											// updated
 			opt_Task = null;
 			opt_Task = mService.db.tasks.Get(task._id);
 			for (TaskModel temp : opt_Tasklist.tasks) {
 				if (temp._id == opt_Task._id) {
-					opt_Tasklist.tasks.set(opt_Tasklist.tasks.indexOf(temp), opt_Task);
+					opt_Tasklist.tasks.set(opt_Tasklist.tasks.indexOf(temp),
+							opt_Task);
 				}
 			}
 			editTask(opt_Tasklist, opt_Task);
 			// Set New Alarms
-			//mAlarmBroadcastReciever.setAlarm(opt_Task, mContext);
+			// mAlarmBroadcastReciever.setAlarm(opt_Task, mContext);
 
 		} else if (task._id == -1) {
 			opt_Task = task;
@@ -1298,7 +1303,7 @@ public class NavigationDrawerFragment extends Fragment implements
 			addTask(opt_Tasklist, opt_Task);
 			opt_Task = mService.db.tasks.Get(opt_Task._id);// redundant probably
 			// Set New Alarms
-			//mAlarmBroadcastReciever.setAlarm(opt_Task, mContext);
+			// mAlarmBroadcastReciever.setAlarm(opt_Task, mContext);
 		}
 	}
 
@@ -1384,17 +1389,29 @@ public class NavigationDrawerFragment extends Fragment implements
 					sel_users.add(m);
 					emailList.add(m.email);
 				}
-				// emailList = new ArrayList<String>();
-				// emailList.add("abbasi.abdullah72@gmail.com");
-				// emailList.add("qazi.danial.ak@gmail.com");
-				// emailList.add("mushahid.hassan@yahoo.com");
-				// emailList.add("hassan_mushahid@live.co.uk");
-				// emailList.add("mushahidhassan110@gmail.com");
-				SendEmail mail = new SendEmail(emailList, _userDataId);
+				composeEmailString(emailList);
 			}
 		};
 		Common.CustomDialog.MultiChoiceDialog(mActivity, adapter,
 				onItemClickListener, negListener, posListener, R.string.ok,
 				R.string.cancel, "Share");
 	}
+
+	private void composeEmailString(ArrayList<String> addressesList) {
+		String[] addresses = new String[addressesList.size()];
+		int i = 0;
+		for (String email : addressesList) {
+			addresses[i] = email;
+			i++;
+		}
+		try {
+			Common.Intents.email(addresses, mContext);
+			//testCases
+			// String [] addresses =
+			// {"first.mail@gmail.com"};//,"second.mail@gmail.com"};
+		} catch (Exception e) {
+			Log.e(TAG, "composeEmailString:ComposeEmail()");
+		}
+	}
+
 }

@@ -334,7 +334,7 @@ public class Common {
 
 		public static final void set(final Context context, int posText,
 				int negText, DialogInterface.OnClickListener negListener,
-				DialogInterface.OnClickListener posListener, int  resource_msg) {
+				DialogInterface.OnClickListener posListener, int resource_msg) {
 
 			AlertDialog.Builder builder = new AlertDialog.Builder(context);
 			builder.setIcon(R.drawable.ic_warning_grey600_24dp);
@@ -1158,12 +1158,13 @@ public class Common {
 			}
 			return hex;
 		}
-		
-		public static Drawable changeColor(String hex, int resource , Activity mActivity){
-			
+
+		public static Drawable changeColor(String hex, int resource,
+				Activity mActivity) {
+
 			Drawable mDrawable = mActivity.getResources().getDrawable(resource);
 			mDrawable.setColorFilter(Color.WHITE, PorterDuff.Mode.MULTIPLY);
-			int iColor =  Color.parseColor(hex);
+			int iColor = Color.parseColor(hex);
 			int red = (iColor & 0xFF0000) / 0xFFFF;
 			int green = (iColor & 0xFF00) / 0xFF;
 			int blue = iColor & 0xFF;
@@ -1174,19 +1175,22 @@ public class Common {
 
 			return mDrawable;
 		}
-		public static Drawable changeColor(String hex, Drawable mDrawable){
-			
-			//Drawable mDrawable = mActivity.getResources().getDrawable(resource);
-			//mDrawable.setColorFilter(Color.WHITE, PorterDuff.Mode.MULTIPLY);
-			int iColor =  Color.parseColor(hex);
+
+		public static Drawable changeColor(String hex, Drawable mDrawable) {
+
+			// Drawable mDrawable =
+			// mActivity.getResources().getDrawable(resource);
+			// mDrawable.setColorFilter(Color.WHITE, PorterDuff.Mode.MULTIPLY);
+			int iColor = Color.parseColor(hex);
 			mDrawable.setColorFilter(iColor, PorterDuff.Mode.SRC_ATOP);
-//			int red = (iColor & 0xFF0000) / 0xFFFF;
-//			int green = (iColor & 0xFF00) / 0xFF;
-//			int blue = iColor & 0xFF;
-//			float[] matrix = { 0, 0, 0, 0, red, 0, 0, 0, 0, green, 0, 0, 0, 0,
-//					blue, 0, 0, 0, 1, 0 };
-//			ColorFilter colorFilter = new ColorMatrixColorFilter(matrix);
-//			mDrawable.setColorFilter(colorFilter);
+			// int red = (iColor & 0xFF0000) / 0xFFFF;
+			// int green = (iColor & 0xFF00) / 0xFF;
+			// int blue = iColor & 0xFF;
+			// float[] matrix = { 0, 0, 0, 0, red, 0, 0, 0, 0, green, 0, 0, 0,
+			// 0,
+			// blue, 0, 0, 0, 1, 0 };
+			// ColorFilter colorFilter = new ColorMatrixColorFilter(matrix);
+			// mDrawable.setColorFilter(colorFilter);
 
 			return mDrawable;
 		}
@@ -1486,7 +1490,7 @@ public class Common {
 			int i = 0;
 			String notificationsArray[] = new String[task.notifications.size()];
 			for (TaskNotificationsModel notificationModel : task.notifications) {
-				
+
 				int unitOfTime_type = notificationModel.interval_type;
 				String unitOfTime = null;
 				if (unitOfTime_type == 1) {
@@ -1512,10 +1516,10 @@ public class Common {
 			return notificationsArray;
 		}
 
-		
 		public static String getRepeatString(TaskModel task) {
 			// tv_repeat.setText(task.repetition.)
-			// based on combinations it should return some text and that text will
+			// based on combinations it should return some text and that text
+			// will
 			// be displayed at this text view
 			int interval = task.rep_interval;
 			// interval = number of days or weeks or months or years
@@ -1542,8 +1546,12 @@ public class Common {
 						|| task.rep_intervalExpiration.isEmpty()) {
 					// forever
 					if (intervalType == 2) {
-						stringToBeDisplayed = interval + " time/s " + type + " on "
-								+ Common.RepeatConversions.getNamesOfDays(task.rep_value);
+						stringToBeDisplayed = interval
+								+ " time/s "
+								+ type
+								+ " on "
+								+ Common.RepeatConversions
+										.getNamesOfDays(task.rep_value);
 					} else {
 						stringToBeDisplayed = interval + " time/s " + type;
 					}
@@ -1567,7 +1575,35 @@ public class Common {
 			}
 			return stringToBeDisplayed;
 		}
-		
-		
+	}
+
+	public static class Intents {
+
+		public static void email(String[] addresses, Context mContext) {
+			// This one suggestion for email app
+			String addressesString = null;
+			if (addresses == null) {
+				addressesString = "johndoe@example.com";
+			} else if (addresses.length >= 0) {
+				addressesString = stringbuilder(addresses);
+			}
+			Intent intent = new Intent(Intent.ACTION_SENDTO);
+			intent.setType("message/rfc822");
+			intent.setData(Uri.parse("mailto:" + addressesString));// first.mail@gmail.com,second.mail@gmail.com"));
+			String subject = "App referal promo";
+			intent.putExtra(Intent.EXTRA_SUBJECT, subject);
+			String emailString = "\n this email reminder was reminded to you by task.done https://play.google.com/store";
+			intent.putExtra(Intent.EXTRA_TEXT, emailString);
+			mContext.startActivity(Intent
+					.createChooser(intent, "Send email..."));
+		}
+
+		private static String stringbuilder(String[] arr) {
+			StringBuilder builder = new StringBuilder();
+			for (String s : arr) {
+				builder.append(s + ",");
+			}
+			return builder.toString();
+		}
 	}
 }

@@ -268,7 +268,9 @@ public class MainActivity extends ActionBarActivity implements
 		if (service != null) {
 			service.onActivityOpen(this, this);
 			service.addProgressTask("Main Application opened");
+			if (CurrentList._id == -1){
 			startActions();
+			}
 		} else {
 			AsyncTask<Void, Void, Void> t = new AsyncTask<Void, Void, Void>() {
 
@@ -361,8 +363,15 @@ public class MainActivity extends ActionBarActivity implements
 						.getSerializableExtra(Common.KEY_EXTRAS_TASK);
 				mNavigationDrawerFragment.updateTask(list, task);
 			} else if (arg1 == RESULT_CANCELED) {
-				onDashboardSelected();
-			}
+				//onDashboardSelected();
+				Bundle mBundle = intent.getExtras();
+				TaskListModel list = (TaskListModel) intent
+						.getSerializableExtra(Common.KEY_EXTRAS_LIST);
+				TaskModel task = (TaskModel) intent
+						.getSerializableExtra(Common.KEY_EXTRAS_TASK);
+				CurrentList = list;
+				onNavigationDrawerItemSelected(list, task._id);
+ 			}
 		}
 	}
 
@@ -378,7 +387,7 @@ public class MainActivity extends ActionBarActivity implements
 					try {
 						onDashboardSelected();
 					} catch (Exception e) {
-						Log.e("asf", "asdf");
+						Log.e("MainActivity", "onNavigationDrawerItemSelected:onDashboard");
 					}
 					mNavigationDrawerFragment.openNavigationDrawer(id);
 				} else {
