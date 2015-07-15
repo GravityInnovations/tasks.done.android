@@ -4,7 +4,6 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import org.json.JSONException;
 import org.json.JSONObject;
-import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
@@ -12,13 +11,12 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.SharedPreferences.Editor;
 import android.content.res.Configuration;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
-import android.net.Uri;
-import android.os.Build;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.v4.app.ActionBarDrawerToggle;
@@ -50,9 +48,10 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.google.android.gms.internal.mn;
 import com.gravity.innovations.tasks.done.Common.userData;
 import com.gravity.innovations.tasks.done.CustomIconListAdapter.OptionsModel;
+import com.gravity.innovations.tasks.done.DemoHelper.DashBoardDemo;
+import com.gravity.innovations.tasks.done.DemoHelper.StartDemo;
 
 /**
  * Fragment used for managing interactions for and presentation of a navigation
@@ -62,7 +61,8 @@ import com.gravity.innovations.tasks.done.CustomIconListAdapter.OptionsModel;
  * implemented here.
  */
 public class NavigationDrawerFragment extends Fragment implements
-		Common.Callbacks.HttpCallback, Common.Callbacks.TimeCallBack {
+		Common.Callbacks.HttpCallback, Common.Callbacks.TimeCallBack,
+		StartDemo, DashBoardDemo {
 
 	DialogListViewAdapter dialog_adapter;
 	int resource;
@@ -72,7 +72,8 @@ public class NavigationDrawerFragment extends Fragment implements
 	private Common.userData user_data;
 	private View oldSelection = null;
 	AlarmBroadcastReciever mAlarmBroadcastReciever = new AlarmBroadcastReciever();
-
+	CustomIconListAdapter mCustomIconListAdapter;
+	private ListView _mDrawerListView;
 	/**
 	 * Remember the position of the selected item.
 	 */
@@ -109,9 +110,10 @@ public class NavigationDrawerFragment extends Fragment implements
 	// private Builder mDialogBuilder;
 	public TaskListModel opt_Tasklist;// =null;
 	public TaskModel opt_Task;// =null;
-	LayoutInflater inflaterr;
+	// LayoutInflater inflaterr;
 	Button temp_btn; // used in Dialog to for enable and disable
 	private String TAG = "NavigationDrawerFragment";
+	private EditText et_title;
 
 	public NavigationDrawerFragment() {
 	}
@@ -182,12 +184,16 @@ public class NavigationDrawerFragment extends Fragment implements
 		setHasOptionsMenu(true);
 	}
 
+	public CustomIconListAdapter getCustomIconListAdapter() {
+		return mCustomIconListAdapter;
+	}
+
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container,
 			Bundle savedInstanceState) {
 		View p = (View) inflater.inflate(R.layout.fragment_navigation_drawer,
 				container, false);
-		inflaterr = inflater;
+		// inflaterr = inflater;
 		mDrawerListView = (ListView) p.findViewById(R.id.nav_drawer_listview);
 		View header = inflater.inflate(
 				R.layout.fragment_navigation_drawer_header, null);
@@ -270,6 +276,7 @@ public class NavigationDrawerFragment extends Fragment implements
 		Resources res = getResources();
 
 		ArrayList<CustomIconListAdapter.OptionsModel> options = new ArrayList<CustomIconListAdapter.OptionsModel>();
+
 		options.add(new OptionsModel(R.drawable.ic_add_grey600_18dp,
 				"New Catagory"));
 		options.add(new OptionsModel(R.drawable.ic_info_outline_grey600_18dp,
@@ -280,10 +287,19 @@ public class NavigationDrawerFragment extends Fragment implements
 				"Settings"));
 		options.add(new OptionsModel(R.drawable.ic_web_grey600_18dp,
 				"Dashboard"));
+
 		options.add(new OptionsModel(R.drawable.ic_router_grey600_18dp, String
 				.valueOf(getResources().getString(R.string.make_ad_free))));
+
+		options.add(new OptionsModel(
+				R.drawable.ic_presentation_play_grey600_18dp, String
+						.valueOf(getResources().getString(R.string.app_demo))));
+
 		final CustomIconListAdapter opt_adapter = new CustomIconListAdapter(
 				getActivity(), R.layout.row_tasklist_listview, options);
+
+		mCustomIconListAdapter = opt_adapter;
+
 		// new TaskListAdapter(getActivity(),
 		// R.layout.tasklist_listview_row, options);
 		if (tasklistid != -1 && taskid != -1)
@@ -335,7 +351,17 @@ public class NavigationDrawerFragment extends Fragment implements
 					imageresource = R.drawable.ic_expand_more_white_36dp;
 
 				} else {
+
 					mDrawerListView.setAdapter(opt_adapter);
+					_mDrawerListView = mDrawerListView;
+					SharedPreferences prefs = mActivity.getSharedPreferences(
+							Common.PREFS_DEMO, Context.MODE_PRIVATE);
+					Boolean demoFlag = prefs.getBoolean(
+							Common.PREFS_KEY_DEMO_CREATE_LIST_INSTRUCTIONS,
+							false);
+					if (!demoFlag) {
+						newCatagoryInstructionsDemo(opt_adapter);
+					}
 					search_layout.setVisibility(View.GONE);
 					mDrawerListView
 							.setOnItemClickListener(new OnItemClickListener() {
@@ -372,18 +398,29 @@ public class NavigationDrawerFragment extends Fragment implements
 										((MainActivity) mActivity)
 												.manuallySelectOptionMenuItem(R.id.action_refer_friend);
 										break;
+									case 7:
+										((MainActivity) mActivity)
+												.manuallySelectOptionMenuItem(R.id.action_demo);
+										options_toggle.performClick();
+										break;
 
 									}
 								}
 							});
+
 					imageresource = R.drawable.ic_expand_less_white_36dp;
 				}
+
 				options_toggle.setImageResource(imageresource);
 				// v.setBackgroundColor(Color.parseColor("#34343434"));
 				// TODO Auto-generated method stub
-
+				// showActivityOverlay(mDrawerListView, opt_adapter,
+				// mDrawerListView.getAdapter().getView(mDrawerListView.getFirstVisiblePosition(),
+				// null, mDrawerListView));
 			}
+
 		});
+
 		// profile.setImageBitmap(user_data.image);
 		mDrawerLayout.setDrawerShadow(R.drawable.drawer_shadow,
 				GravityCompat.START);
@@ -634,12 +671,12 @@ public class NavigationDrawerFragment extends Fragment implements
 		}
 	}
 
-	@SuppressLint("NewApi")
+	// @SuppressLint("NewApi")
 	private void setColorBackgroundResouce(GridView mGridView, int position,
 			EditText et_hexCode, View view_catagoryColor) {
-		View view = mGridView.getChildAt(position);
-		clearSelection();
-		oldSelection = view;
+		// View view = mGridView.getChildAt(position);
+		// clearSelection();
+		// oldSelection = view;
 		String _colorHex = Common.ColorHex.taskDoneBlue;
 		if (position == 0) {
 			_colorHex = Common.ColorHex.taskDoneBlue;
@@ -669,22 +706,24 @@ public class NavigationDrawerFragment extends Fragment implements
 
 		et_hexCode.setText(_colorHex);
 		view_catagoryColor.setBackgroundColor(Color.parseColor(_colorHex));
-		if (Build.VERSION.SDK_INT < Build.VERSION_CODES.JELLY_BEAN) {
-			view.setBackgroundDrawable(Common.ShapesAndGraphics
-					.getCircularShape(_colorHex));
-		} else {
-			view.setBackground(Common.ShapesAndGraphics
-					.getCircularShape(_colorHex));
-		}
+		// if (Build.VERSION.SDK_INT < Build.VERSION_CODES.JELLY_BEAN) {
+		// view.setBackgroundDrawable(Common.ShapesAndGraphics
+		// .getCircularShape(_colorHex));
+		// } else {
+		// view.setBackground(Common.ShapesAndGraphics
+		// .getCircularShape(_colorHex));
+		// }
 	}
+
+	IconGridAdapter iconAdapter;
+	CustomBaseAdapter_ColorsGrid colorAdapter;
 
 	public void addOrEditTaskList(final TaskListModel tasklist) {
 		AlertDialog.Builder builder = new AlertDialog.Builder(mContext);
 		View view_dialog = getActivity().getLayoutInflater().inflate(
 				R.layout.dialog_add_edit_tasklist, null);
 
-		final EditText et_title = (EditText) view_dialog
-				.findViewById(R.id.et_title);
+		et_title = (EditText) view_dialog.findViewById(R.id.et_title);
 
 		final View view_catagoryColor = (View) view_dialog
 				.findViewById(R.id.view_catagoryColor);
@@ -699,10 +738,12 @@ public class NavigationDrawerFragment extends Fragment implements
 					int position, long id) {
 				String v = parent.getTag().toString();
 				if (v == "icon" || v.contains("icon")) {
+					iconAdapter.setSelectedPosition(position);
 					tasklist.icon_identifier = Common.DrawableResouces
-							.getDrawableResouce(position);
+							.getIconResouceID(position);
 				}
 				if (v == "color" || v.contains("color")) {
+					colorAdapter.setSelectedPosition(position);
 					setColorBackgroundResouce(((GridView) parent), position,
 							et_hexCode, view_catagoryColor);
 					tasklist.fragmentColor = Common.DrawableResouces
@@ -710,20 +751,40 @@ public class NavigationDrawerFragment extends Fragment implements
 				}
 			}
 		};
-		GridView iconsGrid = (GridView) view_dialog
+
+		final GridView iconsGrid = (GridView) view_dialog
 				.findViewById(R.id.gv_catagoryIcon);
 		// iconsGrid.setVerticalScrollBarEnabled(false);
-		iconsGrid.setAdapter(new IconGridAdapter(mActivity,
-				Common.Arrays.resource_icons));
+		iconAdapter = new IconGridAdapter(mActivity,
+				Common.Arrays.resource_icons);
+		iconsGrid.setAdapter(iconAdapter);
 		iconsGrid.setOnItemClickListener(listener);
-		// iconsGrid.performItemClick(iconsGrid, 5, 5);
-		// iconsGrid.setSelection(5);
+		// remove the default onPositiveListerner
+
 		final GridView colorsGrid = (GridView) view_dialog
 				.findViewById(R.id.gv_catagoryColor);
-		colorsGrid.setVerticalScrollBarEnabled(false);
-		colorsGrid.setAdapter(new CustomBaseAdapter_ColorsGrid(mActivity,
-				Common.Arrays.colorsDrawables));
+		// colorsGrid.setVerticalScrollBarEnabled(false);
+
+		colorAdapter = new CustomBaseAdapter_ColorsGrid(mActivity,
+				Common.Arrays.colorsDrawables);
+		colorsGrid.setAdapter(colorAdapter);
 		colorsGrid.setOnItemClickListener(listener);
+
+		if (tasklist._id != -1) {
+			int iconPosition = Common.DrawableResouces
+					/* .getItemPositionColor(tasklist.fragmentColor); */.getIconPosition(tasklist.icon_identifier);
+
+			iconAdapter.setSelectedPosition(iconPosition);
+			// iconsGrid.performItemClick(iconsGrid, pos, pos);
+			// iconsGrid.performItemClick(iconsGrid.getAdapter().getView(pos,
+			// null, null)
+			// , pos
+			// , iconsGrid.getAdapter().getItemId(pos)
+			// );
+			int colorPosition = Common.DrawableResouces
+					.getColorPosition(tasklist.fragmentColor);
+			colorAdapter.setSelectedPosition(colorPosition);
+		}
 		/*
 		 * default Selection setItemBackgroundResouce_NEW( ((
 		 * GridView)colorsGrid), 0, et_hexCode, view_catagoryColor);
@@ -813,14 +874,16 @@ public class NavigationDrawerFragment extends Fragment implements
 				}
 				String hex;
 				try {
-					hex = et_hexCode.getText().toString();
-					if (hex.startsWith("#", 0) && hex.length() == 7) {
-						tasklist.fragmentColor = et_hexCode.getText()
-								.toString();
-					}
-					if (hex == null || hex.isEmpty() || hex.length() == 0
-							|| hex == " " || hex == "") {
-						tasklist.fragmentColor = Common.ColorHex.taskDoneBlue;
+					if (tasklist._id == -1) {
+						hex = et_hexCode.getText().toString();
+						if (hex.startsWith("#", 0) && hex.length() == 7) {
+							tasklist.fragmentColor = et_hexCode.getText()
+									.toString();
+						}
+						if (hex == null || hex.isEmpty() || hex.length() == 0
+								|| hex == " " || hex == "") {
+							tasklist.fragmentColor = Common.ColorHex.taskDoneBlue;
+						}
 					}
 				} catch (Exception e) {
 					tasklist.fragmentColor = Common.ColorHex.taskDoneBlue;
@@ -903,7 +966,7 @@ public class NavigationDrawerFragment extends Fragment implements
 				temp.title = m.title;
 				temp.DateCreated = m.DateCreated;
 				temp.fragmentColor = m.fragmentColor;
-				
+
 				temp.DateUpdated = m.DateUpdated;
 				temp.owner_id = m.owner_id;
 				this.mAdapter.notifyDataSetChanged();
@@ -914,8 +977,7 @@ public class NavigationDrawerFragment extends Fragment implements
 				break;
 			}
 		}
-		if(flag)
-		{
+		if (flag) {
 			addTaskList(m);
 		}
 	}
@@ -1072,16 +1134,15 @@ public class NavigationDrawerFragment extends Fragment implements
 				flag = true;
 		}
 		flag = data.remove(temp);
-		if(!flag)
-		{
-			for (int i=0;i<this.data.size();i++) {
-				
+		if (!flag) {
+			for (int i = 0; i < this.data.size(); i++) {
+
 				TaskListModel t = this.data.get(i);
-				if(t._id == temp._id){
+				if (t._id == temp._id) {
 					this.data.remove(i);
-				position = i;
+					position = i;
 				}
-				
+
 			}
 		}
 		this.mAdapter.notifyDataSetChanged();
@@ -1297,11 +1358,13 @@ public class NavigationDrawerFragment extends Fragment implements
 			// mAlarmBroadcastReciever.setAlarm(opt_Task, mContext);
 
 		} else if (task._id == -1) {
+
 			opt_Task = task;
 			this.opt_Task.fk_tasklist_id = opt_Tasklist._id;
 			this.opt_Task._id = mService.db.tasks.Add(opt_Task);
 			addTask(opt_Tasklist, opt_Task);
 			opt_Task = mService.db.tasks.Get(opt_Task._id);// redundant probably
+
 			// Set New Alarms
 			// mAlarmBroadcastReciever.setAlarm(opt_Task, mContext);
 		}
@@ -1406,12 +1469,179 @@ public class NavigationDrawerFragment extends Fragment implements
 		}
 		try {
 			Common.Intents.email(addresses, mContext);
-			//testCases
-			// String [] addresses =
-			// {"first.mail@gmail.com"};//,"second.mail@gmail.com"};
 		} catch (Exception e) {
 			Log.e(TAG, "composeEmailString:ComposeEmail()");
 		}
 	}
 
+	private ListView getListView() {
+		return _mDrawerListView;
+	}
+
+	@Override
+	public void newCatagoryInstructionsDemo(final CustomIconListAdapter adapter) {
+
+		final Dialog dialog = new Dialog(mContext,
+				android.R.style.Theme_Translucent_NoTitleBar);
+
+		dialog.setContentView(R.layout.dialog_demo_overlay);
+
+		TextView instructions = (TextView) dialog
+				.findViewById(R.id.instructions);
+		instructions.setText(R.string.demo_list_create_instructions);
+
+		adapter.setBlinkingPosition(0, Common.Demo.getDemoNavListAnim());
+
+		Button btn = (Button) dialog.findViewById(R.id.got_it);
+
+		btn.setOnClickListener(new View.OnClickListener() {
+			@Override
+			public void onClick(final View view) {
+				adapter.setBlinkingPosition(-1,
+						Common.Demo.getDemoNavListAnim());
+				dialog.dismiss();
+				SharedPreferences settings = mActivity.getSharedPreferences(
+						Common.PREFS_DEMO, Context.MODE_PRIVATE);
+				Editor editor = settings.edit();
+				editor.putBoolean(
+						Common.PREFS_KEY_DEMO_CREATE_LIST_INSTRUCTIONS, true);
+				editor.commit();
+				mActivity.runOnUiThread(new Runnable() {
+					@Override
+					public void run() {
+						getListView().performItemClick(getListView(), 1,
+								getListView().getItemIdAtPosition(1));
+					}
+				});
+			}
+		});
+
+		dialog.show();
+
+	}
+
+	@Override
+	public void newCatagoryDemo() {
+		TaskListModel temp = new TaskListModel();
+		addOrEditTaskList(temp); // passing a new task to listDialog
+
+		final Dialog dialog = new Dialog(mContext,
+				android.R.style.Theme_Translucent_NoTitleBar);
+
+		dialog.setContentView(R.layout.dialog_demo_overlay);
+
+		TextView instructions = (TextView) dialog
+				.findViewById(R.id.instructions);
+		instructions.setText(R.string.demo_list_create_demo);
+
+		Button btn = (Button) dialog.findViewById(R.id.got_it);
+		et_title.setText("Meetings List");
+		btn.setOnClickListener(new View.OnClickListener() {
+			@Override
+			public void onClick(final View view) {
+				dialog.dismiss();
+				temp_btn.performClick();
+				SharedPreferences settings = mActivity.getSharedPreferences(
+						Common.PREFS_DEMO, Context.MODE_PRIVATE);
+				Editor editor = settings.edit();
+				editor.putBoolean(Common.PREFS_KEY_DEMO_CREATEALIST, true);
+				editor.commit();
+			}
+		});
+
+		dialog.show();
+
+	}
+
+	@Override
+	public void startInstructionsDemo(View view) {
+		// used in MA only
+	}
+
+	@Override
+	public void navToggleInstructions(View view) {
+		// used in MA only
+	}
+
+	@Override
+	public void navToggleDemo(View view) {
+		// used in MA only
+	}
+
+	@Override
+	public void demo1_openDashInstructions() {
+		// TODO Auto-generated method stub
+		try {
+			openNavigationDrawer(-1);
+			View view = /* mMainActivity */((MainActivity) mActivity)
+					.getToggleButton();
+			view.performClick();
+		} catch (Exception e) {
+			Log.e(TAG,
+					"DemoStep1_openDashInstructions()->view this view will return null if its not init in MA");
+		}
+		final Dialog dialog = new Dialog(mContext,
+				android.R.style.Theme_Translucent_NoTitleBar);
+
+		dialog.setContentView(R.layout.dialog_demo_overlay);
+
+		TextView instructions = (TextView) dialog
+				.findViewById(R.id.instructions);
+		instructions.setText(R.string.demo_clickDashboard);
+
+		try {
+			getCustomIconListAdapter().setBlinkingPosition(4,
+					Common.Demo.getDemoListAnimation());
+		} catch (Exception e) {
+			// TODO: handle exception
+			e.getLocalizedMessage();
+		}
+
+		Button btn = (Button) dialog.findViewById(R.id.got_it);
+
+		btn.setOnClickListener(new View.OnClickListener() {
+			@Override
+			public void onClick(final View view) {
+				getCustomIconListAdapter().setBlinkingPosition(-1,
+						Common.Demo.getDemoListAnimation());
+				dialog.dismiss();
+				Common.flag_demoDashboard = true;
+
+				mActivity.runOnUiThread(new Runnable() {
+					@Override
+					public void run() {
+						getListView().performItemClick(getListView(), 5,
+								getListView().getItemIdAtPosition(5));
+					}
+				});
+			}
+		});
+
+		dialog.show();
+
+	}
+
+	@Override
+	public void demo2_fragDashInstruction() {
+		// TODO Auto-generated method stub
+		// it is overridin in DashboardFragment
+	}
+
+	@Override
+	public void demo3_fragDashSearch() {
+		// TODO Auto-generated method stub
+		// it is overridin in DashboardFragment
+	}
+
+	@Override
+	public void demo4_fragDashSearch() {
+		// TODO Auto-generated method stub
+		// it is overridin in DashboardFragment
+	}
+
+	@Override
+	public void demo5_fragDashEnd() {
+		// TODO Auto-generated method stub
+		// it is overridin in DashboardFragment
+	}
 }

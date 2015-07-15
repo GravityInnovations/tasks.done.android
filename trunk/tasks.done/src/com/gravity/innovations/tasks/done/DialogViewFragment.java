@@ -3,20 +3,11 @@ package com.gravity.innovations.tasks.done;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
-
-import com.google.android.gms.internal.mc;
-import com.gravity.innovations.custom.views.CalendarView;
-
 import android.annotation.SuppressLint;
 import android.app.Activity;
-import android.app.FragmentManager.OnBackStackChangedListener;
-import android.database.DataSetObserver;
 import android.graphics.Color;
 import android.net.Uri;
-import android.os.AsyncTask;
-import android.os.Build;
 import android.os.Bundle;
-import android.os.Handler;
 import android.support.annotation.Nullable;
 import android.support.v4.app.DialogFragment;
 import android.support.v4.app.FragmentManager;
@@ -25,15 +16,16 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.view.ViewGroup;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
-import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.ImageView;
-import android.widget.ListAdapter;
 import android.widget.ListView;
 import android.widget.TabHost;
 import android.widget.TextView;
+
+import com.gravity.innovations.custom.views.CalendarView;
 
 @SuppressLint("ValidFragment")
 public class DialogViewFragment extends DialogFragment {
@@ -48,11 +40,7 @@ public class DialogViewFragment extends DialogFragment {
 	private CalendarView cal;
 	private Activity mActivity;
 	private String TAG = "DialogViewFragment";
- 	private TextView tv_repeat_string;	
-//	private TextView tv_repeat_type;
-//	private TextView tv_repeat_interval;
-//	private TextView tv_repeat_expiration;
-//	private TextView tv_repeat_value;
+	private TextView tv_repeat_string;
 	private ListView notification_listView;
 
 	public DialogViewFragment(TaskListModel listModel, TaskModel taskModel,
@@ -87,10 +75,10 @@ public class DialogViewFragment extends DialogFragment {
 		// create tab 1
 		TabHost.TabSpec spec1 = tabHost.newTabSpec("tab1");
 		spec1.setIndicator("Details");
-//		spec1.setIndicator(
-//				"Details",
-//				getActivity().getResources().getDrawable(
-//						R.drawable.ic_add_grey600_18dp));
+		// spec1.setIndicator(
+		// "Details",
+		// getActivity().getResources().getDrawable(
+		// R.drawable.ic_add_grey600_18dp));
 		spec1.setContent(R.id.lltab1);
 
 		tabHost.addTab(spec1);
@@ -98,8 +86,8 @@ public class DialogViewFragment extends DialogFragment {
 
 		TabHost.TabSpec spec2 = tabHost.newTabSpec("tab2");
 		spec2.setIndicator("Reminders");
-//		spec2.setIndicator("Reminders", getActivity().getResources()
-//				.getDrawable(R.drawable.ic_close_grey600_24dp));
+		// spec2.setIndicator("Reminders", getActivity().getResources()
+		// .getDrawable(R.drawable.ic_close_grey600_24dp));
 		spec2.setContent(R.id.lltab2);
 		tabHost.addTab(spec2);
 
@@ -125,10 +113,11 @@ public class DialogViewFragment extends DialogFragment {
 		tv_updated = (TextView) view.findViewById(R.id.txt_time_updated);
 		tv_sync_time = (TextView) view.findViewById(R.id.txt_time_synced);
 		// cal = (CalendarView) view.findViewById(R.id.calendar1);
-		notification_listView = (ListView) view.findViewById(R.id.lv_notification_details);
-		
+		notification_listView = (ListView) view
+				.findViewById(R.id.lv_notification_details);
+
 		tv_repeat_string = (TextView) view.findViewById(R.id.tv_repeat_string);
-		
+
 		markDoneToggle = (ImageView) view.findViewById(R.id.detail_done_toggle);
 
 		taskEdit = (ImageView) view
@@ -140,21 +129,23 @@ public class DialogViewFragment extends DialogFragment {
 		taskDelete = (ImageView) view
 				.findViewById(R.id.btn_delete_task_detail_dialog);
 
-		try{
-			tv_repeat_string.setText(Common.RepeatConversions.getRepeatString(taskModel));		
-			}
-		catch(Exception e){
+		try {
+			tv_repeat_string
+					.setText(Common.RepeatAndNotification_StringConversions
+							.setRepeatTextView_LATEST(taskModel));
+		} catch (Exception e) {
 			Log.e(TAG, "tv_repeat_string");
 		}
-		
+
 		try {
-			String[] notificationArray = Common.RepeatConversions.getNotificationsArray(taskModel);
-			if (notificationArray.length == 0){
+			String[] notificationArray = Common.RepeatAndNotification_StringConversions
+					.getNotificationsArray(taskModel);
+			if (notificationArray.length == 0) {
 				notificationArray = new String[1];
 				notificationArray[0] = "has not notification yet";
 			}
 			ArrayAdapter<String> adapter = new ArrayAdapter<String>(mActivity,
-					  R.layout.row_notification, R.id.tv_notification,
+					R.layout.row_notification, R.id.tv_notification,
 					notificationArray);
 			notification_listView.setAdapter(adapter);
 		} catch (Exception e) {
@@ -182,7 +173,7 @@ public class DialogViewFragment extends DialogFragment {
 						+ Common.ContactStringConversion.getDisplayName(
 								Uri.parse(uri), mActivity));
 			} else {
-					tv_title.setText(taskModel.title);
+				tv_title.setText(taskModel.title);
 			}
 		} catch (Exception e) {
 			tv_title.setText("title");
@@ -263,8 +254,7 @@ public class DialogViewFragment extends DialogFragment {
 			@Override
 			public void onClick(View v) {
 				dialog.dismiss();
-				// ZZ**ZZ mNavigationDrawerFragment.addOrEditTask(listModel,
-				// taskModel);
+				mNavigationDrawerFragment.setReminder(listModel, taskModel);
 			}
 		});
 
@@ -273,6 +263,9 @@ public class DialogViewFragment extends DialogFragment {
 			public void onClick(View v) {
 				// code here for share
 				dialog.dismiss();
+				// mTaskListFragment.openShareDialog(mActivity);
+				mNavigationDrawerFragment.openShareDialog(00);
+				// >>>>>>>>>>>>>>>>>>>>>>>>>>zz
 			}
 		});
 

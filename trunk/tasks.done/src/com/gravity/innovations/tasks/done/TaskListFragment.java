@@ -5,17 +5,16 @@ import java.util.ArrayList;
 import java.util.Date;
 import android.annotation.SuppressLint;
 import android.app.Activity;
+import android.app.Dialog;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.DialogInterface.OnClickListener;
-import android.content.res.Resources;
+import android.content.SharedPreferences;
+import android.content.SharedPreferences.Editor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
-import android.graphics.ColorFilter;
-import android.graphics.ColorMatrixColorFilter;
 import android.graphics.Outline;
-import android.graphics.PorterDuff;
-import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -29,13 +28,18 @@ import android.view.ViewGroup;
 import android.view.ViewOutlineProvider;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
+import android.widget.Button;
 import android.widget.GridView;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
-public class TaskListFragment extends Fragment {
+import com.gravity.innovations.tasks.done.DemoHelper.TaskListDemo;
+import com.gravity.innovations.tasks.done.DemoHelper.TaskOperations;
+
+public class TaskListFragment extends Fragment implements TaskListDemo,
+		TaskOperations {
 	private TaskListModel data;
 	private RecyclerView mRecyclerView;
 	private TextView tv_listTitle, tv_footerSyncedTime;
@@ -51,8 +55,8 @@ public class TaskListFragment extends Fragment {
 	private AppHandlerService mService;
 	private ImageView mTextView_ownerImage;
 	private TextView mTextView_ownerName;
-	private String tag = "TasklistFragment";
-	
+	private String TAG = "TasklistFragment";
+	private ImageButton floatingBtn;
 
 	public TaskListFragment() {
 	}
@@ -102,9 +106,10 @@ public class TaskListFragment extends Fragment {
 			String hex = data.fragmentColor;
 			headerLayout.setBackgroundColor(Color.parseColor(hex));
 			// floating button
-			final ImageButton floatingBtn = (ImageButton) rootView
+			floatingBtn = (ImageButton) rootView
 					.findViewById(R.id.floating_button);
-			floatingBtn.setBackground(Common.ShapesAndGraphics.getfloatingButton(hex));
+			floatingBtn.setBackground(Common.ShapesAndGraphics
+					.getfloatingButton(hex));
 			if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
 
 				ViewOutlineProvider viewOutlineProvider = new ViewOutlineProvider() {
@@ -117,7 +122,6 @@ public class TaskListFragment extends Fragment {
 				};
 				floatingBtn.setOutlineProvider(viewOutlineProvider);
 			}
-
 			floatingBtn.setOnClickListener(new View.OnClickListener() {
 
 				@Override
@@ -161,13 +165,13 @@ public class TaskListFragment extends Fragment {
 
 		btn_listSharedWith = ((ImageButton) rootView
 				.findViewById(R.id.btn_showShared));
-		if (true){//(data.owner_id == mService.user_data._id) {
+		if (true) {// (data.owner_id == mService.user_data._id) {
 
 			btn_shareList.setOnClickListener(new View.OnClickListener() {
 				@Override
 				public void onClick(View v) {
 					mActivity = getActivity();
-					openShareDialog();
+					openShareDialog(mActivity);
 				}
 			});
 
@@ -209,23 +213,27 @@ public class TaskListFragment extends Fragment {
 			RelativeLayout header = (RelativeLayout) rootView
 					.findViewById(R.id.header);
 			tv_listTitle = (TextView) rootView.findViewById(R.id.tasklist_name);
-			try{
-				tv_listTitle.setText(data.title);				
-			}catch(Exception e){
+			try {
+				tv_listTitle.setText(data.title);
+			} catch (Exception e) {
 				String msg = "listTitle";
-				Log.e(tag, msg);	
+				Log.e(TAG, msg);
 			}
 
 			iv_listIcon = (ImageView) rootView.findViewById(R.id.tasklist_icon);
 			iv_isSynced = (ImageView) rootView.findViewById(R.id.img_sync);
 			try {
 				mActivity = getActivity();
-				iv_listIcon.setImageDrawable(mActivity.getResources().getDrawable(Common.DrawableResouces.compareDrawable(data.icon_identifier) ));
+				iv_listIcon
+						.setImageDrawable(mActivity.getResources().getDrawable(
+								Common.DrawableResouces
+										.compareDrawable(data.icon_identifier)));
 
 			} catch (Exception e) {
-				iv_listIcon.setImageDrawable(mActivity.getResources().getDrawable(R.drawable.ic_assignment_white_24dp));
+				iv_listIcon.setImageDrawable(mActivity.getResources()
+						.getDrawable(R.drawable.ic_assignment_white_24dp));
 				String msg = "defaul listIconSetResource set";
-				Log.e(tag, msg);
+				Log.e(TAG, msg);
 			}
 
 			View lv_footer = inflater.inflate(R.layout.fragment_main_footer,
@@ -314,9 +322,34 @@ public class TaskListFragment extends Fragment {
 				String s = e.getLocalizedMessage();
 			}
 			mRecyclerView.setItemAnimator(mTaskAdapter.anim);
+			
+			//mRecyclerView.setItemAnimator(new DefaultItemAnimator());
+
 			registerForContextMenu(mRecyclerView);
 			mGridView.requestDisallowInterceptTouchEvent(true);
 			mTaskAdapter.notifyDataSetChanged();
+
+		}
+		SharedPreferences prefs = mActivity.getSharedPreferences(
+				Common.PREFS_DEMO, Context.MODE_PRIVATE);
+		Boolean demoFlag = prefs.getBoolean(
+				Common.PREFS_KEY_DEMO_TASKLIST_FRAG, false);
+		if (!demoFlag) {
+			demo1_delBtn();
+		}
+		// below will work in cass when task is added
+		if (Common.flag_demoTaskOp == true) {
+			Boolean skipFlag_operations = prefs.getBoolean(
+					Common.PREFS_KEY_DEMO_SKIP_TASK_OPERATIONS, false);
+			if (skipFlag_operations) {
+				demo10_openNavDrawer();
+			} else {
+				Boolean demoFlag_operations = prefs.getBoolean(
+						Common.PREFS_KEY_DEMO_TASK_OPERATIONS, false);
+				if (!demoFlag_operations) {
+					demoTaskOp1_openDetails();
+				}
+			}
 
 		}
 		return rootView;
@@ -333,8 +366,7 @@ public class TaskListFragment extends Fragment {
 			switch (item.getItemId()) {
 			case R.id.item_view:
 				// TaskModel t = mTaskAdapter.getItem(position);
-				mNavigationDrawerFragment
-				.openTaskDetailsDialog(data,
+				mNavigationDrawerFragment.openTaskDetailsDialog(data,
 						mTaskAdapter.getItem(position));
 				break;
 			case R.id.item_delete:
@@ -356,7 +388,7 @@ public class TaskListFragment extends Fragment {
 		return super.onContextItemSelected(item);
 	}
 
-	private void openShareDialog() {
+	public void openShareDialog(Activity mActivity) {
 		ArrayList<UserModel> temp_users = ((MainActivity) mActivity).getUsers();
 
 		// boolean flag = false;//temp_users.removeAll(this.data.users);//false;
@@ -558,4 +590,435 @@ public class TaskListFragment extends Fragment {
 
 		return bmp;
 	}
+
+	@Override
+	public void demo1_delBtn() {
+		final Dialog dialog = new Dialog(mActivity,
+				android.R.style.Theme_Translucent_NoTitleBar);
+
+		dialog.setContentView(R.layout.dialog_demo_overlay);
+
+		TextView instructions = (TextView) dialog
+				.findViewById(R.id.instructions);
+		instructions.setText(R.string.demo_deletelist);
+
+		btn_deleteList.startAnimation(Common.Demo.getInfiniteDemoAnim());
+
+		Button btn = (Button) dialog.findViewById(R.id.got_it);
+
+		btn.setOnClickListener(new View.OnClickListener() {
+			@Override
+			public void onClick(final View view) {
+				btn_deleteList.clearAnimation();
+				dialog.dismiss();
+				demo2_editBtn();
+			}
+		});
+
+		dialog.show();
+	}
+
+	@Override
+	public void demo2_editBtn() {
+		final Dialog dialog = new Dialog(mActivity,
+				android.R.style.Theme_Translucent_NoTitleBar);
+
+		dialog.setContentView(R.layout.dialog_demo_overlay);
+
+		TextView instructions = (TextView) dialog
+				.findViewById(R.id.instructions);
+		instructions.setText(R.string.demo_editlist);
+
+		btn_editList.startAnimation(Common.Demo.getInfiniteDemoAnim());
+
+		Button btn = (Button) dialog.findViewById(R.id.got_it);
+
+		btn.setOnClickListener(new View.OnClickListener() {
+			@Override
+			public void onClick(final View view) {
+				btn_editList.clearAnimation();
+				dialog.dismiss();
+				demo3_shareBtn();
+			}
+		});
+
+		dialog.show();
+
+	}
+
+	@Override
+	public void demo3_shareBtn() {
+		// TODO Auto-generated method stub
+		final Dialog dialog = new Dialog(mActivity,
+				android.R.style.Theme_Translucent_NoTitleBar);
+
+		dialog.setContentView(R.layout.dialog_demo_overlay);
+
+		TextView instructions = (TextView) dialog
+				.findViewById(R.id.instructions);
+		instructions.setText(R.string.demo_sharelist);
+
+		btn_shareList.startAnimation(Common.Demo.getInfiniteDemoAnim());
+
+		Button btn = (Button) dialog.findViewById(R.id.got_it);
+
+		btn.setOnClickListener(new View.OnClickListener() {
+			@Override
+			public void onClick(final View view) {
+				btn_shareList.clearAnimation();
+				dialog.dismiss();
+				demo4_sharedWithBtn();
+			}
+		});
+
+		dialog.show();
+	}
+
+	@Override
+	public void demo4_sharedWithBtn() {
+		final Dialog dialog = new Dialog(mActivity,
+				android.R.style.Theme_Translucent_NoTitleBar);
+
+		dialog.setContentView(R.layout.dialog_demo_overlay);
+
+		TextView instructions = (TextView) dialog
+				.findViewById(R.id.instructions);
+		instructions.setText(R.string.demo_watchshared);
+
+		btn_listSharedWith.setVisibility(View.VISIBLE);
+		btn_listSharedWith.startAnimation(Common.Demo.getInfiniteDemoAnim());
+
+		Button btn = (Button) dialog.findViewById(R.id.got_it);
+
+		btn.setOnClickListener(new View.OnClickListener() {
+			@Override
+			public void onClick(final View view) {
+				btn_listSharedWith.clearAnimation();
+				btn_listSharedWith.setVisibility(View.GONE);
+				dialog.dismiss();
+				demo5_listTitle();
+			}
+		});
+
+		dialog.show();
+	}
+
+	@Override
+	public void demo5_listTitle() {
+		final Dialog dialog = new Dialog(mActivity,
+				android.R.style.Theme_Translucent_NoTitleBar);
+
+		dialog.setContentView(R.layout.dialog_demo_overlay);
+		TextView instructions = (TextView) dialog
+				.findViewById(R.id.instructions);
+		instructions.setText(R.string.demo_listTitle);
+
+		tv_listTitle.startAnimation(Common.Demo.getInfiniteDemoAnim());
+		iv_listIcon.startAnimation(Common.Demo.getInfiniteDemoAnim());
+		Button btn = (Button) dialog.findViewById(R.id.got_it);
+
+		btn.setOnClickListener(new View.OnClickListener() {
+			@Override
+			public void onClick(final View view) {
+				tv_listTitle.clearAnimation();
+				iv_listIcon.clearAnimation();
+				dialog.dismiss();
+				demo6_navToggle();
+			}
+		});
+
+		dialog.show();
+
+	}
+
+	@Override
+	public void demo6_navToggle() {
+		final Dialog dialog = new Dialog(mActivity,
+				android.R.style.Theme_Translucent_NoTitleBar);
+
+		dialog.setContentView(R.layout.dialog_demo_overlay);
+
+		TextView instructions = (TextView) dialog
+				.findViewById(R.id.instructions);
+		instructions.setText(R.string.demo_navToggle);
+
+		btn_toggleNavDrawer.startAnimation(Common.Demo.getInfiniteDemoAnim());
+
+		Button btn = (Button) dialog.findViewById(R.id.got_it);
+
+		btn.setOnClickListener(new View.OnClickListener() {
+			@Override
+			public void onClick(final View view) {
+				btn_toggleNavDrawer.clearAnimation();
+				dialog.dismiss();
+				demo7_syncImage();
+			}
+		});
+
+		dialog.show();
+	}
+
+	@Override
+	public void demo7_syncImage() {
+		final Dialog dialog = new Dialog(mActivity,
+				android.R.style.Theme_Translucent_NoTitleBar);
+
+		dialog.setContentView(R.layout.dialog_demo_overlay);
+
+		TextView instructions = (TextView) dialog
+				.findViewById(R.id.instructions);
+		instructions.setText(R.string.demo_syncedToggle);
+
+		iv_isSynced.startAnimation(Common.Demo.getInfiniteDemoAnim());
+
+		Button btn = (Button) dialog.findViewById(R.id.got_it);
+
+		btn.setOnClickListener(new View.OnClickListener() {
+			@Override
+			public void onClick(final View view) {
+				iv_isSynced.clearAnimation();
+				dialog.dismiss();
+				demo8_fabBtn();
+			}
+		});
+
+		dialog.show();
+	}
+
+	@Override
+	public void demo8_fabBtn() {
+		final Dialog dialog = new Dialog(mActivity,
+				android.R.style.Theme_Translucent_NoTitleBar);
+
+		dialog.setContentView(R.layout.dialog_demo_overlay);
+
+		TextView instructions = (TextView) dialog
+				.findViewById(R.id.instructions);
+		instructions.setText(R.string.demo_fab);
+
+		floatingBtn.startAnimation(Common.Demo.getInfiniteDemoAnim());
+
+		Button btn = (Button) dialog.findViewById(R.id.got_it);
+
+		btn.setOnClickListener(new View.OnClickListener() {
+			@Override
+			public void onClick(final View view) {
+				floatingBtn.clearAnimation();
+				dialog.dismiss();
+				floatingBtn.performClick();
+
+				SharedPreferences settings = mActivity.getSharedPreferences(
+						Common.PREFS_DEMO, Context.MODE_PRIVATE);
+				Editor editor = settings.edit();
+				editor.putBoolean(Common.PREFS_KEY_DEMO_TASKLIST_FRAG, true);
+				editor.commit();
+			}
+		});
+
+		dialog.show();
+	}
+
+	// ////////////////////////////////////////////////////////
+	@Override
+	public void demoTaskOp1_openDetails() {
+		// TODO Auto-generated method stub
+		final Dialog dialog = new Dialog(mActivity,
+				android.R.style.Theme_Translucent_NoTitleBar);
+
+		dialog.setContentView(R.layout.dialog_demo_overlay);
+
+		TextView instructions = (TextView) dialog
+				.findViewById(R.id.instructions);
+		instructions.setText(R.string.demo_task_operation_details);
+
+		// View v = getActivity().getLayoutInflater().inflate(
+		// R.layout.row_task_listview, null);
+		//
+		// final ImageView item = (ImageView) v.findViewById(R.id.done_toggle);
+
+		mTaskAdapter.setBlinkingPosition(0, Common.Demo.getDemoListAnimation());
+
+		Button btn = (Button) dialog.findViewById(R.id.got_it);
+
+		btn.setOnClickListener(new View.OnClickListener() {
+			@Override
+			public void onClick(final View view) {
+				mTaskAdapter.setBlinkingPosition(-1,
+						Common.Demo.getDemoListAnimation());
+				demoTaskOp2_taskLongClick();
+				dialog.dismiss();
+			}
+		});
+
+		dialog.show();
+	}
+
+	@Override
+	public void demoTaskOp2_taskLongClick() {
+		// TODO Auto-generated method stub
+		final Dialog dialog = new Dialog(mActivity,
+				android.R.style.Theme_Translucent_NoTitleBar);
+
+		dialog.setContentView(R.layout.dialog_demo_overlay);
+
+		TextView instructions = (TextView) dialog
+				.findViewById(R.id.instructions);
+		instructions.setText(R.string.demo_task_operation_longClick);
+
+		// View v = getActivity().getLayoutInflater().inflate(
+		// R.layout.row_task_listview, null);
+		// final ImageView item = (ImageView) v.findViewById(R.id.done_toggle);
+		mTaskAdapter.setBlinkingPosition(0, Common.Demo.getDemoListAnimation());
+
+		Button btn = (Button) dialog.findViewById(R.id.got_it);
+
+		btn.setOnClickListener(new View.OnClickListener() {
+			@Override
+			public void onClick(final View view) {
+				mTaskAdapter.setBlinkingPosition(-1,
+						Common.Demo.getDemoListAnimation());
+				demoTaskOp3_markDoneInstructions();
+				dialog.dismiss();
+			}
+		});
+
+		dialog.show();
+	}
+
+	@Override
+	public void demoTaskOp3_markDoneInstructions() {
+
+		final Dialog dialog = new Dialog(mActivity,
+				android.R.style.Theme_Translucent_NoTitleBar);
+
+		dialog.setContentView(R.layout.dialog_demo_overlay);
+
+		TextView instructions = (TextView) dialog
+				.findViewById(R.id.instructions);
+		instructions.setText(R.string.demo_task_operation_toggle_instructions);
+
+		mTaskAdapter.getToggleBtn().startAnimation(
+				Common.Demo.getInfiniteDemoAnim());
+		Button btn = (Button) dialog.findViewById(R.id.got_it);
+
+		btn.setOnClickListener(new View.OnClickListener() {
+			@Override
+			public void onClick(final View view) {
+				mTaskAdapter.getToggleBtn().clearAnimation();
+				demoTaskOp4_markDone();
+				dialog.dismiss();
+			}
+		});
+
+		dialog.show();
+	}
+
+	@Override
+	public void demoTaskOp4_markDone() {
+		// TODO Auto-generated method stub
+		final Dialog dialog = new Dialog(mActivity,
+				android.R.style.Theme_Translucent_NoTitleBar);
+
+		dialog.setContentView(R.layout.dialog_demo_overlay);
+
+		TextView instructions = (TextView) dialog
+				.findViewById(R.id.instructions);
+		instructions.setText(R.string.demo_task_operation_markedDone);
+
+		mTaskAdapter.getToggleBtn().performClick();
+
+		Button btn = (Button) dialog.findViewById(R.id.got_it);
+
+		btn.setOnClickListener(new View.OnClickListener() {
+			@Override
+			public void onClick(final View view) {
+				Common.flag_demoTaskOp = false;
+				dialog.dismiss();
+				SharedPreferences settings = mActivity.getSharedPreferences(
+						Common.PREFS_DEMO, Context.MODE_PRIVATE);
+				Editor editor = settings.edit();
+				editor.putBoolean(Common.PREFS_KEY_DEMO_TASK_OPERATIONS, true);
+				editor.commit();
+
+//				try {
+//					mNavigationDrawerFragment.demo1_openDashInstructions();
+//				} catch (Exception e) {
+//					e.getLocalizedMessage();
+//				}
+				demo9_addAnotherTask();
+
+			}
+		});
+		dialog.show();
+	}
+
+	@Override
+	public void demo9_addAnotherTask() {
+		// TODO Auto-generated method stub
+		final Dialog dialog = new Dialog(mActivity,
+				android.R.style.Theme_Translucent_NoTitleBar);
+
+		dialog.setContentView(R.layout.dialog_demo_overlay);
+
+		TextView instructions = (TextView) dialog
+				.findViewById(R.id.instructions);
+		instructions.setText("Lets Add another Task");
+
+		Button btn = (Button) dialog.findViewById(R.id.got_it);
+
+		btn.setOnClickListener(new View.OnClickListener() {
+			@Override
+			public void onClick(final View view) {
+				dialog.dismiss();
+				SharedPreferences settings = mActivity.getSharedPreferences(
+						Common.PREFS_DEMO, Context.MODE_PRIVATE);
+				Editor editor = settings.edit();
+				editor.putBoolean(Common.PREFS_KEY_DEMO_SKIP_TASK_OPERATIONS, true);
+				editor.putBoolean(Common.PREFS_KEY_DEMO_TASK_ACTIVITY, false);// again
+				editor.commit();
+				floatingBtn.performClick();
+			}
+		});
+		dialog.show();
+	}
+	@Override
+	public void demo10_openNavDrawer() {
+		// TODO Auto-generated method stub
+		final Dialog dialog = new Dialog(mActivity,
+				android.R.style.Theme_Translucent_NoTitleBar);
+
+		dialog.setContentView(R.layout.dialog_demo_overlay);
+
+		TextView instructions = (TextView) dialog
+				.findViewById(R.id.instructions);
+		
+		instructions.setText("You can add multiple tasks this way");
+
+		Button btn = (Button) dialog.findViewById(R.id.got_it);
+
+		btn.setOnClickListener(new View.OnClickListener() {
+			@Override
+			public void onClick(final View view) {
+				Common.flag_demoTaskOp = false;
+				dialog.dismiss();
+				SharedPreferences settings = mActivity.getSharedPreferences(
+						Common.PREFS_DEMO, Context.MODE_PRIVATE);
+				Editor editor = settings.edit();
+				editor.putBoolean(Common.PREFS_KEY_DEMO_TASK_OPERATIONS, true);
+				editor.putBoolean(Common.PREFS_KEY_DEMO_TASK_ACTIVITY, true);
+				editor.putBoolean(Common.PREFS_KEY_DEMO_SKIP_TASK_OPERATIONS, false);
+				editor.commit();
+
+				try {
+					mNavigationDrawerFragment.demo1_openDashInstructions();
+				} catch (Exception e) {
+					e.getLocalizedMessage();
+				}
+
+			}
+		});
+		dialog.show();
+	}
+
+	
 }

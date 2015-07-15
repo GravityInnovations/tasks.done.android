@@ -3,6 +3,7 @@ package com.gravity.innovations.tasks.done;
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Context;
+import android.graphics.Color;
 import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.view.LayoutInflater;
@@ -15,6 +16,7 @@ public class CustomBaseAdapter_ColorsGrid extends BaseAdapter {
 
 	public static Drawable[] color;
 	private Context mContext;
+	private int selectedPosition = 0;
 
 	public CustomBaseAdapter_ColorsGrid(Context c, Drawable[] _color) {
 		mContext = c;
@@ -36,6 +38,11 @@ public class CustomBaseAdapter_ColorsGrid extends BaseAdapter {
 		return arg0;
 	}
 
+	public void setSelectedPosition(int position) {
+		selectedPosition = position;
+		notifyDataSetChanged();
+	}
+
 	@SuppressLint("NewApi")
 	@Override
 	public View getView(int position, View convertView, ViewGroup parent) {
@@ -49,6 +56,18 @@ public class CustomBaseAdapter_ColorsGrid extends BaseAdapter {
 			grid = (View) convertView;
 		}
 		ImageView imageView = (ImageView) grid.findViewById(R.id.image);
+
+		if (position == selectedPosition) {
+			grid.setBackground(
+					Common.ShapesAndGraphics
+					.getCircularShape_day(Common.DrawableResouces
+							.getHexCode(position)
+							));
+
+		} else {
+			grid.setBackgroundColor(Color.TRANSPARENT);
+		}
+
 		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
 			imageView.setBackground(color[position]);
 		} else {

@@ -11,6 +11,7 @@ import java.util.TimeZone;
 import org.json.JSONObject;
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.app.Dialog;
 import android.app.NotificationManager;
 import android.content.ContentResolver;
 import android.content.Context;
@@ -35,13 +36,16 @@ import android.provider.ContactsContract;
 import android.provider.ContactsContract.CommonDataKinds;
 import android.util.Log;
 import android.view.View;
+import android.view.animation.AlphaAnimation;
+import android.view.animation.Animation;
+import android.view.animation.LinearInterpolator;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ArrayAdapter;
+import android.widget.Button;
 import android.widget.ListView;
+import android.widget.RelativeLayout;
 import android.widget.Spinner;
-import android.widget.TextView;
-import android.widget.Toast;
 
 //This class will include common keys used in application
 
@@ -148,6 +152,19 @@ public class Common {
 	public static final String KEY_EXTRAS_NOTIFICATION_ID = "_notification_id";
 	public static final String KEY_EXTRAS_NOTIFICATION_ID_COMPARING = "_comparing_";
 	public static final String KEY_EXTRAS_ALARM_ID = "_alarm_id";
+
+	public static final String PREFS_DEMO = "demo_pref";
+	public static final String PREFS_KEY_DEMO_DIALOG = "pref_demoDialog";
+	public static final String PREFS_KEY_DEMO_CREATE_LIST_INSTRUCTIONS = "pref_createList";
+	public static final String PREFS_KEY_DEMO_TASKLIST_FRAG = "pref_tasklist_frag";
+	public static final String PREFS_KEY_DEMO_TASK_ACTIVITY = "pref_task_activity_frag";
+	public static final String PREFS_KEY_DEMO_TASK_OPERATIONS = "pref_task_operations";
+	public static final String PREFS_KEY_DEMO_SKIP_TASK_OPERATIONS = "pref_skip_task_operations";
+	public static final String PREFS_KEY_DEMO_DASHBOARD = "pref_dashboard";
+	public static final String PREFS_KEY_DEMO_CREATEALIST = "pref_list";
+
+	public static Boolean flag_demoTaskOp = false;
+	public static Boolean flag_demoDashboard = false;
 
 	// for canceling the notification
 
@@ -332,13 +349,32 @@ public class Common {
 	// for dialog creation and handling
 	public static class CustomDialog {
 
+		public static final AlertDialog.Builder sett(final Context context,
+				int posText, int negText,
+				DialogInterface.OnClickListener negListener,
+				DialogInterface.OnClickListener posListener, int resource_msg) {
+
+			AlertDialog.Builder builder = new AlertDialog.Builder(context);
+			// builder.setIcon(R.drawable.ic_warning_grey600_24dp);
+			// builder.setTitle(resourceTitle);
+			builder.setMessage(resource_msg);
+			if (posListener != null) {
+				builder.setPositiveButton(posText, posListener);
+			}
+			if (negListener != null) {
+				builder.setNegativeButton(negText, negListener);
+			}
+			builder.create().show();
+			return builder;
+		}
+
 		public static final void set(final Context context, int posText,
 				int negText, DialogInterface.OnClickListener negListener,
 				DialogInterface.OnClickListener posListener, int resource_msg) {
 
 			AlertDialog.Builder builder = new AlertDialog.Builder(context);
-			builder.setIcon(R.drawable.ic_warning_grey600_24dp);
-			builder.setTitle(R.string.delete);
+			// builder.setIcon(R.drawable.ic_warning_grey600_24dp);
+			// builder.setTitle(resourceTitle);
 			builder.setMessage(resource_msg);
 			if (posListener != null) {
 				builder.setPositiveButton(posText, posListener);
@@ -1046,7 +1082,7 @@ public class Common {
 
 	public static class DrawableResouces {
 
-		public static int getDrawableResouce(int position) {
+		public static int getIconResouceID(int position) {
 			int list_type = R.drawable.ic_assignment_grey600_24dp; // default
 			if (position == 0) {
 				list_type = R.drawable.ic_assignment_grey600_24dp;
@@ -1092,7 +1128,54 @@ public class Common {
 			return list_type;
 		}
 
+		public static int getIconPosition(int resourceID) {
+			int position = 0; // default
+			if (resourceID == R.drawable.ic_assignment_grey600_24dp) {
+				position = 0;
+			} else if (resourceID == R.drawable.ic_attachment_grey600_24dp) {
+				position = 1;
+			} else if (resourceID == R.drawable.ic_build_grey600_24dp) {
+				position = 2;
+			} else if (resourceID == R.drawable.ic_cake_grey600_24dp) {
+				position = 3;
+			} else if (resourceID == R.drawable.ic_content_paste_grey600_24dp) {
+				position = 4;
+			} else if (resourceID == R.drawable.ic_directions_bus_grey600_24dp) {
+				position = 5;
+			} else if (resourceID == R.drawable.ic_email_grey600_24dp) {
+				position = 6;
+			} else if (resourceID == R.drawable.ic_event_note_grey600_24dp) {
+				position = 7;
+			} else if (resourceID == R.drawable.ic_folder_grey600_24dp) {
+				position = 8;
+			} else if (resourceID == R.drawable.ic_group_grey600_24dp) {
+				position = 9;
+			} else if (resourceID == R.drawable.ic_insert_invitation_grey600_24dp) {
+				position = 10;
+			} else if (resourceID == R.drawable.ic_laptop_mac_grey600_24dp) {
+				position = 11;
+			} else if (resourceID == R.drawable.ic_local_airport_grey600_24dp) {
+				position = 12;
+			} else if (resourceID == R.drawable.ic_local_cafe_grey600_24dp) {
+				position = 13;
+			} else if (resourceID == R.drawable.ic_perm_phone_msg_grey600_24dp) {
+				position = 14;
+			} else if (resourceID == R.drawable.ic_shopping_cart_grey600_24dp) {
+				position = 15;
+			} else if (resourceID == R.drawable.ic_wc_grey600_24dp) {
+				position = 16;
+			} else if (resourceID == R.drawable.ic_account_circle_grey600_24dp) {
+				position = 17;
+			} else if (resourceID == R.drawable.ic_home_grey600_24dp) {
+				position = 18;
+			} else if (resourceID == R.drawable.ic_work_grey600_24dp) {
+				position = 19;
+			}
+			return position;
+		}
+
 		public static int compareDrawable(int dbResource) {
+			// it will return a white resourceID for grey resourceID
 			int drawable = 0;
 			if (dbResource == R.drawable.ic_assignment_grey600_24dp) {
 				drawable = R.drawable.ic_assignment_white_24dp;
@@ -1140,7 +1223,7 @@ public class Common {
 
 		public static String getHexCode(int position) {
 			String hex = Common.ColorHex.taskDoneBlue;
-			;// default
+			// default
 			if (position == 0) {
 				hex = Common.ColorHex.taskDoneBlue;
 			} else if (position == 1) {
@@ -1155,8 +1238,52 @@ public class Common {
 				hex = Common.ColorHex.yellow;
 			} else if (position == 6) {
 				hex = Common.ColorHex.caramel;
+			} else if (position == 7) {
+				hex = Common.ColorHex.teal;
+			} else if (position == 8) {
+				hex = Common.ColorHex.lightGreen;
+			} else if (position == 8) {
+				hex = Common.ColorHex.lightGreen;
+			} else if (position == 9) {
+				hex = Common.ColorHex.grey;
+			} else if (position == 10) {
+				hex = Common.ColorHex.blueGrey;
+			} else if (position == 11) {
+				hex = Common.ColorHex.depOrange;
 			}
 			return hex;
+		}
+
+		public static int getColorPosition(String hex) {
+			// it return position for a color in cat_color_grid
+			int position = 0;// default
+			if (hex.contains(Common.ColorHex.taskDoneBlue)) {
+				position = 0;
+			} else if (hex.contains(Common.ColorHex.moonLightBlue)) {
+				position = 1;
+			} else if (hex.contains(Common.ColorHex.orangeJazz)) {
+				position = 2;
+			} else if (hex.contains(Common.ColorHex.pink)) {
+				position = 3;
+			} else if (hex.contains(Common.ColorHex.seaGreen)) {
+				position = 4;
+			} else if (hex.contains(Common.ColorHex.yellow)) {
+				position = 5;
+			} else if (hex.contains(Common.ColorHex.caramel)) {
+				position = 6;
+			} else if (hex.contains(Common.ColorHex.teal)) {
+				position = 7;
+			} else if (hex.contains(Common.ColorHex.lightGreen)) {
+				position = 8;
+			} else if (hex.contains(Common.ColorHex.grey)) {
+				position = 9;
+			} else if (hex.contains(Common.ColorHex.blueGrey)) {
+				position = 10;
+			} else if (hex.contains(Common.ColorHex.depOrange)) {
+				position = 11;
+			}
+
+			return position;
 		}
 
 		public static Drawable changeColor(String hex, int resource,
@@ -1436,7 +1563,7 @@ public class Common {
 		}
 	}
 
-	public static class RepeatConversions {
+	public static class RepeatAndNotification_StringConversions {
 		public static String getIntervalType(int _interval) {
 			String repeatInterval = null;
 			if (_interval == 0) {
@@ -1503,12 +1630,29 @@ public class Common {
 					unitOfTime = " weeks/s ";
 				}
 				if (notificationModel.send_as == 1) {
-					notificationsArray[i] = notificationModel.interval
-							+ unitOfTime + " before, as email";
+					if (notificationModel.interval_expiration != null) {
+						Calendar _cal = Calendar.getInstance();
+						_cal.setTimeInMillis(Long.valueOf( notificationModel.interval_expiration) );
+						notificationsArray[i] = 
+								notificationModel.interval + unitOfTime + 
+								" before, at "+ datetimeHelper.getTime(_cal) +", as email";
+					} else {
+						notificationsArray[i] = notificationModel.interval
+								+ unitOfTime + " before, as email";
+					}
 					i++;
 				} else {
+					if (notificationModel.interval_expiration != null) {
+						Calendar _cal = Calendar.getInstance();
+						_cal.setTimeInMillis(Long.valueOf( notificationModel.interval_expiration) );
+						notificationsArray[i] = 
+								notificationModel.interval + unitOfTime + 
+								" before, at "+ datetimeHelper.getTime(_cal);
+					} else {
+
 					notificationsArray[i] = notificationModel.interval
 							+ unitOfTime + " before";
+					}
 					i++;
 				}
 
@@ -1516,7 +1660,8 @@ public class Common {
 			return notificationsArray;
 		}
 
-		public static String getRepeatString(TaskModel task) {
+
+		public static String setRepeatTextView_LATEST(TaskModel task) {
 			// tv_repeat.setText(task.repetition.)
 			// based on combinations it should return some text and that text
 			// will
@@ -1531,50 +1676,89 @@ public class Common {
 			} else if (interval > 0) {
 				if (intervalType == 1) {
 					// day or days
-					type = "every day";
+					type = " day/s";
 				} else if (intervalType == 2) {
 					// week or weeks
-					type = "every week";
+					type = " week/s";
 				} else if (intervalType == 3) {
 					// monthly
-					type = "every month";
+					type = " month/s";
 				} else if (intervalType == 4) {
 					// yearly
-					type = "every year";
+					type = " year/s" + "";
 				}
 				if (task.rep_intervalExpiration == null
 						|| task.rep_intervalExpiration.isEmpty()) {
 					// forever
-					if (intervalType == 2) {
-						stringToBeDisplayed = interval
-								+ " time/s "
-								+ type
-								+ " on "
-								+ Common.RepeatConversions
-										.getNamesOfDays(task.rep_value);
+					if (task.rep_value != null) {
+						stringToBeDisplayed = "Repeats every " + interval
+								+ type + " on "
+								+ getNamesOfDays(task.rep_value);
 					} else {
-						stringToBeDisplayed = interval + " time/s " + type;
+						stringToBeDisplayed = "Repeats every " + interval
+								+ type;
 					}
-				} else if (task.rep_intervalExpiration != null
-						|| !(task.rep_intervalExpiration.isEmpty())) {
-					// then its either a date or number of events
-					if (Integer.parseInt(task.rep_intervalExpiration) >= 1
-							&& Integer.parseInt(task.rep_intervalExpiration) <= 730) {
-						// its number of events
-						String numberOfEvents = task.rep_intervalExpiration;
-						stringToBeDisplayed = interval + " time/s " + type
-								+ " for " + numberOfEvents + " events ";
-					} else {
-						// its a long date/ expire datenumberOfEvents
-						String date = task.rep_intervalExpiration;
-						stringToBeDisplayed = interval + " time/s " + type
-								+ " util " + date + " ";
+				} else {
+					try {
+						int events = Integer
+								.parseInt(task.rep_intervalExpiration);
+						if (Integer.parseInt(task.rep_intervalExpiration) >= 1
+								&& Integer
+										.parseInt(task.rep_intervalExpiration) <= 730) {
+							if (task.rep_value != null) {
+								stringToBeDisplayed = "Repeats every "
+										+ interval + type + " for "
+										+ task.rep_intervalExpiration
+										+ " events " + " on "
+										+ getNamesOfDays(task.rep_value);
+							} else {
+								stringToBeDisplayed = "Repeats every "
+										+ interval + type + " for "
+										+ task.rep_intervalExpiration
+										+ " events ";
+							}
+						}
+					} catch (Exception e) {
+
+						Calendar cal = Calendar.getInstance();
+						cal.setTimeInMillis(Long
+								.valueOf(task.rep_intervalExpiration));
+
+						if (task.rep_value != null) {
+							stringToBeDisplayed = "Repeats every " + interval
+									+ type + " until "
+									+ Common.datetimeHelper.getDate(cal)
+									+ " on " + getNamesOfDays(task.rep_value);
+						} else {
+
+							stringToBeDisplayed = "Repeats every " + interval
+									+ type + " until "
+									+ Common.datetimeHelper.getDate(cal);
+
+						}
 					}
+					// // then its either a date or number of events
+					// if (Integer.parseInt(task.rep_intervalExpiration) >= 1
+					// && Integer.parseInt(task.rep_intervalExpiration) <= 730)
+					// {
+					// // its number of events
+					// String numberOfEvents = task.rep_intervalExpiration;
+					// stringToBeDisplayed = interval + " time/s " + type
+					// + " for " + numberOfEvents + " events ";
+					// } else {
+					// // its a long date/ expire datenumberOfEvents
+					// Calendar cal = Calendar.getInstance();
+					// cal.setTimeInMillis(Long.valueOf(task.rep_intervalExpiration));
+					// stringToBeDisplayed = interval + " time/s " + type
+					// + " util " + Common.datetimeHelper.getDate(cal) + " ";
+					// }
 
 				}
 			}
+			// tv_repeat.setText(stringToBeDisplayed);
 			return stringToBeDisplayed;
 		}
+
 	}
 
 	public static class Intents {
@@ -1605,5 +1789,70 @@ public class Common {
 			}
 			return builder.toString();
 		}
+	}
+
+	public static class Demo {
+
+		public static Button splashView(Context context) {
+			final Dialog dialog = new Dialog(context,
+					android.R.style.Theme_Translucent_NoTitleBar);
+
+			dialog.setContentView(R.layout.dialog_demo_overlay);
+
+			RelativeLayout layout = (RelativeLayout) dialog
+					.findViewById(R.id.overlay_activity);
+			layout.setBackgroundColor(Color.TRANSPARENT);
+
+			// Reverse animation at the end so the button will fade back in
+
+			Button btn_gotIt = (Button) dialog.findViewById(R.id.got_it);
+			dialog.show();
+			return btn_gotIt;
+		}
+
+		public static Animation getDemoAnimation() {
+			Animation demoAnimation = new AlphaAnimation(1, 0);
+			// Change alpha from fully visible to invisible
+			demoAnimation.setDuration(500); // duration - half a second
+			demoAnimation.setInterpolator(new LinearInterpolator());
+			// do not alter animation rate
+			demoAnimation.setRepeatCount(10);// (Animation.INFINITE);
+			// Repeat animation infinitely
+			return demoAnimation;
+		}
+
+		public static Animation getDemoListAnimation() {
+			Animation demoAnimation = new AlphaAnimation(1, 0);
+			// Change alpha from fully visible to invisible
+			demoAnimation.setDuration(500); // duration - half a second
+			demoAnimation.setInterpolator(new LinearInterpolator());
+			// do not alter animation rate
+			demoAnimation.setRepeatCount(5);// (Animation.INFINITE);
+			// Repeat animation infinitely
+			return demoAnimation;
+		}
+
+		public static Animation getDemoNavListAnim() {
+			Animation demoAnimation = new AlphaAnimation(1, 0);
+			// Change alpha from fully visible to invisible
+			demoAnimation.setDuration(500); // duration - half a second
+			demoAnimation.setInterpolator(new LinearInterpolator());
+			// do not alter animation rate
+			demoAnimation.setRepeatCount(10);// (Animation.INFINITE);
+			// Repeat animation infinitely
+			return demoAnimation;
+		}
+
+		public static Animation getInfiniteDemoAnim() {
+			Animation demoAnimation = new AlphaAnimation(1, 0);
+			// Change alpha from fully visible to invisible
+			demoAnimation.setDuration(500); // duration - half a second
+			demoAnimation.setInterpolator(new LinearInterpolator());
+			// do not alter animation rate
+			demoAnimation.setRepeatCount(Animation.INFINITE);
+			// Repeat animation infinitely
+			return demoAnimation;
+		}
+
 	}
 }

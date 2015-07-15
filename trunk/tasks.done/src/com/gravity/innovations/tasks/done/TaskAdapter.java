@@ -2,7 +2,9 @@ package com.gravity.innovations.tasks.done;
 
 import java.util.ArrayList;
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.graphics.Color;
 import android.net.Uri;
 import android.support.v7.widget.DefaultItemAnimator;
@@ -34,6 +36,9 @@ public class TaskAdapter extends RecyclerView.Adapter {
 	private RecyclerView mRecyclerView;
 	public DefaultItemAnimator anim;
 	private static final int TYPE_FOOTER = Integer.MIN_VALUE + 1;
+	private String TAG;
+	private static ImageView toggle;
+	private Animation animation;
 
 	public TaskAdapter(Activity act, int layoutResourceId,
 			TaskListModel parentTaskList, NavigationDrawerFragment NavDrawer,
@@ -115,9 +120,10 @@ public class TaskAdapter extends RecyclerView.Adapter {
 					} else if (task.completed == 0) {
 						alpha = 0.10f;
 					}
-					viewHolder.iv_doneToggle.setBackgroundColor(Common.ShapesAndGraphics.adjustAlpha(
-							Color.parseColor(mTaskListModel.fragmentColor),
-							alpha));
+					viewHolder.iv_doneToggle
+							.setBackgroundColor(Common.ShapesAndGraphics.adjustAlpha(
+									Color.parseColor(mTaskListModel.fragmentColor),
+									alpha));
 				} catch (Exception e) {
 					Log.e("TaskAdapter", "iv_doneToggle");
 				}
@@ -139,6 +145,10 @@ public class TaskAdapter extends RecyclerView.Adapter {
 					viewHolder.taskRowLayout.startAnimation(animationFadeIn);
 					mRecyclerView.scrollToPosition(highlightPostition);
 				}
+				if (HighlightTask != -1 && animation != null) {
+					viewHolder.taskRowLayout.setAnimation(animation);
+					mRecyclerView.scrollToPosition(highlightPostition);
+				}
 				viewHolder.iv_doneToggle
 						.setOnClickListener(new OnClickListener() {
 
@@ -155,29 +165,49 @@ public class TaskAdapter extends RecyclerView.Adapter {
 										Log.e("TaskAdapter ",
 												"NotMarkedAs Done");
 									}
-								} else {
-									temp.completed = 0;
-									temp.updateTimeNow();
-									boolean flag = mNavigationDrawerFragment
-											.MarkDoneTask(mTaskListModel, temp);
-									if (!flag) {
-										Log.e("TaskAdapter ",
-												"NotMarkedAs UnDone");
+
+									int pos1 = position;
+									int pos2 = pos_final;
+									notifyItemMoved(pos1, pos2);
+									TaskModel rem = task_data.remove(pos1);
+									task_data.add(pos2, rem);
+
+									for (int i = 0; i < getItemCount() - 1; i++) {
+										TaskModel M = getItem(i);
+										notifyItemChanged(i);
+
 									}
+									mRecyclerView.scrollToPosition(pos_final);
+								} else {
+
+									markAsUndoneDialog(temp, pos_final);
+
+									// temp.completed = 0;
+									// //show a sure dialog here
+									//
+									//
+									// temp.updateTimeNow();
+									// boolean flag = mNavigationDrawerFragment
+									// .MarkDoneTask(mTaskListModel, temp);
+									// if (!flag) {
+									// Log.e("TaskAdapter ",
+									// "NotMarkedAs UnDone");
+									// }
 								}
-
-								int pos1 = position;
-								int pos2 = pos_final;
-								notifyItemMoved(pos1, pos2);
-								TaskModel rem = task_data.remove(pos1);
-								task_data.add(pos2, rem);
-
-								for (int i = 0; i < getItemCount() - 1; i++) {
-									TaskModel M = getItem(i);
-									notifyItemChanged(i);
-
-								}
-								mRecyclerView.scrollToPosition(pos_final);
+								//
+								// int pos1 = position;
+								// int pos2 = pos_final;
+								// notifyItemMoved(pos1, pos2);
+								// TaskModel rem = task_data.remove(pos1);
+								// task_data.add(pos2, rem);
+								//
+								// for (int i = 0; i < getItemCount() - 1; i++)
+								// {
+								// TaskModel M = getItem(i);
+								// notifyItemChanged(i);
+								//
+								// }
+								// mRecyclerView.scrollToPosition(pos_final);
 
 							}
 
@@ -267,6 +297,7 @@ public class TaskAdapter extends RecyclerView.Adapter {
 					.findViewById(R.id.updated1);
 			iv_doneToggle = (ImageView) itemLayoutView
 					.findViewById(R.id.done_toggle);
+			toggle = iv_doneToggle;
 			iv_doneToggle.setTag(R.drawable.task_row_bg);
 
 			iv_alarmToggle = (ImageView) itemLayoutView
@@ -322,4 +353,69 @@ public class TaskAdapter extends RecyclerView.Adapter {
 		this.position = position;
 	}
 
+	public void setBlinkingPosition(int _position, Animation _anim) {
+		this.HighlightTask = _position;
+		this.animation = _anim;
+		notifyDataSetChanged();
+	}
+
+	AlertDialog.Builder Alert;
+
+	private void markAsUndoneDialog(final TaskModel temp, final int pos_final) {
+
+		DialogInterface.OnClickListener posListener = new DialogInterface.OnClickListener() {
+
+			@Override
+			public void onClick(DialogInterface dialog, int which) {
+				try {
+
+					temp.completed = 0;
+					// show a sure dialog here
+
+					temp.updateTimeNow();
+					boolean flag = mNavigationDrawerFragment.MarkDoneTask(
+							mTaskListModel, temp);
+					if (!flag) {
+						Log.e("TaskAdapter ", "NotMarkedAs UnDone");
+					}
+
+					int pos1 = position;
+					int pos2 = pos_final;
+					notifyItemMoved(pos1, pos2);
+					TaskModel rem = task_data.remove(pos1);
+					task_data.add(pos2, rem);
+
+					for (int i = 0; i < getItemCount() - 1; i++) {
+						TaskModel M = getItem(i);
+						notifyItemChanged(i);
+
+					}
+					mRecyclerView.scrollToPosition(pos_final);
+				} catch (Exception E) {
+					Log.e(TAG, "markAsUndoneDialog");
+				} finally {
+					// Update adapter
+				}
+			}
+		};
+		DialogInterface.OnClickListener negListener = new DialogInterface.OnClickListener() {
+			@Override
+			public void onClick(DialogInterface dialog, int which) {
+				dialog.cancel();
+			}
+		};
+				Common.CustomDialog.set(mActivity, R.string.yes,
+				R.string.cancel, negListener, posListener,
+				R.string.mark_task_as_undone);
+	}
+
+	public AlertDialog.Builder getAlert() {
+		return Alert;
+	}
+
+	public View getToggleBtn() {
+		// TODO Auto-generated method stub
+		View view = toggle;
+		return view;
+	}
 }

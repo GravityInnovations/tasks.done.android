@@ -32,6 +32,7 @@
     <string name="action_delete">Delete</string>
     <string name="action_developer">Developers</string>
     <string name="action_share">Share</string>
+    <string name="action_demo">Demo</string>
     <string name="action_store">Get more apps</string>
     <string name="skip">Skip</string>
     <string name="auth">Authenticate</string>
@@ -77,7 +78,61 @@
     <string name="delete_message_confirm">Are you Sure you want to delete?</string>
     <string name="delete_message_task">Are you sure you want to delete this task?</string>
     <string name="delete_message_list">Are you sure you want to delete this tasklist?</string>
+    <string name="message_demo">For first time users it is recommended to follow this demo.\nIf you already know how to use this application, then proceed by pressing No button.</string>
+   
+    <string name="demo_start_instructions">1)It is advised to carefully read all the instructions.\n2)A new item will blink each time when a new set of instructions appear, those instructions are specifically for that blinking item\n3)Press the Next button when you are done reading the instructions.\n3)To start demo press Next</string>
+    <string name="demo_nav_toggle_instructions">Pressing the current blinking item will toggle list for you revealing some extra options.</string>
+    <string name="demo_press_nav_toggle">Press Next to see how toggle works when you will click on it</string>
+    
+    <string name="demo_list_create_instructions">1)Pressing the current blinking item will make a dialog appear.\n2)In that dialog,\n    a)you can give your list a title.\n    b)select a color.\n    c)select an icon.\n    d)pressing Save button will save that list.</string>
+    <string name="demo_list_create_demo">We have created a dummy list for you this time. Pressing Next will save this list for you.</string>
+    
+    <string name="demo_deletelist">This button will delete selected list.</string>
+    <string name="demo_editlist">This button will edit selected list.</string>
+    <string name="demo_sharelist">This button is used to share selected list.</string>
+    <string name="demo_watchshared">This button is used to watch the user with whom current list is shared with.</string>
+    <string name="demo_listTitle">This item shows the current list title and icon.</string>
+    <string name="demo_navToggle">This button is used to open side menu or navigation drawer.</string>
+    <string name="demo_syncedToggle">This icon changes when current list gets synced with server.</string>
+    <string name="demo_fab">This button is used to add a new task, let us add one task for you this time.</string>
+    
+    
+    <string name="demo_task_operation_details">When you click on the blinking item it will open a detailed dialog of selected task.</string>
+    <string name="demo_task_operation_toggle_instructions">1)By clicking the accept icon in the blinking item it will mark the task as complete.\n2) It is also possible to mark the task as incomplete by same method.\n2)click Next to see how it works.</string>
+    <string name="demo_task_operation_markedDone">You can see your task is now marked as done.</string>
+    <string name="demo_task_operation_doneToggle">When you click on the accept icon it will mark the task as done</string>
+    <string name="demo_task_operation_undoneToggle">When you click on the accept icon again it will mark the task as un done</string>
+    <string name="demo_task_operation_longClick">When you long click on the blinking item it shows a menu to edit, delete or view task</string>
+    
+ 
+    <string name="demo_dashboard_instructions">1)This is your Dashboard you will see all of your pending tasks from all of your lists here whenever you launch your app.\n2)There are some actions for fast navigation.\n3)Lets Explorer them.</string>
+    <string name="demo_dashboard_search">1)When you click on the above blinking item you can search your desired task.\n2)Let us perform a click for you.</string>
+    <string name="demo_dashboard_search_instructions">Just enter the title in above text field and you tasks will get filtered.</string>
+  
+    
+    <string name="demo_pressBlinkingItem">1)Press GOT IT.\n2)Then press the blinking item.</string>
+    
+
+    <string name="demo_end">This was the last demo.\nYou are now ready to use your application.\nYou are only one Next click away from using your application.</string>
+    
+    
+    
+    <string name="demo_clickDashboard">Click the blinking item.</string>
+  
+    
+    <string name="demo_title">It is important to give task a name otherwise it wont save.</string>
+    <string name="demo_details">If you have some details to put into the task then write details.</string>
+    <string name="demo_notes">1)If you have some notes to put into the task then write notes.\n2) You can see the accept mark on the top right side it is used to save task.\n3)We will click it for you this time</string>
+    <string name="demo_allDay">Time of notification is explicitly mentioned while setting notifications.</string>
+    <string name="demo_startDateTime">Start date and time of notifications.</string>
+    <string name="demo_endingDateTime">End date and time of notifications.</string>
+    <string name="demo_repeat">To define the repeatition interval of the notifications.</string>
+    <string name="demo_notifications">You can set upto five different notifications.</string>
+    <string name="mark_task_as_undone">Are you sure you want to mark this task as not done yet?</string>
     <string name="delete">Delete</string>
+    <string name="demo">Demo</string>
+    <string name="yes">Yes</string>
+    <string name="no">No</string>
     <string name="view">View</string>
     <string name="proceed">Continue</string>
     <string name="useoffline">Skip (use offline)</string>
@@ -106,17 +161,12 @@
     <string name="watch_a_video">Watch A Video</string>
     <string name="refer_friend">Refer A Friend</string>
     <string name="make_ad_free">Make task.done Ad Free</string>
+    <string name="app_demo">Start App Demo</string>
     <string name="dashboard">Dashboard</string>
     <string name="tasks_pending">Tasks pending</string>
     <string name="search_here">Search Here</string>
     <string name="list_name">List Name</string>
-     <string name="now">Now</string>
-    
-    
-    
-    
-   
-    
+    <string name="now">Now</string>
 
     <string-array name="array_weekdays">
         <item>Sunday</item>

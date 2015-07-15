@@ -33,6 +33,7 @@
                 android:layout_alignParentRight="true"
                 android:layout_alignParentTop="true"
                 android:layout_marginLeft="5dp"
+                android:layout_marginRight="10dp"
                 android:layout_marginStart="5dp" />
 
             <ImageButton
@@ -43,6 +44,7 @@
                 android:layout_alignParentTop="true"
                 android:background="@drawable/default_button_selector"
                 android:clickable="true"
+                android:layout_marginLeft="5dp"
                 android:src="@drawable/ic_menu_white_24dp" />
 
             <RelativeLayout

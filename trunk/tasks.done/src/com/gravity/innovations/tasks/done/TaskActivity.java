@@ -2,25 +2,26 @@ package com.gravity.innovations.tasks.done;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Calendar;
-import java.util.Currency;
-
+import java.util.List;
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.DatePickerDialog;
 import android.app.Dialog;
 import android.app.TimePickerDialog;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.res.Resources;
+import android.content.SharedPreferences;
+import android.content.SharedPreferences.Editor;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.ContactsContract;
 import android.support.v4.app.DialogFragment;
-import android.support.v4.view.MenuItemCompat;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBarActivity;
 import android.text.Editable;
@@ -36,6 +37,7 @@ import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemSelectedListener;
+import android.widget.Button;
 import android.widget.CalendarView;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
@@ -53,7 +55,10 @@ import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.TimePicker;
 
-public class TaskActivity extends ActionBarActivity implements OnClickListener {
+import com.gravity.innovations.tasks.done.DemoHelper.TaskActivityDemo;
+
+public class TaskActivity extends ActionBarActivity implements OnClickListener,
+		TaskActivityDemo {
 
 	private ActionBar mActionBar;
 	private TaskListModel list;
@@ -75,8 +80,7 @@ public class TaskActivity extends ActionBarActivity implements OnClickListener {
 	private ImageButton save, home;
 	private Calendar cal_starttime;
 	private Calendar cal_endtime;
-	private Calendar cal_repeatdate;// private Calendar
-									// cal_repdate;//<<<<<<<<<<new
+	private Calendar cal_repeatdate;
 	private Calendar mTime;
 	private TextView titleString_validate;
 	private String globalUriString = null;
@@ -89,21 +93,15 @@ public class TaskActivity extends ActionBarActivity implements OnClickListener {
 	private int textViewTag = 1;
 	private ArrayList<TextView> arrayList_TextView = new ArrayList<TextView>();
 	private String TAG = "TaskActivity";
-
+	
 	@Override
 	public void onBackPressed() {
-		// Intent intent = new Intent(this, MainActivity.class);
-		// setResult(RESULT_CANCELED, intent);
-		//
 		Intent intent = new Intent(this, MainActivity.class);
 		Serializable l = (Serializable) list;
 		intent.putExtra(Common.KEY_EXTRAS_LIST, l);
-
 		Serializable t = (Serializable) task;
 		intent.putExtra(Common.KEY_EXTRAS_TASK, t);
 		setResult(RESULT_CANCELED, intent);
-
-		//
 		finish();
 		Common.SoftKeyboard.hide(mActivity);
 		super.onBackPressed();
@@ -124,8 +122,7 @@ public class TaskActivity extends ActionBarActivity implements OnClickListener {
 		if (list != null)
 			mActionBar.setBackgroundDrawable(new ColorDrawable(Color
 					.parseColor(list.fragmentColor)));
-		// mActionBar.setTitle("Task Details");//
-		// //>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>???
+		// mActionBar.setTitle("Task Details");
 		mActionBar.setTitle(Html
 				.fromHtml("<font color='#ffffff'>Task Details</font>"));
 		getSupportActionBar().setHomeAsUpIndicator(
@@ -161,6 +158,7 @@ public class TaskActivity extends ActionBarActivity implements OnClickListener {
 		// as you specify a parent activity in AndroidManifest.xml.
 		int id = item.getItemId();
 		if (id == R.id.action_save) {
+
 			Intent intent = new Intent(this, MainActivity.class);
 			Serializable l = (Serializable) list;
 			intent.putExtra(Common.KEY_EXTRAS_LIST, l);
@@ -225,7 +223,7 @@ public class TaskActivity extends ActionBarActivity implements OnClickListener {
 			save.setOnClickListener(this);
 			home = (ImageButton) findViewById(R.id.home_ib);
 			home.setOnClickListener(this);
-			
+
 			Calendar cal_init = Calendar.getInstance();
 			cal_startdate = Calendar.getInstance();
 			cal_startdate.set(0, 0, 0, 0, 0, 0);
@@ -610,16 +608,22 @@ public class TaskActivity extends ActionBarActivity implements OnClickListener {
 
 		if (task._id != -1) {
 			try {
-				setRepeatTextView();
-				// initRemainingNotificaitonsModels();
+				tv_repeat
+						.setText(Common.RepeatAndNotification_StringConversions
+								.setRepeatTextView_LATEST(task));
 				setNotificationTextViews();
-				// mTime = getTime fromDB
 			} catch (Exception e) {
 				e.getLocalizedMessage();
 			}
 		} else if (task._id == -1) {
-			// initNotificaitonsMdoels();
 			mTime = Calendar.getInstance();
+		}
+		SharedPreferences prefs = mActivity.getSharedPreferences(
+				Common.PREFS_DEMO, Context.MODE_PRIVATE);
+		boolean demoFlag = prefs.getBoolean(
+				Common.PREFS_KEY_DEMO_TASK_ACTIVITY, false);
+		if (!demoFlag) {
+			demo1_title();
 		}
 	}
 
@@ -655,12 +659,7 @@ public class TaskActivity extends ActionBarActivity implements OnClickListener {
 			textView.setTextSize(17);
 			float scale = getResources().getDisplayMetrics().density;
 			int dpAsPixels = (int) (10 * scale + 0.5f);
-			// if (textViewTag == 3){
-			// textView.setPadding(0, dpAsPixels, 0, 0);
-			// }else{
-			textView.setPadding(0, dpAsPixels, 0, dpAsPixels); // original one
-			// }
-			// textView.setPadding(left, top, right, bottom)
+			textView.setPadding(0, dpAsPixels, 0, dpAsPixels);
 			textView.setTextColor(Color.parseColor("#757575"));// textColor
 			textView.setBackground(getResources().getDrawable(
 					android.R.color.transparent));
@@ -671,23 +670,21 @@ public class TaskActivity extends ActionBarActivity implements OnClickListener {
 				tv_notification1.setOnClickListener(editNotificationlistener);
 				if (task._id == -1) {
 					task.notifications.add(new TaskNotificationsModel());
-					// place oneth <<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+					// place oneth <<<<
 				}
 			} else if (textViewTag == 2) {
 				tv_notification2 = textView;
 				tv_notification2.setOnClickListener(editNotificationlistener);
 				if (task._id == -1) {
 					task.notifications.add(new TaskNotificationsModel());
-					// place second <<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+					// place second <<<<
 				}
 			} else if (textViewTag == 3) {
 				tv_notification3 = textView;
 				tv_notification3.setOnClickListener(editNotificationlistener);
 				if (task._id == -1) {
 					task.notifications.add(new TaskNotificationsModel());
-					// Common.GetNotificaitonModel.one_hrBefore());
-					// Tested here it works
-					// place thirds <<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+					// place thirds <<<<
 				}
 			}
 			textViewTag++;
@@ -697,10 +694,6 @@ public class TaskActivity extends ActionBarActivity implements OnClickListener {
 	}
 
 	private void resetNotificaionTextViews() {
-		/*
-		 * Remember to put a check here if(task.id==-1) otherwise it should do
-		 * something else
-		 */
 		// when ever switched is pressed it will reset the notifications
 		if (textViewTag == 2) {
 			tv_notification0.setText("Notifications");
@@ -746,7 +739,6 @@ public class TaskActivity extends ActionBarActivity implements OnClickListener {
 		tv_notification1.setOnClickListener(null);
 		tv_notification2.setOnClickListener(null);
 		tv_notification3.setOnClickListener(null);
-		// initNotificaitonsMdoels();
 	}
 
 	// Methods Related to Repeat
@@ -757,14 +749,14 @@ public class TaskActivity extends ActionBarActivity implements OnClickListener {
 		builder.setItems(list_items, new DialogInterface.OnClickListener() {
 			@Override
 			public void onClick(DialogInterface dialog, int which) {
-				setRepeatValues(which);
+				setRepeatModel(which);
 				// setUp values in db and TextViews
 			}
 		});
 		builder.show();
 	}
 
-	private void setRepeatValues(int which) {
+	private void setRepeatModel(int which) {
 		if (which == 0) {
 			tv_repeat.setText("Does not repeat");
 			Common.RepeatModel.DoesNotRepeat(task);
@@ -808,13 +800,12 @@ public class TaskActivity extends ActionBarActivity implements OnClickListener {
 					int position, long id) {
 				// view.setBackground(Common.Shapes.getCircularShape("#ff33b5e5"));
 				adapter.setSelection(position);
-
 			}
 		};
-
 		weekdaysGrid.setAdapter(adapter);
-		// weekdaysGrid.setChoiceMode(AbsListView.CHOICE_MODE_MULTIPLE_MODAL);
-		// weekdaysGrid.setMultiChoiceModeListener(listener2);
+		if (task._id == -1) {
+			adapter.setSelection(0);
+		}
 		weekdaysGrid.setOnItemClickListener(listener);
 
 		spinner_repeatInterval = (Spinner) dialogView
@@ -859,6 +850,9 @@ public class TaskActivity extends ActionBarActivity implements OnClickListener {
 							isWeekly = false;
 							isMonthly = false;
 							isYearly = false;
+							if (task._id != -1) {
+								task.rep_value = null;
+							}
 							tv_repeatIntervalUnit.setText("Day");
 						} else if (position == 1) {
 							// weekly
@@ -875,6 +869,9 @@ public class TaskActivity extends ActionBarActivity implements OnClickListener {
 							isWeekly = false;
 							isMonthly = true;
 							isYearly = false;
+							if (task._id != -1) {
+								task.rep_value = null;
+							}
 							tv_repeatIntervalUnit.setText("Month");
 						} else if (position == 3) {
 							// yearly
@@ -883,6 +880,9 @@ public class TaskActivity extends ActionBarActivity implements OnClickListener {
 							isWeekly = false;
 							isMonthly = false;
 							isYearly = true;
+							if (task._id != -1) {
+								task.rep_value = null;
+							}
 							tv_repeatIntervalUnit.setText("Year");
 						}
 					}
@@ -922,11 +922,8 @@ public class TaskActivity extends ActionBarActivity implements OnClickListener {
 							isForever = false;
 							isUntilADate = false;
 							isForFixedEvents = true;
-
 						}
-
 					}
-
 					public void onNothingSelected(AdapterView<?> parent) {
 
 					}
@@ -999,18 +996,16 @@ public class TaskActivity extends ActionBarActivity implements OnClickListener {
 								// tell this to user <unsupported>
 							}
 						}
-
 						// task.rep_startDateTime = Common.datetimeHelper
 						// .getDateInMs(start_datetime);
-
 					}
 				};
 				Common.CustomDialog.set(mActivity, calendar_dialog_view,
 						posListener, R.string.done);// *
 			}
 		};
-		// tv_setDate.setOnClickListener(dateListener);<<<<<<<<<<<<<<<<<<<<previous
-		// version
+		// tv_setDate.setOnClickListener(dateListener);<<<<<
+		//previous version
 		tv_setDate.setOnClickListener(this);
 
 		et_spinnerRepeat.addTextChangedListener(new TextWatcher() {
@@ -1025,7 +1020,6 @@ public class TaskActivity extends ActionBarActivity implements OnClickListener {
 				} else if (!(et_spinnerRepeat.getText().toString()).isEmpty()) {
 					int num = Integer.valueOf((et_spinnerRepeat.getText()
 							.toString()));
-
 					if (num == 0) {
 						tv_spinnerValue.setText("event");
 					} else if (num == 1) {
@@ -1033,7 +1027,6 @@ public class TaskActivity extends ActionBarActivity implements OnClickListener {
 					} else if (num > 1) {
 						tv_spinnerValue.setText("events");
 					}
-
 				}
 			}
 
@@ -1072,6 +1065,7 @@ public class TaskActivity extends ActionBarActivity implements OnClickListener {
 						|| (et_spinnerInterval.getText().toString()) == ""
 						|| (et_spinnerInterval.getText().toString()) == " ") {
 					tv_repeatIntervalUnit.setText(preset_singular);
+					et_spinnerInterval.setText("1");
 				} else if (!(et_spinnerInterval.getText().toString()).isEmpty()) {
 					int num = Integer.valueOf((et_spinnerInterval.getText()
 							.toString()));
@@ -1093,9 +1087,78 @@ public class TaskActivity extends ActionBarActivity implements OnClickListener {
 
 			@Override
 			public void afterTextChanged(Editable s) {
-
 			}
 		});
+		if (task._id != -1) {
+			et_spinnerInterval.setText(String.valueOf(task.rep_interval));
+			int intervalTypeSpinner_pos = 0;
+			if (task.rep_intervalType > 0) {
+				intervalTypeSpinner_pos = task.rep_intervalType - 1;
+			} else {
+				intervalTypeSpinner_pos = 0;
+			}
+			spinner_repeatInterval.setSelection(intervalTypeSpinner_pos, true);
+
+			String rValue = task.rep_value;
+			if (intervalTypeSpinner_pos == 1 && rValue != null) {
+				List<String> weekdaystList = Arrays.asList(rValue.split(","));
+				for (String string : weekdaystList) {
+					int pos_weekGrid = Integer.valueOf(string) - 1;
+					adapter.setSelection(pos_weekGrid);
+				}
+			}
+
+			if (task.rep_intervalExpiration == null
+					|| task.rep_intervalExpiration.isEmpty()) {
+				// forever
+				spinner_repeatTimes.setSelection(0);
+			} else {
+				// then its either a date or number of events
+				try {
+					int repeatVal = Integer
+							.parseInt(task.rep_intervalExpiration);
+					if (Integer.parseInt(task.rep_intervalExpiration) >= 1
+							&& Integer.parseInt(task.rep_intervalExpiration) <= 730) {
+						// its number of events
+						spinner_repeatTimes.setSelection(2);
+						et_spinnerRepeat.setText(task.rep_intervalExpiration);
+					}
+				} catch (Exception e) {
+					spinner_repeatTimes.setSelection(1);
+					Calendar cal = Calendar.getInstance();
+					cal.setTimeInMillis(Long
+							.valueOf(task.rep_intervalExpiration));
+					tv_setDate.setText(Common.datetimeHelper.getDate(cal));
+				}
+
+			}
+
+			/*
+			 * String expiration = task.rep_intervalExpiration; if (expiration
+			 * == null) { spinner_repeatTimes.setSelection(0); } else { try {
+			 * spinner_repeatTimes.setSelection(1); Calendar cal =
+			 * Calendar.getInstance(); cal.setTimeInMillis(Long
+			 * .valueOf(task.rep_intervalExpiration));
+			 * tv_setDate.setText(Common.datetimeHelper.getDate(cal)); } catch
+			 * (Exception e) { // if (Integer.valueOf(expiration) > 0 // &&
+			 * Integer.valueOf(expiration) <= 730) {
+			 * spinner_repeatTimes.setSelection(2);
+			 * et_spinnerRepeat.setText(expiration); // }
+			 * 
+			 * }
+			 * 
+			 * }
+			 */
+
+			// >>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+			// int intervalTimes_pos = 0;
+			// if (task.rep_intervalExpiration > 0) {
+			// intervalTimes_pos = intervalTimes_pos - 1;
+			// } else {
+			// intervalTimes_pos = 0;
+			// }
+			// spinner_repeatTimes.setSelection(intervalTimes_pos, true);
+		}
 
 		DialogInterface.OnClickListener posListener = new DialogInterface.OnClickListener() {
 			@Override
@@ -1108,24 +1171,24 @@ public class TaskActivity extends ActionBarActivity implements OnClickListener {
 							.getText().toString());
 					if (isForever) {
 						task.rep_intervalExpiration = null;
-						tv_repeat.setText("Repeat Daily "
+						tv_repeat.setText("Repeat every "
 								+ Integer.valueOf(et_spinnerInterval.getText()
-										.toString()) + " time/s");
+										.toString()) + " day/s");
 					} else if (isUntilADate) {
 						task.rep_intervalExpiration = String
 								.valueOf(cal_repeatdate.getTimeInMillis());
-						tv_repeat.setText("Repeat Daily "
+						tv_repeat.setText("Repeat every "
 								+ Integer.valueOf(et_spinnerInterval.getText()
 										.toString())
-								+ " time/s until "
+								+ " day/s until "
 								+ Common.datetimeHelper
 										.getDate_repeat(cal_repeatdate));
 					} else if (isForFixedEvents) {
 						task.rep_intervalExpiration = et_spinnerRepeat
 								.getText().toString();
-						tv_repeat.setText("Repeat Daily "
+						tv_repeat.setText("Repeat every "
 								+ Integer.valueOf(et_spinnerInterval.getText()
-										.toString()) + " time/s for "
+										.toString()) + " day/s for "
 								+ et_spinnerRepeat.getText().toString()
 								+ " events");
 					}
@@ -1173,17 +1236,17 @@ public class TaskActivity extends ActionBarActivity implements OnClickListener {
 					// getWeekDayArrayList();
 					if (isForever) {
 						task.rep_intervalExpiration = null;
-						tv_repeat.setText("Repeat Weekly "
+						tv_repeat.setText("Repeat every "
 								+ Integer.valueOf(et_spinnerInterval.getText()
-										.toString()) + " time/s on "
+										.toString()) + " week/s on "
 								+ weekdaysSelected/* getWeekDayArrayList() */);
 					} else if (isUntilADate) {
 						task.rep_intervalExpiration = String
 								.valueOf(cal_repeatdate.getTimeInMillis());
-						tv_repeat.setText("Repeat Weekly "
+						tv_repeat.setText("Repeat every "
 								+ Integer.valueOf(et_spinnerInterval.getText()
 										.toString())
-								+ " time/s until "
+								+ " week/s until "
 								+ Common.datetimeHelper
 										.getDate_repeat(cal_repeatdate)
 								+ " on " + weekdaysSelected /*
@@ -1193,9 +1256,9 @@ public class TaskActivity extends ActionBarActivity implements OnClickListener {
 					} else if (isForFixedEvents) {
 						task.rep_intervalExpiration = et_spinnerRepeat
 								.getText().toString();
-						tv_repeat.setText("Repeat Weekly "
+						tv_repeat.setText("Repeat every "
 								+ Integer.valueOf(et_spinnerInterval.getText()
-										.toString()) + " time/s for "
+										.toString()) + " week/s for "
 								+ et_spinnerRepeat.getText().toString()
 								+ " events on " + weekdaysSelected /*
 																	 * getWeekDayArrayList
@@ -1208,24 +1271,24 @@ public class TaskActivity extends ActionBarActivity implements OnClickListener {
 							.getText().toString());
 					if (isForever) {
 						task.rep_intervalExpiration = null;
-						tv_repeat.setText("Repeat Monthly "
+						tv_repeat.setText("Repeat every "
 								+ Integer.valueOf(et_spinnerInterval.getText()
-										.toString()) + " time/s");
+										.toString()) + " month/s");
 					} else if (isUntilADate) {
 						task.rep_intervalExpiration = String
 								.valueOf(cal_repeatdate.getTimeInMillis());
-						tv_repeat.setText("Repeat Monthly "
+						tv_repeat.setText("Repeat every "
 								+ Integer.valueOf(et_spinnerInterval.getText()
 										.toString())
-								+ " time/s until "
+								+ " month/s until "
 								+ Common.datetimeHelper
 										.getDate_repeat(cal_repeatdate));
 					} else if (isForFixedEvents) {
 						task.rep_intervalExpiration = et_spinnerRepeat
 								.getText().toString();
-						tv_repeat.setText("Repeat Monthly "
+						tv_repeat.setText("Repeat every "
 								+ Integer.valueOf(et_spinnerInterval.getText()
-										.toString()) + " time/s for "
+										.toString()) + " month/s for "
 								+ et_spinnerRepeat.getText().toString()
 								+ " events");
 					}
@@ -1235,24 +1298,24 @@ public class TaskActivity extends ActionBarActivity implements OnClickListener {
 							.getText().toString());
 					if (isForever) {
 						task.rep_intervalExpiration = null;
-						tv_repeat.setText("Repeat Yearly "
+						tv_repeat.setText("Repeat every "
 								+ Integer.valueOf(et_spinnerInterval.getText()
-										.toString()) + " time/s");
+										.toString()) + " year/s");
 					} else if (isUntilADate) {
 						task.rep_intervalExpiration = String
 								.valueOf(cal_repeatdate.getTimeInMillis());
-						tv_repeat.setText("Repeat Yearly "
+						tv_repeat.setText("Repeat every "
 								+ Integer.valueOf(et_spinnerInterval.getText()
 										.toString())
-								+ " time/s until "
+								+ " year/s until "
 								+ Common.datetimeHelper
 										.getDate_repeat(cal_repeatdate));
 					} else if (isForFixedEvents) {
 						task.rep_intervalExpiration = et_spinnerRepeat
 								.getText().toString();
-						tv_repeat.setText("Repeat Yearly "
+						tv_repeat.setText("Repeat every "
 								+ Integer.valueOf(et_spinnerInterval.getText()
-										.toString()) + " time/s for "
+										.toString()) + " year/s for "
 								+ et_spinnerRepeat.getText().toString()
 								+ " events");
 					}
@@ -1277,68 +1340,6 @@ public class TaskActivity extends ActionBarActivity implements OnClickListener {
 		cal_repeatdate = Calendar.getInstance();
 		cal_repeatdate.set(00, 00, 00, 00, 00);
 	}
-
-	// //////////////////////////////////////////
-	private void setRepeatTextView() {
-		// tv_repeat.setText(task.repetition.)
-		// based on combinations it should return some text and that text will
-		// be displayed at this text view
-		int interval = task.rep_interval;
-		// interval = number of days or weeks or months or years
-		int intervalType = task.rep_intervalType;
-		String type = null;
-		String stringToBeDisplayed = null;
-		if (interval == 0) {
-			stringToBeDisplayed = "Does not repeat";
-		} else if (interval > 0) {
-			if (intervalType == 1) {
-				// day or days
-				type = "daily";
-			} else if (intervalType == 2) {
-				// week or weeks
-				type = "weekly";
-			} else if (intervalType == 3) {
-				// monthly
-				type = "monthly";
-			} else if (intervalType == 4) {
-				// yearly
-				type = "yearly";
-			}
-			if (task.rep_intervalExpiration == null
-					|| task.rep_intervalExpiration.isEmpty()) {
-				// forever
-				if (intervalType == 2) {
-					stringToBeDisplayed = interval
-							+ " time/s "
-							+ type
-							+ " on "
-							+ Common.RepeatConversions
-									.getNamesOfDays(task.rep_value);
-				} else {
-					stringToBeDisplayed = interval + " time/s " + type;
-				}
-			} else if (task.rep_intervalExpiration != null
-					|| !(task.rep_intervalExpiration.isEmpty())) {
-				// then its either a date or number of events
-				if (Integer.parseInt(task.rep_intervalExpiration) >= 1
-						&& Integer.parseInt(task.rep_intervalExpiration) <= 730) {
-					// its number of events
-					String numberOfEvents = task.rep_intervalExpiration;
-					stringToBeDisplayed = interval + " time/s " + type
-							+ " for " + numberOfEvents + " events ";
-				} else {
-					// its a long date/ expire datenumberOfEvents
-					String date = task.rep_intervalExpiration;
-					stringToBeDisplayed = interval + " time/s " + type
-							+ " util " + date + " ";
-				}
-
-			}
-		}
-		tv_repeat.setText(stringToBeDisplayed);
-	}
-
-	// Methods Related to Repeat
 
 	// Methods Related to Notifications
 	private void listDialog_notifications(final int tag,
@@ -1454,6 +1455,7 @@ public class TaskActivity extends ActionBarActivity implements OnClickListener {
 				.findViewById(R.id.tv_time_picker);
 		final View line_timepicker = (View) view
 				.findViewById(R.id.line_time_picker);
+
 		if (task.allDay == 0) {
 			rg_TimeUnit.setVisibility(View.VISIBLE);
 			isMin = true;
@@ -1718,6 +1720,61 @@ public class TaskActivity extends ActionBarActivity implements OnClickListener {
 			}
 		});
 
+		if (task._id != -1) {
+			// setup two radio button and if is allDay then time as well
+
+			TaskNotificationsModel temp = task.notifications.get(tv_tag);
+			if (temp._id != -1) {
+				nTimes.setText(String.valueOf(temp.interval));
+
+				RadioButton radioBtn;
+				if (temp.send_as == 1) {
+					radioBtn = (RadioButton) rg_NotificationOrEmail
+							.findViewById(R.id.emails);
+					radioBtn.setChecked(true);
+				} else {
+					radioBtn = (RadioButton) rg_NotificationOrEmail
+							.findViewById(R.id.notifications);
+					radioBtn.setChecked(true);
+				}
+
+				if (task.allDay == 1) {
+					// setTime here
+					Calendar _cal = Calendar.getInstance();
+					_cal.setTimeInMillis(Long.valueOf(temp.interval_expiration));
+					tv_timepicker.setText(Common.datetimeHelper.getTime(_cal));
+
+					if (temp.interval == 2) {
+						radioBtn = (RadioButton) rg_TimeUnit_allDay
+								.findViewById(R.id.days_allDay);
+						radioBtn.setChecked(true);
+					} else {
+						radioBtn = (RadioButton) rg_TimeUnit_allDay
+								.findViewById(R.id.weeks_allDay);
+						radioBtn.setChecked(true);
+					}
+
+				} else {
+					if (temp.interval == 0) {
+						radioBtn = (RadioButton) rg_TimeUnit
+								.findViewById(R.id.minutes);
+						radioBtn.setChecked(true);
+					} else if (temp.interval == 1) {
+						radioBtn = (RadioButton) rg_TimeUnit
+								.findViewById(R.id.hours);
+						radioBtn.setChecked(true);
+					} else if (temp.interval == 2) {
+						radioBtn = (RadioButton) rg_TimeUnit
+								.findViewById(R.id.days);
+						radioBtn.setChecked(true);
+					} else {
+						radioBtn = (RadioButton) rg_TimeUnit
+								.findViewById(R.id.weeks);
+						radioBtn.setChecked(true);
+					}
+				}
+			}
+		}
 		DialogInterface.OnClickListener posListener = new DialogInterface.OnClickListener() {
 			@Override
 			public void onClick(DialogInterface dialog, int which) {
@@ -1770,6 +1827,7 @@ public class TaskActivity extends ActionBarActivity implements OnClickListener {
 
 				if (task._id == -1) {
 					task.notifications.set(tv_tag, model);
+					// <<<<<<<Watch it out
 				} else {
 					// task.notifications.add(tv_tag, temp);
 				}
@@ -1787,7 +1845,6 @@ public class TaskActivity extends ActionBarActivity implements OnClickListener {
 		// making and setting string part
 		String string_TVnotificaion = null;
 		String string_timeUnit = null;
-		String string_asEmail = " ";
 
 		if (model.interval_type == 1) {
 			string_timeUnit = "minute/s";
@@ -1799,11 +1856,29 @@ public class TaskActivity extends ActionBarActivity implements OnClickListener {
 			string_timeUnit = "week/s";
 		}
 		if (model.send_as == 1) {
-			string_asEmail = "as email";
-		}
+			if (model.interval_expiration != null) {
+				Calendar _cal = Calendar.getInstance();
+				_cal.setTimeInMillis(Long.valueOf(model.interval_expiration));
 
-		string_TVnotificaion = model.interval + " " + string_timeUnit + " "
-				+ string_asEmail;
+				string_TVnotificaion = model.interval + " " + string_timeUnit
+						+ " before, at " + Common.datetimeHelper.getTime(_cal)
+						+ " as email";
+
+			} else {
+				string_TVnotificaion = model.interval + " " + string_timeUnit
+						+ " before, as email";
+			}
+		} else {
+			if (model.interval_expiration != null) {
+				Calendar _cal = Calendar.getInstance();
+				_cal.setTimeInMillis(Long.valueOf(model.interval_expiration));
+				string_TVnotificaion = model.interval + " " + string_timeUnit
+						+ " before, at, " + Common.datetimeHelper.getTime(_cal);
+			} else {
+				string_TVnotificaion = model.interval + " " + string_timeUnit
+						+ " before";
+			}
+		}
 
 		TextView generic_TV = null;
 		if (tv_tag == 0) {
@@ -1837,9 +1912,13 @@ public class TaskActivity extends ActionBarActivity implements OnClickListener {
 				} else if (unitOfTime_type == 4) {
 					unitOfTime = " weeks/s ";
 				}
-				tv_notification0.setText(notificationModel.interval
-						+ unitOfTime + " before, as "
-						+ notificationModel.send_as);
+				if (task._id != -1 && notificationModel._id == -1) {
+					tv_notification0.setText("Notifications");
+				} else {
+					tv_notification0.setText(notificationModel.interval
+							+ unitOfTime + " before, as "
+							+ notificationModel.send_as);
+				}
 			}
 		} else if (listSize >= 2) {
 			int numberOfTextViewsToBeCreated = 0;
@@ -1877,46 +1956,177 @@ public class TaskActivity extends ActionBarActivity implements OnClickListener {
 				if (task.notifications.indexOf(notificationModel) == 0) {
 
 					if (notificationModel.send_as == 1) {
-						tv_notification0.setText(notificationModel.interval
-								+ unitOfTime + " before, as email");
+						if (notificationModel.interval_expiration != null) {
+
+							Calendar _cal = Calendar.getInstance();
+							_cal.setTimeInMillis(Long
+									.valueOf(notificationModel.interval_expiration));
+
+							tv_notification0.setText(notificationModel.interval
+									+ unitOfTime + " before, at "
+									+ Common.datetimeHelper.getTime(_cal)
+									+ ", as email");
+
+						} else {
+							tv_notification0.setText(notificationModel.interval
+									+ unitOfTime + " before, as email");
+						}
+
 					} else {
-						tv_notification0.setText(notificationModel.interval
-								+ unitOfTime + " before");
+						if (notificationModel.interval_expiration != null) {
+
+							Calendar _cal = Calendar.getInstance();
+							_cal.setTimeInMillis(Long
+									.valueOf(notificationModel.interval_expiration));
+
+							tv_notification0.setText(notificationModel.interval
+									+ unitOfTime + " before, at "
+									+ Common.datetimeHelper.getTime(_cal));
+						} else {
+
+							tv_notification0.setText(notificationModel.interval
+									+ unitOfTime + " before");
+						}
 					}
 
 				} else if (task.notifications.indexOf(notificationModel) == 1) {
 					if (notificationModel.send_as == 1) {
-						tv_notification1.setText(notificationModel.interval
-								+ unitOfTime + " before, as email");
+
+						if (notificationModel.interval_expiration != null) {
+
+							Calendar _cal = Calendar.getInstance();
+							_cal.setTimeInMillis(Long
+									.valueOf(notificationModel.interval_expiration));
+							tv_notification1.setText(notificationModel.interval
+									+ unitOfTime + " before, at "
+									+ Common.datetimeHelper.getTime(_cal)
+									+ ", as email");
+						} else {
+							tv_notification1.setText(notificationModel.interval
+									+ unitOfTime + " before, as email");
+						}
+
 					} else {
-						tv_notification1.setText(notificationModel.interval
-								+ unitOfTime + " before");
+
+						if (notificationModel.interval_expiration != null) {
+
+							Calendar _cal = Calendar.getInstance();
+							_cal.setTimeInMillis(Long
+									.valueOf(notificationModel.interval_expiration));
+							tv_notification1.setText(notificationModel.interval
+									+ unitOfTime + " before, at "
+									+ Common.datetimeHelper.getTime(_cal));
+						} else {
+							tv_notification1.setText(notificationModel.interval
+									+ unitOfTime + " before");
+						}
+
 					}
 				} else if (task.notifications.indexOf(notificationModel) == 2) {
 					if (notificationModel.send_as == 1) {
-						tv_notification2.setText(notificationModel.interval
-								+ unitOfTime + " before, as email");
+
+						if (notificationModel.interval_expiration != null) {
+
+							Calendar _cal = Calendar.getInstance();
+							_cal.setTimeInMillis(Long
+									.valueOf(notificationModel.interval_expiration));
+
+							tv_notification2.setText(notificationModel.interval
+									+ unitOfTime + " before, at "
+									+ Common.datetimeHelper.getTime(_cal)
+									+ ", as email");
+
+						} else {
+							tv_notification2.setText(notificationModel.interval
+									+ unitOfTime + " before, as email");
+						}
 					} else {
-						tv_notification2.setText(notificationModel.interval
-								+ unitOfTime + " before");
+
+						if (notificationModel.interval_expiration != null) {
+
+							Calendar _cal = Calendar.getInstance();
+							_cal.setTimeInMillis(Long
+									.valueOf(notificationModel.interval_expiration));
+							tv_notification2.setText(notificationModel.interval
+									+ unitOfTime + " before, at "
+									+ Common.datetimeHelper.getTime(_cal));
+						} else {
+							tv_notification2.setText(notificationModel.interval
+									+ unitOfTime + " before");
+						}
 					}
 				} else if (task.notifications.indexOf(notificationModel) == 3) {
 					if (notificationModel.send_as == 1) {
-						tv_notification3.setText(notificationModel.interval
-								+ unitOfTime + " before, as email");
+
+						if (notificationModel.interval_expiration != null) {
+
+							Calendar _cal = Calendar.getInstance();
+							_cal.setTimeInMillis(Long
+									.valueOf(notificationModel.interval_expiration));
+							tv_notification3.setText(notificationModel.interval
+									+ unitOfTime + " before, at "
+									+ Common.datetimeHelper.getTime(_cal)
+									+ ", as email");
+
+						} else {
+							tv_notification3.setText(notificationModel.interval
+									+ unitOfTime + " before, as email");
+						}
+
 					} else {
-						tv_notification3.setText(notificationModel.interval
-								+ unitOfTime + " before");
+						if (notificationModel.interval_expiration != null) {
+
+							Calendar _cal = Calendar.getInstance();
+							_cal.setTimeInMillis(Long
+									.valueOf(notificationModel.interval_expiration));
+							tv_notification3.setText(notificationModel.interval
+									+ unitOfTime + " before, at "
+									+ Common.datetimeHelper.getTime(_cal));
+						} else {
+							tv_notification3.setText(notificationModel.interval
+									+ unitOfTime + " before");
+						}
 					}
 				} else if (task.notifications.indexOf(notificationModel) == 4) {
 					if (notificationModel.send_as == 1) {
-						tv_notification_addAnother
-								.setText(notificationModel.interval
-										+ unitOfTime + " before, as email");
+
+						if (notificationModel.interval_expiration != null) {
+
+							Calendar _cal = Calendar.getInstance();
+							_cal.setTimeInMillis(Long
+									.valueOf(notificationModel.interval_expiration));
+							tv_notification_addAnother
+									.setText(notificationModel.interval
+											+ unitOfTime
+											+ " before, at "
+											+ Common.datetimeHelper
+													.getTime(_cal)
+											+ " , as email");
+						} else {
+
+							tv_notification_addAnother
+									.setText(notificationModel.interval
+											+ unitOfTime + " before, as email");
+						}
 					} else {
-						tv_notification_addAnother
-								.setText(notificationModel.interval
-										+ unitOfTime + " before");
+						if (notificationModel.interval_expiration != null) {
+
+							Calendar _cal = Calendar.getInstance();
+							_cal.setTimeInMillis(Long
+									.valueOf(notificationModel.interval_expiration));
+
+							tv_notification_addAnother
+									.setText(notificationModel.interval
+											+ unitOfTime
+											+ " before, at "
+											+ Common.datetimeHelper
+													.getTime(_cal));
+
+						} else {
+							tv_notification_addAnother
+									.setText(notificationModel.interval
+											+ unitOfTime + " before");
+						}
 					}
 				}
 			}
@@ -2115,6 +2325,13 @@ public class TaskActivity extends ActionBarActivity implements OnClickListener {
 			newFragment.show(getSupportFragmentManager(), "datePicker");
 
 		} else if (v == save) {
+
+			// SharedPreferences sharedPref = getActivity().getPreferences(
+			// Context.MODE_PRIVATE);
+			// SharedPreferences.Editor editor = sharedPref.edit();
+			// editor.putInt(getString(R.string.saved_high_score),
+			// newHighScore);
+			// editor.commit();
 			Intent intent = new Intent(TaskActivity.this, MainActivity.class);
 			Serializable l = (Serializable) list;
 			intent.putExtra(Common.KEY_EXTRAS_LIST, l);
@@ -2150,5 +2367,238 @@ public class TaskActivity extends ActionBarActivity implements OnClickListener {
 			onBackPressed();
 		}
 
+	}
+
+	@SuppressLint("NewApi")
+	@Override
+	public void demo1_title() {
+		// TODO Auto-generated method stub
+		final Dialog dialog = new Dialog(mActivity,
+				android.R.style.Theme_Translucent_NoTitleBar);
+
+		// activityLayout.setAlpha((float) 0.5);
+
+		dialog.setContentView(R.layout.dialog_demo_overlay);
+
+		TextView instructions = (TextView) dialog
+				.findViewById(R.id.instructions);
+		instructions.setText(R.string.demo_title);
+
+		title.startAnimation(Common.Demo.getInfiniteDemoAnim());
+
+		Button btn = (Button) dialog.findViewById(R.id.got_it);
+
+		btn.setOnClickListener(new View.OnClickListener() {
+			@Override
+			public void onClick(final View view) {
+				title.clearAnimation();
+				dialog.dismiss();
+				demo2_details();
+			}
+		});
+		dialog.show();
+	}
+
+	@Override
+	public void demo2_details() {
+		// TODO Auto-generated method stub
+		final Dialog dialog = new Dialog(mActivity,
+				android.R.style.Theme_Translucent_NoTitleBar);
+
+		dialog.setContentView(R.layout.dialog_demo_overlay);
+
+		TextView instructions = (TextView) dialog
+				.findViewById(R.id.instructions);
+		instructions.setText(R.string.demo_details);
+
+		details.startAnimation(Common.Demo.getInfiniteDemoAnim());
+
+		Button btn = (Button) dialog.findViewById(R.id.got_it);
+
+		btn.setOnClickListener(new View.OnClickListener() {
+			@Override
+			public void onClick(final View view) {
+				details.clearAnimation();
+				dialog.dismiss();
+				demo3_allDay();
+			}
+		});
+		dialog.show();
+	}
+
+	@Override
+	public void demo3_allDay() {
+		// TODO Auto-generated method stub
+		final Dialog dialog = new Dialog(mActivity,
+				android.R.style.Theme_Translucent_NoTitleBar);
+
+		dialog.setContentView(R.layout.dialog_demo_overlay);
+
+		TextView instructions = (TextView) dialog
+				.findViewById(R.id.instructions);
+		instructions.setText(R.string.demo_allDay);
+
+		isAllDay.startAnimation(Common.Demo.getInfiniteDemoAnim());
+
+		Button btn = (Button) dialog.findViewById(R.id.got_it);
+
+		btn.setOnClickListener(new View.OnClickListener() {
+			@Override
+			public void onClick(final View view) {
+				isAllDay.clearAnimation();
+				dialog.dismiss();
+				demo4_startDateTime();
+			}
+		});
+		dialog.show();
+	}
+
+	@Override
+	public void demo4_startDateTime() {
+		// TODO Auto-generated method stub
+		final Dialog dialog = new Dialog(mActivity,
+				android.R.style.Theme_Translucent_NoTitleBar);
+
+		dialog.setContentView(R.layout.dialog_demo_overlay);
+
+		TextView instructions = (TextView) dialog
+				.findViewById(R.id.instructions);
+		instructions.setText(R.string.demo_startDateTime);
+
+		time_start.startAnimation(Common.Demo.getInfiniteDemoAnim());
+		date_start.startAnimation(Common.Demo.getInfiniteDemoAnim());
+		Button btn = (Button) dialog.findViewById(R.id.got_it);
+
+		btn.setOnClickListener(new View.OnClickListener() {
+			@Override
+			public void onClick(final View view) {
+				time_start.clearAnimation();
+				date_start.clearAnimation();
+				dialog.dismiss();
+				demo5_endDateTime();
+			}
+		});
+		dialog.show();
+	}
+
+	@Override
+	public void demo5_endDateTime() {
+		// TODO Auto-generated method stub
+		final Dialog dialog = new Dialog(mActivity,
+				android.R.style.Theme_Translucent_NoTitleBar);
+
+		dialog.setContentView(R.layout.dialog_demo_overlay);
+
+		TextView instructions = (TextView) dialog
+				.findViewById(R.id.instructions);
+		instructions.setText(R.string.demo_endingDateTime);
+
+		time_end.startAnimation(Common.Demo.getInfiniteDemoAnim());
+		date_end.startAnimation(Common.Demo.getInfiniteDemoAnim());
+		Button btn = (Button) dialog.findViewById(R.id.got_it);
+
+		btn.setOnClickListener(new View.OnClickListener() {
+			@Override
+			public void onClick(final View view) {
+				time_end.clearAnimation();
+				date_end.clearAnimation();
+				dialog.dismiss();
+				demo6_repeat();
+			}
+		});
+		dialog.show();
+	}
+
+	@Override
+	public void demo6_repeat() {
+		// TODO Auto-generated method stub
+		final Dialog dialog = new Dialog(mActivity,
+				android.R.style.Theme_Translucent_NoTitleBar);
+
+		dialog.setContentView(R.layout.dialog_demo_overlay);
+
+		TextView instructions = (TextView) dialog
+				.findViewById(R.id.instructions);
+		instructions.setText(R.string.demo_repeat);
+
+		tv_repeat.startAnimation(Common.Demo.getInfiniteDemoAnim());
+
+		Button btn = (Button) dialog.findViewById(R.id.got_it);
+
+		btn.setOnClickListener(new View.OnClickListener() {
+			@Override
+			public void onClick(final View view) {
+				tv_repeat.clearAnimation();
+				dialog.dismiss();
+				demo7_notification();
+			}
+		});
+		dialog.show();
+	}
+
+	@Override
+	public void demo7_notification() {
+		// TODO Auto-generated method stub
+		final Dialog dialog = new Dialog(mActivity,
+				android.R.style.Theme_Translucent_NoTitleBar);
+
+		dialog.setContentView(R.layout.dialog_demo_overlay);
+
+		TextView instructions = (TextView) dialog
+				.findViewById(R.id.instructions);
+		instructions.setText(R.string.demo_notifications);
+
+		tv_notification0.startAnimation(Common.Demo.getInfiniteDemoAnim());
+		tv_notification_addAnother.startAnimation(Common.Demo
+				.getDemoAnimation());
+		Button btn = (Button) dialog.findViewById(R.id.got_it);
+
+		btn.setOnClickListener(new View.OnClickListener() {
+			@Override
+			public void onClick(final View view) {
+				tv_notification0.clearAnimation();
+				tv_notification_addAnother.clearAnimation();
+				dialog.dismiss();
+				demo8_notes();
+			}
+		});
+		dialog.show();
+	}
+
+	@Override
+	public void demo8_notes() {
+		// TODO Auto-generated method stub
+		final Dialog dialog = new Dialog(mActivity,
+				android.R.style.Theme_Translucent_NoTitleBar);
+
+		dialog.setContentView(R.layout.dialog_demo_overlay);
+
+		TextView instructions = (TextView) dialog
+				.findViewById(R.id.instructions);
+		instructions.setText(R.string.demo_notes);
+		home.setVisibility(View.GONE);
+		notes.startAnimation(Common.Demo.getInfiniteDemoAnim());
+
+		Button btn = (Button) dialog.findViewById(R.id.got_it);
+
+		btn.setOnClickListener(new View.OnClickListener() {
+			@Override
+			public void onClick(final View view) {
+				notes.clearAnimation();
+				dialog.dismiss();
+				// dismiss save btn here
+				title.setText("Meeting with John Doe at 5");
+				Common.flag_demoTaskOp = true;
+				save.performClick();
+				// Common.flag_demoTaskOp = true;
+				SharedPreferences settings = mActivity.getSharedPreferences(
+						Common.PREFS_DEMO, Context.MODE_PRIVATE);
+				Editor editor = settings.edit();
+				editor.putBoolean(Common.PREFS_KEY_DEMO_TASK_ACTIVITY, true);
+				editor.commit();
+
+			}
+		});
+		dialog.show();
 	}
 }

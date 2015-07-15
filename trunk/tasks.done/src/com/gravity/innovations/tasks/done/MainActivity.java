@@ -9,12 +9,15 @@ import android.accounts.Account;
 import android.accounts.AccountManager;
 import android.annotation.SuppressLint;
 import android.app.Activity;
+import android.app.Dialog;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.DialogInterface.OnClickListener;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.SharedPreferences;
+import android.content.SharedPreferences.Editor;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -32,19 +35,21 @@ import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
+import android.widget.TextView;
 import android.widget.Toast;
-
 import com.google.android.gms.ads.AdListener;
 import com.google.android.gms.ads.AdRequest;
 import com.google.android.gms.ads.AdView;
 import com.gravity.innovations.tasks.done.Common.Callbacks.ServiceCallback;
+import com.gravity.innovations.tasks.done.DemoHelper.StartDemo;
 
 public class MainActivity extends ActionBarActivity implements
 		NavigationDrawerFragment.NavigationDrawerCallbacks,
 		Common.Callbacks.HttpCallback, Common.Callbacks.TimeCallBack,
-		ServiceCallback
+		ServiceCallback, StartDemo
 /* , Common.Callbacks.SplashActivityCallback */{
 
 	/**
@@ -63,6 +68,7 @@ public class MainActivity extends ActionBarActivity implements
 	ProgressBar mProgressBar;
 	ProgressDialog mProgressDialog;
 	Common.userData user_data;
+	private String TAG = "MainActivity";
 	/**
 	 * Used to store the last screen title. For use in
 	 * {@link #restoreActionBar()}.
@@ -75,6 +81,7 @@ public class MainActivity extends ActionBarActivity implements
 	private int mUserActionBarColor;
 	private Button btn_share;
 	private TimeReciever mTimeReciever;
+	protected ImageButton _optionToggle;
 	private static final String PREF_USER_ACTION_BAR_COLOR = "actionbar_color";
 
 	@Override
@@ -195,11 +202,13 @@ public class MainActivity extends ActionBarActivity implements
 		if (extra != null) {
 			listID = i.getIntExtra(Common.KEY_EXTRAS_LIST_ID, -1);
 			taskID = i.getIntExtra(Common.KEY_EXTRAS_TASK_ID, -1);
-			notification_ID = i.getIntExtra(Common.KEY_EXTRAS_NOTIFICATION_ID_COMPARING, -1);
+			notification_ID = i.getIntExtra(
+					Common.KEY_EXTRAS_NOTIFICATION_ID_COMPARING, -1);
 			actionID = i.getIntExtra(
 					Common.KEY_EXTRAS_NOTIFICATION_ACTION_TYPE, -1);
-			//Common.Notification.cancel(i.getIntExtra(Common.KEY_EXTRAS_NOTIFICATION_ID, -1), mContext);
-			//autoCancel notification property was not working
+			// Common.Notification.cancel(i.getIntExtra(Common.KEY_EXTRAS_NOTIFICATION_ID,
+			// -1), mContext);
+			// autoCancel notification property was not working
 			if (actionID != -1) {
 				Intent intent = new Intent("CUSTOM_NOTIFICATION_INTENT");
 				intent.setAction(Common.KEY_INTENT_NOTIFICATION_SET_ACTION);
@@ -241,7 +250,7 @@ public class MainActivity extends ActionBarActivity implements
 				switch (event.getAction()) {
 				case MotionEvent.ACTION_DOWN:
 					try {
-						Common.SoftKeyboard.show(mImageView, MainActivity.this );
+						Common.SoftKeyboard.show(mImageView, MainActivity.this);
 					} catch (Exception e) {
 						Log.e("Error MA onCreate", "Error");
 					}
@@ -255,21 +264,79 @@ public class MainActivity extends ActionBarActivity implements
 
 	}
 
+	private void demoDialog() {
+		DialogInterface.OnClickListener negListener = new OnClickListener() {
+
+			@Override
+			public void onClick(DialogInterface dialog, int which) {
+				// TODO Auto-generated method stub
+				SharedPreferences settings = getSharedPreferences(
+						Common.PREFS_DEMO, MODE_PRIVATE);
+				Editor editor = settings.edit();
+				editor.putBoolean(Common.PREFS_KEY_DEMO_DIALOG, true); 
+				editor.putBoolean(Common.PREFS_KEY_DEMO_CREATE_LIST_INSTRUCTIONS, true);
+				editor.putBoolean(Common.PREFS_KEY_DEMO_TASKLIST_FRAG, true);
+				editor.putBoolean(Common.PREFS_KEY_DEMO_TASK_ACTIVITY, true);
+				editor.putBoolean(Common.PREFS_KEY_DEMO_TASK_OPERATIONS, true);
+				editor.putBoolean(Common.PREFS_KEY_DEMO_SKIP_TASK_OPERATIONS, true);
+				editor.putBoolean(Common.PREFS_KEY_DEMO_DASHBOARD, true);
+				editor.putBoolean(Common.PREFS_KEY_DEMO_CREATEALIST, true);
+				editor.commit();
+
+			}
+		};
+		DialogInterface.OnClickListener posListener = new OnClickListener() {
+
+			@Override
+			public void onClick(DialogInterface dialog, int which) {
+				// TODO Auto-generated method stub
+				try {
+					mNavigationDrawerFragment.openNavigationDrawer(-1);
+					ImageButton optnToggle = (ImageButton) findViewById(R.id.options_toggle);
+					_optionToggle = optnToggle;
+					startInstructionsDemo(optnToggle);
+
+					SharedPreferences settings = getSharedPreferences(
+							Common.PREFS_DEMO, MODE_PRIVATE);
+					Editor editor = settings.edit();
+					editor.putBoolean(Common.PREFS_KEY_DEMO_DIALOG, true);
+					editor.commit();
+				} catch (Exception e) {
+					// TODO: handle exception
+					Log.e(TAG, "demoDialog");
+				}
+			}
+		};
+		Common.CustomDialog.set(mContext, R.string.yes, R.string.no,
+				negListener, posListener, R.string.message_demo);
+	}
+
+	public ImageButton getToggleButton() {
+		return _optionToggle;
+	}
+
 	@SuppressLint("NewApi")
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		mContext = this;
-		 //getActionBar().hide();//***************
+		SharedPreferences prefs = this.getSharedPreferences(Common.PREFS_DEMO,
+				Context.MODE_PRIVATE);
+		Boolean demoFlag = prefs
+				.getBoolean(Common.PREFS_KEY_DEMO_DIALOG, false);
+		if (!demoFlag) {
+			demoDialog();
+		}
+		// getActionBar().hide();//***************
 		setContentView(R.layout.activity_main);
 		restoreActionBar();
-		//getActionBar().hide();
+		// getActionBar().hide();
 		service = ((TheApp) getApplicationContext()).getService();// mBinder.getService();
 		if (service != null) {
 			service.onActivityOpen(this, this);
 			service.addProgressTask("Main Application opened");
-			if (CurrentList._id == -1){
-			startActions();
+			if (CurrentList._id == -1) {
+				startActions();
 			}
 		} else {
 			AsyncTask<Void, Void, Void> t = new AsyncTask<Void, Void, Void>() {
@@ -291,7 +358,6 @@ public class MainActivity extends ActionBarActivity implements
 			};
 			t.execute();
 		}
-
 	}
 
 	public void displayAds() {
@@ -363,7 +429,7 @@ public class MainActivity extends ActionBarActivity implements
 						.getSerializableExtra(Common.KEY_EXTRAS_TASK);
 				mNavigationDrawerFragment.updateTask(list, task);
 			} else if (arg1 == RESULT_CANCELED) {
-				//onDashboardSelected();
+				// onDashboardSelected();
 				Bundle mBundle = intent.getExtras();
 				TaskListModel list = (TaskListModel) intent
 						.getSerializableExtra(Common.KEY_EXTRAS_LIST);
@@ -371,7 +437,7 @@ public class MainActivity extends ActionBarActivity implements
 						.getSerializableExtra(Common.KEY_EXTRAS_TASK);
 				CurrentList = list;
 				onNavigationDrawerItemSelected(list, task._id);
- 			}
+			}
 		}
 	}
 
@@ -387,7 +453,8 @@ public class MainActivity extends ActionBarActivity implements
 					try {
 						onDashboardSelected();
 					} catch (Exception e) {
-						Log.e("MainActivity", "onNavigationDrawerItemSelected:onDashboard");
+						Log.e("MainActivity",
+								"onNavigationDrawerItemSelected:onDashboard");
 					}
 					mNavigationDrawerFragment.openNavigationDrawer(id);
 				} else {
@@ -448,11 +515,9 @@ public class MainActivity extends ActionBarActivity implements
 		actionBar.setDisplayShowTitleEnabled(true);
 		// actionBar.setTitle(mTitle);
 		actionBar.setTitle(CurrentList.title);
-		try{
-		actionBar.hide();
-		}
-		catch(Exception e)
-		{
+		try {
+			actionBar.hide();
+		} catch (Exception e) {
 			Log.e("MainActivity", "restoreActionBar");
 		}
 		/***********/
@@ -487,12 +552,41 @@ public class MainActivity extends ActionBarActivity implements
 		if (id == R.id.action_settings) {
 			Intent i = new Intent(MainActivity.this, SettingsActivity.class);
 			startActivity(i);
+		} else if (id == R.id.action_demo) {
+			// reset Allprefs
+			// and call dialog
+			SharedPreferences settings = mContext.getSharedPreferences(
+					Common.PREFS_DEMO, Context.MODE_PRIVATE);
+			Editor editor = settings.edit();
+			
+			editor.putBoolean(Common.PREFS_KEY_DEMO_DIALOG, false);
+			editor.putBoolean(Common.PREFS_KEY_DEMO_CREATE_LIST_INSTRUCTIONS, false);
+			editor.putBoolean(Common.PREFS_KEY_DEMO_TASKLIST_FRAG, false);
+			editor.putBoolean(Common.PREFS_KEY_DEMO_TASK_ACTIVITY, false);
+			editor.putBoolean(Common.PREFS_KEY_DEMO_TASK_OPERATIONS, false);
+			editor.putBoolean(Common.PREFS_KEY_DEMO_SKIP_TASK_OPERATIONS, false);
+			editor.putBoolean(Common.PREFS_KEY_DEMO_DASHBOARD, false);
+			editor.putBoolean(Common.PREFS_KEY_DEMO_CREATEALIST, false);
+			editor.commit();
+			Common.flag_demoTaskOp = false;
+			Common.flag_demoDashboard = false;
+			demoDialog();
 		} else if (id == R.id.action_dashboard) {
 			onDashboardSelected();
 		} else if (id == R.id.action_refer_friend) {
-			mNavigationDrawerFragment.referAFriend(/* service.user_data._id */1234567890);
+			mNavigationDrawerFragment
+					.referAFriend(/* service.user_data._id */1234567890);
 		} else if (id == R.id.action_add) {
-			mNavigationDrawerFragment.addOrEditTaskList(new TaskListModel());
+			SharedPreferences prefs = this.getSharedPreferences(
+					Common.PREFS_DEMO, Context.MODE_PRIVATE);
+			Boolean demoFlag = prefs.getBoolean(
+					Common.PREFS_KEY_DEMO_CREATEALIST, false);
+			if (!demoFlag) {
+				mNavigationDrawerFragment.newCatagoryDemo();
+			} else {
+				mNavigationDrawerFragment
+						.addOrEditTaskList(new TaskListModel());
+			}
 		} else if (id == R.id.action_delete) {
 			mNavigationDrawerFragment.deleteTaskList(CurrentList);
 		} else if (id == R.id.action_edit) {
@@ -507,14 +601,13 @@ public class MainActivity extends ActionBarActivity implements
 			// ZZ**ZZ mNavigationDrawerFragment.addOrEditTask(CurrentList, new
 			// TaskModel());
 		} else if (id == R.id.action_share) {
-			listof_nameEmailPic(); // for calling list of users
+			shareList_UNUSED(); // for calling list of users
 		}
-
 	}
 
 	ArrayList<UserModel> users;
 
-	public void listof_nameEmailPic() {
+	public void shareList_UNUSED() {
 		DatabaseHelper h = new DatabaseHelper(mContext);
 
 		users = new ArrayList<UserModel>();
@@ -720,7 +813,90 @@ public class MainActivity extends ActionBarActivity implements
 	@Override
 	public void startResultActivity(Intent intent, int RequestCode) {
 		// TODO Auto-generated method stub
-
 	}
 
+	@Override
+	public void startInstructionsDemo(final View _view) {
+
+		final Dialog dialog = new Dialog(mContext,
+				android.R.style.Theme_Translucent_NoTitleBar);
+		dialog.setContentView(R.layout.dialog_demo_overlay);
+
+		TextView instructions = (TextView) dialog
+				.findViewById(R.id.instructions);
+		instructions.setText(R.string.demo_start_instructions);
+
+		Button next = (Button) dialog.findViewById(R.id.got_it);
+
+		next.setOnClickListener(new View.OnClickListener() {
+			@Override
+			public void onClick(final View view) {
+				navToggleInstructions(_view);
+				dialog.dismiss();
+			}
+		});
+		dialog.show();
+	}
+
+	@Override
+	public void navToggleInstructions(final View _view) {
+
+		final Dialog dialog = new Dialog(mContext,
+				android.R.style.Theme_Translucent_NoTitleBar);
+		dialog.setContentView(R.layout.dialog_demo_overlay);
+
+		TextView instructions = (TextView) dialog
+				.findViewById(R.id.instructions);
+		instructions.setText(R.string.demo_nav_toggle_instructions);
+
+		_view.startAnimation(Common.Demo.getInfiniteDemoAnim());
+
+		Button btn = (Button) dialog.findViewById(R.id.got_it);
+
+		btn.setOnClickListener(new View.OnClickListener() {
+			@Override
+			public void onClick(final View view) {
+				_view.clearAnimation();
+				navToggleDemo(_view);
+				dialog.dismiss();
+			}
+		});
+
+		dialog.show();
+	}
+
+	@Override
+	public void navToggleDemo(final View _view) {
+
+		final Dialog dialog = new Dialog(mContext,
+				android.R.style.Theme_Translucent_NoTitleBar);
+		dialog.setContentView(R.layout.dialog_demo_overlay);
+		
+		TextView instructions = (TextView) dialog
+				.findViewById(R.id.instructions);
+		instructions
+				.setText(R.string.demo_press_nav_toggle);
+
+		Button btn = (Button) dialog.findViewById(R.id.got_it);
+
+		btn.setOnClickListener(new View.OnClickListener() {
+			@Override
+			public void onClick(final View view) {
+				dialog.dismiss();
+				_view.performClick();
+			}
+		});
+
+		dialog.show();
+	}
+
+	@Override
+	public void newCatagoryInstructionsDemo(CustomIconListAdapter adapter) {
+		// NDF
+	}
+
+	@Override
+	public void newCatagoryDemo() {
+		// NDF
+	}
 }
